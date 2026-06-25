@@ -56,22 +56,26 @@ void SocketPool::open()
     }
 
     m_dispatchEventsThreadTerminated = false;
-    m_dispatchEventsThread = make_shared<jthread>(
-        [this]
-        {
-            Buffer eventsBuffer;
-            while (true)
+    m_dispatchEventsThreads.resize(m_dispatchThreadCount);
+    for (auto& thread: m_dispatchEventsThreads)
+    {
+        thread = make_shared<jthread>(
+            [this]
             {
-                if (m_dispatchEventsQueue.pop_front(eventsBuffer, 100ms))
+                Buffer eventsBuffer;
+                while (true)
                 {
-                    dispatchEvents(eventsBuffer);
+                    if (m_dispatchEventsQueue.pop_front(eventsBuffer, 100ms))
+                    {
+                        dispatchEvents(eventsBuffer);
+                    }
+                    else if (m_dispatchEventsThreadTerminated)
+                    {
+                        break;
+                    }
                 }
-                else if (m_dispatchEventsThreadTerminated)
-                {
-                    break;
-                }
-            }
-        });
+            });
+    }
 }
 
 void SocketPool::close()
@@ -89,6 +93,8 @@ void SocketPool::close()
 #endif
         m_pool = INVALID_EPOLL;
     }
+
+    m_dispatchEventsThreads.clear();
 }
 
 void SocketPool::addSocket(const SocketType socketFd, const uint8_t* userData, const bool rearmOneShot) const
@@ -147,7 +153,14 @@ bool SocketPool::waitForEvents(const chrono::milliseconds& timeout)
     }
     eventsBuffer.bytes(sizeof(epoll_event) * eventCount);
 
-    m_dispatchEventsQueue.push_back(eventsBuffer);
+    if (m_dispatchThreadCount > 0)
+    {
+        m_dispatchEventsQueue.push_back(eventsBuffer);
+    }
+    else
+    {
+        dispatchEvents(eventsBuffer);
+    }
 
     return true;
 }

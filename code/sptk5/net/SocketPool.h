@@ -37,7 +37,6 @@
 #include <memory>
 #include <mutex>
 #include <shared_mutex>
-#include <unordered_map>
 #include <vector>
 
 #ifdef _WIN32
@@ -81,7 +80,7 @@ enum class SocketPoolTriggerMode
 /**
  * @brief Type definition of the socket event callback function.
  *
- * The user object is delivered as a weak_ptr so the reactor never touches the shared reference
+ * The user object is delivered as a weak_ptr, so the reactor never touches the shared reference
  * count on the hot path; the callback locks it only if it needs to keep the object alive.
  */
 template<typename T>
@@ -91,7 +90,7 @@ using SocketEventCallback = std::function<void(const std::weak_ptr<T>& userData,
  * @brief Socket event manager.
  *
  * Uses OS-specific implementation.
- * On Linux it is using epoll, on BSD it is using kqueue,.
+ * On Linux it is using epoll, on BSD it is using kqueue,
  * and on Windows WSAAsyncSelect is used.
  */
 class SP_EXPORT SocketPool
@@ -99,10 +98,14 @@ class SP_EXPORT SocketPool
 public:
     /**
      * @brief Constructor.
-     * @param triggerMode    Socket event trigger mode.
-     * @param maxEvents      Maximum number of socket events per poll.
+     *
+     * If the dispatchThreadCount is greater than zero, events are dispatched in separate threads.
+     * Otherwise, events are dispatched in the same thread as the socket pool.
+     * @param triggerMode           Socket event trigger mode.
+     * @param maxEvents             Maximum number of socket events per poll.
+     * @param dispatchThreadCount   Number of threads dispatching events.
      */
-    explicit SocketPool(SocketPoolTriggerMode triggerMode, size_t maxEvents = 1024);
+    explicit SocketPool(SocketPoolTriggerMode triggerMode, size_t maxEvents = 1024, size_t dispatchThreadCount = 1);
 
     /**
      * @brief Deleted copy constructor.
@@ -183,16 +186,16 @@ private:
     SocketType m_pool {INVALID_SOCKET};
 #endif // _WIN32
 
-    mutable std::mutex            m_mutex;                                  ///< Mutex for thread-safe operations.
-    size_t                        m_maxEvents;                              ///< Maximum number of socket events per poll.
-    int                           m_maxEventsInt {0};                       ///< Maximum number of socket events per poll, int cache for syscalls.
-    SocketPoolTriggerMode         m_triggerMode;                            ///< Socket event trigger mode.
-    uint32_t                      m_baseEvents {0};                         ///< Base event mask passed to epoll/kqueue add call.
-    std::shared_ptr<std::jthread> m_dispatchEventsThread;                   ///< Thread that dispatches events.
-    std::atomic<bool>             m_dispatchEventsThreadTerminated {false}; ///< Terminate thread that dispatches events.
-    SynchronizedQueue<Buffer>     m_dispatchEventsQueue;                    ///< Queue of events to dispatch.
+    mutable std::mutex                         m_mutex;                                  ///< Mutex for thread-safe operations.
+    int                                        m_maxEvents;                              ///< Maximum number of socket events per poll.
+    size_t                                     m_dispatchThreadCount;                    ///< Number of threads dispatching events.
+    SocketPoolTriggerMode                      m_triggerMode;                            ///< Socket event trigger mode.
+    uint32_t                                   m_baseEvents {0};                         ///< Base event mask passed to epoll/kqueue add call.
+    std::vector<std::shared_ptr<std::jthread>> m_dispatchEventsThreads;                  ///< Threads that dispatch events.
+    std::atomic<bool>                          m_dispatchEventsThreadTerminated {false}; ///< Terminate threads that dispatch events.
+    SynchronizedQueue<Buffer>                  m_dispatchEventsQueue;                    ///< Queue of events to dispatch.
 
-    void dispatchEvents(Buffer& events);
+    void dispatchEvents(Buffer& eventsBuffer);
     void processError(int error, const String& operation) const;
 };
 
@@ -252,7 +255,7 @@ public:
      * @brief Remove the socket from the monitored pool.
      * @param socket            Socket from this pool.
      */
-    void remove(const std::shared_ptr<Socket>& socket)
+    void remove(const std::shared_ptr<Socket>& socket) const
     {
         if (!socket)
         {
