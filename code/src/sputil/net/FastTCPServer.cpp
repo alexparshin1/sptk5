@@ -24,7 +24,6 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include "sptk5/threads/ReadWriteLock.h"
 #include <sptk5/net/FastTCPServer.h>
 #include <sptk5/net/SSLSocket.h>
 

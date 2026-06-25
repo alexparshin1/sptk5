@@ -26,13 +26,15 @@
 
 #pragma once
 
+#include "sptk5/threads/ReadWriteMutex.h"
+
+
 #include <sptk5/Logger.h>
 #include <sptk5/net/Host.h>
 #include <sptk5/net/SSLKeys.h>
 #include <sptk5/net/ServerConnection.h>
 #include <sptk5/net/SocketEvents.h>
 #include <sptk5/threads/Flag.h>
-#include <sptk5/threads/ReadWriteMutex.h>
 #include <sptk5/threads/Thread.h>
 
 #include <map>
