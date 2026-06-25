@@ -27,7 +27,8 @@
 #pragma once
 
 #include "sptk5/Buffer.h"
-
+#include "sptk5/threads/ReadWriteLock.h"
+#include "sptk5/threads/ReadWriteMutex.h"
 
 #include <sptk5/net/SocketVirtualMethods.h>
 
@@ -103,7 +104,7 @@ public:
      */
     void attach(const SocketType socketHandle, const bool accept)
     {
-        std::scoped_lock lock(m_mutex);
+        const WriteLock lock(m_mutex);
         return attachUnlocked(socketHandle, accept);
     }
 
@@ -114,7 +115,7 @@ public:
      */
     SocketType detach()
     {
-        std::scoped_lock lock(m_mutex);
+        const WriteLock lock(m_mutex);
         return detachUnlocked();
     }
 
@@ -124,7 +125,7 @@ public:
      */
     void host(const Host& host)
     {
-        const std::scoped_lock lock(m_mutex);
+        const WriteLock lock(m_mutex);
         setHostUnlocked(host);
     }
 
@@ -133,7 +134,7 @@ public:
      */
     [[nodiscard]] Host host() const
     {
-        const std::scoped_lock lock(m_mutex);
+        const ReadLock lock(m_mutex);
         return getHostUnlocked();
     }
 
@@ -148,7 +149,7 @@ public:
     void open(const Host& host = Host(), const OpenMode openMode = OpenMode::CONNECT, const bool blockingMode = true,
               const std::chrono::milliseconds& timeoutMS = std::chrono::milliseconds(0), const char* clientBindAddress = nullptr)
     {
-        std::scoped_lock lock(m_mutex);
+        const WriteLock lock(m_mutex);
         openUnlocked(host, openMode, blockingMode, timeoutMS, clientBindAddress);
     }
 
@@ -164,7 +165,7 @@ public:
               const bool blockingMode = true, const std::chrono::milliseconds& timeoutMS = std::chrono::milliseconds(0),
               const char* clientBindAddress = nullptr)
     {
-        std::scoped_lock lock(m_mutex);
+        const WriteLock lock(m_mutex);
         openUnlocked(address, openMode, blockingMode, timeoutMS, clientBindAddress);
     }
 
@@ -176,7 +177,7 @@ public:
      */
     void bind(const char* address, const uint32_t portNumber, const bool reusePort = false)
     {
-        std::scoped_lock lock(m_mutex);
+        const WriteLock lock(m_mutex);
         bindUnlocked(address, portNumber, reusePort);
     }
 
@@ -187,7 +188,7 @@ public:
      */
     void listen(const uint16_t portNumber = 0, const bool reusePort = true)
     {
-        const std::scoped_lock lock(m_mutex);
+        const WriteLock lock(m_mutex);
         listenUnlocked(portNumber, reusePort);
     }
 
@@ -196,7 +197,7 @@ public:
      */
     void close()
     {
-        std::scoped_lock lock(m_mutex);
+        const WriteLock lock(m_mutex);
         closeUnlocked();
     }
 
@@ -206,7 +207,7 @@ public:
      */
     [[nodiscard]] bool active() const
     {
-        std::scoped_lock lock(m_mutex);
+        const ReadLock lock(m_mutex);
         return activeUnlocked();
     }
 
@@ -216,7 +217,7 @@ public:
      */
     void setOption(const int level, const int option, const int value) const
     {
-        std::scoped_lock lock(m_mutex);
+        const WriteLock lock(m_mutex);
         setOptionUnlocked(level, option, value);
     }
 
@@ -227,7 +228,7 @@ public:
      */
     void getOption(const int level, const int option, int& value) const
     {
-        std::scoped_lock lock(m_mutex);
+        const ReadLock lock(m_mutex);
         getOptionUnlocked(level, option, value);
     }
 
@@ -240,7 +241,7 @@ public:
      */
     size_t read(uint8_t* buffer, const size_t size, sockaddr* from = nullptr)
     {
-        std::scoped_lock lock(m_mutex);
+        const WriteLock lock(m_mutex);
         return readUnlocked(buffer, size, from);
     }
 
@@ -270,7 +271,7 @@ public:
         requires is_socket_readable<T>
     size_t read(T& value, sockaddr* from = nullptr)
     {
-        std::scoped_lock lock(m_mutex);
+        const WriteLock lock(m_mutex);
         return readUnlocked(reinterpret_cast<uint8_t*>(&value), sizeof(T), from);
     }
 
@@ -285,8 +286,7 @@ public:
      */
     size_t write(const uint8_t* buffer, const size_t size, const sockaddr* peer = nullptr)
     {
-
-        std::scoped_lock lock(m_mutex);
+        const WriteLock lock(m_mutex);
         return writeUnlocked(buffer, size, peer);
     }
 
@@ -312,7 +312,7 @@ public:
      */
     [[nodiscard]] bool readyToRead(const std::chrono::milliseconds& timeout)
     {
-        const std::scoped_lock lock(m_mutex);
+        const WriteLock lock(m_mutex);
         return readyToReadUnlocked(timeout);
     }
 
@@ -322,7 +322,7 @@ public:
      */
     [[nodiscard]] virtual bool readyToWrite(const std::chrono::milliseconds& timeout)
     {
-        std::scoped_lock lock(m_mutex);
+        const WriteLock lock(m_mutex);
         return readyToWriteUnlocked(timeout);
     }
 
@@ -348,7 +348,7 @@ public:
 #endif
 
 protected:
-    std::mutex& getMutex() const
+    ReadWriteMutex& getMutex() const
     {
         return m_mutex;
     }
@@ -378,7 +378,7 @@ protected:
     }
 
 private:
-    mutable std::mutex m_mutex; ///< Mutex that protects host data.
+    mutable ReadWriteMutex m_mutex; ///< Mutex that protects host data.
 };
 
 /**

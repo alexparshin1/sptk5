@@ -98,7 +98,7 @@ bool TCPSocket::accept(SocketType& clientSocketFD, sockaddr_in& clientInfo, cons
     socklen_t len = sizeof(clientInfo);
     if (readyToRead(timeout))
     {
-        scoped_lock lock(getMutex());
+        const ReadLock lock(getMutex());
         clientSocketFD = ::accept(fd(), bit_cast<sockaddr*>(&clientInfo), &len);
         if (clientSocketFD != INVALID_SOCKET)
         {
@@ -112,7 +112,7 @@ bool TCPSocket::accept(SocketType& clientSocketFD, sockaddr_in& clientInfo, cons
 
 size_t TCPSocket::readUnlocked(uint8_t* destination, const size_t size, sockaddr*)
 {
-    int receivedBytes;
+    int  receivedBytes;
     auto error = 0;
     do
     {

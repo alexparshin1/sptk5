@@ -43,8 +43,6 @@ void SocketPool::open()
 {
     const scoped_lock lock(m_mutex);
 
-    m_eventsBuffer.checkSize(m_maxEvents * sizeof(epoll_event));
-
     if (m_pool != INVALID_EPOLL)
     {
         return;
@@ -56,10 +54,30 @@ void SocketPool::open()
     {
         throw SystemException("Can't create epoll");
     }
+
+    m_dispatchEventsThreadTerminated = false;
+    m_dispatchEventsThread = make_shared<jthread>(
+        [this]
+        {
+            Buffer eventsBuffer;
+            while (true)
+            {
+                if (m_dispatchEventsQueue.pop_front(eventsBuffer, 100ms))
+                {
+                    dispatchEvents(eventsBuffer);
+                }
+                else if (m_dispatchEventsThreadTerminated)
+                {
+                    break;
+                }
+            }
+        });
 }
 
 void SocketPool::close()
 {
+    m_dispatchEventsThreadTerminated = true;
+
     const scoped_lock lock(m_mutex);
 
     if (m_pool != INVALID_EPOLL)
@@ -119,15 +137,26 @@ void SocketPool::removeSocket(const SocketType socketFd) const
 
 bool SocketPool::waitForEvents(const chrono::milliseconds& timeout)
 {
-    auto* events = reinterpret_cast<epoll_event*>(m_eventsBuffer.data());
+    Buffer eventsBuffer(sizeof(epoll_event) * m_maxEvents);
+    auto*  events = reinterpret_cast<epoll_event*>(eventsBuffer.data());
 
     const auto eventCount = epoll_wait(m_pool, events, static_cast<int>(m_maxEvents), static_cast<int>(timeout.count()));
     if (eventCount < 0)
     {
         return m_pool != INVALID_EPOLL;
     }
+    eventsBuffer.bytes(sizeof(epoll_event) * eventCount);
 
-    for (auto i = 0; i < eventCount; ++i)
+    m_dispatchEventsQueue.push_back(eventsBuffer);
+
+    return true;
+}
+
+void SocketPool::dispatchEvents(Buffer& eventsBuffer)
+{
+    auto*      events = reinterpret_cast<epoll_event*>(eventsBuffer.data());
+    const auto eventCount = eventsBuffer.size() / sizeof(epoll_event);
+    for (size_t i = 0; i < eventCount; ++i)
     {
         auto& [event, data] = events[i];
 
@@ -139,9 +168,8 @@ bool SocketPool::waitForEvents(const chrono::milliseconds& timeout)
 
         onEvent(data.ptr, eventType);
     }
-
-    return true;
 }
+
 
 void SocketPool::processError(const int error, const String& operation) const
 {

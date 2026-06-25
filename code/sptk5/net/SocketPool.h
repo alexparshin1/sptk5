@@ -27,6 +27,7 @@
 #pragma once
 
 #include "ServerConnection.h"
+#include "sptk5/threads/SynchronizedQueue.h"
 
 
 #include <sptk5/Exception.h>
@@ -182,13 +183,16 @@ private:
     SocketType m_pool {INVALID_SOCKET};
 #endif // _WIN32
 
-    mutable std::mutex    m_mutex;            ///< Mutex for thread-safe operations.
-    size_t                m_maxEvents;        ///< Maximum number of socket events per poll.
-    int                   m_maxEventsInt {0}; ///< Maximum number of socket events per poll, int cache for syscalls.
-    Buffer                m_eventsBuffer;     ///< Socket events.
-    SocketPoolTriggerMode m_triggerMode;      ///< Socket event trigger mode.
-    uint32_t              m_baseEvents {0};   ///< Base event mask passed to epoll/kqueue add call.
+    mutable std::mutex            m_mutex;                                  ///< Mutex for thread-safe operations.
+    size_t                        m_maxEvents;                              ///< Maximum number of socket events per poll.
+    int                           m_maxEventsInt {0};                       ///< Maximum number of socket events per poll, int cache for syscalls.
+    SocketPoolTriggerMode         m_triggerMode;                            ///< Socket event trigger mode.
+    uint32_t                      m_baseEvents {0};                         ///< Base event mask passed to epoll/kqueue add call.
+    std::shared_ptr<std::jthread> m_dispatchEventsThread;                   ///< Thread that dispatches events.
+    std::atomic<bool>             m_dispatchEventsThreadTerminated {false}; ///< Terminate thread that dispatches events.
+    SynchronizedQueue<Buffer>     m_dispatchEventsQueue;                    ///< Queue of events to dispatch.
 
+    void dispatchEvents(Buffer& events);
     void processError(int error, const String& operation) const;
 };
 

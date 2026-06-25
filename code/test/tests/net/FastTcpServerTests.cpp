@@ -240,7 +240,7 @@ TEST(FastTcpServerTests, throughput)
     SocketEvents<Socket> socketEvents("",
                                       [&receivedMessageCount, &receivedAllMessages](const std::weak_ptr<Socket>& socketPtr, SocketEventType eventType)
                                       {
-                                          auto socket = socketPtr.lock();
+                                          const auto socket = socketPtr.lock();
                                           if (eventType.m_hangup)
                                           {
                                               socket->close();
@@ -248,13 +248,16 @@ TEST(FastTcpServerTests, throughput)
                                           }
                                           if (eventType.m_data)
                                           {
-                                              array<uint8_t, ackSize> message;
-                                              if (socket->read(message.data(), ackSize) == ackSize)
+                                              array<uint8_t, ackSize> ack;
+                                              if (socket->socketBytes() >= ackSize)
                                               {
-                                                  ++receivedMessageCount;
-                                                  if (receivedMessageCount == messageCount)
+                                                  if (socket->read(ack.data(), ackSize) == ackSize)
                                                   {
-                                                      receivedAllMessages.post();
+                                                      ++receivedMessageCount;
+                                                      if (receivedMessageCount == messageCount)
+                                                      {
+                                                          receivedAllMessages.post();
+                                                      }
                                                   }
                                               }
                                           }
@@ -294,7 +297,7 @@ TEST(FastTcpServerTests, throughput)
  * On Linux, before running the test, make sure you have a lot of ephemeral ports (~40000).
  *    cat /proc/sys/net/ipv4/ip_local_port_range
  *
- * To temporary set (until reboot) the good number of ephemeral points:
+ * Temporary setting (until reboot) the good number of ephemeral points:
  *    sudo echo "1024 65535" > /proc/sys/net/ipv4/ip_local_port_range
  */
 TEST(FastTcpServerTests, acceptRate)

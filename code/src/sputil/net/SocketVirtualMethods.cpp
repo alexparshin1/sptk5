@@ -462,15 +462,10 @@ bool SocketVirtualMethods::readyToWriteUnlocked(const chrono::milliseconds& time
 
 size_t SocketVirtualMethods::recvUnlocked(uint8_t* buffer, const size_t len)
 {
-    int result = 0;
-    constexpr chrono::seconds timeout(30);
-    if (readyToReadUnlocked(timeout))
+    const int result = recv(m_socketFd, bit_cast<char*>(buffer), static_cast<int32_t>(len), 0);
+    if (result == -1)
     {
-        result = recv(m_socketFd, bit_cast<char*>(buffer), static_cast<int32_t>(len), 0);
-        if (result == -1)
-        {
-                throwSocketError("Can't read from socket");
-        }
+        throwSocketError("Can't read from socket");
     }
     return static_cast<size_t>(result);
 }
@@ -546,8 +541,8 @@ size_t SocketVirtualMethods::writeUnlocked(const uint8_t* buffer, size_t size, c
         size = strlen(bit_cast<const char*>(buffer));
     }
 
-    const auto   total = size;
-    auto         remaining = static_cast<ssize_t>(size);
+    const auto total = size;
+    auto       remaining = static_cast<ssize_t>(size);
     while (remaining > 0)
     {
         ssize_t bytes;
