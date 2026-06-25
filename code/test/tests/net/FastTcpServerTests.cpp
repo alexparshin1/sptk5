@@ -67,6 +67,13 @@ public:
         stop();
     }
 
+    SServerConnection createConnection(ServerConnection::Type connectionType, const SocketType connectionSocket, const sockaddr_in* peer) override
+    {
+        auto connection = FastTCPServer::createConnection(connectionType, connectionSocket, peer);
+        m_connections.push_back(connection);
+        return connection;
+    }
+
 protected:
     void socketEventCallback(const shared_ptr<ServerConnection>& connection, const SocketEventType eventType) override
     {
@@ -98,6 +105,7 @@ private:
     size_t          m_messageSize {0};
     size_t          m_ackSize {0};
     size_t          m_sentMessages {0};
+    vector<SServerConnection> m_connections;
 };
 
 array<uint8_t, messageSize> makeMessage()
