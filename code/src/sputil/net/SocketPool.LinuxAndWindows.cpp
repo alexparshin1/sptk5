@@ -146,21 +146,14 @@ bool SocketPool::waitForEvents(const chrono::milliseconds& timeout)
     Buffer eventsBuffer(sizeof(epoll_event) * m_maxEvents);
     auto*  events = reinterpret_cast<epoll_event*>(eventsBuffer.data());
 
-    const auto eventCount = epoll_wait(m_pool, events, static_cast<int>(m_maxEvents), static_cast<int>(timeout.count()));
+    const auto eventCount = epoll_wait(m_pool, events, m_maxEvents, static_cast<int>(timeout.count()));
     if (eventCount < 0)
     {
         return m_pool != INVALID_EPOLL;
     }
     eventsBuffer.bytes(sizeof(epoll_event) * eventCount);
 
-    if (m_dispatchThreadCount > 0)
-    {
-        m_dispatchEventsQueue.push_back(eventsBuffer);
-    }
-    else
-    {
-        dispatchEvents(eventsBuffer);
-    }
+    dispatchEvents(eventsBuffer);
 
     return true;
 }
