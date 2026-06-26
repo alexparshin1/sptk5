@@ -29,7 +29,6 @@
 #include <sptk5/Buffer.h>
 #include <sptk5/net/FastTCPServer.h>
 #include <sptk5/net/HttpReader.h>
-#include <sptk5/net/TCPServer.h>
 #include <sptk5/net/TCPSocket.h>
 
 #include <chrono>
@@ -151,7 +150,7 @@ TEST(HttpReaderTests, responseChunkedReadsAllChunks)
 
 TEST(HttpReaderTests, requestModeParsesRequestLineAndHeaders)
 {
-    TCPServer server("HttpReader RequestModeServer", 1);
+    FastTCPServer server("HttpReader RequestModeServer");
 
     std::promise<void> gotRequestPromise;
     std::future<void>  gotRequestFuture = gotRequestPromise.get_future();
@@ -160,42 +159,48 @@ TEST(HttpReaderTests, requestModeParsesRequestLineAndHeaders)
     std::promise<String> requestUrlPromise;
     std::promise<String> hostHeaderPromise;
 
-    server.onConnection([&](const ServerConnection& connection)
-                        {
-                            const auto s = connection.getSocket();
-                            try
-                            {
-                                Buffer     out;
-                                HttpReader reader(s, out, HttpReader::ReadMode::REQUEST);
+    server.onSocketEvent([&](const weak_ptr<ServerConnection>& weakConnection, const SocketEventType eventType)
+                         {
+                             const auto connection = weakConnection.lock();
+                             if (!connection || !eventType.m_data)
+                             {
+                                 return;
+                             }
 
-                                reader.readHttpHeaders();
+                             const auto s = connection->getSocket();
+                             try
+                             {
+                                 Buffer     out;
+                                 HttpReader reader(s, out, HttpReader::ReadMode::REQUEST);
 
-                                requestTypePromise.set_value(reader.getRequestType());
-                                requestUrlPromise.set_value(reader.getRequestURL());
-                                hostHeaderPromise.set_value(reader.httpHeader("Host"));
+                                 reader.readHttpHeaders();
 
-                                gotRequestPromise.set_value();
+                                 requestTypePromise.set_value(reader.getRequestType());
+                                 requestUrlPromise.set_value(reader.getRequestURL());
+                                 hostHeaderPromise.set_value(reader.httpHeader("Host"));
 
-                                s->write(
-                                    "HTTP/1.1 204 No Content\r\n"
-                                    "Content-Length: 0\r\n"
-                                    "\r\n");
-                            }
-                            catch (const exception& ex)
-                            {
-                                CERR(ex.what());
-                                try
-                                {
-                                    gotRequestPromise.set_value();
-                                }
-                                catch (const exception& exc)
-                                {
-                                    CERR(exc.what());
-                                }
-                            }
+                                 gotRequestPromise.set_value();
 
-                            s->close();
-                        });
+                                 s->write(
+                                     "HTTP/1.1 204 No Content\r\n"
+                                     "Content-Length: 0\r\n"
+                                     "\r\n");
+                             }
+                             catch (const exception& ex)
+                             {
+                                 CERR(ex.what());
+                                 try
+                                 {
+                                     gotRequestPromise.set_value();
+                                 }
+                                 catch (const exception& exc)
+                                 {
+                                     CERR(exc.what());
+                                 }
+                             }
+
+                             server.closeConnection(connection);
+                         });
 
     auto httpReaderTestPort = getHttpReaderTestPort();
     server.addListener(ServerConnection::Type::TCP, {"127.0.0.1", httpReaderTestPort});

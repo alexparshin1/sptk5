@@ -67,16 +67,6 @@ public:
     virtual void execute(URunable task);
 
     /**
-     * @brief Thread event callback function.
-     *
-     * Receives events that occur in the threads.
-     * @param thread            Thread where event occured.
-     * @param eventType         Thread event type.
-     * @param runable           Related runable (if any).
-     */
-    void threadEvent(Thread* thread, ThreadEvent::Type eventType, SRunable runable) override;
-
-    /**
      * @brief Sends the terminate() message to all worker threads, and sets shutdown state.
      *
      * After the thread pool is stopped, it no longer accepts tasks for execution.

@@ -93,22 +93,6 @@ void ThreadPool::execute(URunable task)
     m_taskQueue.push_back(std::move(task));
 }
 
-void ThreadPool::threadEvent(Thread* thread, const Type eventType, SRunable)
-{
-    switch (eventType)
-    {
-        case ThreadEvent::Type::RUNABLE_STARTED:
-            logThreadEvent("Runable started", thread);
-            break;
-        case ThreadEvent::Type::RUNABLE_FINISHED:
-            m_availableThreads.post();
-            logThreadEvent("Runable finished", thread);
-            break;
-        default:
-            break;
-    }
-}
-
 void ThreadPool::stop()
 {
     m_shutdown = true;

@@ -54,16 +54,6 @@ public:
     };
 
     /**
-     * @brief Thread event callback function.
-     *
-     * To receive thread events, the event receiver should be derived from this class.
-     * @param thread            Thread where event occured.
-     * @param eventType         Thread event type.
-     * @param runable           Related runable (if any).
-     */
-    virtual void threadEvent(Thread* thread, Type eventType, SRunable runable) = 0;
-
-    /**
      * @brief Destructor.
      */
     virtual ~ThreadEvent() = default;

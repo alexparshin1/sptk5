@@ -27,8 +27,8 @@
 #pragma once
 
 #include "SSLSocket.h"
-#include <sptk5/net/RunableServerConnection.h>
-#include <sptk5/net/TCPServer.h>
+#include <sptk5/net/FastTCPServer.h>
+#include <sptk5/net/ServerConnection.h>
 
 namespace sptk {
 /**
@@ -42,7 +42,7 @@ namespace sptk {
  * Application derives concrete TCP server connections based on this class,
  * to use with TCPServer as the connection template.
  */
-class SP_EXPORT SSLServerConnection : public RunableServerConnection
+class SP_EXPORT SSLServerConnection : public ServerConnection
 {
 public:
     /**
@@ -52,8 +52,8 @@ public:
      * @param connectionAddress  Address of the connected client.
      * @param connectionFunction Function to be executed by the connection thread.
      */
-    SSLServerConnection(TCPServer& server, SocketType connectionSocket, const sockaddr_in* connectionAddress, const Function& connectionFunction)
-        : RunableServerConnection(server, Type::SSL, connectionAddress, connectionFunction)
+    SSLServerConnection(FastTCPServer& server, SocketType connectionSocket, const sockaddr_in* connectionAddress, const Function& connectionFunction)
+        : ServerConnection(server, Type::SSL, connectionAddress)
     {
         auto sslSocket = std::make_shared<SSLSocket>();
         setSocket(sslSocket);

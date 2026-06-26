@@ -36,7 +36,7 @@
 #endif
 
 namespace sptk {
-class TCPServer;
+class FastTCPServer;
 
 /**
  * @addtogroup network Network Classes.
@@ -51,7 +51,6 @@ class TCPServer;
 class SP_EXPORT ServerConnection
     : public std::enable_shared_from_this<ServerConnection>
 {
-    friend class TCPServer;
     friend class FastTCPServer;
 
 public:
@@ -69,7 +68,7 @@ public:
      * @param type              Connection type.
      * @param connectionAddress Connection address.
      */
-    ServerConnection(TCPServer& server, Type type, const sockaddr_in* connectionAddress);
+    ServerConnection(FastTCPServer& server, Type type, const sockaddr_in* connectionAddress);
 
     /**
      * @brief Constructor for a server connection that is not owned by a TCPServer.
@@ -102,7 +101,7 @@ public:
      * @brief Parent TCP server reference.
      * @return server object.
      */
-    TCPServer& server() const;
+    FastTCPServer& server() const;
 
     /**
      * @brief Get the incoming connection address.
@@ -138,7 +137,7 @@ public:
 
 private:
     mutable std::mutex m_mutex;            ///< Mutex that protects internal data.
-    TCPServer*         m_server {nullptr}; ///< Parent server object (may be null for FastTcpServer connections).
+    FastTCPServer*     m_server {nullptr}; ///< Parent server object.
     STCPSocket         m_socket;           ///< Connection socket.
     String             m_address;          ///< Incoming connection IP address.
     uint16_t           m_port {0};         ///< Incoming connection port.

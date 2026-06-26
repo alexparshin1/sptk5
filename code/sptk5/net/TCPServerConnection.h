@@ -26,7 +26,7 @@
 
 #pragma once
 
-#include <sptk5/net/RunableServerConnection.h>
+#include <sptk5/net/ServerConnection.h>
 
 namespace sptk {
 /**
@@ -40,7 +40,7 @@ namespace sptk {
  * Application derives concrete TCP server connections based on this class,
  * to use with TCPServer as a connection template.
  */
-class SP_EXPORT TCPServerConnection : public RunableServerConnection
+class SP_EXPORT TCPServerConnection : public ServerConnection
 {
 public:
     /**
@@ -50,20 +50,11 @@ public:
      * @param connectionAddress Incoming connection address.
      * @param connectionFunction Connection function executed for each new client connection to the server.
      */
-    explicit TCPServerConnection(TCPServer& server, SocketType connectionSocket, const sockaddr_in* connectionAddress, const ServerConnection::Function& connectionFunction)
-        : RunableServerConnection(server, Type::TCP, connectionAddress, connectionFunction)
+    explicit TCPServerConnection(FastTCPServer& server, SocketType connectionSocket, const sockaddr_in* connectionAddress, const ServerConnection::Function& connectionFunction)
+        : ServerConnection(server, Type::TCP, connectionAddress)
     {
         setSocket(std::make_shared<TCPSocket>());
         getSocket()->attach(connectionSocket, false);
-    }
-
-    /**
-     * @brief Terminate the connection thread.
-     */
-    void terminate() override
-    {
-        getSocket()->close();
-        RunableServerConnection::terminate();
     }
 };
 

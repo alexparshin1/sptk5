@@ -58,13 +58,13 @@ STCPSocket ServerConnection::setSocket(const STCPSocket& socket)
     return priorSocket;
 }
 
-TCPServer& ServerConnection::server() const
+FastTCPServer& ServerConnection::server() const
 {
     const scoped_lock lock(m_mutex);
     return *m_server;
 }
 
-ServerConnection::ServerConnection(TCPServer& server, const Type type, const sockaddr_in* connectionAddress)
+ServerConnection::ServerConnection(FastTCPServer& server, const Type type, const sockaddr_in* connectionAddress)
     : m_server(&server)
     , m_serial(nextSerial())
     , m_type(type)
