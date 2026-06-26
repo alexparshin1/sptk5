@@ -35,25 +35,17 @@
 using namespace std;
 using namespace sptk;
 
-constexpr auto testImapServerPort = 12346;
-constexpr auto testImapServerSelectPort = 12347;
-constexpr auto testImapServerExaminePort = 12348;
-constexpr auto testImapServerCapabilityPort = 12349;
-constexpr auto testImapServerSubscribePort = 12350;
-constexpr auto testImapServerUnsubscribePort = 12351;
-constexpr auto testImapServerCreatePort = 12352;
-constexpr auto testImapServerDeletePort = 12353;
-constexpr auto testImapServerRenamePort = 12354;
-constexpr auto testImapServerListPort = 12355;
-constexpr auto testImapServerAppendPort = 12356;
-constexpr auto testImapServerFetchMessagePort = 12357;
-constexpr auto testImapServerFetchHeadersPort = 12358;
-constexpr auto testImapServerFetchFlagsPort = 12359;
-
 namespace sptk {
+
+uint16_t getTestImapServerPort()
+{
+    static atomic<uint16_t> port(65100);
+    return port++;
+}
 
 TEST(ImapConnectTests, login)
 {
+    auto           testImapServerPort = getTestImapServerPort();
     TestImapServer testImapServer(testImapServerPort);
 
     ImapConnect imap;
@@ -75,10 +67,11 @@ TEST(ImapConnectTests, login)
 
 TEST(ImapConnectTests, select)
 {
-    TestImapServer testImapServer(testImapServerSelectPort);
+    auto           testImapServerPort = getTestImapServerPort();
+    TestImapServer testImapServer(testImapServerPort);
 
     ImapConnect imap;
-    imap.host({"localhost", testImapServerSelectPort});
+    imap.host({"localhost", testImapServerPort});
 
     imap.cmd_login("user", "password");
 
@@ -92,10 +85,11 @@ TEST(ImapConnectTests, select)
 
 TEST(ImapConnectTests, capability)
 {
-    TestImapServer testImapServer(testImapServerCapabilityPort);
+    auto           testImapServerPort = getTestImapServerPort();
+    TestImapServer testImapServer(testImapServerPort);
 
     ImapConnect imap;
-    imap.host({"localhost", testImapServerCapabilityPort});
+    imap.host({"localhost", testImapServerPort});
 
     imap.cmd_login("user", "password");
     imap.cmd_capability();
@@ -116,10 +110,11 @@ TEST(ImapConnectTests, capability)
 
 TEST(ImapConnectTests, examine)
 {
-    TestImapServer testImapServer(testImapServerExaminePort);
+    auto           testImapServerPort = getTestImapServerPort();
+    TestImapServer testImapServer(testImapServerPort);
 
     ImapConnect imap;
-    imap.host({"localhost", testImapServerExaminePort});
+    imap.host({"localhost", testImapServerPort});
 
     imap.cmd_login("user", "password");
     imap.cmd_examine("INBOX");
@@ -140,10 +135,11 @@ TEST(ImapConnectTests, examine)
 
 TEST(ImapConnectTests, subscribe)
 {
-    TestImapServer testImapServer(testImapServerSubscribePort);
+    auto           testImapServerPort = getTestImapServerPort();
+    TestImapServer testImapServer(testImapServerPort);
 
     ImapConnect imap;
-    imap.host({"localhost", testImapServerSubscribePort});
+    imap.host({"localhost", testImapServerPort});
 
     imap.cmd_login("user", "password");
     imap.cmd_subscribe("TestFolder");
@@ -164,10 +160,11 @@ TEST(ImapConnectTests, subscribe)
 
 TEST(ImapConnectTests, unsubscribe)
 {
-    TestImapServer testImapServer(testImapServerUnsubscribePort);
+    auto           testImapServerPort = getTestImapServerPort();
+    TestImapServer testImapServer(testImapServerPort);
 
     ImapConnect imap;
-    imap.host({"localhost", testImapServerUnsubscribePort});
+    imap.host({"localhost", testImapServerPort});
 
     imap.cmd_login("user", "password");
     imap.cmd_unsubscribe("TestFolder");
@@ -188,10 +185,12 @@ TEST(ImapConnectTests, unsubscribe)
 
 TEST(ImapConnectTests, create)
 {
-    TestImapServer testImapServer(testImapServerCreatePort);
+    auto           testImapServerPort = getTestImapServerPort();
+    TestImapServer testImapServer(testImapServerPort);
+
 
     ImapConnect imap;
-    imap.host({"localhost", testImapServerCreatePort});
+    imap.host({"localhost", testImapServerPort});
 
     imap.cmd_login("user", "password");
     imap.cmd_create("NewFolder");
@@ -212,10 +211,11 @@ TEST(ImapConnectTests, create)
 
 TEST(ImapConnectTests, deleteMailbox)
 {
-    TestImapServer testImapServer(testImapServerDeletePort);
+    auto           testImapServerPort = getTestImapServerPort();
+    TestImapServer testImapServer(testImapServerPort);
 
     ImapConnect imap;
-    imap.host({"localhost", testImapServerDeletePort});
+    imap.host({"localhost", testImapServerPort});
 
     imap.cmd_login("user", "password");
     imap.cmd_delete("OldFolder");
@@ -236,10 +236,11 @@ TEST(ImapConnectTests, deleteMailbox)
 
 TEST(ImapConnectTests, rename)
 {
-    TestImapServer testImapServer(testImapServerRenamePort);
+    auto           testImapServerPort = getTestImapServerPort();
+    TestImapServer testImapServer(testImapServerPort);
 
     ImapConnect imap;
-    imap.host({"localhost", testImapServerRenamePort});
+    imap.host({"localhost", testImapServerPort});
 
     imap.cmd_login("user", "password");
     imap.cmd_rename("OldName", "NewName");
@@ -260,10 +261,11 @@ TEST(ImapConnectTests, rename)
 
 TEST(ImapConnectTests, list)
 {
-    TestImapServer testImapServer(testImapServerListPort);
+    auto           testImapServerPort = getTestImapServerPort();
+    TestImapServer testImapServer(testImapServerPort);
 
     ImapConnect imap;
-    imap.host({"localhost", testImapServerListPort});
+    imap.host({"localhost", testImapServerPort});
 
     imap.cmd_login("user", "password");
     imap.cmd_list("*");
@@ -284,10 +286,11 @@ TEST(ImapConnectTests, list)
 
 TEST(ImapConnectTests, append)
 {
-    TestImapServer testImapServer(testImapServerAppendPort);
+    auto           testImapServerPort = getTestImapServerPort();
+    TestImapServer testImapServer(testImapServerPort);
 
     ImapConnect imap;
-    imap.host({"localhost", testImapServerAppendPort});
+    imap.host({"localhost", testImapServerPort});
 
     imap.cmd_login("user", "password");
 
@@ -310,10 +313,11 @@ TEST(ImapConnectTests, append)
 
 TEST(ImapConnectTests, fetch_message)
 {
-    TestImapServer testImapServer(testImapServerFetchMessagePort);
+    auto           testImapServerPort = getTestImapServerPort();
+    TestImapServer testImapServer(testImapServerPort);
 
     ImapConnect imap;
-    imap.host({"localhost", testImapServerFetchMessagePort});
+    imap.host({"localhost", testImapServerPort});
 
     imap.cmd_login("user", "password");
 
@@ -336,10 +340,11 @@ TEST(ImapConnectTests, fetch_message)
 
 TEST(ImapConnectTests, fetch_headers)
 {
-    TestImapServer testImapServer(testImapServerFetchHeadersPort);
+    auto           testImapServerPort = getTestImapServerPort();
+    TestImapServer testImapServer(testImapServerPort);
 
     ImapConnect imap;
-    imap.host({"localhost", testImapServerFetchHeadersPort});
+    imap.host({"localhost", testImapServerPort});
 
     imap.cmd_login("user", "password");
 
@@ -362,10 +367,11 @@ TEST(ImapConnectTests, fetch_headers)
 
 TEST(ImapConnectTests, fetch_flags)
 {
-    TestImapServer testImapServer(testImapServerFetchFlagsPort);
+    auto           testImapServerPort = getTestImapServerPort();
+    TestImapServer testImapServer(testImapServerPort);
 
     ImapConnect imap;
-    imap.host({"localhost", testImapServerFetchFlagsPort});
+    imap.host({"localhost", testImapServerPort});
 
     imap.cmd_login("user", "password");
 

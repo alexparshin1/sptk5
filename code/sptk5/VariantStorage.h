@@ -130,7 +130,7 @@ public:
     }
 
     /**
-     * @brief Set data type.
+     * @brief Set the data type.
      * @param type              Data type.
      */
     void type(const VariantType& type)
@@ -139,7 +139,7 @@ public:
     }
 
     /**
-     * @brief Set data type.
+     * @brief Set the data type.
      * @param type              Data type.
      */
     void type(const VariantDataType& type)
@@ -163,27 +163,11 @@ public:
 
     /**
      * @brief Set data 'is null' state.
-     * @param isNull                Data is null flag.
+     * @param isNull                Data is the null flag.
      * @param type                  Data type.
      * @param clearStorageClient    If true, then reset the storage client object.
      */
-    void setNull(bool isNull, VariantDataType type, bool clearStorageClient = true)
-    {
-        m_type.type = type;
-        if (isNull)
-        {
-            setNull();
-            if (clearStorageClient)
-            {
-                setStorageClient(nullptr);
-            }
-        }
-        else
-        {
-            m_type.isNull = false;
-            m_type.type = type;
-        }
-    }
+    void setNull(const bool isNull, VariantDataType type, bool clearStorageClient = true);
 
     /**
      * @brief Set data size.
@@ -339,7 +323,7 @@ public:
      * @tparam T                Data type.
      * @return reference to data.
      */
-    template<typename T, typename std::enable_if_t<!std::is_pointer_v<T>, int> = 0>
+    template<typename T, std::enable_if_t<!std::is_pointer_v<T>, int> = 0>
     T& get()
     {
         return (T&) *this;
@@ -350,7 +334,7 @@ public:
      * @tparam T                Data type.
      * @return reference to data.
      */
-    template<typename T, typename std::enable_if_t<std::is_integral_v<T> || std::is_floating_point_v<T>, int> = 0>
+    template<typename T, std::enable_if_t<std::is_integral_v<T> || std::is_floating_point_v<T>, int> = 0>
     T get() const
     {
         return (T) * this;
@@ -361,7 +345,7 @@ public:
      * @tparam T                Data type.
      * @return reference to data.
      */
-    template<typename T, typename std::enable_if_t<std::is_base_of_v<VariantStorageClient, T>, int> = 0>
+    template<typename T, std::enable_if_t<std::is_base_of_v<VariantStorageClient, T>, int> = 0>
     const T& get() const
     {
         return (const T&) *this;
@@ -372,7 +356,7 @@ public:
      * @param value             Internal data.
      */
     template<typename T>
-    void set(const T& value, typename std::enable_if_t<!std::is_pointer_v<T>, int> = 0)
+    void set(const T& value, std::enable_if_t<!std::is_pointer_v<T>, int> = 0)
     {
         *this = value;
     }
@@ -405,11 +389,13 @@ public:
      * @brief Explicit conversion for types derived from VariantStorageClient.
      * @return Data reference.
      */
-    template<typename T, typename std::enable_if_t<std::is_base_of_v<VariantStorageClient, T>, int> = 0>
+    template<typename T, std::enable_if_t<std::is_base_of_v<VariantStorageClient, T>, int> = 0>
     operator T&()
     {
         if (auto* data = dynamic_cast<T*>(storageClient()); data)
+        {
             return *data;
+        }
         throw std::invalid_argument("Invalid type");
     }
 
@@ -455,7 +441,6 @@ public:
 
     /**
      * @brief Assignment.
-     * @param value             Data to assign.
      * @return self.
      */
     VariantStorage& operator=(const uint8_t*) = delete;

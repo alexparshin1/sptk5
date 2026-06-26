@@ -364,20 +364,15 @@ private:
     using SListener = std::shared_ptr<FastTcpServerListener>;
     using Listeners = std::vector<SListener>;
 
-    mutable std::mutex                     m_mutex;               ///< Mutex that protects listeners and keys.
-    mutable ReadWriteMutex                 m_connectionsMutex;    ///< Mutex that protects m_connections.
-    /// Strong references to all currently monitored connections, keyed by their raw pointer (the
-    /// same cookie the reactor stores). The reactor holds only a weak reference, so without this
-    /// registry an accepted connection would be destroyed the moment acceptIncoming() returns and
-    /// no event would ever be delivered. A connection lives here from watchConnection() until
-    /// unwatchConnection()/closeConnection().
-    std::unordered_map<ServerConnection*, std::shared_ptr<ServerConnection>> m_connections;
-    std::shared_ptr<LogEngine>             m_logEngine;           ///< Optional log engine.
-    std::shared_ptr<Logger>                m_logger;              ///< Optional logger.
-    SocketEvents<ServerConnection>         m_socketEvents;        ///< Socket events reactor.
-    std::shared_ptr<SSLKeys>               m_keys;                ///< Server SSL keys.
-    std::map<Host, Listeners, HostCompare> m_listeners;           ///< Server listeners.
-    SocketEventCallback<ServerConnection>  m_socketEventCallback; ///< Optional socket event callback.
+    mutable std::mutex                                                       m_mutex;               ///< Mutex that protects listeners and keys.
+    mutable ReadWriteMutex                                                   m_connectionsMutex;    ///< Mutex that protects m_connections.
+    std::unordered_map<ServerConnection*, std::shared_ptr<ServerConnection>> m_connections;         ///< Connections.
+    std::shared_ptr<LogEngine>                                               m_logEngine;           ///< Optional log engine.
+    std::shared_ptr<Logger>                                                  m_logger;              ///< Optional logger.
+    SocketEvents<ServerConnection>                                           m_socketEvents;        ///< Socket events reactor.
+    std::shared_ptr<SSLKeys>                                                 m_keys;                ///< Server SSL keys.
+    std::map<Host, Listeners, HostCompare>                                   m_listeners;           ///< Server listeners.
+    SocketEventCallback<ServerConnection>                                    m_socketEventCallback; ///< Optional socket event callback.
 
     /**
      * @brief Accept an incoming connection (called by the listener thread).

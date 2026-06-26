@@ -54,34 +54,10 @@ void SocketPool::open()
     {
         throw SystemException("Can't create epoll");
     }
-
-    m_dispatchEventsThreadTerminated = false;
-    m_dispatchEventsThreads.resize(m_dispatchThreadCount);
-    for (auto& thread: m_dispatchEventsThreads)
-    {
-        thread = make_shared<jthread>(
-            [this]
-            {
-                Buffer eventsBuffer;
-                while (true)
-                {
-                    if (m_dispatchEventsQueue.pop_front(eventsBuffer, 100ms))
-                    {
-                        dispatchEvents(eventsBuffer);
-                    }
-                    else if (m_dispatchEventsThreadTerminated)
-                    {
-                        break;
-                    }
-                }
-            });
-    }
 }
 
 void SocketPool::close()
 {
-    m_dispatchEventsThreadTerminated = true;
-
     const scoped_lock lock(m_mutex);
 
     if (m_pool != INVALID_EPOLL)
@@ -93,8 +69,6 @@ void SocketPool::close()
 #endif
         m_pool = INVALID_EPOLL;
     }
-
-    m_dispatchEventsThreads.clear();
 }
 
 void SocketPool::addSocket(const SocketType socketFd, const uint8_t* userData, const bool rearmOneShot) const

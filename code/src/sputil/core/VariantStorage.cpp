@@ -98,6 +98,24 @@ void BaseVariantStorage::setNull()
     m_type.isExternalBuffer = false;
 }
 
+void BaseVariantStorage::setNull(const bool isNull, VariantDataType type, bool clearStorageClient)
+{
+    m_type.type = type;
+    if (isNull)
+    {
+        setNull();
+        if (clearStorageClient)
+        {
+            setStorageClient(nullptr);
+        }
+    }
+    else
+    {
+        m_type.isNull = false;
+        m_type.type = type;
+    }
+}
+
 VariantStorage::operator bool() const
 {
     if (type().type == VariantDataType::VAR_BOOL)
@@ -246,7 +264,7 @@ VariantStorage& VariantStorage::operator=(const VariantStorage& other)
                     setStorageClient(make_unique<MoneyData>(*dynamic_cast<const MoneyData*>(other.storageClient())));
                 }
                 break;
-            
+
             default:
                 value().asInt64 = other.value().asInt64;
                 break;

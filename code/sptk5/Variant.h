@@ -138,7 +138,7 @@ public:
     template<typename T, std::enable_if_t<std::is_class_v<T>, int> = 0>
     const T& get() const
     {
-        return (const T&) m_data;
+        return static_cast<const T&>(m_data);
     }
 
     /**

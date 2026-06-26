@@ -824,6 +824,12 @@ SQLRETURN odbcReadStringOrBlobField(const SQLHSTMT statement, DatabaseField* fie
             break;
         }
 
+        if (remainingSize < 0)
+        {
+            // Continue reading
+            buffer.bytes(offset + readSize);
+        }
+
         offset += readSize - 1;
         dataLength += readSize - 1;
     }

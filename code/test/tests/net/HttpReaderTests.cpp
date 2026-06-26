@@ -40,9 +40,11 @@ using namespace sptk;
 
 namespace {
 
-constexpr uint16_t kHttpReaderTestPort1 = 18081;
-constexpr uint16_t kHttpReaderTestPort2 = 18082;
-constexpr uint16_t kHttpReaderTestPort3 = 18083;
+uint16_t getHttpReaderTestPort()
+{
+    static atomic_uint16_t port = 20000;
+    return port++;
+}
 
 class FixedResponseServer : public TCPServer
 {
@@ -84,10 +86,11 @@ TEST(HttpReaderTests, responseContentLengthReadsBodyAndHeaders)
         "\r\n"
         "Hello";
 
-    FixedResponseServer server(kHttpReaderTestPort1, response);
+    auto                httpReaderTestPort = getHttpReaderTestPort();
+    FixedResponseServer server(httpReaderTestPort, response);
 
     const auto socket = make_shared<TCPSocket>();
-    socket->open({"127.0.0.1", kHttpReaderTestPort1});
+    socket->open({"127.0.0.1", httpReaderTestPort});
 
     Buffer     out;
     HttpReader reader(socket, out, HttpReader::ReadMode::RESPONSE);
@@ -114,10 +117,11 @@ TEST(HttpReaderTests, responseChunkedReadsAllChunks)
         "0\r\n"
         "\r\n";
 
-    FixedResponseServer server(kHttpReaderTestPort2, response);
+    auto                httpReaderTestPort = getHttpReaderTestPort();
+    FixedResponseServer server(httpReaderTestPort, response);
 
     const auto socket = make_shared<TCPSocket>();
-    socket->open({"127.0.0.1", kHttpReaderTestPort2});
+    socket->open({"127.0.0.1", httpReaderTestPort});
 
     Buffer     out;
     HttpReader reader(socket, out, HttpReader::ReadMode::RESPONSE);
@@ -178,10 +182,11 @@ TEST(HttpReaderTests, requestModeParsesRequestLineAndHeaders)
                             s->close();
                         });
 
-    server.addListener(ServerConnection::Type::TCP, {"127.0.0.1", kHttpReaderTestPort3});
+    auto httpReaderTestPort = getHttpReaderTestPort();
+    server.addListener(ServerConnection::Type::TCP, {"127.0.0.1", httpReaderTestPort});
 
     TCPSocket client;
-    client.open({"127.0.0.1", kHttpReaderTestPort3});
+    client.open({"127.0.0.1", httpReaderTestPort});
 
     client.write(
         "GET /unit-test HTTP/1.1\r\n"

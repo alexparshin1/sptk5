@@ -29,9 +29,8 @@
 using namespace std;
 using namespace sptk;
 
-SocketPool::SocketPool(const SocketPoolTriggerMode triggerMode, const size_t maxEvents, const size_t dispatchThreadCount)
+SocketPool::SocketPool(const SocketPoolTriggerMode triggerMode, const size_t maxEvents)
     : m_maxEvents(maxEvents)
-    , m_dispatchThreadCount(dispatchThreadCount)
     , m_triggerMode(triggerMode)
 {
     open();

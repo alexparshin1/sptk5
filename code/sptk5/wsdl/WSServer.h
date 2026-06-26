@@ -41,8 +41,8 @@ namespace sptk {
  * @brief Web Service Server.
  *
  * Simple server to accept Web Service requests.
- * Actual request processing is implemented in Web Service request processor,
- * passed to constructor.
+ * Actual request processing is implemented in the Web Service request processor,
+ * passed to the constructor.
  * As a bonus, WSServer also serves static files, located in staticFilesDirectory.
  * That may be used to implement a web application.
  *
