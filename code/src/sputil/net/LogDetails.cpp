@@ -24,62 +24,42 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#pragma once
+#include <sptk5/net/LogDetails.h>
 
-#include "sptk5/net/LogDetails.h"
-#include "sptk5/wsdl/protocol/BaseWebServiceProtocol.h"
-#include <sptk5/cnet>
-#include <sptk5/net/HttpResponseStatus.h>
-#include <sptk5/net/URL.h>
-#include <sptk5/wsdl/WSServices.h>
+using namespace std;
+using namespace sptk;
 
-namespace sptk {
-/// @addtogroup wsdl WSDL-related Classes
-/// @{
+const map<String, LogDetails::MessageDetail> LogDetails::detailNames {
+    {"serial_id", MessageDetail::SERIAL_ID},
+    {"source_ip", MessageDetail::SOURCE_IP},
+    {"request_name", MessageDetail::REQUEST_NAME},
+    {"request_duration", MessageDetail::REQUEST_DURATION},
+    {"request_data", MessageDetail::REQUEST_DATA},
+    {"response_data", MessageDetail::RESPONSE_DATA},
+    {"thread_pooling", MessageDetail::THREAD_POOLING}};
 
-/// WebService connection handler
-///
-/// Uses WSRequest service object to parse WS request and
-/// reply, then closes connection.
-class SP_EXPORT WSWebServiceProtocol : public BaseWebServiceProtocol
+LogDetails::LogDetails(const Strings& details)
 {
-public:
-    /**
-     * Constructor
-     * @param httpReader        Connection socket
-     * @param url               Method URL
-     * @param headers           Connection HTTP headers
-     * @param service           Services that handle request
-     * @param host              Listener's hostname
-     * @param port              Listener's port
-     * @param allowCORS         Allow CORS
-     * @param keepAlive         Keep alive
-     */
-    WSWebServiceProtocol(HttpReader& httpReader, const URL& url, WSServices& services,
-                         Host host, bool allowCORS, bool keepAlive, bool suppressHttpStatus);
+    for (const auto& detailName: details)
+    {
+        const auto itor = detailNames.find(detailName);
+        if (itor == detailNames.end())
+        {
+            continue;
+        }
+        m_details.insert(itor->second);
+    }
+}
 
-    /*
-     * Process method
-     *
-     * Calls WebService request through service object
-     */
-    RequestInfo process() override;
-
-    void generateFault(Buffer& output, HttpResponseStatus& httpStatus, String& contentType,
-                       const HTTPException& e, bool jsonOutput) const override;
-
-protected:
-    std::shared_ptr<HttpAuthentication> getAuthentication() override;
-
-private:
-    HttpReader& m_httpReader;         ///< HTTP reader
-    Host        m_host;               ///< Listener's host
-    bool        m_allowCORS;          ///< Allow CORS?
-    bool        m_keepAlive;          ///< Allow keep-alive connections
-    bool        m_suppressHttpStatus; ///< If true, then HTTP status is 202 Accepted even if HttpException raised
-    LogDetails  m_logDetails;         ///< Log details
-};
-
-/// @}
-
-} // namespace sptk
+String LogDetails::toString(const String& delimiter) const
+{
+    Strings names;
+    for (const auto& [name, value]: detailNames)
+    {
+        if (m_details.contains(value))
+        {
+            names.push_back(name);
+        }
+    }
+    return names.join(delimiter.c_str());
+}

@@ -25,8 +25,8 @@
 */
 
 #include <sptk5/cutils>
+#include <sptk5/net/FastTCPServer.h>
 #include <sptk5/net/ServerConnection.h>
-#include <sptk5/net/TCPServer.h>
 
 #ifdef _WIN32
 #include <ws2tcpip.h>

@@ -35,8 +35,9 @@
 #include <sptk5/net/MailMessageBody.h>
 #include <sptk5/net/SSLSocket.h>
 #include <sptk5/net/SmtpConnect.h>
-#include <sptk5/net/TCPServer.h>
+#include <sptk5/net/FastTCPServer.h>
 #include <sptk5/net/TCPServerConnection.h>
+#include <sptk5/net/SSLServerConnection.h>
 #include <sptk5/net/UDPSocket.h>
 
 #endif

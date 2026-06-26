@@ -28,7 +28,6 @@
 #include <sptk5/net/FastTCPServer.h>
 #include <sptk5/net/SSLServerConnection.h>
 #include <sptk5/net/SocketReader.h>
-#include <sptk5/net/TCPServerListener.h>
 
 #include "test/TestData.h"
 

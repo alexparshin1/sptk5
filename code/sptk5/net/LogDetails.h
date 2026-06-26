@@ -26,60 +26,88 @@
 
 #pragma once
 
-#include "sptk5/net/LogDetails.h"
-#include "sptk5/wsdl/protocol/BaseWebServiceProtocol.h"
-#include <sptk5/cnet>
-#include <sptk5/net/HttpResponseStatus.h>
-#include <sptk5/net/URL.h>
-#include <sptk5/wsdl/WSServices.h>
+#include <sptk5/Strings.h>
+#include <sptk5/sptk.h>
+
+#include <set>
 
 namespace sptk {
-/// @addtogroup wsdl WSDL-related Classes
-/// @{
 
-/// WebService connection handler
-///
-/// Uses WSRequest service object to parse WS request and
-/// reply, then closes connection.
-class SP_EXPORT WSWebServiceProtocol : public BaseWebServiceProtocol
+/**
+* @brief Log information details.
+ *
+ * Define information about server activities that should be logged.
+ */
+class SP_EXPORT LogDetails
 {
 public:
     /**
-     * Constructor
-     * @param httpReader        Connection socket
-     * @param url               Method URL
-     * @param headers           Connection HTTP headers
-     * @param service           Services that handle request
-     * @param host              Listener's hostname
-     * @param port              Listener's port
-     * @param allowCORS         Allow CORS
-     * @param keepAlive         Keep alive
+     * @brief Log details constants.
      */
-    WSWebServiceProtocol(HttpReader& httpReader, const URL& url, WSServices& services,
-                         Host host, bool allowCORS, bool keepAlive, bool suppressHttpStatus);
+    enum class MessageDetail : uint8_t
+    {
+        SERIAL_ID,
+        SOURCE_IP,
+        REQUEST_NAME,
+        REQUEST_DURATION,
+        REQUEST_DATA,
+        RESPONSE_DATA,
+        THREAD_POOLING
+    };
 
-    /*
-     * Process method
-     *
-     * Calls WebService request through service object
+    using MessageDetails = std::set<MessageDetail>;
+
+    /**
+     * @brief Default constructor.
      */
-    RequestInfo process() override;
+    LogDetails() = default;
 
-    void generateFault(Buffer& output, HttpResponseStatus& httpStatus, String& contentType,
-                       const HTTPException& e, bool jsonOutput) const override;
+    /**
+     * @brief Constructor.
+     * @param details           Log details.
+     */
+    explicit LogDetails(MessageDetails details)
+        : m_details(std::move(details))
+    {
+    }
 
-protected:
-    std::shared_ptr<HttpAuthentication> getAuthentication() override;
+    /**
+     * @brief Constructor.
+     * @param details           Log details as the lower case strings.
+     */
+    explicit LogDetails(const Strings& details);
+
+    /**
+     * @brief Constructor.
+     * @param details           Log details.
+     */
+    LogDetails(std::initializer_list<MessageDetail> details)
+    {
+        for (auto detail: details)
+        {
+            m_details.insert(detail);
+        }
+    }
+
+    [[nodiscard]] String toString(const String& delimiter = ",") const;
+
+    /**
+     * @brief Query log details.
+     * @param detail            Log detail.
+     * @return true if log detail is set.
+     */
+    [[nodiscard]] bool has(MessageDetail detail) const
+    {
+        return m_details.contains(detail);
+    }
+
+    [[nodiscard]] bool empty() const
+    {
+        return m_details.empty();
+    }
 
 private:
-    HttpReader& m_httpReader;         ///< HTTP reader
-    Host        m_host;               ///< Listener's host
-    bool        m_allowCORS;          ///< Allow CORS?
-    bool        m_keepAlive;          ///< Allow keep-alive connections
-    bool        m_suppressHttpStatus; ///< If true, then HTTP status is 202 Accepted even if HttpException raised
-    LogDetails  m_logDetails;         ///< Log details
+    MessageDetails                               m_details; ///< Log details set.
+    static const std::map<String, MessageDetail> detailNames;
 };
-
-/// @}
-
 } // namespace sptk

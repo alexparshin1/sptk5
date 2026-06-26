@@ -38,7 +38,6 @@
 #include <sptk5/net/HttpConnect.h>
 #include <sptk5/net/SSLSocket.h>
 #include <sptk5/net/ServerConnection.h>
-#include <sptk5/net/TCPServer.h>
 #include <sptk5/test/TestRunner.h>
 #include <sptk5/threads/Timer.h>
 #include <sptk5/wsdl/WSComplexType.h>
@@ -55,7 +54,7 @@ using namespace sptk;
 /**
  * Stub TCP server - testing only
  */
-class StubServer: public FastTCPServer
+class StubServer : public FastTCPServer
 {
 public:
     StubServer()

@@ -26,9 +26,7 @@
 
 #pragma once
 
-#include "sptk5/threads/ReadWriteLock.h"
 #include "sptk5/threads/ReadWriteMutex.h"
-
 
 #include <sptk5/Logger.h>
 #include <sptk5/net/Host.h>
