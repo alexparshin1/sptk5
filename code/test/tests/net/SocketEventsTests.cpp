@@ -24,7 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include "TestEchoServer.h"
+#include "FastEchoServer.h"
 #include "sptk5/Stopwatch.h"
 
 #include <fcntl.h>
@@ -97,7 +97,7 @@ void testSocketEvents(const SocketPoolTriggerMode triggerMode)
 
     try
     {
-        TestEchoServer testEchoServer(testEchoServerPort);
+        FastEchoServer testEchoServer(testEchoServerPort);
 
         auto socket = make_shared<TCPSocket>();
         socket->open(Host("localhost", testEchoServerPort));
@@ -163,7 +163,7 @@ TEST(SocketEventsTests, minimalOneShot)
 
 TEST(SocketEventsTests, performance)
 {
-    TestEchoServer testEchoServer(testEchoServerPort);
+    FastEchoServer testEchoServer(testEchoServerPort);
 
     SocketEvents<Socket> socketEvents(
         "test events",

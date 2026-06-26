@@ -25,6 +25,7 @@
 */
 
 #include <sptk5/cutils>
+#include <sptk5/net/FastTCPServer.h>
 #include <sptk5/net/SSLServerConnection.h>
 #include <sptk5/net/SocketReader.h>
 #include <sptk5/net/TCPServerListener.h>
@@ -41,145 +42,113 @@ namespace {
 constexpr uint16_t testTcpEchoServerPort = 3001;
 constexpr uint16_t testSslEchoServerPort = 3002;
 
-void echoTestFunction(const ServerConnection& connection)
+/**
+ * @brief Connection that carries a per-connection SocketReader for the event-driven echo server.
+ *
+ * The reactor delivers events level-triggered, so the reader must persist between events: bytes it
+ * buffers (a partially received line) have already left the kernel socket and would be lost if a
+ * fresh reader were created for the next event.
+ */
+class FastEchoConnection final : public ServerConnection
 {
-    SocketReader reader(connection.getSocket());
-
-    COUT("Server connection started\n");
-    Buffer data;
-    while (true)
+public:
+    FastEchoConnection(const Type type, const sockaddr_in* peer)
+        : ServerConnection(type, peer)
     {
+    }
+
+    std::shared_ptr<SocketReader> reader;
+};
+
+/**
+ * @brief Event-driven, line-based echo server built on FastTCPServer.
+ *
+ * Echoes every received line back to the client with a trailing newline.
+ */
+class FastEchoServer final : public FastTCPServer
+{
+public:
+    explicit FastEchoServer(const string& name)
+        : FastTCPServer(name)
+    {
+    }
+
+    ~FastEchoServer() override
+    {
+        stop();
+    }
+
+    SServerConnection createConnection(const ServerConnection::Type connectionType, const SocketType connectionSocket,
+                                       const sockaddr_in* peer) override
+    {
+        const auto socket = createConnectionSocket(connectionType, connectionSocket);
+
+        auto connection = make_shared<FastEchoConnection>(connectionType, peer);
+        connection->setSocket(socket);
+        connection->reader = make_shared<SocketReader>(socket);
+
+        return connection;
+    }
+
+protected:
+    void socketEventCallback(const shared_ptr<ServerConnection>& connection, const SocketEventType eventType) override
+    {
+        if (eventType.m_hangup || eventType.m_error)
+        {
+            closeConnection(connection);
+            return;
+        }
+
+        if (!eventType.m_data)
+        {
+            return;
+        }
+
+        const auto echoConnection = dynamic_pointer_cast<FastEchoConnection>(connection);
+        if (!echoConnection)
+        {
+            return;
+        }
+
+        const auto& reader = echoConnection->reader;
+        Buffer      data;
         try
         {
-            if (reader.readyToRead(chrono::seconds(1)))
+            // Drain every complete line currently available: the reactor will not re-signal for
+            // lines already buffered out of the kernel socket. A partial line throws here (no data
+            // yet) and is left buffered for the next event.
+            while (connection->getSocket()->active() && reader->readyToRead(chrono::milliseconds(0)))
             {
-                if (reader.readLine(data) == 0)
+                if (reader->readLine(data) == 0)
                 {
-                    return;
+                    break;
                 }
-
                 string str(data.c_str());
                 str += "\n";
-                connection.getSocket()->write(str);
+                connection->getSocket()->write(str);
             }
         }
-        catch (const Exception& e)
+        catch (const Exception&)
         {
-            CERR(e.what());
-            break;
+            // No more data ready, or the client went away mid-line.
+        }
+
+        if (!connection->getSocket()->active())
+        {
+            closeConnection(connection);
         }
     }
-    connection.getSocket()->close();
-    COUT("Server connection closed\n");
-}
-
-constexpr size_t packetsInTest = 100000;
-constexpr size_t packetSize = 50;
-
-void performanceTestFunction(const ServerConnection& serverConnection)
-{
-    Buffer data(packetSize);
-
-    for (size_t i = 0; i < packetSize; ++i)
-    {
-        constexpr uint8_t eightBits = 255;
-        data[i] = static_cast<uint8_t>(i % eightBits);
-    }
-    data.bytes(packetSize);
-
-    Stopwatch stopWatch;
-    stopWatch.start();
-
-    const auto* dataPtr = data.data();
-    for (size_t packetNumber = 0; packetNumber < packetsInTest; ++packetNumber)
-    {
-        try
-        {
-            if (const auto res = static_cast<int>(serverConnection.getSocket()->write(dataPtr, packetSize));
-                res < 0)
-            {
-                throwSocketError("Error writing to socket");
-            }
-        }
-        catch (const Exception& e)
-        {
-            CERR(e.what());
-        }
-    }
-    stopWatch.stop();
-
-    COUT("Sent " << packetsInTest << " packets at the rate " << fixed << setprecision(2) << packetsInTest / stopWatch.seconds() << "/s, or "
-                 << packetsInTest * packetSize / stopWatch.seconds() / 1024 / 1024 << " Mb/s\n");
-
-    if (constexpr chrono::seconds timeout(10);
-        !serverConnection.getSocket()->readyToRead(timeout))
-    {
-        CERR("Timeout waiting for response");
-    }
-    serverConnection.getSocket()->close();
-}
+};
 
 } // namespace
-namespace sptk {
 
-TEST(TCPServerTests,tcpMinimal)
+TEST(FastTcpServerTests, sslMinimal)
 {
     Buffer buffer;
 
     try
     {
-        TCPServer echoServer("TestServer");
-        echoServer.onConnection(echoTestFunction);
-        echoServer.addListener(ServerConnection::Type::TCP, {"localhost", testTcpEchoServerPort});
-
-        auto         socket = make_shared<TCPSocket>();
-        SocketReader socketReader(socket);
-
-        socket->open({"localhost", testTcpEchoServerPort});
-
-        const Strings rows({
-            "Hello, World!",
-            "This is a test of TCPServer class.",
-            "Using simple echo server to verify data flow.",
-            "The session is terminated when this row is received.",
-        });
-
-        this_thread::sleep_for(5ms);
-
-        int rowCount = 0;
-        for (const auto& row: rows)
-        {
-            socket->write(row + "\n");
-            buffer.bytes(0);
-            if (socketReader.readyToRead(3s))
-            {
-                socketReader.readLine(buffer);
-            }
-            EXPECT_STREQ(row.c_str(), buffer.c_str());
-            ++rowCount;
-        }
-
-        EXPECT_EQ(4, rowCount);
-        socket->close();
-
-        COUT("Client connection closed\n");
-
-        echoServer.stop();
-    }
-    catch (const Exception& e)
-    {
-        FAIL() << e.what();
-    }
-}
-
-TEST(TCPServerTests,sslMinimal)
-{
-    Buffer buffer;
-
-    try
-    {
-        TCPServer echoServer("TestServer");
-        echoServer.onConnection(echoTestFunction);
+        FastEchoServer echoServer("TestServer");
 
         const auto keysDirectory = TestData::SslKeysDirectory();
         const auto keys = make_shared<SSLKeys>(keysDirectory / "mycert.pem", keysDirectory / "mycert.pem");
@@ -234,231 +203,3 @@ TEST(TCPServerTests,sslMinimal)
         FAIL() << e.what();
     }
 }
-
-namespace {
-shared_ptr<TCPServer> makePerformanceTestServer(const ServerConnection::Type connectionType, const std::function<void(ServerConnection&)>& performanceTestFunction)
-{
-    auto pushTcpServer = make_shared<TCPServer>("Performance Test Server");
-
-    pushTcpServer->onConnection(performanceTestFunction);
-
-    if (connectionType == ServerConnection::Type::SSL)
-    {
-        const auto certFile = TestData::SslKeysDirectory() / "mycert.pem";
-        if (!filesystem::exists(certFile))
-        {
-            CERR("Certificate file " << certFile.string() << " does not exist.");
-            return nullptr;
-        }
-        const auto keys = make_shared<SSLKeys>(certFile, certFile);
-        pushTcpServer->setSSLKeys(keys);
-        pushTcpServer->addListener(ServerConnection::Type::SSL, {"localhost", testSslEchoServerPort});
-    }
-    else
-    {
-        pushTcpServer->addListener(ServerConnection::Type::TCP, {"localhost", testTcpEchoServerPort});
-    }
-
-    return pushTcpServer;
-}
-
-template<typename T>
-size_t readAllPackets(T& reader, size_t readSize)
-{
-    const auto readBuffer = make_shared<Buffer>(readSize);
-
-    size_t packetCount = 0;
-    for (; packetCount < packetsInTest; ++packetCount)
-    {
-        if (reader.read(readBuffer->data(), 1) == 0 ||
-            reader.read(readBuffer->data(), 3) == 0 ||
-            reader.read(readBuffer->data(), readSize - 4) == 0)
-        {
-            break;
-        }
-    }
-
-    reader.close();
-
-    return packetCount;
-}
-
-void printPerformanceTestResult(const String& testLabel, const size_t readSize, const Stopwatch& stopWatch, const size_t packetCount)
-{
-    COUT(testLabel << " received " << packetCount
-                   << " packets at the rate " << fixed << setprecision(2) << static_cast<double>(packetCount) / stopWatch.seconds() << "/s, or "
-                   << static_cast<double>(packetCount * readSize) / stopWatch.seconds() / 1024 / 1024 << " Mb/s\n\n");
-}
-
-void testAcceptPerformance(const ServerConnection::Type connectionType, const String& testLabel)
-{
-    auto pushTcpServer = makePerformanceTestServer(connectionType,
-                                                   [](ServerConnection& serverConnection)
-                                                   {
-                                                   });
-
-    constexpr size_t connectionNumber {1000};
-    Stopwatch        stopWatch;
-
-    vector<shared_ptr<TCPSocket>> sockets;
-    for (size_t i = 0; i < connectionNumber; ++i)
-    {
-        const shared_ptr<TCPSocket> socket = connectionType == ServerConnection::Type::TCP
-                                                 ? make_shared<TCPSocket>()
-                                                 : make_shared<SSLSocket>();
-        sockets.push_back(socket);
-    }
-
-    const auto serverPortNumber = connectionType == ServerConnection::Type::TCP
-                                      ? testTcpEchoServerPort
-                                      : testSslEchoServerPort;
-
-    size_t connectedCount = 0;
-    try
-    {
-        stopWatch.start();
-        for (const auto& socket: sockets)
-        {
-            socket->open(Host("localhost", serverPortNumber));
-            ++connectedCount;
-            if (connectedCount % 100 == 0)
-            {
-                cout << "\rAccepted " << connectedCount << flush;
-            }
-        }
-        stopWatch.stop();
-    }
-    catch (const Exception& e)
-    {
-        stringstream errorMessage;
-        errorMessage << "\n"
-                     << e.what() << ", connected " << connectedCount << " sockets";
-        throw Exception(errorMessage.str());
-    }
-    COUT("");
-
-    pushTcpServer->stop();
-
-    COUT(testLabel << " accepted " << connectedCount
-                   << " connections at the rate " << fixed << setprecision(2) << static_cast<double>(connectedCount) / stopWatch.seconds() << "/s");
-}
-
-void testTransferPerformance(const ServerConnection::Type connectionType, const String& testLabel)
-{
-    auto pushTcpServer = makePerformanceTestServer(connectionType, performanceTestFunction);
-
-    constexpr size_t readSize {packetSize};
-    Stopwatch        stopWatch;
-
-    const shared_ptr<TCPSocket> socket = connectionType == ServerConnection::Type::TCP
-                                             ? make_shared<TCPSocket>()
-                                             : make_shared<SSLSocket>();
-
-    const auto serverPortNumber = connectionType == ServerConnection::Type::TCP
-                                      ? testTcpEchoServerPort
-                                      : testSslEchoServerPort;
-
-    socket->open(Host("localhost", serverPortNumber));
-
-    stopWatch.start();
-    const size_t packetCount = readAllPackets(*socket, readSize);
-    stopWatch.stop();
-
-    pushTcpServer->stop();
-
-    printPerformanceTestResult(testLabel, readSize, stopWatch, packetCount);
-}
-} // namespace
-
-TEST(TCPServerTests,tcpTransferPerformance)
-{
-    try
-    {
-        testTransferPerformance(ServerConnection::Type::TCP, "TCP");
-    }
-    catch (const Exception& e)
-    {
-        FAIL() << e.what();
-    }
-}
-
-TEST(TCPServerTests,sslTransferPerformance)
-{
-    try
-    {
-        testTransferPerformance(ServerConnection::Type::SSL, "SSL");
-    }
-    catch (const Exception& e)
-    {
-        FAIL() << e.what();
-    }
-}
-
-namespace {
-void testReaderTransferPerformance(const ServerConnection::Type connectionType, const String& testLabel)
-{
-    auto pushTcpServer = makePerformanceTestServer(connectionType, performanceTestFunction);
-
-    const shared_ptr<TCPSocket> socket = connectionType == ServerConnection::Type::TCP
-                                             ? make_shared<TCPSocket>()
-                                             : make_shared<SSLSocket>();
-
-    const auto serverPortNumber = connectionType == ServerConnection::Type::TCP
-                                      ? testTcpEchoServerPort
-                                      : testSslEchoServerPort;
-
-    socket->open(Host("localhost", serverPortNumber));
-
-    constexpr size_t readerBufferSize = 2048;
-    SocketReader     socketReader(socket, readerBufferSize);
-
-    constexpr size_t readSize {packetSize};
-
-    Stopwatch stopWatch;
-    stopWatch.start();
-    const size_t packetCount = readAllPackets(socketReader, readSize);
-    stopWatch.stop();
-
-    printPerformanceTestResult(testLabel, readSize, stopWatch, packetCount);
-
-    socket->close();
-}
-} // namespace
-
-TEST(TCPServerTests,tcpReaderTransferPerformance)
-{
-    try
-    {
-        testReaderTransferPerformance(ServerConnection::Type::TCP, "TCPReader");
-    }
-    catch (const Exception& e)
-    {
-        FAIL() << e.what();
-    }
-}
-
-TEST(TCPServerTests,sslReaderTransferPerformance)
-{
-    try
-    {
-        testReaderTransferPerformance(ServerConnection::Type::SSL, "SSLReader");
-    }
-    catch (const Exception& e)
-    {
-        FAIL() << e.what();
-    }
-}
-
-TEST(TCPServerTests,acceptPerformance)
-{
-    try
-    {
-        testAcceptPerformance(ServerConnection::Type::TCP, "TCP");
-    }
-    catch (const Exception& e)
-    {
-        FAIL() << e.what();
-    }
-}
-
-} // namespace sptk_test

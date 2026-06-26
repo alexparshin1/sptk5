@@ -27,8 +27,8 @@
 #include <gtest/gtest.h>
 
 #include <sptk5/Buffer.h>
+#include <sptk5/net/FastTCPServer.h>
 #include <sptk5/net/SocketReader.h>
-#include <sptk5/net/TCPServer.h>
 #include <sptk5/net/TCPSocket.h>
 
 #include <chrono>
@@ -50,29 +50,44 @@ uint16_t getSocketReaderTestPort()
 /**
  * @brief Test server that sends predefined data to clients.
  */
-class TestDataServer : public TCPServer
+class TestDataServer : public FastTCPServer
 {
 public:
     TestDataServer(uint16_t port, String data)
-        : TCPServer("SocketReader TestDataServer", 1)
+        : FastTCPServer("SocketReader TestDataServer")
         , m_data(std::move(data))
     {
-        onConnection([this](const ServerConnection& connection)
-                     {
-                         const auto s = connection.getSocket();
-                         try
-                         {
-                             s->write(m_data);
-                             this_thread::sleep_for(500ms);
-                         }
-                         catch (const exception& e)
-                         {
-                             CERR(e.what());
-                         }
-                         s->close();
-                     });
-
         addListener(ServerConnection::Type::TCP, {"127.0.0.1", port});
+    }
+
+    ~TestDataServer() override
+    {
+        stop();
+    }
+
+    /**
+     * @brief Push the predefined data to the freshly accepted connection, then close it.
+     *
+     * Pure push server: the client never sends anything, so the whole response is produced here,
+     * on the listener thread, and the connection is returned closed so the reactor does not
+     * monitor it.
+     */
+    SServerConnection createConnection(ServerConnection::Type connectionType, const SocketType connectionSocket,
+                                       const sockaddr_in* /*peer*/) override
+    {
+        const auto socket = createConnectionSocket(connectionType, connectionSocket);
+        try
+        {
+            socket->write(m_data);
+            this_thread::sleep_for(500ms);
+        }
+        catch (const exception& e)
+        {
+            CERR(e.what());
+        }
+        socket->close();
+
+        return {};
     }
 
 private:
@@ -82,34 +97,50 @@ private:
 /**
  * @brief Test server that sends data in chunks with delays.
  */
-class ChunkedDataServer : public TCPServer
+class ChunkedDataServer : public FastTCPServer
 {
 public:
     ChunkedDataServer(uint16_t port, vector<String> chunks, const chrono::milliseconds delay)
-        : TCPServer("SocketReader ChunkedDataServer", 1)
+        : FastTCPServer("SocketReader ChunkedDataServer")
         , m_chunks(std::move(chunks))
         , m_delay(delay)
     {
-        onConnection([this](const ServerConnection& connection)
-                     {
-                         const auto s = connection.getSocket();
-                         try
-                         {
-                             for (const auto& chunk: m_chunks)
-                             {
-                                 s->write(chunk);
-                                 this_thread::sleep_for(m_delay);
-                             }
-                         }
-                         catch (const exception& e)
-                         {
-                             // Any error interrupts connection.
-                             CERR(e.what());
-                         }
-                         s->close();
-                     });
-
         addListener(ServerConnection::Type::TCP, {"127.0.0.1", port});
+    }
+
+    ~ChunkedDataServer() override
+    {
+        stop();
+    }
+
+    /**
+     * @brief Push all chunks to the freshly accepted connection, then close it.
+     *
+     * This is a pure push server: the client never sends anything, so no read event would arrive
+     * to drive a socketEventCallback(). The whole response is produced here, on the listener thread,
+     * and the connection is returned closed so the reactor does not monitor it.
+     */
+    SServerConnection createConnection(ServerConnection::Type connectionType, const SocketType connectionSocket,
+                                       const sockaddr_in* /*peer*/) override
+    {
+        const auto socket = createConnectionSocket(connectionType, connectionSocket);
+        try
+        {
+            for (const auto& chunk: m_chunks)
+            {
+                socket->write(chunk);
+                this_thread::sleep_for(m_delay);
+            }
+        }
+        catch (const exception& e)
+        {
+            // Any error interrupts connection.
+            CERR(e.what());
+        }
+        socket->close();
+
+        // Connection is fully served and closed; nothing for the reactor to monitor.
+        return {};
     }
 
 private:

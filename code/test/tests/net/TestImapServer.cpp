@@ -72,16 +72,92 @@ const map<string, Command, less<>> commandMap = {
     {"fetch", Command::Fetch},
 };
 
+/**
+ * @brief Connection that carries a per-connection SocketReader.
+ *
+ * The reactor delivers events level-triggered, so the reader must persist between events: bytes it
+ * buffers (a pipelined or partially-received command) have already left the kernel socket and would
+ * otherwise be lost when a fresh reader is created for the next event.
+ */
+class ImapConnection final : public ServerConnection
+{
+public:
+    ImapConnection(const Type type, const sockaddr_in* peer)
+        : ServerConnection(type, peer)
+    {
+    }
+
+    std::shared_ptr<SocketReader> reader;
+};
+
 } // namespace
 
 TestImapServer::TestImapServer(uint16_t port)
-    : TCPServer("Test IMAP server")
+    : FastTCPServer("Test IMAP server")
 {
     addListener(ServerConnection::Type::TCP, {"localhost", port});
-    onConnection([](const ServerConnection& socket)
-                 {
-                     imapSession(socket);
-                 });
+}
+
+TestImapServer::~TestImapServer()
+{
+    // FastTCPServer requires derived classes to stop the reactor before their own members go away.
+    stop();
+}
+
+SServerConnection TestImapServer::createConnection(const ServerConnection::Type connectionType,
+                                                   const SocketType connectionSocket, const sockaddr_in* peer)
+{
+    const auto socket = createConnectionSocket(connectionType, connectionSocket);
+
+    auto connection = make_shared<ImapConnection>(connectionType, peer);
+    connection->setSocket(socket);
+    connection->reader = make_shared<SocketReader>(socket);
+
+    // IMAP server greeting, sent as soon as the connection is accepted.
+    socket->write("* OK IMAP4rev1 Service Ready\r\n");
+
+    return connection;
+}
+
+void TestImapServer::socketEventCallback(const shared_ptr<ServerConnection>& connection, const SocketEventType eventType)
+{
+    if (eventType.m_hangup || eventType.m_error)
+    {
+        closeConnection(connection);
+        return;
+    }
+
+    if (!eventType.m_data)
+    {
+        return;
+    }
+
+    const auto imapConnection = dynamic_pointer_cast<ImapConnection>(connection);
+    if (!imapConnection)
+    {
+        return;
+    }
+
+    const auto& reader = imapConnection->reader;
+    try
+    {
+        // Drain every complete command currently available: pipelined commands buffered in the
+        // reader will not produce another reactor event. A partial command throws here (no data yet)
+        // and is left buffered for the next event.
+        while (connection->getSocket()->active() && reader->readyToRead(chrono::milliseconds(0)))
+        {
+            readIncomingData(reader);
+        }
+    }
+    catch (const Exception&)
+    {
+        // No more data ready, or the client went away mid-command.
+    }
+
+    if (!connection->getSocket()->active())
+    {
+        closeConnection(connection);
+    }
 }
 
 void TestImapServer::readIncomingData(const shared_ptr<SocketReader>& socketReader)
@@ -298,30 +374,4 @@ void TestImapServer::handle_cmd_fetch(const shared_ptr<SocketReader>& socketRead
 void TestImapServer::handle_cmd_logout(const std::shared_ptr<SocketReader>& socketReader, const std::string& ident)
 {
     socketReader->close();
-}
-
-void TestImapServer::imapSession(const ServerConnection& socket)
-{
-    const auto clientSocket = make_shared<TCPSocket>();
-    const auto clientReader = make_shared<SocketReader>(clientSocket);
-
-    clientSocket->attach(socket.getSocket()->detach(), false);
-    clientSocket->setOption(IPPROTO_TCP, TCP_NODELAY, 1);
-    clientSocket->blockingMode(false);
-
-    // IMAP server greeting
-    clientSocket->write("* OK IMAP4rev1 Service Ready\r\n");
-
-    while (clientSocket->active())
-    {
-        if (clientReader->readyToRead(1s))
-        {
-            if (clientReader->availableBytes() == 0)
-            {
-                clientReader->close();
-                break;
-            }
-            readIncomingData(clientReader);
-        }
-    }
 }

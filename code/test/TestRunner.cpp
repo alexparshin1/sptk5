@@ -34,6 +34,7 @@
 #include <sptk5/Tar.h>
 #include <sptk5/db/DatabaseConnectionPool.h>
 #include <sptk5/db/DatabaseTests.h>
+#include <sptk5/net/FastTCPServer.h>
 #include <sptk5/net/HttpConnect.h>
 #include <sptk5/net/SSLSocket.h>
 #include <sptk5/net/ServerConnection.h>
@@ -54,17 +55,16 @@ using namespace sptk;
 /**
  * Stub TCP server - testing only
  */
-class StubServer
-    : public TCPServer
+class StubServer: public FastTCPServer
 {
 public:
     StubServer()
-        : TCPServer("test")
+        : FastTCPServer("test")
     {
     }
 
 protected:
-    UServerConnection createConnection(ServerConnection::Type, SocketType, const sockaddr_in*) override
+    SServerConnection createConnection(ServerConnection::Type, SocketType, const sockaddr_in*) override
     {
         return nullptr;
     }

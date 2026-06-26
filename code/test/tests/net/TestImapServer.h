@@ -26,15 +26,15 @@
 
 #pragma once
 
+#include "sptk5/net/FastTCPServer.h"
 #include "sptk5/net/SocketReader.h"
-#include "sptk5/net/TCPServer.h"
 
 #include <sptk5/cutils>
 
 namespace sptk {
 class TCPSocket;
 
-class TestImapServer final : public TCPServer
+class TestImapServer final : public FastTCPServer
 {
 public:
     /**
@@ -43,9 +43,21 @@ public:
      */
     explicit TestImapServer(uint16_t port);
 
-private:
-    static void imapSession(const ServerConnection& socket);
+    ~TestImapServer() override;
 
+protected:
+    /**
+     * @brief Create an IMAP connection and send the server greeting.
+     */
+    SServerConnection createConnection(ServerConnection::Type connectionType, SocketType connectionSocket,
+                                       const sockaddr_in* peer) override;
+
+    /**
+     * @brief Process IMAP commands as they arrive on a monitored connection.
+     */
+    void socketEventCallback(const std::shared_ptr<ServerConnection>& connection, SocketEventType eventType) override;
+
+private:
     /**
      * @brief Read incoming data.
      */

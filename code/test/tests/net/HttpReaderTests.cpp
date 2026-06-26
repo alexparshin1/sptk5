@@ -27,6 +27,7 @@
 #include <gtest/gtest.h>
 
 #include <sptk5/Buffer.h>
+#include <sptk5/net/FastTCPServer.h>
 #include <sptk5/net/HttpReader.h>
 #include <sptk5/net/TCPServer.h>
 #include <sptk5/net/TCPSocket.h>
@@ -46,28 +47,42 @@ uint16_t getHttpReaderTestPort()
     return port++;
 }
 
-class FixedResponseServer : public TCPServer
+class FixedResponseServer : public FastTCPServer
 {
 public:
     FixedResponseServer(uint16_t port, String response)
-        : TCPServer("HttpReader FixedResponseServer", 1)
+        : FastTCPServer("HttpReader FixedResponseServer")
         , m_response(std::move(response))
     {
-        onConnection([this](const ServerConnection& connection)
-                     {
-                         const auto s = connection.getSocket();
-                         try
-                         {
-                             s->write(m_response);
-                         }
-                         catch (const exception& exception)
-                         {
-                             CERR(exception.what());
-                         }
-                         s->close();
-                     });
-
         addListener(ServerConnection::Type::TCP, {"127.0.0.1", port});
+    }
+
+    ~FixedResponseServer() override
+    {
+        stop();
+    }
+
+    /**
+     * @brief Write the fixed response to the freshly accepted connection, then close it.
+     *
+     * Pure push server: the client only reads, so the whole response is produced here, on the
+     * listener thread, and the connection is returned closed so the reactor does not monitor it.
+     */
+    SServerConnection createConnection(ServerConnection::Type connectionType, const SocketType connectionSocket,
+                                       const sockaddr_in* /*peer*/) override
+    {
+        const auto socket = createConnectionSocket(connectionType, connectionSocket);
+        try
+        {
+            socket->write(m_response);
+        }
+        catch (const exception& exception)
+        {
+            CERR(exception.what());
+        }
+        socket->close();
+
+        return {};
     }
 
 private:
