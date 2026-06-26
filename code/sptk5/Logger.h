@@ -27,6 +27,7 @@
 #pragma once
 
 #include "LogPriority.h"
+#include <format>
 #include <functional>
 #include <sptk5/DateTime.h>
 #include <sptk5/sptk.h>
@@ -98,6 +99,26 @@ public:
      */
     void log(LogPriority priority, const std::string& message) const;
     void log(LogPriority priority, const OutputString& output) const;
+
+    /**
+     * @brief Log message with any priority, using std::format-style arguments.
+     *
+     * The message is only formatted when the priority is enabled, so call sites pay the
+     * formatting cost only when the message is actually logged.
+     * @param priority          Message priority.
+     * @param fmt               Compile-time checked format string.
+     * @param args              Format arguments.
+     */
+    template<typename... Args>
+        requires(sizeof...(Args) > 0)
+    void log(LogPriority priority, std::format_string<Args...> fmt, Args&&... args) const
+    {
+        if (!has(priority))
+        {
+            return;
+        }
+        log(priority, std::vformat(fmt.get(), std::make_format_args(args...)));
+    }
 
     /**
      * @brief Log message with debug priority.
