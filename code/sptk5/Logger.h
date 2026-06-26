@@ -98,6 +98,12 @@ public:
      * @param message           Message text.
      */
     void log(LogPriority priority, const std::string& message) const;
+
+    /**
+     * @brief Log message with any priority.
+     * @param priority          Message priority.
+     * @param output            Message formatting callback function.
+     */
     void log(LogPriority priority, const OutputString& output) const;
 
     /**
