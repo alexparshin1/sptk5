@@ -77,27 +77,31 @@ void SocketReader::handleReadFromSocketError(const int error) const
 size_t SocketReader::readFromSocket()
 {
     m_readOffset = 0;
-    int error;
-    do
+    while (true)
     {
-        error = 0;
-        if (const auto receivedBytes = static_cast<int>(m_socket->read(m_buffer.data(), m_buffer.capacity()));
-            receivedBytes == -1)
+        try
+        {
+            // Socket::read() throws RepeatOperationException on EAGAIN/EWOULDBLOCK rather than
+            // returning -1, so the wait-and-retry on a non-blocking socket is driven by the catch
+            // below. A graceful peer close returns 0 bytes (no exception) and ends the read.
+            const auto receivedBytes = m_socket->read(m_buffer.data(), m_buffer.capacity());
+            m_buffer.bytes(receivedBytes);
+            return receivedBytes;
+        }
+        catch (const RepeatOperationException&)
         {
             m_buffer.bytes(0);
-            if (m_socket->active())
+            if (!m_socket->active())
             {
-                error = getSocketError();
-                handleReadFromSocketError(error);
+                return 0;
             }
+            // No data available yet. handleReadFromSocketError() waits for the socket to become
+            // readable and throws TimeoutException if nothing arrives within its timeout; otherwise
+            // it returns and we retry the read. This lets read(dest, size) honor its contract of
+            // delivering the full requested size even when the peer sends it in fragments.
+            handleReadFromSocketError(EAGAIN);
         }
-        else
-        {
-            m_buffer.bytes(static_cast<size_t>(receivedBytes));
-        }
-    } while (error == EAGAIN);
-
-    return m_buffer.bytes();
+    }
 }
 
 // Minimum growth step when the read buffer needs to be enlarged. Growth is

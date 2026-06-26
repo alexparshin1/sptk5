@@ -63,7 +63,7 @@ public:
 
     /**
      * @brief Set the counter's value.
-     * @param value             New counter value.
+     * @param value             New counter's value.
      */
     void set(int value);
 

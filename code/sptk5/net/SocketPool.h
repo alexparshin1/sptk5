@@ -237,8 +237,8 @@ public:
             throw Exception("SocketObjectPool::add(): socket is null");
         }
 
-        auto*      socketPtr = socket.get();
-        const auto fd = socketPtr->fd();
+        const auto* socketPtr = socket.get();
+        const auto  fd = socketPtr->fd();
         if (fd == INVALID_SOCKET)
         {
             return;
@@ -262,11 +262,7 @@ public:
             throw Exception("SocketObjectPool::remove(): socket is null");
         }
 
-        if (const auto fd = socket->fd();
-            fd != INVALID_SOCKET)
-        {
-            removeSocket(fd); // DEL: the kernel delivers no further events for this socket.
-        }
+        removeSocket(socket->fd()); // DEL: the kernel delivers no further events for this socket.
     }
 
 protected:

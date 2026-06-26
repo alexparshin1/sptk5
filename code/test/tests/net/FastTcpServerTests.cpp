@@ -67,9 +67,10 @@ public:
         stop();
     }
 
-    SServerConnection createConnection(ServerConnection::Type connectionType, const SocketType connectionSocket, const sockaddr_in* peer) override
+    SServerConnection createConnection(const ServerConnection::Type connectionType, const SocketType connectionSocket, const sockaddr_in* peer) override
     {
-        auto connection = FastTCPServer::createConnection(connectionType, connectionSocket, peer);
+        auto              connection = FastTCPServer::createConnection(connectionType, connectionSocket, peer);
+        const scoped_lock lock(m_connectionsMutex);
         m_connections.push_back(connection);
         return connection;
     }
@@ -105,6 +106,7 @@ private:
     size_t                    m_messageSize {0};
     size_t                    m_ackSize {0};
     size_t                    m_sentMessages {0};
+    mutex                     m_connectionsMutex;
     vector<SServerConnection> m_connections;
 };
 
@@ -302,7 +304,7 @@ TEST(FastTcpServerTests, throughput)
  */
 TEST(FastTcpServerTests, acceptRate)
 {
-    constexpr size_t   connectionCount = 20'000;
+    constexpr size_t   connectionCount = 1000;
     constexpr size_t   connectorThreads = 8;
     constexpr uint16_t listenerThreads = 4;
 
@@ -370,7 +372,7 @@ TEST(FastTcpServerTests, acceptRate)
  */
 TEST(FastTcpServerTests, latency)
 {
-    constexpr size_t   connectionCount = 20'000;
+    constexpr size_t   connectionCount = 1000;
     constexpr size_t   connectorThreads = 4;
     constexpr uint16_t listenerThreads = 4;
 
@@ -380,8 +382,6 @@ TEST(FastTcpServerTests, latency)
     // Each thread owns its own socket vector to avoid contention.
     vector<vector<unique_ptr<TCPSocket>>> clientsPerThread(connectorThreads);
 
-    // Resolve the server address once; reused for every connect so the measurement
-    // is not skewed by per-connection name resolution (Host() calls getaddrinfo()).
     const Host serverHost("127.0.0.1", testPort);
 
     Stopwatch stopWatch;

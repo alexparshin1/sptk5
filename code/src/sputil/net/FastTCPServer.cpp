@@ -363,6 +363,13 @@ void FastTCPServer::watchConnection(const shared_ptr<ServerConnection>& connecti
         return;
     }
 
+    {
+        // Track the connection before arming the reactor: once it is armed an event may fire on
+        // another thread and look the connection up by raw pointer, so it must already be here.
+        const WriteLock lock(m_connectionsMutex);
+        m_connections[connection.get()] = connection;
+    }
+
     try
     {
         m_socketEvents.add(socket, connection, rearm);
@@ -390,6 +397,11 @@ void FastTCPServer::unwatchConnection(const shared_ptr<ServerConnection>& connec
     {
         // Already removed or never added.
     }
+
+    // Drop the server's strong reference. The connection stays alive through whoever asked to
+    // unwatch it (e.g. the worker thread now processing it) and is re-tracked if it is re-watched.
+    const WriteLock lock(m_connectionsMutex);
+    m_connections.erase(connection.get());
 }
 
 void FastTCPServer::closeConnection(const shared_ptr<ServerConnection>& connection)
@@ -415,13 +427,43 @@ void FastTCPServer::closeConnection(const shared_ptr<ServerConnection>& connecti
     }
 
     socket->close();
+
+    const WriteLock lock(m_connectionsMutex);
+    m_connections.erase(connection.get());
 }
 
 void FastTCPServer::closeAllConnections()
 {
+    // Move the registry out under the lock, then tear the connections down without holding it:
+    // closeConnection()/the reactor acquire the pool lock and then this one, so holding this lock
+    // across a pool call would invert that order and risk a deadlock.
+    std::unordered_map<ServerConnection*, std::shared_ptr<ServerConnection>> connections;
+    {
+        const WriteLock lock(m_connectionsMutex);
+        connections.swap(m_connections);
+    }
+
+    for (const auto& connection: connections | views::values)
+    {
+        const auto socket = connection->getSocket();
+        if (!socket)
+        {
+            continue;
+        }
+        try
+        {
+            m_socketEvents.remove(socket);
+        }
+        catch (const Exception&)
+        {
+            // Already removed or never added.
+        }
+        socket->close();
+    }
 }
 
 size_t FastTCPServer::connectionCount() const
 {
-    return 0;
+    const ReadLock lock(m_connectionsMutex);
+    return m_connections.size();
 }

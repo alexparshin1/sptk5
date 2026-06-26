@@ -137,10 +137,15 @@ void SocketVirtualMethods::openAddressUnlocked(const sockaddr_in& addr, const Op
         case OpenMode::BIND:
             if (reusePort)
             {
-#ifndef _WIN32
-                setOptionUnlocked(SOL_SOCKET, SO_REUSEPORT, 1);
-#else
+                // SO_REUSEADDR lets the listener bind over a socket lingering in TIME_WAIT - for
+                // example an ephemeral client port from an earlier connection that happens to fall
+                // on this well-known port - which would otherwise fail with EADDRINUSE.
                 setOptionUnlocked(SOL_SOCKET, SO_REUSEADDR, 1);
+#ifndef _WIN32
+                // SO_REUSEPORT additionally lets several listener threads share the same port for
+                // kernel-side load balancing of incoming connections. Windows has no SO_REUSEPORT;
+                // there SO_REUSEADDR already covers shared binding.
+                setOptionUnlocked(SOL_SOCKET, SO_REUSEPORT, 1);
 #endif
             }
             currentOperation = "bind";

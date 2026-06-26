@@ -26,6 +26,7 @@
 
 #pragma once
 
+#include "sptk5/threads/ReadWriteLock.h"
 #include "sptk5/threads/ReadWriteMutex.h"
 
 
@@ -364,7 +365,13 @@ private:
     using Listeners = std::vector<SListener>;
 
     mutable std::mutex                     m_mutex;               ///< Mutex that protects listeners and keys.
-    mutable ReadWriteMutex                 m_connectionsMutex;    ///< Mutex that protects connections.
+    mutable ReadWriteMutex                 m_connectionsMutex;    ///< Mutex that protects m_connections.
+    /// Strong references to all currently monitored connections, keyed by their raw pointer (the
+    /// same cookie the reactor stores). The reactor holds only a weak reference, so without this
+    /// registry an accepted connection would be destroyed the moment acceptIncoming() returns and
+    /// no event would ever be delivered. A connection lives here from watchConnection() until
+    /// unwatchConnection()/closeConnection().
+    std::unordered_map<ServerConnection*, std::shared_ptr<ServerConnection>> m_connections;
     std::shared_ptr<LogEngine>             m_logEngine;           ///< Optional log engine.
     std::shared_ptr<Logger>                m_logger;              ///< Optional logger.
     SocketEvents<ServerConnection>         m_socketEvents;        ///< Socket events reactor.
