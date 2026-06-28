@@ -129,6 +129,27 @@ bool FastTcpServerListener::acceptConnection(const chrono::milliseconds& timeout
     return false;
 }
 
+FastTCPServer::FastTCPServer(const std::string& serverName, std::shared_ptr<LogEngine> logEngine, SocketPoolTriggerMode triggerMode, const size_t maxEvents)
+    : m_logEngine(std::move(logEngine))
+    , m_socketEvents(
+          serverName,
+          [this](const std::weak_ptr<ServerConnection>& weakConnection, SocketEventType type)
+          {
+              // The reactor delivers a weak_ptr; lock it here and keep the downstream
+              // socketEventCallback(shared_ptr) interface unchanged.
+              if (const auto connection = weakConnection.lock())
+              {
+                  socketEventCallback(connection, type);
+              }
+          },
+          std::chrono::milliseconds(100), triggerMode, maxEvents)
+{
+    if (m_logEngine)
+    {
+        m_logger = std::make_shared<Logger>(*m_logEngine);
+    }
+}
+
 void FastTcpServerListener::threadFunction()
 {
     try

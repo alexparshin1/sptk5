@@ -137,27 +137,10 @@ public:
      * @param serverName        Logical name of the server (also the reactor thread name).
      * @param logEngine         Optional log engine.
      * @param triggerMode       Socket pool trigger mode.
+     * @param maxEvents         Maximum number of events to process per reactor loop.
      */
-    explicit FastTCPServer(const std::string& serverName, std::shared_ptr<LogEngine> logEngine = nullptr, SocketPoolTriggerMode triggerMode = SocketPoolTriggerMode::LevelTriggered)
-        : m_logEngine(std::move(logEngine))
-        , m_socketEvents(
-              serverName,
-              [this](const std::weak_ptr<ServerConnection>& weakConnection, SocketEventType type)
-              {
-                  // The reactor delivers a weak_ptr; lock it here and keep the downstream
-                  // socketEventCallback(shared_ptr) interface unchanged.
-                  if (const auto connection = weakConnection.lock())
-                  {
-                      socketEventCallback(connection, type);
-                  }
-              },
-              std::chrono::milliseconds(100), triggerMode, 1024)
-    {
-        if (m_logEngine)
-        {
-            m_logger = std::make_shared<Logger>(*m_logEngine);
-        }
-    }
+    explicit FastTCPServer(const std::string& serverName, std::shared_ptr<LogEngine> logEngine = nullptr,
+                           SocketPoolTriggerMode triggerMode = SocketPoolTriggerMode::LevelTriggered, const size_t maxEvents = 128);
 
     /**
      * @brief Destructor.

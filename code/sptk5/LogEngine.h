@@ -81,7 +81,7 @@ public:
     virtual ~LogEngine();
 
     /**
-     * Restarts the log
+     * @brief Restarts the log.
      *
      * The current log content is cleared.
      * The actual result depends on the derived log engine.
@@ -92,8 +92,8 @@ public:
     }
 
     /**
-     * Sets log options
-     * @param ops               Log options
+     * @brief Sets log options.
+     * @param ops               Log options.
      */
     void options(const std::set<Option>& ops)
     {
@@ -102,8 +102,8 @@ public:
     }
 
     /**
-     * Returns log options
-     * @returns log options
+     * @brief Returns log options.
+     * @returns log options.
      */
     std::set<Option> options() const
     {
@@ -112,22 +112,22 @@ public:
     }
 
     /**
-     * Sets an option to true or false
-     * @param option            Log option, one or more of LO_* constants
+     * @brief Sets an option to true or false.
+     * @param option            Log option, one or more of LO_* constants.
      * @param flag              Set option on or off?
      */
     void option(Option option, bool flag);
 
     /**
-     * Gets an option value
-     * @param option            Log option, one or more of LO_* constants
-     * @returns Option value
+     * @brief Gets an option value.
+     * @param option            Log option, one or more of LO_* constants.
+     * @returns Option value.
      */
     bool option(Option option) const;
 
     /**
-     * Sets current message priority
-     * @param prt LogPriority, current message priority
+     * @brief Sets current message priority.
+     * @param prt LogPriority, current message priority.
      */
     void priority(LogPriority prt)
     {
@@ -135,7 +135,7 @@ public:
     }
 
     /**
-     * Get min message priority
+     * @brief Get min message priority.
      */
     virtual LogPriority minPriority() const
     {
@@ -143,10 +143,10 @@ public:
     }
 
     /**
-     * Set min message priority
+     * @brief Set min message priority.
      *
      * Messages with priority less than requested are ignored
-     * @param prt LogPriority, min message priority
+     * @param prt LogPriority, min message priority.
      */
     virtual void minPriority(LogPriority prt)
     {
@@ -154,12 +154,12 @@ public:
     }
 
     /**
-     * String representation of priority
+     * @brief String representation of priority.
      */
     static String priorityName(LogPriority prt);
 
     /**
-     * Priority from string representation
+     * @brief Priority from string representation.
      */
     static LogPriority priorityFromName(const String& prt);
 
