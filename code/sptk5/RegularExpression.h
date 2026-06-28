@@ -278,7 +278,7 @@ public:
      * @param text              Text to process.
      * @return true if match found.
      */
-    [[nodiscard]] bool matches(const std::string& text) const;
+    [[nodiscard]] bool matches(std::string_view text) const;
 
     /**
      * @brief Returns the list of strings matched with the regular expression.
@@ -369,7 +369,7 @@ private:
      * @param matchData         Output match positions array.
      * @return number of matches.
      */
-    size_t nextMatch(const std::string& text, size_t& offset, MatchData& matchData) const;
+    size_t nextMatch(std::string_view text, size_t& offset, MatchData& matchData) const;
 
     /**
      * @brief Get capture group count from the compiled pattern.

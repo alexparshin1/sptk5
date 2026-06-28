@@ -26,8 +26,12 @@
 
 #pragma once
 
+#include <chrono>
+#include <condition_variable>
 #include <deque>
 #include <mutex>
+#include <vector>
+
 #include <sptk5/Printer.h>
 #include <sptk5/threads/Semaphore.h>
 
@@ -61,10 +65,11 @@ public:
      */
     void push_back(T&& data)
     {
-        std::unique_lock lock(m_mutex);
-        m_queue.push_back(std::move(data));
-        lock.unlock();
-        m_semaphore.post();
+        {
+            std::scoped_lock lock(m_mutex);
+            m_queue.push_back(std::move(data));
+        }
+        m_condition.notify_one();
     }
 
     /**
@@ -77,10 +82,11 @@ public:
      */
     [[maybe_unused]] void push_front(T&& data)
     {
-        std::unique_lock lock(m_mutex);
-        m_queue.push_front(std::move(data));
-        lock.unlock();
-        m_semaphore.post();
+        {
+            std::scoped_lock lock(m_mutex);
+            m_queue.push_front(std::move(data));
+        }
+        m_condition.notify_one();
     }
 
     /**
@@ -91,10 +97,11 @@ public:
      */
     void push_back(const T& data)
     {
-        std::unique_lock lock(m_mutex);
-        m_queue.push_back(data);
-        lock.unlock();
-        m_semaphore.post();
+        {
+            std::scoped_lock lock(m_mutex);
+            m_queue.push_back(data);
+        }
+        m_condition.notify_one();
     }
 
     /**
@@ -105,10 +112,11 @@ public:
      */
     [[maybe_unused]] void push_front(const T& data)
     {
-        std::unique_lock lock(m_mutex);
-        m_queue.push_front(data);
-        lock.unlock();
-        m_semaphore.post();
+        {
+            std::scoped_lock lock(m_mutex);
+            m_queue.push_front(data);
+        }
+        m_condition.notify_one();
     }
 
     /**
@@ -121,17 +129,22 @@ public:
      */
     bool pop_front(T& item, const std::chrono::milliseconds& timeout)
     {
-        if (m_semaphore.wait_for(timeout))
+        std::unique_lock lock(m_mutex);
+        if (!m_condition.wait_for(lock, timeout, [this] { return !m_queue.empty() || m_wakeups > 0; }))
         {
-            std::unique_lock lock(m_mutex);
-            if (!m_queue.empty())
-            {
-                item = std::move(m_queue.front());
-                m_queue.pop_front();
-                return true;
-            }
+            return false;
         }
-        return false;
+        if (m_queue.empty())
+        {
+            if (m_wakeups > 0)
+            {
+                --m_wakeups;
+            }
+            return false;
+        }
+        item = std::move(m_queue.front());
+        m_queue.pop_front();
+        return true;
     }
 
     /**
@@ -146,27 +159,27 @@ public:
      */
     bool pop_front(std::vector<T>& items, size_t itemCount, const std::chrono::milliseconds& timeout)
     {
-        if (m_semaphore.wait_for(timeout))
+        std::unique_lock lock(m_mutex);
+        if (!m_condition.wait_for(lock, timeout, [this] { return !m_queue.empty() || m_wakeups > 0; }))
         {
-            std::unique_lock lock(m_mutex);
-            if (m_queue.empty())
+            return false;
+        }
+        if (m_queue.empty())
+        {
+            if (m_wakeups > 0)
             {
-                return false;
+                --m_wakeups;
             }
-            items.clear();
+            return false;
+        }
+        items.clear();
+        while (!m_queue.empty() && itemCount > 0)
+        {
             items.push_back(std::move(m_queue.front()));
             m_queue.pop_front();
-            itemCount--;
-            while (!m_queue.empty() && itemCount > 0)
-            {
-                items.push_back(std::move(m_queue.front()));
-                m_queue.pop_front();
-                m_semaphore.wait();
-                itemCount--;
-            }
-            return !items.empty();
+            --itemCount;
         }
-        return false;
+        return !items.empty();
     }
 
     /**
@@ -179,17 +192,22 @@ public:
      */
     [[maybe_unused]] bool pop_back(T& item, const std::chrono::milliseconds& timeout)
     {
-        if (m_semaphore.wait_for(timeout))
+        std::unique_lock lock(m_mutex);
+        if (!m_condition.wait_for(lock, timeout, [this] { return !m_queue.empty() || m_wakeups > 0; }))
         {
-            std::unique_lock lock(m_mutex);
-            if (!m_queue.empty())
-            {
-                item = std::move(m_queue.back());
-                m_queue.pop_back();
-                return true;
-            }
+            return false;
         }
-        return false;
+        if (m_queue.empty())
+        {
+            if (m_wakeups > 0)
+            {
+                --m_wakeups;
+            }
+            return false;
+        }
+        item = std::move(m_queue.back());
+        m_queue.pop_back();
+        return true;
     }
 
     /**
@@ -199,9 +217,11 @@ public:
     template<typename... Arguments>
     void emplace_back(Arguments&&... arguments)
     {
-        std::unique_lock lock(m_mutex);
-        m_queue.emplace_back(std::forward<Arguments>(arguments)...);
-        m_semaphore.post();
+        {
+            std::scoped_lock lock(m_mutex);
+            m_queue.emplace_back(std::forward<Arguments>(arguments)...);
+        }
+        m_condition.notify_one();
     }
 
     /**
@@ -211,9 +231,11 @@ public:
     template<typename... Arguments>
     void emplace_front(Arguments&&... arguments)
     {
-        std::unique_lock lock(m_mutex);
-        m_queue.emplace_front(std::forward<Arguments>(arguments)...);
-        m_semaphore.post();
+        {
+            std::scoped_lock lock(m_mutex);
+            m_queue.emplace_front(std::forward<Arguments>(arguments)...);
+        }
+        m_condition.notify_one();
     }
 
     /**
@@ -223,7 +245,11 @@ public:
      */
     virtual void wakeup()
     {
-        m_semaphore.post();
+        {
+            std::scoped_lock lock(m_mutex);
+            ++m_wakeups;
+        }
+        m_condition.notify_one();
     }
 
     /**
@@ -286,9 +312,14 @@ private:
     mutable std::mutex m_mutex;
 
     /**
-     * @brief Semaphore to wait for an item if the queue is empty.
+     * @brief Condition variable to wait for an item if the queue is empty.
      */
-    Semaphore m_semaphore;
+    std::condition_variable m_condition;
+
+    /**
+     * @brief Pending one-shot wakeups, each releasing one waiting pop with false.
+     */
+    size_t m_wakeups = 0;
 
     /**
      * @brief Queue.

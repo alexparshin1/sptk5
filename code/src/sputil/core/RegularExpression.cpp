@@ -263,7 +263,7 @@ RegularExpression& RegularExpression::operator=(RegularExpression&& other) noexc
     return *this;
 }
 
-size_t RegularExpression::nextMatch(const string& text, size_t& offset, MatchData& matchData) const
+size_t RegularExpression::nextMatch(string_view text, size_t& offset, MatchData& matchData) const
 {
     lock_guard lock(m_mutex);
 
@@ -275,13 +275,13 @@ size_t RegularExpression::nextMatch(const string& text, size_t& offset, MatchDat
 #ifdef HAVE_PCRE2
 
     const auto rc = pcre2_match(
-        m_pcre.get(),                                // the compiled pattern
-        reinterpret_cast<PCRE2_SPTR8>(text.c_str()), // the subject string
-        text.length(),                               // the length of the subject
-        offset,                                      // start at offset in the subject
-        0,                                           // default options
-        matchData.match_data,                        // block for storing the result
-        nullptr);                                    // use default match context
+        m_pcre.get(),                               // the compiled pattern
+        reinterpret_cast<PCRE2_SPTR8>(text.data()), // the subject string
+        text.length(),                              // the length of the subject
+        offset,                                     // start at offset in the subject
+        0,                                          // default options
+        matchData.match_data,                       // block for storing the result
+        nullptr);                                   // use default match context
 
     if (rc >= 0)
     {
@@ -379,7 +379,7 @@ bool RegularExpression::operator==(const string& text) const
     return nextMatch(text, offset, matchData) > 0;
 }
 
-bool RegularExpression::matches(const string& text) const
+bool RegularExpression::matches(string_view text) const
 {
     size_t     offset = 0;
     auto       matchData = createMatchData();

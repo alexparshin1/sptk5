@@ -286,7 +286,7 @@ public:
      */
     size_t write(const uint8_t* buffer, const size_t size, const sockaddr* peer = nullptr)
     {
-        const WriteLock lock(m_mutex);
+        //const WriteLock lock(m_mutex);
         return writeUnlocked(buffer, size, peer);
     }
 
