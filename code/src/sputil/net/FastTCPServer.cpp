@@ -106,7 +106,7 @@ bool FastTcpServerListener::acceptConnection(const chrono::milliseconds& timeout
         // re-polling between connections. This minimizes the number of syscalls per
         // accepted connection when connections arrive in bursts.
         const auto listenerFd = m_listenerSocket.fd();
-        bool       acceptedAny = false;
+        auto       acceptedAny = false;
         while (!terminated())
         {
             sockaddr_in connectionInfo = {};
