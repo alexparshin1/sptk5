@@ -102,16 +102,16 @@ bool FastTcpServerListener::acceptConnection(const chrono::milliseconds& timeout
             return false;
         }
 
-        // Drain the whole accept backlog with consecutive accept() calls, without
+        // Drain the accepting backlog with consecutive accept() calls, without
         // re-polling between connections. This minimizes the number of syscalls per
         // accepted connection when connections arrive in bursts.
         const auto listenerFd = m_listenerSocket.fd();
         bool       acceptedAny = false;
         while (!terminated())
         {
-            sockaddr_in      connectionInfo = {};
-            socklen_t        addressLength = sizeof(connectionInfo);
-            const SocketType connectionFD = ::accept(listenerFd, bit_cast<sockaddr*>(&connectionInfo), &addressLength);
+            sockaddr_in connectionInfo = {};
+            socklen_t   addressLength = sizeof(connectionInfo);
+            const auto  connectionFD = ::accept(listenerFd, bit_cast<sockaddr*>(&connectionInfo), &addressLength);
             if (connectionFD == INVALID_SOCKET)
             {
                 // Backlog drained (EWOULDBLOCK/EAGAIN) or transient error: stop draining.
@@ -347,8 +347,8 @@ void FastTCPServer::acceptIncoming(const ServerConnection::Type connectionType, 
     if (!connection)
     {
         // createConnection() returned no connection: it has taken ownership of the
-        // socket (attached it to its own object) or rejected it. Do not close the FD,
-        // otherwise we would close a descriptor that is now owned elsewhere.
+        // socket (attached it to its own object) or rejected it. Do not close the FD;
+        // otherwise we would close a descriptor now owned elsewhere.
         return;
     }
 
@@ -385,7 +385,7 @@ void FastTCPServer::watchConnection(const shared_ptr<ServerConnection>& connecti
     }
 
     {
-        // Track the connection before arming the reactor: once it is armed an event may fire on
+        // Track the connection before arming the reactor: once it is armed, an event may fire on
         // another thread and look the connection up by raw pointer, so it must already be here.
         const WriteLock lock(m_connectionsMutex);
         m_connections[connection.get()] = connection;
@@ -420,7 +420,7 @@ void FastTCPServer::unwatchConnection(const shared_ptr<ServerConnection>& connec
     }
 
     // Drop the server's strong reference. The connection stays alive through whoever asked to
-    // unwatch it (e.g. the worker thread now processing it) and is re-tracked if it is re-watched.
+    // unwatch it (e.g., the worker thread now processing it) and is re-tracked if it is re-watched.
     const WriteLock lock(m_connectionsMutex);
     m_connections.erase(connection.get());
 }
