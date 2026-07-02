@@ -33,6 +33,7 @@
 
 #include <filesystem>
 #include <iomanip>
+#include <sptk5/threads/Semaphore.h>
 #include <vector>
 
 #ifndef _WIN32

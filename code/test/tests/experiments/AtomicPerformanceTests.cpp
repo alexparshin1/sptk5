@@ -26,13 +26,14 @@
 
 #include "sptk5/threads/SynchronizedQueue.h"
 #include <gtest/gtest.h>
+#include <sptk5/Printer.h>
 #include <sptk5/Stopwatch.h>
 
 using namespace std;
 using namespace sptk;
 namespace sptk {
 
-TEST(AtomicPerformanceTests,atomicVsMutex)
+TEST(AtomicPerformanceTests, atomicVsMutex)
 {
     mutex m;
     int   a = 0;
@@ -105,4 +106,4 @@ TEST(AtomicPerformanceTests,atomicVsMutex)
     COUT("Flag: " << sw.milliseconds() << " ms");
 }
 
-} // namespace sptk_test
+} // namespace sptk

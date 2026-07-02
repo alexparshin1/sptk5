@@ -30,6 +30,7 @@
 #include <fcntl.h>
 #include <gtest/gtest.h>
 #include <sptk5/net/SocketEvents.h>
+#include <sptk5/threads/Semaphore.h>
 
 using namespace std;
 using namespace sptk;

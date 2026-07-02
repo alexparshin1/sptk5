@@ -28,6 +28,8 @@
 #include <sptk5/Printer.h>
 #include <sptk5/threads/ThreadManager.h>
 
+#include <sptk5/Exception.h>
+
 using namespace std;
 using namespace sptk;
 using namespace chrono;

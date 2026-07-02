@@ -26,6 +26,8 @@
 
 #pragma once
 
+#include <sptk5/sptk.h>
+
 #include "blockingconcurrentqueue.h"
 
 #include <deque>
@@ -42,7 +44,7 @@ namespace sptk {
  * Simple thread-safe queue. Uses BlockingConcurrentQueue by Cameron Desrochers.
  */
 template<class T>
-class SynchronizedQueue
+class SP_EXPORT SynchronizedQueue
 {
 public:
     /**

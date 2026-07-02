@@ -27,6 +27,8 @@
 
 #include <sptk5/StreamLogEngine.h>
 
+#include <sptk5/Printer.h>
+
 using namespace std;
 using namespace sptk;
 

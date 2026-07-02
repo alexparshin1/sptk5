@@ -27,6 +27,10 @@
 
 #include <sptk5/LogEngine.h>
 
+#include <sptk5/Exception.h>
+#include <sptk5/Printer.h>
+#include <sptk5/Strings.h>
+
 using namespace std;
 using namespace sptk;
 

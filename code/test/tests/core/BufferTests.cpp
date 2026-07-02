@@ -30,6 +30,7 @@
 #include "sptk5/Stopwatch.h"
 #include "sptk5/cthreads"
 #include <gtest/gtest.h>
+#include <sptk5/Printer.h>
 
 using namespace std;
 using namespace sptk;

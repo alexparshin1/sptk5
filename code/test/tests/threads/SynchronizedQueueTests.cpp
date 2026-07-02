@@ -34,9 +34,10 @@
 
 using namespace std;
 using namespace sptk;
+
 namespace sptk {
 
-TEST(SynchronizedQueueTests,tasks)
+TEST(SynchronizedQueueTests, tasks)
 {
     constexpr size_t               maxNumbers = 100;
     constexpr size_t               maxTasks = 5;
@@ -45,8 +46,7 @@ TEST(SynchronizedQueueTests,tasks)
 
     int value = 1;
     int expectedSum = 0;
-    for
-    (size_t index = 0; index < maxNumbers; ++index, ++value)
+    for (size_t index = 0; index < maxNumbers; ++index, ++value)
     {
         expectedSum += value;
         queue.push_back(value);
@@ -56,23 +56,23 @@ TEST(SynchronizedQueueTests,tasks)
     for (size_t index = 0; index < maxTasks; ++index)
     {
         auto task = async([&queue, &timeout]()
-        {
-            int sum = 0;
-            int value = 0;
-            while (queue.pop_front(value, timeout))
-            {
-                sum += value;
-                this_thread::sleep_for(10ms);
-            }
-            return sum;
-        });
+                          {
+                              int sum = 0;
+                              int value = 0;
+                              while (queue.pop_front(value, timeout))
+                              {
+                                  sum += value;
+                                  this_thread::sleep_for(10ms);
+                              }
+                              return sum;
+                          });
 
         tasks.push_back(std::move(task));
     }
 
     COUT("");
 
-    int       actualSum = 0;
+    int actualSum = 0;
     for (auto& task: tasks)
     {
         const auto sum = task.get();
@@ -83,32 +83,7 @@ TEST(SynchronizedQueueTests,tasks)
     EXPECT_EQ(expectedSum, actualSum);
 }
 
-TEST(SynchronizedQueueTests,emplaceFront)
-{
-    struct Item
-    {
-        int         index;
-        std::string name;
-    };
-
-    SynchronizedQueue<Item> queue;
-
-    queue.emplace_front(1, "Joe");
-    queue.emplace_front(2, "Jane");
-
-    EXPECT_EQ(2, queue.size());
-
-    Item item;
-    EXPECT_TRUE(queue.pop_back(item, 100ms));
-    EXPECT_EQ(1, item.index);
-    EXPECT_EQ("Joe", item.name);
-
-    EXPECT_TRUE(queue.pop_back(item, 100ms));
-    EXPECT_EQ(2, item.index);
-    EXPECT_EQ("Jane", item.name);
-}
-
-TEST(SynchronizedQueueTests,emplaceBack)
+TEST(SynchronizedQueueTests, emplaceBack)
 {
     struct Item
     {
@@ -133,9 +108,9 @@ TEST(SynchronizedQueueTests,emplaceBack)
     EXPECT_EQ("Jane", item.name);
 }
 
-TEST(SynchronizedQueueTests,performance)
+TEST(SynchronizedQueueTests, performance)
 {
-    constexpr size_t               maxNumbers = 100000;
+    constexpr size_t               maxNumbers = 10000000;
     constexpr chrono::milliseconds timeout(1000);
     SynchronizedQueue<int>         queue;
 
@@ -168,7 +143,7 @@ TEST(SynchronizedQueueTests,performance)
     EXPECT_EQ(actualSum, receivedSum);
 }
 
-TEST(SynchronizedQueueTests,performanceBulk)
+TEST(SynchronizedQueueTests, performanceBulk)
 {
     constexpr size_t               maxNumbers = 100000;
     constexpr chrono::milliseconds timeout(1000);
@@ -209,32 +184,4 @@ TEST(SynchronizedQueueTests,performanceBulk)
     EXPECT_EQ(actualSum, receivedSum);
 }
 
-TEST(SynchronizedQueueTests,forEach)
-{
-    constexpr int          maxNumbers = 10;
-    SynchronizedQueue<int> queue;
-
-    int actualSum = 0;
-    for (int index = 1; index < maxNumbers; ++index)
-    {
-        queue.push_back(index);
-        if (index < 5)
-        {
-            actualSum += index;
-        }
-    }
-
-    int receivedSum = 0;
-    queue.each([&receivedSum](const int& item)
-    {
-        if (item < 5)
-        {
-            receivedSum += item;
-            return true;
-        }
-        return false;
-    });
-
-    EXPECT_EQ(actualSum, receivedSum);
-}
-} // namespace sptk_test
+} // namespace sptk

@@ -27,6 +27,7 @@
 #include <future>
 #include <gtest/gtest.h>
 #include <mutex>
+#include <sptk5/Printer.h>
 #include <sptk5/cthreads>
 
 using namespace std;
@@ -34,13 +35,13 @@ using namespace chrono;
 using namespace sptk;
 namespace sptk {
 
-TEST(FlagTests,ctor)
+TEST(FlagTests, ctor)
 {
     const Flag flag;
     EXPECT_EQ(flag.get(), false);
 }
 
-TEST(FlagTests,waitFor)
+TEST(FlagTests, waitFor)
 {
     Flag flag;
 
@@ -53,7 +54,7 @@ TEST(FlagTests,waitFor)
     EXPECT_EQ(result, true);
 }
 
-TEST(FlagTests,setWaitFor)
+TEST(FlagTests, setWaitFor)
 {
     Flag flag;
 
@@ -63,7 +64,7 @@ TEST(FlagTests,setWaitFor)
     EXPECT_EQ(result, true);
 }
 
-TEST(FlagTests,adaptorAndAssignment)
+TEST(FlagTests, adaptorAndAssignment)
 {
     Flag flag;
 
@@ -74,36 +75,36 @@ TEST(FlagTests,adaptorAndAssignment)
     EXPECT_EQ(static_cast<bool>(flag), false);
 }
 
-TEST(FlagTests,signalOtherThread)
+TEST(FlagTests, signalOtherThread)
 {
     Flag flag;
 
     flag.set(false);
 
     const auto task1 = async(launch::async,
-                       [&flag]
-                       {
-                           if (flag.wait_for(true, 100ms))
-                           {
-                               COUT("Received true");
-                           }
-                           else
-                           {
-                               CERR("Timeout");
-                           }
-                       });
+                             [&flag]
+                             {
+                                 if (flag.wait_for(true, 100ms))
+                                 {
+                                     COUT("Received true");
+                                 }
+                                 else
+                                 {
+                                     CERR("Timeout");
+                                 }
+                             });
 
     const auto task2 = async(launch::async,
-                       [&flag]
-                       {
-                           flag.set(true);
-                       });
+                             [&flag]
+                             {
+                                 flag.set(true);
+                             });
 
     EXPECT_TRUE(task1.wait_for(110ms) == future_status::ready);
     task2.wait();
 }
 
-TEST(FlagTests,waitUntilTimeout)
+TEST(FlagTests, waitUntilTimeout)
 {
     Flag flag;
 
@@ -112,7 +113,7 @@ TEST(FlagTests,waitUntilTimeout)
     EXPECT_FALSE(flag.get());
 }
 
-TEST(FlagTests,waitUntilSucceedsWhenSignaled)
+TEST(FlagTests, waitUntilSucceedsWhenSignaled)
 {
     Flag flag;
 
@@ -129,4 +130,4 @@ TEST(FlagTests,waitUntilSucceedsWhenSignaled)
     EXPECT_TRUE(waiter.get());
 }
 
-} // namespace sptk_test
+} // namespace sptk

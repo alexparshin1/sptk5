@@ -26,6 +26,8 @@
 
 #include <sptk5/SysLogEngine.h>
 
+#include <sptk5/Exception.h>
+
 #ifdef _WIN32
 #include <events.w32/event_provider.h>
 #endif
@@ -71,13 +73,19 @@ bool SysLogEngine::saveMessage(const Logger::Message& message)
             OSVERSIONINFO version;
             version.dwOSVersionInfoSize = sizeof(version);
             if (!GetVersionEx(&version))
+            {
                 throw Exception("Can't determine Windows version");
+            }
             if (version.dwPlatformId != VER_PLATFORM_WIN32_NT)
+            {
                 throw Exception("EventLog is only implemented on NT-based Windows");
-            m_logHandle = RegisterEventSource(NULL, programName.c_str());
+            }
+            m_logHandle = RegisterEventSource(nullptr, programName.c_str());
         }
         if (m_logHandle.load() == nullptr)
+        {
             throw Exception("Can't open Application Event Log");
+        }
 
         WORD eventType;
         switch ((int) message.priority)
@@ -146,7 +154,7 @@ void SysLogEngine::setupEventSource() const
     GetModuleFileName(0, buffer, _MAX_PATH);
     string moduleFileName = buffer;
 
-    string keyName = "SYSTEM\\CurrentControlSet\\Services\\EventLog\\Application\\" + m_programName;
+    string keyName = R"(SYSTEM\CurrentControlSet\Services\EventLog\Application\)" + m_programName;
 
     HKEY keyHandle;
     if (RegCreateKey(HKEY_CURRENT_USER, keyName.c_str(), &keyHandle) != ERROR_SUCCESS)
@@ -154,10 +162,9 @@ void SysLogEngine::setupEventSource() const
 
     unsigned long len = _MAX_PATH;
     unsigned long vtype = REG_EXPAND_SZ;
-    int           rc = RegQueryValueEx(keyHandle, "EventMessageFile", 0, &vtype, bit_cast<BYTE*>(buffer), &len);
+    int           rc = RegQueryValueEx(keyHandle, "EventMessageFile", 0, &vtype, reinterpret_cast<BYTE*>(buffer), &len);
     if (rc != ERROR_SUCCESS)
     {
-
         struct ValueData
         {
             const char* name;
