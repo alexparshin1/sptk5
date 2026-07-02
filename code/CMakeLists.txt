@@ -555,7 +555,7 @@ ENDIF ()
 CONFIGURE_FILE("${SPTK_SOURCE_DIR}/sptk5/sptk-config.h.cmake" "${SPTK_SOURCE_DIR}/sptk5/sptk-config.h" @ONLY)
 
 ADD_SUBDIRECTORY(sptk5)
-
+ADD_SUBDIRECTORY(concurrentqueue)
 
 IF (SQLITE3_FLAG AND WIN32)
     ADD_SUBDIRECTORY(sqlite3)
@@ -616,7 +616,7 @@ INSTALL(FILES ${includeFilesWSDL2} DESTINATION include/sptk5/wsdl/protocol COMPO
 FILE(GLOB includeFilesNet "${CMAKE_CURRENT_SOURCE_DIR}/sptk5/net/*.h")
 INSTALL(FILES ${includeFilesNet} DESTINATION include/sptk5/net COMPONENT core)
 
-FILE(GLOB includeFilesThreads "${CMAKE_CURRENT_SOURCE_DIR}/sptk5/threads/*.h")
+FILE(GLOB includeFilesThreads "${CMAKE_CURRENT_SOURCE_DIR}/sptk5/threads/*.h" "${CMAKE_CURRENT_SOURCE_DIR}/concurrentqueue/*.h")
 INSTALL(FILES ${includeFilesThreads} DESTINATION include/sptk5/threads COMPONENT core)
 
 FILE(GLOB includeFilesDB "${CMAKE_CURRENT_SOURCE_DIR}/sptk5/db/*.h")

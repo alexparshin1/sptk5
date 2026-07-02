@@ -48,14 +48,8 @@ namespace moodycamel {
 
 class Semaphore
 {
-private:
-    std::counting_semaphore<> m_hSema;
-
-    Semaphore(const Semaphore& other) MOODYCAMEL_DELETE_FUNCTION;
-    Semaphore& operator=(const Semaphore& other) MOODYCAMEL_DELETE_FUNCTION;
-
 public:
-    Semaphore(int initialCount = 0)
+    explicit Semaphore(const int initialCount = 0)
         : m_hSema(initialCount)
     {
     }
@@ -64,7 +58,7 @@ public:
     {
     }
 
-    bool wait()
+    bool acquire()
     {
         m_hSema.acquire();
         return true;
@@ -75,15 +69,21 @@ public:
         return m_hSema.try_acquire();
     }
 
-    bool try_acquire_for(std::uint64_t usecs)
+    bool try_acquire_for(std::chrono::microseconds usecs)
     {
-        return m_hSema.try_acquire_for(std::chrono::microseconds(usecs));
+        return m_hSema.try_acquire_for(usecs);
     }
 
     void release(int count = 1)
     {
         m_hSema.release(count);
     }
+
+private:
+    std::counting_semaphore<> m_hSema;
+
+    Semaphore(const Semaphore& other) = delete;
+    Semaphore& operator=(const Semaphore& other) = delete;
 };
 
 //---------------------------------------------------------
@@ -115,10 +115,10 @@ private:
             return true;
         if (timeout_usecs < 0)
         {
-            if (m_sema.wait())
+            if (m_sema.acquire())
                 return true;
         }
-        if (timeout_usecs > 0 && m_sema.try_acquire_for(static_cast<std::uint64_t>(timeout_usecs)))
+        if (timeout_usecs > 0 && m_sema.try_acquire_for(std::chrono::microseconds(timeout_usecs)))
             return true;
         // At this point, we've timed out waiting for the semaphore, but the
         // count is still decremented indicating we may still be waiting on
@@ -154,7 +154,7 @@ private:
         oldCount = m_count.fetch_sub(1, std::memory_order_acquire);
         if (oldCount <= 0)
         {
-            if ((timeout_usecs == 0) || (timeout_usecs < 0 && !m_sema.wait()) || (timeout_usecs > 0 && !m_sema.try_acquire_for(static_cast<std::uint64_t>(timeout_usecs))))
+            if (timeout_usecs == 0 || (timeout_usecs < 0 && !m_sema.acquire()) || (timeout_usecs > 0 && !m_sema.try_acquire_for(std::chrono::microseconds(timeout_usecs))))
             {
                 while (true)
                 {

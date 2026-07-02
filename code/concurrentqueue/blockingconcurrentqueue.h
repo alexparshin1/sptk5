@@ -24,8 +24,8 @@ template<typename T, typename Traits = ConcurrentQueueDefaultTraits>
 class BlockingConcurrentQueue
 {
 private:
-    typedef ::moodycamel::ConcurrentQueue<T, Traits> ConcurrentQueue;
-    typedef ::moodycamel::LightweightSemaphore       LightweightSemaphore;
+    typedef moodycamel::ConcurrentQueue<T, Traits> ConcurrentQueue;
+    typedef moodycamel::LightweightSemaphore       LightweightSemaphore;
 
 public:
     typedef typename ConcurrentQueue::producer_token_t producer_token_t;
