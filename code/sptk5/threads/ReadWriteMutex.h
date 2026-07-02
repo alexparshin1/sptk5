@@ -26,6 +26,8 @@
 
 #pragma once
 
+#include "sptk5/sptk.h"
+
 #include <atomic>
 #include <chrono>
 #include <condition_variable>
@@ -47,14 +49,8 @@ namespace sptk {
  * @remarks The mutex is writer-preferring: once a thread is waiting for an exclusive
  * lock, new shared-lock requests block until the writer is served. This prevents writer
  * starvation under a steady stream of readers.
- *
- * @warning Because of writer preference, the mutex is NOT recursive in shared mode: a
- * thread that already holds a shared lock must not request another shared lock, as a
- * writer queued in between would deadlock (the writer waits for the first shared lock to
- * be released, while the thread waits for the writer to clear). Use tryLockShared() with
- * a timeout if a nested shared acquisition is unavoidable.
  */
-class ReadWriteMutex
+class SP_EXPORT ReadWriteMutex
 {
 public:
     /**
@@ -117,14 +113,14 @@ public:
 private:
     static constexpr uint32_t EXCLUSIVE_BIT = 1u << 31;
     static constexpr uint32_t UPGRADING_BIT = 1u << 30;
-    static constexpr uint32_t READER_MASK   = ~(EXCLUSIVE_BIT | UPGRADING_BIT);
+    static constexpr uint32_t READER_MASK = ~(EXCLUSIVE_BIT | UPGRADING_BIT);
 
-    std::atomic<uint32_t>   m_state {0};           ///< Packed state: bits 31=exclusive, 30=upgrading, 0-29=reader count
-    std::atomic<uint32_t>   m_writersWaiting {0};  ///< Count of writers queued for exclusive access; new shared locks yield to them
-    std::atomic<uint32_t>   m_readersWaiting {0};  ///< Count of readers blocked on m_readerCondition; lets unlockers skip notifying when zero
-    std::mutex              m_mutex;               ///< Protects condition variable waits
-    std::condition_variable m_readerCondition;     ///< Blocks readers waiting for writers/upgraders to clear
-    std::condition_variable m_writerCondition;     ///< Blocks writers and the upgrader waiting for exclusive access
+    std::atomic<uint32_t>   m_state {0};          ///< Packed state: bits 31=exclusive, 30=upgrading, 0-29=reader count
+    std::atomic<uint32_t>   m_writersWaiting {0}; ///< Count of writers queued for exclusive access; new shared locks yield to them
+    std::atomic<uint32_t>   m_readersWaiting {0}; ///< Count of readers blocked on m_readerCondition; lets unlockers skip notifying when zero
+    std::mutex              m_mutex;              ///< Protects condition variable waits
+    std::condition_variable m_readerCondition;    ///< Blocks readers waiting for writers/upgraders to clear
+    std::condition_variable m_writerCondition;    ///< Blocks writers and the upgrader waiting for exclusive access
 };
 
 } // namespace sptk

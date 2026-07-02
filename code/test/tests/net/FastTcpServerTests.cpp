@@ -55,7 +55,7 @@ constexpr size_t   messageSize = 100;
 class EchoServer : public FastTCPServer
 {
 public:
-    explicit EchoServer(const string& name, size_t messageSize, size_t ackSize)
+    explicit EchoServer(const string& name, const size_t messageSize, const size_t ackSize)
         : FastTCPServer(name)
         , m_messageSize(messageSize)
         , m_ackSize(ackSize)
@@ -232,7 +232,7 @@ TEST(FastTcpServerTests, throughput)
     sender->open(Host("127.0.0.1", testPort));
     sender->setOption(IPPROTO_TCP, TCP_NODELAY, 1);
 
-    const auto receiver = sender;
+    const auto& receiver = sender;
 
     Stopwatch stopWatch;
     stopWatch.start();
@@ -240,7 +240,7 @@ TEST(FastTcpServerTests, throughput)
     size_t               receivedMessageCount = 0;
     Semaphore            receivedAllMessages;
     SocketEvents<Socket> socketEvents("",
-                                      [&receivedMessageCount, &receivedAllMessages](const std::weak_ptr<Socket>& socketPtr, SocketEventType eventType)
+                                      [&receivedMessageCount, &receivedAllMessages](const std::weak_ptr<Socket>& socketPtr, const SocketEventType eventType)
                                       {
                                           const auto socket = socketPtr.lock();
                                           if (eventType.m_hangup)

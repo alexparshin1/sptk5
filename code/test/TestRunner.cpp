@@ -78,7 +78,6 @@ void stub()
     const RegularExpression regexp(".*");
     const CommandLine       cmd("", "", "");
     const DirectoryDS       dir("");
-    const ThreadPool        threads(1, std::chrono::milliseconds(), "test", nullptr);
     const Timer             timer;
     const MD5               md5;
     const StubServer        tcpServer;
