@@ -50,9 +50,8 @@ public:
      * @param server             TCP server.
      * @param connectionSocket   SOCKET, Already accepted by accept() function incoming connection socket.
      * @param connectionAddress  Address of the connected client.
-     * @param connectionFunction Function to be executed by the connection thread.
      */
-    SSLServerConnection(FastTCPServer& server, SocketType connectionSocket, const sockaddr_in* connectionAddress, const Function& connectionFunction)
+    SSLServerConnection(FastTCPServer& server, SocketType connectionSocket, const sockaddr_in* connectionAddress)
         : ServerConnection(server, Type::SSL, connectionAddress)
     {
         auto sslSocket = std::make_shared<SSLSocket>();

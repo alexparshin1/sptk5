@@ -48,9 +48,8 @@ public:
      * @param server            TCP server.
      * @param connectionSocket  Already accepted by accept() function incoming connection socket.
      * @param connectionAddress Incoming connection address.
-     * @param connectionFunction Connection function executed for each new client connection to the server.
      */
-    explicit TCPServerConnection(FastTCPServer& server, SocketType connectionSocket, const sockaddr_in* connectionAddress, const ServerConnection::Function& connectionFunction)
+    explicit TCPServerConnection(FastTCPServer& server, SocketType connectionSocket, const sockaddr_in* connectionAddress)
         : ServerConnection(server, Type::TCP, connectionAddress)
     {
         setSocket(std::make_shared<TCPSocket>());

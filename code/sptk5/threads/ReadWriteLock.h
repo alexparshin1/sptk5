@@ -35,7 +35,7 @@ namespace sptk {
  * @brief Read/write lock.
  * @remarks Uses RAII for automatic locking and unlocking.
  */
-class ReadWriteLock
+class SP_EXPORT ReadWriteLock
 {
 public:
     /**
