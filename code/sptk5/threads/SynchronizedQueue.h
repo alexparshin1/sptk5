@@ -44,7 +44,7 @@ namespace sptk {
  * Simple thread-safe queue. Uses BlockingConcurrentQueue by Cameron Desrochers.
  */
 template<class T>
-class SP_EXPORT SynchronizedQueue
+class SynchronizedQueue
 {
 public:
     /**

@@ -38,7 +38,7 @@ namespace sptk {
  * @brief Redis command.
  * @remarks A Redis command object contains command arguments as Redis strings.
  */
-class RedisCommand final : public Buffer
+class SP_EXPORT RedisCommand final : public Buffer
 {
 public:
     /**
