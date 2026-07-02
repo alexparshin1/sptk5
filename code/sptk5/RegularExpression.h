@@ -196,7 +196,7 @@ public:
 
     protected:
         /**
-         * @brief Reserve more groups memory.
+         * @brief Reserve more memory for groups.
          * @param groupCount    Number of groups to reserve more memory for.
          */
         void grow(size_t groupCount);
@@ -285,7 +285,7 @@ public:
      * @param text              Text to process.
      * @return matched groups.
      */
-    [[nodiscard]] Groups m(const std::string& text) const
+    [[nodiscard]] Groups m(const std::string_view text) const
     {
         size_t offset = 0;
         return m(text, offset);
@@ -297,7 +297,7 @@ public:
      * @param offset            Search offset, updated after method execution.
      * @return matched groups.
      */
-    [[nodiscard]] Groups m(const std::string& text, size_t& offset) const;
+    [[nodiscard]] Groups m(std::string_view text, size_t& offset) const;
 
     /**
      * @brief Replaces matches with replacement string.
@@ -397,7 +397,7 @@ private:
      */
     static size_t findNextPlaceholder(size_t pos, const std::string& outputPattern);
 
-    void      extractNamedMatches(const std::string& text, Groups& matchedStrings, const MatchData& matchData,
+    void      extractNamedMatches(std::string_view text, Groups& matchedStrings, const MatchData& matchData,
                                   size_t matchCount) const;
     MatchData createMatchData() const;
 };

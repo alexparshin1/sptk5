@@ -329,7 +329,7 @@ size_t RegularExpression::nextMatch(string_view text, size_t& offset, MatchData&
     }
 #else
     int rc = pcre_exec(
-        m_pcre.get(), m_pcreExtra.get(), text.c_str(), static_cast<int>(text.length()), static_cast<int>(offset), 0,
+        m_pcre.get(), m_pcreExtra.get(), text.data(), static_cast<int>(text.length()), static_cast<int>(offset), 0,
         reinterpret_cast<pcre_offset_t*>(matchData.matches.data()),
         static_cast<pcre_offset_t>(matchData.maxMatches) * 2);
 
@@ -387,7 +387,7 @@ bool RegularExpression::matches(string_view text) const
     return matchCount > 0;
 }
 
-RegularExpression::Groups RegularExpression::m(const string& text, size_t& offset) const
+RegularExpression::Groups RegularExpression::m(const string_view text, size_t& offset) const
 {
     Groups matchedStrings;
     auto   matchData = createMatchData();
@@ -418,7 +418,7 @@ RegularExpression::Groups RegularExpression::m(const string& text, size_t& offse
             const Match& match = matchData.matches[matchIndex];
             if (match.m_start >= 0)
             {
-                Group group(text.c_str(), match.m_start, match.m_end);
+                Group group(text.data(), match.m_start, match.m_end);
                 matchedStrings.add(std::move(group));
             }
             else
@@ -440,7 +440,7 @@ RegularExpression::Groups RegularExpression::m(const string& text, size_t& offse
     return matchedStrings;
 }
 
-void RegularExpression::extractNamedMatches(const string& text, Groups& matchedStrings,
+void RegularExpression::extractNamedMatches(const string_view text, Groups& matchedStrings,
                                             const MatchData& matchData, const size_t matchCount) const
 {
     if (const auto nameCount = static_cast<int>(getNamedGroupCount());
@@ -463,7 +463,7 @@ void RegularExpression::extractNamedMatches(const string& text, Groups& matchedS
             {
                 if (const auto& match = matchData.matches[n]; match.m_start >= 0)
                 {
-                    Group group(text.c_str(), match.m_start, match.m_end);
+                    Group group(text.data(), match.m_start, match.m_end);
                     matchedStrings.add(name, std::move(group));
                     tabptr += nameEntrySize;
                     continue;
