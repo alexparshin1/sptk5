@@ -411,11 +411,22 @@ public:
         {
             return false;
         }
-        while (!inner.try_dequeue(item))
+        // A successful sema->wait() normally means an item is available, but it may not yet be
+        // visible to this consumer (lock-free producer latency), so retry. The retry is BOUNDED:
+        // if the semaphore was signaled without a matching enqueue (an out-of-band wake_up(), or
+        // items drained via clear() without decrementing the semaphore) no item ever appears, and
+        // spinning unboundedly here pins a core at 100% - at shutdown that starves every other
+        // thread's join(). After the bound we report "empty"; the spurious token has been consumed
+        // so the semaphore/item count self-heals over subsequent calls.
+        constexpr int spuriousWakeRetryLimit = 10000;
+        for (int attempt = 0; attempt < spuriousWakeRetryLimit; ++attempt)
         {
-            continue;
+            if (inner.try_dequeue(item))
+            {
+                return true;
+            }
         }
-        return true;
+        return false;
     }
 
     // Blocks the current thread until either there's something to dequeue
@@ -506,7 +517,13 @@ public:
         size_t count = 0;
         assert(static_cast<ssize_t>(max) >= 0);
         max = static_cast<size_t>(sema->waitMany(static_cast<LightweightSemaphore::ssize_t>(static_cast<ssize_t>(max)), timeout_usecs));
-        while (count != max)
+        // Bounded: waitMany() reports how many tokens were acquired, which normally equals the number
+        // of dequeueable items. If the semaphore was over-signaled (a token without a matching
+        // enqueue), fewer items exist than tokens and the original `while (count != max)` spins a
+        // core forever - at shutdown that starves every other thread's join(). Cap the retries and
+        // return whatever was actually dequeued; the surplus tokens were spurious.
+        constexpr int spuriousWakeRetryLimit = 10000;
+        for (int attempt = 0; count != max && attempt < spuriousWakeRetryLimit; ++attempt)
         {
             count += inner.template try_dequeue_bulk<It&>(itemFirst, max - count);
         }

@@ -125,12 +125,22 @@ private:
         // it. So we have to re-adjust the count, but only if the semaphore
         // wasn't signaled enough times for us too since then. If it was, we
         // need to release the semaphore too.
-        while (true)
+        // Bounded correction. Normally this resolves on the first iteration. But if m_count and the
+        // underlying semaphore desync (m_count >= 0 while no token is available - which happens when
+        // the semaphore is signaled without a matching consumer, e.g. an out-of-band wake_up()), the
+        // original `while (true)` loop never takes either branch and pins a CPU core at 100% forever.
+        // At shutdown that starves every other thread's join(), so nothing can terminate. Cap the
+        // retries and report a timeout instead; the leftover phantom count is harmless and is
+        // reclaimed by the next tryWait(), so the semaphore self-heals.
+        constexpr int correctionSpinLimit = 10000;
+        for (int correctionSpin = 0;; ++correctionSpin)
         {
             oldCount = m_count.load(std::memory_order_acquire);
             if (oldCount >= 0 && m_sema.try_acquire())
                 return true;
             if (oldCount < 0 && m_count.compare_exchange_strong(oldCount, oldCount + 1, std::memory_order_relaxed, std::memory_order_relaxed))
+                return false;
+            if (correctionSpin >= correctionSpinLimit)
                 return false;
         }
     }
@@ -156,12 +166,24 @@ private:
         {
             if (timeout_usecs == 0 || (timeout_usecs < 0 && !m_sema.acquire()) || (timeout_usecs > 0 && !m_sema.try_acquire_for(std::chrono::microseconds(timeout_usecs))))
             {
-                while (true)
+                // Bounded correction (see waitWithPartialSpinning): if m_count and the semaphore
+                // desync (m_count >= 0 but no token available, e.g. after an out-of-band signal) the
+                // original `while (true)` loop pins a core forever and, at shutdown, starves every
+                // other thread's join(). Cap the retries and report "acquired nothing"; the phantom
+                // count is reclaimed by a later tryWait(), so the semaphore self-heals.
+                constexpr int correctionSpinLimit = 10000;
+                bool          acquired = false;
+                for (int correctionSpin = 0; !acquired; ++correctionSpin)
                 {
                     oldCount = m_count.load(std::memory_order_acquire);
                     if (oldCount >= 0 && m_sema.try_acquire())
+                    {
+                        acquired = true;
                         break;
+                    }
                     if (oldCount < 0 && m_count.compare_exchange_strong(oldCount, oldCount + 1, std::memory_order_relaxed, std::memory_order_relaxed))
+                        return 0;
+                    if (correctionSpin >= correctionSpinLimit)
                         return 0;
                 }
             }
