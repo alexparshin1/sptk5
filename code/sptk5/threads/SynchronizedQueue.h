@@ -31,6 +31,9 @@
 #include "blockingconcurrentqueue.h"
 
 #include <deque>
+#include <iterator>
+#include <type_traits>
+#include <vector>
 
 namespace sptk {
 /**
@@ -67,7 +70,7 @@ public:
      */
     void push_back(const T& data)
     {
-        m_queue.enqueue(std::move(data));
+        m_queue.enqueue(data);
     }
 
     /**
@@ -90,9 +93,24 @@ public:
      */
     bool pop_front(std::vector<T>& item, size_t maxItems, const std::chrono::microseconds& timeout)
     {
-        item.resize(maxItems);
-        auto count = m_queue.wait_dequeue_bulk_timed(item.begin(), maxItems, timeout.count());
-        item.resize(count);
+        size_t count = 0;
+        if constexpr (std::is_trivially_copyable_v<T>)
+        {
+            // Trivial T: default-construction is a cheap memset and the bulk dequeue can memcpy
+            // into contiguous storage, so pre-sizing and writing through begin() is fastest.
+            item.resize(maxItems);
+            count = m_queue.wait_dequeue_bulk_timed(item.begin(), maxItems, timeout.count());
+            item.resize(count);
+        }
+        else
+        {
+            // Non-trivial T: pre-sizing would default-construct maxItems objects every call and
+            // destroy the surplus - pure waste when a poll returns few items or times out. Append
+            // exactly `count` moved-in objects instead, reusing the vector's capacity across calls.
+            item.clear();
+            item.reserve(maxItems);
+            count = m_queue.wait_dequeue_bulk_timed(std::back_inserter(item), maxItems, timeout.count());
+        }
         return count > 0;
     }
 

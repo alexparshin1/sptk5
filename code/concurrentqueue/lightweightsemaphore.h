@@ -12,7 +12,12 @@
 #include <cstdint> // For std::uint64_t
 #include <ctime>   // For clock_gettime
 #include <semaphore>
+#include <thread>      // For std::this_thread::yield
 #include <type_traits> // For std::make_signed<T>
+
+#if defined(_MSC_VER)
+#include <intrin.h> // _mm_pause / __yield
+#endif
 
 #ifndef MOODYCAMEL_DELETE_FUNCTION
 #if __cplusplus >= 201103L || _MSC_VER >= 1900
@@ -23,6 +28,43 @@
 #endif
 
 namespace moodycamel {
+
+// CPU relaxation hint for a spin iteration: cheap "pause" instruction that eases
+// bus contention and frees the hyperthread without yielding to the scheduler.
+static inline void cpuRelax()
+{
+#if defined(_MSC_VER)
+#if defined(_M_ARM) || defined(_M_ARM64)
+    __yield();
+#else
+    _mm_pause();
+#endif
+#elif defined(__i386__) || defined(__x86_64__)
+    __builtin_ia32_pause();
+#elif defined(__aarch64__) || defined(__arm__)
+    __asm__ __volatile__("yield");
+#else
+    std::this_thread::yield();
+#endif
+}
+
+// Number of initial spin iterations that only pause before spinBackoff() escalates
+// to yielding the scheduler. Also usable by unbounded callers to cap their attempt
+// counter (keeping it in the yield regime without overflowing).
+constexpr int spinBackoffYieldThreshold = 64;
+
+// Backoff for a self-heal spin (see the semaphore/queue desync comments). The first
+// spinBackoffYieldThreshold iterations only pause - keeps latency low for the common
+// case where the awaited item/token is merely a few nanoseconds late. After that we
+// yield the scheduler so a producer or a joining thread (e.g. at shutdown) can make
+// progress instead of being starved by a pinned core.
+static inline void spinBackoff(int attempt)
+{
+    if (attempt < spinBackoffYieldThreshold)
+        cpuRelax();
+    else
+        std::this_thread::yield();
+}
 
 // Code in the mpmc_sema namespace below is an adaptation of Jeff Preshing's
 // portable + lightweight semaphore implementations, originally from
@@ -142,6 +184,7 @@ private:
                 return false;
             if (correctionSpin >= correctionSpinLimit)
                 return false;
+            spinBackoff(correctionSpin);
         }
     }
 
@@ -185,6 +228,7 @@ private:
                         return 0;
                     if (correctionSpin >= correctionSpinLimit)
                         return 0;
+                    spinBackoff(correctionSpin);
                 }
             }
         }

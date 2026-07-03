@@ -317,11 +317,18 @@ public:
     {
         if (sema->tryWait())
         {
-            while (!inner.try_dequeue(item))
+            // A token was acquired but the matching item may not be visible yet (producer
+            // latency). BOUNDED retry: a phantom token (e.g. from an out-of-band wake_up(),
+            // or items already drained by clear()) has no item and would spin a core forever.
+            constexpr int spuriousWakeRetryLimit = 10000;
+            for (int attempt = 0; attempt < spuriousWakeRetryLimit; ++attempt)
             {
-                continue;
+                if (inner.try_dequeue(item))
+                {
+                    return true;
+                }
+                spinBackoff(attempt);
             }
-            return true;
         }
         return false;
     }
@@ -335,11 +342,17 @@ public:
     {
         if (sema->tryWait())
         {
-            while (!inner.try_dequeue(token, item))
+            // BOUNDED retry (see the non-token overload): a phantom token has no item and
+            // an unbounded spin here would pin a core forever.
+            constexpr int spuriousWakeRetryLimit = 10000;
+            for (int attempt = 0; attempt < spuriousWakeRetryLimit; ++attempt)
             {
-                continue;
+                if (inner.try_dequeue(token, item))
+                {
+                    return true;
+                }
+                spinBackoff(attempt);
             }
-            return true;
         }
         return false;
     }
@@ -355,9 +368,17 @@ public:
         size_t count = 0;
         assert(static_cast<ssize_t>(max) >= 0);
         max = static_cast<size_t>(sema->tryWaitMany(static_cast<LightweightSemaphore::ssize_t>(static_cast<ssize_t>(max))));
-        while (count != max)
+        // BOUNDED (see wait_dequeue_bulk_timed): phantom tokens (fewer items than tokens acquired)
+        // would spin a core forever. Return what was actually dequeued; surplus tokens were spurious.
+        constexpr int spuriousWakeRetryLimit = 10000;
+        for (int attempt = 0; count != max && attempt < spuriousWakeRetryLimit; ++attempt)
         {
+            const size_t before = count;
             count += inner.template try_dequeue_bulk<It&>(itemFirst, max - count);
+            if (count == before)
+            {
+                spinBackoff(attempt);
+            }
         }
         return count;
     }
@@ -373,9 +394,16 @@ public:
         size_t count = 0;
         assert(static_cast<ssize_t>(max) >= 0);
         max = static_cast<size_t>(sema->tryWaitMany(static_cast<LightweightSemaphore::ssize_t>(static_cast<ssize_t>(max))));
-        while (count != max)
+        // BOUNDED (see wait_dequeue_bulk_timed): phantom tokens would spin a core forever.
+        constexpr int spuriousWakeRetryLimit = 10000;
+        for (int attempt = 0; count != max && attempt < spuriousWakeRetryLimit; ++attempt)
         {
+            const size_t before = count;
             count += inner.template try_dequeue_bulk<It&>(token, itemFirst, max - count);
+            if (count == before)
+            {
+                spinBackoff(attempt);
+            }
         }
         return count;
     }
@@ -391,9 +419,17 @@ public:
         {
             continue;
         }
-        while (!inner.try_dequeue(item))
+        // Contract is to block until an item is produced, so this stays unbounded (there is no
+        // way to report "empty" through a void return). But back off instead of hot-spinning:
+        // on a phantom token this would otherwise pin a core at 100%. attempt is capped so it
+        // stays in the yield regime without overflowing.
+        for (int attempt = 0; !inner.try_dequeue(item);)
         {
-            continue;
+            spinBackoff(attempt);
+            if (attempt < spinBackoffYieldThreshold)
+            {
+                ++attempt;
+            }
         }
     }
 
@@ -425,6 +461,7 @@ public:
             {
                 return true;
             }
+            spinBackoff(attempt);
         }
         return false;
     }
@@ -449,9 +486,14 @@ public:
         {
             continue;
         }
-        while (!inner.try_dequeue(token, item))
+        // Unbounded by contract (see the non-token overload); back off instead of hot-spinning.
+        for (int attempt = 0; !inner.try_dequeue(token, item);)
         {
-            continue;
+            spinBackoff(attempt);
+            if (attempt < spinBackoffYieldThreshold)
+            {
+                ++attempt;
+            }
         }
     }
 
@@ -469,11 +511,18 @@ public:
         {
             return false;
         }
-        while (!inner.try_dequeue(token, item))
+        // BOUNDED (see the non-token wait_dequeue_timed): a phantom token has no item and would
+        // otherwise pin a core forever. After the bound, report "empty"; the semaphore self-heals.
+        constexpr int spuriousWakeRetryLimit = 10000;
+        for (int attempt = 0; attempt < spuriousWakeRetryLimit; ++attempt)
         {
-            continue;
+            if (inner.try_dequeue(token, item))
+            {
+                return true;
+            }
+            spinBackoff(attempt);
         }
-        return true;
+        return false;
     }
 
     // Blocks the current thread until either there's something to dequeue
@@ -497,9 +546,19 @@ public:
         size_t count = 0;
         assert(static_cast<ssize_t>(max) >= 0);
         max = static_cast<size_t>(sema->waitMany(static_cast<LightweightSemaphore::ssize_t>(static_cast<ssize_t>(max))));
-        while (count != max)
+        // Unbounded by contract (blocks until at least one item); back off instead of hot-spinning.
+        for (int attempt = 0; count != max;)
         {
+            const size_t before = count;
             count += inner.template try_dequeue_bulk<It&>(itemFirst, max - count);
+            if (count == before)
+            {
+                spinBackoff(attempt);
+                if (attempt < spinBackoffYieldThreshold)
+                {
+                    ++attempt;
+                }
+            }
         }
         return count;
     }
@@ -525,7 +584,12 @@ public:
         constexpr int spuriousWakeRetryLimit = 10000;
         for (int attempt = 0; count != max && attempt < spuriousWakeRetryLimit; ++attempt)
         {
+            const size_t before = count;
             count += inner.template try_dequeue_bulk<It&>(itemFirst, max - count);
+            if (count == before)
+            {
+                spinBackoff(attempt);
+            }
         }
         return count;
     }
@@ -552,9 +616,19 @@ public:
         size_t count = 0;
         assert(static_cast<ssize_t>(max) >= 0);
         max = static_cast<size_t>(sema->waitMany(static_cast<LightweightSemaphore::ssize_t>(static_cast<ssize_t>(max))));
-        while (count != max)
+        // Unbounded by contract (blocks until at least one item); back off instead of hot-spinning.
+        for (int attempt = 0; count != max;)
         {
+            const size_t before = count;
             count += inner.template try_dequeue_bulk<It&>(token, itemFirst, max - count);
+            if (count == before)
+            {
+                spinBackoff(attempt);
+                if (attempt < spinBackoffYieldThreshold)
+                {
+                    ++attempt;
+                }
+            }
         }
         return count;
     }
@@ -572,9 +646,17 @@ public:
         size_t count = 0;
         assert(static_cast<ssize_t>(max) >= 0);
         max = static_cast<size_t>(sema->waitMany(static_cast<LightweightSemaphore::ssize_t>(static_cast<ssize_t>(max)), timeout_usecs));
-        while (count != max)
+        // BOUNDED (see the non-token wait_dequeue_bulk_timed): surplus phantom tokens would spin
+        // a core forever. Return what was actually dequeued.
+        constexpr int spuriousWakeRetryLimit = 10000;
+        for (int attempt = 0; count != max && attempt < spuriousWakeRetryLimit; ++attempt)
         {
+            const size_t before = count;
             count += inner.template try_dequeue_bulk<It&>(token, itemFirst, max - count);
+            if (count == before)
+            {
+                spinBackoff(attempt);
+            }
         }
         return count;
     }
