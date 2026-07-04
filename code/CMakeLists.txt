@@ -212,7 +212,6 @@ MESSAGE("Library type:       " ${LIBRARY_TYPE})
 MESSAGE("Install prefix:     " ${CMAKE_INSTALL_PREFIX})
 
 INCLUDE_DIRECTORIES(".")
-INCLUDE_DIRECTORIES("concurrentqueue")
 INCLUDE_DIRECTORIES(${SPTK_SOURCE_DIR})
 
 SET(SPTK_INCLUDE_DIR ${SPTK_SOURCE_DIR}/sptk5)
@@ -555,7 +554,6 @@ ENDIF ()
 CONFIGURE_FILE("${SPTK_SOURCE_DIR}/sptk5/sptk-config.h.cmake" "${SPTK_SOURCE_DIR}/sptk5/sptk-config.h" @ONLY)
 
 ADD_SUBDIRECTORY(sptk5)
-ADD_SUBDIRECTORY(concurrentqueue)
 
 IF (SQLITE3_FLAG AND WIN32)
     ADD_SUBDIRECTORY(sqlite3)
@@ -616,7 +614,7 @@ INSTALL(FILES ${includeFilesWSDL2} DESTINATION include/sptk5/wsdl/protocol COMPO
 FILE(GLOB includeFilesNet "${CMAKE_CURRENT_SOURCE_DIR}/sptk5/net/*.h")
 INSTALL(FILES ${includeFilesNet} DESTINATION include/sptk5/net COMPONENT core)
 
-FILE(GLOB includeFilesThreads "${CMAKE_CURRENT_SOURCE_DIR}/sptk5/threads/*.h" "${CMAKE_CURRENT_SOURCE_DIR}/concurrentqueue/*.h")
+FILE(GLOB includeFilesThreads "${CMAKE_CURRENT_SOURCE_DIR}/sptk5/threads/*.h")
 INSTALL(FILES ${includeFilesThreads} DESTINATION include/sptk5/threads COMPONENT core)
 
 FILE(GLOB includeFilesDB "${CMAKE_CURRENT_SOURCE_DIR}/sptk5/db/*.h")

@@ -231,11 +231,11 @@ public:
     /**
      * @brief Constructor.
      *
-     * Pattern options are a combination of flags matching Perl regular expression switches:.
-     * 'g'  global match, not just the first one.
-     * 'i'  letters in the pattern match both upper and lower case  letters.
-     * 'm'  multiple lines match.
-     * 's'  dot character matches even newlines.
+     * Pattern options are a combination of flags matching Perl regular expression switches:
+     * 'g'  global match, not just the first one,
+     * 'i'  letters in the pattern match both upper and lower case  letters,
+     * 'm'  multiple lines match,
+     * 's'  dot character matches even newlines,
      * 'x'  ignore whitespaces.
      * @param pattern           PCRE pattern.
      * @param options           Pattern options.
