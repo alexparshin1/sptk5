@@ -88,6 +88,16 @@ void RedisConnect::disconnect()
     m_reader.reset();
 }
 
+void RedisConnect::flush()
+{
+    scoped_lock lock(m_mutex);
+
+    const RedisCommand command("FLUSHDB");
+
+    vector<Variant> results;
+    executeCommand(command, results);
+}
+
 void RedisConnect::setValue(const string& key, const Variant& value)
 {
     scoped_lock lock(m_mutex);

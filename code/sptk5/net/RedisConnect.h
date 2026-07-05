@@ -132,6 +132,12 @@ public:
     void disconnect();
 
     /**
+     * @brief Flushes the Redis database.
+     * @remarks The database contents will be cleared.
+     */
+    void flush();
+
+    /**
      * @brief Get a value for the key.
      * @param key Key value.
      * @return Variant value.
@@ -269,7 +275,7 @@ public:
      * @param oldKey The current key name.
      * @param newKey The new key name.
      * @throws RedisConnectException if the old key does not exist.
-     * @note If newKey already exists, it will be overwritten.
+     * @note If the newKey already exists, it will be overwritten.
      */
     void renameKey(const std::string& oldKey, const std::string& newKey);
 
@@ -376,6 +382,12 @@ public:
      * @param cursor Optional Redis cursor for SCAN-like commands.
      */
     void executeCommand(const RedisCommand& command, std::vector<Variant>& results, Variant* cursor = nullptr);
+
+    /**
+     * @brief Get Redis connection information.
+     * @return Redis connection information.
+     */
+    std::string toString() const;
 
 private:
     mutable std::mutex            m_mutex;                 ///< Mutex for thread safety.
@@ -493,12 +505,6 @@ private:
      * @return Cursor.
      */
     size_t scan(const std::string& pattern, size_t cursor, std::vector<Variant>& matchedKeys, size_t limit);
-
-    /**
-     * @brief Get Redis connection information.
-     * @return Redis connection information.
-     */
-    std::string toString() const;
 };
 
 using SRedisConnect = std::shared_ptr<RedisConnect>;
