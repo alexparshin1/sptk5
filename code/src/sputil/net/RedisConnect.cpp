@@ -509,6 +509,12 @@ size_t RedisConnect::scan(const string& pattern, const size_t cursor, vector<Var
     return newCursor.asInt64();
 }
 
+std::string RedisConnect::toString() const
+{
+    scoped_lock lock(m_mutex);
+    return m_socket->host().toString();
+}
+
 Variant RedisConnect::getValue(const string& key)
 {
     scoped_lock lock(m_mutex);

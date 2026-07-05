@@ -493,6 +493,12 @@ private:
      * @return Cursor.
      */
     size_t scan(const std::string& pattern, size_t cursor, std::vector<Variant>& matchedKeys, size_t limit);
+
+    /**
+     * @brief Get Redis connection information.
+     * @return Redis connection information.
+     */
+    std::string toString() const;
 };
 
 using SRedisConnect = std::shared_ptr<RedisConnect>;
