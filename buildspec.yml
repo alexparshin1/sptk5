@@ -6,6 +6,8 @@ phases:
       nodejs: latest
     commands:
       - echo "install phase"
+      - export CWD=$(pwd)
+      - echo "Current directory: $CWD"
       - apt update
       - apt upgrade -y
       - apt install cmake git-all g++ libpcre2-dev libssl-dev libpq-dev libpq5 -y
@@ -21,8 +23,7 @@ phases:
   build:
     commands:
       - echo "build phase +"
-      - cd $CODEBUILD_SRC_DIR/code
-      - ls
+      - cd $CWD/code
       - cmake -DCMAKE_INSTALL_PREFIX=artifacts .
       - make -j 2
   post_build:
