@@ -20,7 +20,7 @@ phases:
     commands:
       - echo "build phase"
       - cd code
-      - cmake .
+      - cmake -DCMAKE_INSTALL_PREFIX=artifacts .
       - make -j 2
   post_build:
     commands:
