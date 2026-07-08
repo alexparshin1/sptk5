@@ -230,5 +230,7 @@ shared_ptr<Host> HttpProxy::getDefaultProxy(String& proxyUser, String& proxyPass
         proxyPassword = parts[3].value.empty() ? "" : parts[3].value.substr(1);
         return make_shared<Host>(parts[4].value);
     }
+
+    return {};
 #endif
 }
