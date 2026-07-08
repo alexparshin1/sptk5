@@ -6,7 +6,6 @@ phases:
       nodejs: latest
     commands:
       - echo "install phase"
-      - export CWD=$(pwd)
       - echo "Current directory: $CWD"
       - apt update
       - apt upgrade -y
@@ -17,13 +16,14 @@ phases:
       - cd /usr/src/googletest
       - cmake .
       - make install
+      - cd $CODEBUILD_SRC_DIR
   pre_build:
     commands:
       - echo "pre-build phase"
   build:
     commands:
       - echo "build phase +"
-      - cd $CWD/code
+      - cd code
       - cmake -DCMAKE_INSTALL_PREFIX=artifacts .
       - make -j 2
   post_build:
