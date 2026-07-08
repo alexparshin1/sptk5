@@ -60,12 +60,11 @@ public:
 
     /**
      * @brief Get the default proxy host.
-     * @param proxyHost         Proxy host (output).
      * @param proxyUser         Proxy user (output).
      * @param proxyPassword     Proxy password (output).
-     * @return True if the default proxy is set, false otherwise.
+     * @return proxy host, nullptr otherwise.
      */
-    static bool getDefaultProxy(Host& proxyHost, String& proxyUser, String& proxyPassword);
+    static std::shared_ptr<Host> getDefaultProxy(String& proxyUser, String& proxyPassword);
 
 private:
     /**

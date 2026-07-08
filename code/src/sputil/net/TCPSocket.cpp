@@ -56,15 +56,14 @@ TCPSocket::~TCPSocket()
     close();
 }
 
-void TCPSocket::openUnlocked(const Host& _host, const OpenMode openMode, const bool _blockingMode,
+void TCPSocket::openUnlocked(const Host& host, const OpenMode openMode, const bool _blockingMode,
                              const chrono::milliseconds& timeout, const char* clientBindAddress)
 {
-    if (!_host.hostname().empty())
+    if (!host.hostname().empty())
     {
-        setHostUnlocked(_host);
+        setHostUnlocked(host);
     }
-
-    if (getHostUnlocked().hostname().empty())
+    else if (getHostUnlocked().hostname().empty())
     {
         throw ConnectionException("Please, define the host name");
     }

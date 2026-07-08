@@ -27,9 +27,9 @@
 #pragma once
 
 #include <cstring>
-#include <mutex>
 #include <sptk5/RegularExpression.h>
 #include <sptk5/Strings.h>
+#include <sptk5/threads/ReadWriteLock.h>
 
 #ifndef _WIN32
 
@@ -48,6 +48,7 @@ namespace sptk {
 
 /**
  * @brief Network host information.
+ * @remarks The object is immutable.
  */
 class SP_EXPORT Host final
 {
@@ -104,13 +105,13 @@ public:
      * @brief Assign from another host.
      * @param other             The other object.
      */
-    Host& operator=(const Host& other);
+    Host& operator=(const Host& other) = delete;
 
     /**
      * @brief Move assignment from another host.
      * @param other             The other object.
      */
-    Host& operator=(Host&& other) noexcept;
+    Host& operator=(Host&& other) noexcept = delete;
 
     /**
      * @brief Compare to another host.
@@ -123,9 +124,8 @@ public:
      * @brief Get the host name.
      * @return host name.
      */
-    std::string hostname() const
+    const std::string& hostname() const
     {
-        std::scoped_lock lock(m_mutex);
         return m_hostname;
     }
 
@@ -135,7 +135,6 @@ public:
      */
     void port(uint16_t p)
     {
-        std::scoped_lock lock(m_mutex);
         setPortUnlocked(p);
     }
 
@@ -145,7 +144,6 @@ public:
      */
     uint16_t port() const
     {
-        std::scoped_lock lock(m_mutex);
         return m_port;
     }
 
@@ -162,7 +160,6 @@ public:
      */
     void getAddress(sockaddr_in& address) const
     {
-        std::scoped_lock lock(m_mutex);
         if (any().sa_family != AF_INET)
         {
             throw std::runtime_error("Host::getAddress: not an IPv4 address");
@@ -175,7 +172,6 @@ public:
      */
     void getAddress(sockaddr_in6& address) const
     {
-        std::scoped_lock lock(m_mutex);
         if (any().sa_family != AF_INET6)
         {
             throw std::runtime_error("Host::getAddress: not an IPv6 address");
@@ -184,7 +180,6 @@ public:
     }
 
 private:
-    mutable std::mutex                        m_mutex;      ///< Mutex to protect internal class data.
     std::string                               m_hostname;   ///< Host name or IP address.
     uint16_t                                  m_port {0};   ///< Port number.
     std::array<uint8_t, sizeof(sockaddr_in6)> m_address {}; ///< Storage for IPv4 and IPv6 addresses.

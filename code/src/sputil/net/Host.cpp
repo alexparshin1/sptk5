@@ -38,41 +38,44 @@ using namespace sptk;
 const RegularExpression Host::m_matchHostNameOrIpv4(R"(^([\w\d\-\.]+)(:\d{1,5})?$)");
 const RegularExpression Host::m_matchIpv6(R"(^\[([\w\d\-\.:]+)\](:\d{1,5})?$)");
 
+#ifdef _WIN32
 namespace {
 void checkSocketsInitialized()
 {
-#ifdef _WIN32
-    static mutex initMutex;
-    static bool  initialized = false;
-    scoped_lock  lock(initMutex);
+    static atomic_bool initialized = false;
+    scoped_lock        lock(initMutex);
     if (!initialized)
     {
         Socket::init();
         initialized = true;
     }
-#endif
 }
 } // namespace
+#endif
 
 Host::Host() noexcept
 {
+#ifdef _WIN32
     checkSocketsInitialized();
-    memset(&m_address, 0, sizeof(m_address));
+#endif
 }
 
 Host::Host(string hostname, const uint16_t port)
     : m_hostname(std::move(hostname))
     , m_port(port)
 {
+#ifdef _WIN32
     checkSocketsInitialized();
+#endif
     getHostAddressUnlocked();
     setPortUnlocked(m_port);
 }
 
 Host::Host(const string& hostAndPort)
 {
+#ifdef _WIN32
     checkSocketsInitialized();
-
+#endif
     const auto matches = hostAndPort.starts_with("[")
                              ? m_matchIpv6.m(hostAndPort)
                              : m_matchHostNameOrIpv4.m(hostAndPort);
@@ -103,7 +106,9 @@ Host::Host(const string& hostAndPort)
 
 Host::Host(const sockaddr_in* addressAndPort)
 {
+#ifdef _WIN32
     checkSocketsInitialized();
+#endif
     constexpr socklen_t addressLen = sizeof(sockaddr_in);
     memcpy(m_address.data(), addressAndPort, addressLen);
     m_port = ntohs(ip_v4().sin_port);
@@ -113,7 +118,9 @@ Host::Host(const sockaddr_in* addressAndPort)
 
 Host::Host(const sockaddr_in6* addressAndPort)
 {
+#ifdef _WIN32
     checkSocketsInitialized();
+#endif
     constexpr socklen_t addressLen = sizeof(sockaddr_in6);
 
     const auto* addressAndPort6 = addressAndPort;
@@ -152,7 +159,6 @@ void Host::setHostNameFromAddress(const socklen_t addressLen)
 
 Host::Host(const Host& other)
 {
-    const scoped_lock lock(other.m_mutex);
     m_hostname = other.m_hostname;
     m_port = other.m_port;
     m_address = other.m_address;
@@ -160,36 +166,9 @@ Host::Host(const Host& other)
 
 Host::Host(Host&& other) noexcept
 {
-    const scoped_lock lock(other.m_mutex);
     m_hostname = exchange(other.m_hostname, "");
     m_port = exchange(other.m_port, static_cast<uint16_t>(0));
     m_address = other.m_address;
-}
-
-Host& Host::operator=(const Host& other)
-{
-    if (&other != this)
-    {
-        const scoped_lock lock(m_mutex, other.m_mutex);
-        m_hostname = other.m_hostname;
-        m_port = other.m_port;
-        m_address = other.m_address;
-    }
-    return *this;
-}
-
-Host& Host::operator=(Host&& other) noexcept
-{
-    if (&other == this)
-    {
-        return *this;
-    }
-
-    const scoped_lock lock(m_mutex, other.m_mutex);
-    m_hostname = exchange(other.m_hostname, "");
-    m_port = exchange(other.m_port, uint16_t(0));
-    m_address = other.m_address;
-    return *this;
 }
 
 bool Host::operator==(const Host& other) const
@@ -273,8 +252,7 @@ string Host::ipAddressToString(const uint8_t* addr) const
 
 string Host::toString(const bool forceAddress) const
 {
-    const scoped_lock lock(m_mutex);
-    string            str;
+    string str;
 
     if (!m_hostname.empty())
     {

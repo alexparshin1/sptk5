@@ -69,7 +69,7 @@ void SocketVirtualMethods::openAddressUnlocked(const sockaddr_in& addr, const Op
 {
     const auto timeoutMS = static_cast<int>(timeout.count());
 
-    if (activeUnlocked())
+    if (m_socketFd != INVALID_SOCKET)
     {
         closeUnlocked();
     }
@@ -138,7 +138,7 @@ void SocketVirtualMethods::openAddressUnlocked(const sockaddr_in& addr, const Op
             if (reusePort)
             {
                 // SO_REUSEADDR lets the listener bind over a socket lingering in TIME_WAIT - for
-                // example an ephemeral client port from an earlier connection that happens to fall
+                // example, an ephemeral client port from an earlier connection that happens to fall
                 // on this well-known port - which would otherwise fail with EADDRINUSE.
                 setOptionUnlocked(SOL_SOCKET, SO_REUSEADDR, 1);
 #ifndef _WIN32
@@ -164,7 +164,7 @@ void SocketVirtualMethods::openAddressUnlocked(const sockaddr_in& addr, const Op
     if (result != 0)
     {
         stringstream error;
-        error << "Can't " << currentOperation << " to " << m_host.toString(false) << ". "
+        error << "Can't " << currentOperation << " to " << m_host->toString(false) << ". "
               << SystemException::osError()
               << ".";
         closeUnlocked();
@@ -198,12 +198,12 @@ void SocketVirtualMethods::setSocketFdUnlocked(const SocketType socket)
 
 void SocketVirtualMethods::setHostUnlocked(const Host& host)
 {
-    m_host = host;
+    m_host = make_unique<Host>(host);
 }
 
 const Host& SocketVirtualMethods::getHostUnlocked() const
 {
-    return m_host;
+    return *m_host;
 }
 
 bool SocketVirtualMethods::getBlockingModeUnlocked() const
@@ -214,6 +214,11 @@ bool SocketVirtualMethods::getBlockingModeUnlocked() const
 void SocketVirtualMethods::setBlockingModeUnlocked(const bool blockingMode)
 {
     static const String errorMessage("Can't set socket blockingMode mode");
+
+    if (m_blockingMode == blockingMode)
+    {
+        return;
+    }
 #ifdef _WIN32
     u_long arg = blockingMode ? 0 : 1;
     if (const int result = ioctlsocket(m_socketFd, FIONBIO, &arg);
@@ -346,7 +351,7 @@ void SocketVirtualMethods::listenUnlocked(const uint16_t portNumber, const bool 
 {
     if (portNumber != 0)
     {
-        m_host.port(portNumber);
+        m_host->port(portNumber);
     }
 
     sockaddr_in address = {};
@@ -354,7 +359,7 @@ void SocketVirtualMethods::listenUnlocked(const uint16_t portNumber, const bool 
     memset(&address, 0, sizeof(address));
     address.sin_family = static_cast<SOCKET_ADDRESS_FAMILY>(m_domain);
     address.sin_addr.s_addr = htonl(INADDR_ANY);
-    address.sin_port = htons(m_host.port());
+    address.sin_port = htons(m_host->port());
 
     openAddressUnlocked(address, OpenMode::BIND, chrono::milliseconds(0), reusePort);
 }

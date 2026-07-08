@@ -207,7 +207,7 @@ static bool windowsGetDefaultProxy(Host& host, String& username, String& passwor
 }
 #endif
 
-bool HttpProxy::getDefaultProxy(Host& proxyHost, String& proxyUser, String& proxyPassword)
+shared_ptr<Host> HttpProxy::getDefaultProxy(String& proxyUser, String& proxyPassword)
 {
 #ifdef _WIN32
     return windowsGetDefaultProxy(proxyHost, proxyUser, proxyPassword);
@@ -221,17 +221,14 @@ bool HttpProxy::getDefaultProxy(Host& proxyHost, String& proxyUser, String& prox
 
     if (proxyEnv == nullptr)
     {
-        return false;
+        return {};
     }
 
     if (const auto parts = matchProxy.m(proxyEnv); parts)
     {
         proxyUser = parts[2].value;
         proxyPassword = parts[3].value.empty() ? "" : parts[3].value.substr(1);
-        proxyHost = Host(parts[4].value);
-        return true;
+        return make_shared<Host>(parts[4].value);
     }
-
-    return false;
 #endif
 }

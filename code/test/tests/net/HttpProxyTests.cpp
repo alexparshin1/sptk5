@@ -37,7 +37,7 @@ using namespace sptk;
 using namespace chrono;
 namespace sptk {
 
-TEST(HttpProxyTests,connect)
+TEST(HttpProxyTests, connect)
 {
     // Check if the proxy is defined in the environment variable.
     // It's typical for Linux, and rare for Windows.
@@ -104,27 +104,26 @@ TEST(HttpProxyTests,connect)
     }
 }
 
-TEST(HttpProxyTests,getDefaultProxy)
+TEST(HttpProxyTests, getDefaultProxy)
 {
-    Host   proxyHost;
     String proxyUser;
     String proxyPassword;
 
 #ifdef _WIN32
-    HttpProxy::getDefaultProxy(proxyHost, proxyUser, proxyPassword);
+    auto proxyHost = HttpProxy::getDefaultProxy(proxyUser, proxyPassword);
 #else
     setenv("HTTP_PROXY", "127.0.0.1:3128", 1);
-    HttpProxy::getDefaultProxy(proxyHost, proxyUser, proxyPassword);
-    EXPECT_STREQ(proxyHost.toString(true).c_str(), "127.0.0.1:3128");
+    auto proxyHost = HttpProxy::getDefaultProxy(proxyUser, proxyPassword);
+    EXPECT_STREQ(proxyHost->toString(true).c_str(), "127.0.0.1:3128");
     EXPECT_STREQ(proxyUser.c_str(), "");
     EXPECT_STREQ(proxyPassword.c_str(), "");
 
     setenv("HTTP_PROXY", "http://Domain\\user:password@127.0.0.1:3128", 1);
-    HttpProxy::getDefaultProxy(proxyHost, proxyUser, proxyPassword);
-    EXPECT_STREQ(proxyHost.toString(true).c_str(), "127.0.0.1:3128");
+    proxyHost = HttpProxy::getDefaultProxy(proxyUser, proxyPassword);
+    EXPECT_STREQ(proxyHost->toString(true).c_str(), "127.0.0.1:3128");
     EXPECT_STREQ(proxyUser.c_str(), "Domain\\user");
     EXPECT_STREQ(proxyPassword.c_str(), "password");
 #endif
 }
 
-} // namespace sptk_test
+} // namespace sptk
