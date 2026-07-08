@@ -1,0 +1,27 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      nodejs: latest
+    commands:
+      - echo "install phase"
+      - apt update
+      - apt upgrade -y
+      - apt install cmake cmake-curses-gui ccache mc git-all g++ libpcre2-dev libssl-dev libpq-dev libpq5 libpng-dev -y
+      - apt install default-mysql-server default-mysql-client default-libmysqlclient-dev postgresql brotli libbrotli-dev -y
+      - apt install valgrind kcachegrind clang clang-tidy cppcheck remmina rsync ccache -y
+      - apt install unixodbc* freetds* tdsodbc libsqlite3-dev -y
+      - apt install googletest -y
+  pre_build:
+    commands:
+      - echo "pre-build phase"
+  build:
+    commands:
+      - echo "build phase"
+      - cd code
+      - cmake .
+      - make
+  post_build:
+    commands:
+      - echo "post build phase"
