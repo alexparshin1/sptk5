@@ -12,6 +12,9 @@ phases:
       - apt install default-mysql-client default-libmysqlclient-dev postgresql brotli libbrotli-dev -y
       - apt install unixodbc* freetds* tdsodbc libsqlite3-dev -y
       - apt install googletest -y
+      - cd /usr/src/googletest
+      - cmake .
+      - make install
   pre_build:
     commands:
       - echo "pre-build phase"
