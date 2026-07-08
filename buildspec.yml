@@ -20,7 +20,7 @@ phases:
       - echo "pre-build phase"
   build:
     commands:
-      - echo "build phase"
+      - echo "build phase +"
       - cd $CODEBUILD_SRC_DIR/code
       - ls
       - cmake -DCMAKE_INSTALL_PREFIX=artifacts .
