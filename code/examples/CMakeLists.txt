@@ -8,11 +8,9 @@ ELSE (NO_EXAMPLES)
 
     ADD_SUBDIRECTORY(jwt)
     ADD_SUBDIRECTORY(database)
-    ADD_SUBDIRECTORY(threads)
     ADD_SUBDIRECTORY(core)
 
     ADD_SUBDIRECTORY(datasources)
-    ADD_SUBDIRECTORY(net)
 
     IF (FLTK_FLAG)
         ADD_SUBDIRECTORY(gui)
