@@ -9,7 +9,7 @@ phases:
       - apt update
       - apt upgrade -y
       - apt install cmake git-all g++ libpcre2-dev libssl-dev libpq-dev libpq5 -y
-      - apt install default-mysql-client default-libmysqlclient-dev postgresql brotli libbrotli-dev -y
+      - apt install default-mysql-client default-libmysqlclient-dev postgresql-client brotli libbrotli-dev -y
       - apt install unixodbc* freetds* tdsodbc libsqlite3-dev -y
       - apt install googletest -y
       - cd /usr/src/googletest
