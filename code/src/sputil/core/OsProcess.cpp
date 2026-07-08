@@ -286,7 +286,10 @@ int OsProcess::close()
         {
             return m_exitCode;
         }
+        // Claim the handle before closing it: close() can be called concurrently from the
+        // reader task and the destructor, and both would otherwise fclose the same FILE*.
         out = m_stdout;
+        m_stdout = nullptr;
     }
 
     m_terminated = true;
@@ -335,7 +338,6 @@ int OsProcess::close()
 #endif
 
     const scoped_lock lock(m_mutex);
-    m_stdout = nullptr;
     m_exitCode = exitCode;
 
     return m_exitCode;
