@@ -1,6 +1,8 @@
+<p>
 SPTK 5.6.7 is now available for download. This is the first release of SPTK that used AI code reviews.
 That allowed fixing several bugs and improving the code quality. There are also multiple performance improvements,
 mostly in the network and database classes.
+</p>
 <p>
 There are several new features in this release:
 </p>
