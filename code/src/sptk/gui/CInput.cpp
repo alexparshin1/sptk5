@@ -558,7 +558,7 @@ bool CInput::preferredSize(int& w, int& h)
 
 int CInput_::_insert_position() const
 {
-#if FLTK_VERSION_MAJOR == 1 && FLTK_VERSION_MINOR > 3
+#if FL_ABI_VERSION < 10400
     return position();
 #else
     return insert_position();
@@ -567,7 +567,7 @@ int CInput_::_insert_position() const
 
 int CInput_::_insert_position(int p, int m)
 {
-#if FLTK_VERSION_MAJOR == 1 && FLTK_VERSION_MINOR > 3
+#if FL_ABI_VERSION < 10400
     return position(p, m);
 #else
     return insert_position(p, m);
@@ -576,7 +576,7 @@ int CInput_::_insert_position(int p, int m)
 
 int CInput_::_insert_position(int p)
 {
-#if FLTK_VERSION_MAJOR == 1 && FLTK_VERSION_MINOR > 3
+#if FL_ABI_VERSION < 10400
     return position(p);
 #else
     return insert_position(p);
