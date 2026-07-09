@@ -36,13 +36,14 @@ rsync -av git/xmq/ $XMQ_DIR > /tmp/op.log || (cat /tmp/op.log; exit 1)
 
 rm -f logs/*.log
 
-#for dname in /home/alexeyp/Docker/Dockerfile.*
+for dname in /home/alexeyp/Docker/Dockerfile.*
 #for dname in /home/alexeyp/Docker/Dockerfile.ubuntu-25.10
-for dname in /home/alexeyp/Docker/Dockerfile.oraclelinux-10
+#for dname in /home/alexeyp/Docker/Dockerfile.oraclelinux-10
 do
     name=$(echo $dname | sed -re 's/^.*Dockerfile.//')
     echo "$(date +%H:%M:%S) Building $name"
     docker run --rm -v /build:/build -it builder-$name /build/scripts/build-package-cmake.sh $TESTS SPTK XMQ > logs/build-$name.log
+    echo BUILD RC=$?
 done
 
 echo "$(date +%H:%M:%S) Building complete"
