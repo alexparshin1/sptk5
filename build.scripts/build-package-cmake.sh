@@ -83,6 +83,7 @@ else
 fi
 
 sh ./distclean.sh
+ulimit -n 16384
 cmake . $BUILD_OPTIONS && make -j6 install && make -j6 package || exit 1
 
 echo ──────────────────────────────────────────────────────────────────
