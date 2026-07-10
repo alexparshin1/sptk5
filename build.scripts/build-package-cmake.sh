@@ -120,6 +120,7 @@ if [ $RUN_TESTS = "true" ]; then
     echo "└──────────────────────────────────────────────────────────────────────────────┘"
     echo
 
+    export PATH=/usr/local/bin:$PATH
     export LD_LIBRARY_PATH=/usr/local/lib:/usr/local/lib64:/opt/oracle/instantclient_18_3:${LD_LIBRARY_PATH}
     grep "10.1.1.242" /etc/hosts
     if [ $? == 1 ]; then
