@@ -26,6 +26,7 @@
 
 #pragma once
 
+#include "URL.h"
 #include "sptk5/Variant.h"
 #include "sptk5/net/RedisCommand.h"
 #include "sptk5/net/SocketReader.h"
@@ -121,6 +122,13 @@ public:
                                  const std::string& clientName = "");
 
     /**
+     * @brief Connects to Redis server.
+     * @param connectURL URL containing host, port, username, password, and client name.
+     * @return Server information.
+     */
+    std::vector<Variant> connect(const URL& connectURL);
+
+    /**
      * @brief Check if the connection is active.
      * @return Connection state.
      */
@@ -180,7 +188,7 @@ public:
     void setHashValues(const std::string& hash, const KeysAndValues& keysAndValues);
 
     /**
-     * @brief Gets list of the hash keys.
+     * @brief Gets the list of the hash keys.
      * @param hashName Hash name (key).
      * @return List of keys of the hash.
      */
@@ -210,7 +218,7 @@ public:
     [[nodiscard]] KeysAndValues getHashValues(const std::string& hash);
 
     /**
-     * @brief Removes list of keys from the hash.
+     * @brief Removes the list of keys from the hash.
      * @param hash Hash name.
      * @param keys Keys from the hash.
      */
@@ -389,6 +397,12 @@ public:
      */
     std::string toString() const;
 
+    /**
+     * @brief Get Redis connection information.
+     * @return Redis connection information.
+     */
+    URL getRedisUrl() const;
+
 private:
     mutable std::mutex            m_mutex;                 ///< Mutex for thread safety.
     std::shared_ptr<TCPSocket>    m_socket;                ///< Underlying socket.
@@ -396,6 +410,7 @@ private:
     Buffer                        m_sendBuffer;            ///< Send command buffer.
     Buffer                        m_readBuffer;            ///< Read buffer.
     bool                          m_inTransaction {false}; ///< If true then transaction is started.
+    URL                           m_redisUrl;              ///< Redis connection information.
 
     /**
      * @brief A single queued asynchronous operation.

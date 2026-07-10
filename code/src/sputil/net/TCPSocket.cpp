@@ -31,21 +31,6 @@
 using namespace std;
 using namespace sptk;
 
-void TCPSocket::handleReadFromSocketErrorUnlocked(const int error)
-{
-    if (error == EAGAIN || error == EINTR || error == EINPROGRESS)
-    {
-        if (!readyToReadUnlocked(500ms))
-        {
-            throw TimeoutException("Can't read from socket: timeout");
-        }
-    }
-    else
-    {
-        throw SystemException("Can't read from socket");
-    }
-}
-
 TCPSocket::TCPSocket(const SOCKET_ADDRESS_FAMILY domain, const int32_t type, const int32_t protocol)
     : Socket(domain, type, protocol)
 {
@@ -111,25 +96,24 @@ bool TCPSocket::accept(SocketType& clientSocketFD, sockaddr_in& clientInfo, cons
 
 size_t TCPSocket::readUnlocked(uint8_t* destination, const size_t size, sockaddr*)
 {
-    int  receivedBytes;
-    auto error = 0;
-    do
+    for (;;)
     {
-        receivedBytes = static_cast<int>(recvUnlocked(destination, size));
-
-        if (receivedBytes == -1)
+        const auto receivedBytes = recvUnlocked(destination, size);
+        if (receivedBytes != RECV_RETRY)
         {
-            receivedBytes = 0;
-            if (!activeUnlocked())
-            {
-                break;
-            }
-            error = getSocketError();
-            handleReadFromSocketErrorUnlocked(error);
+            return receivedBytes;
         }
-    } while (error == EAGAIN || error == EINTR || error == EINPROGRESS);
 
-    return receivedBytes;
+        if (!activeUnlocked())
+        {
+            return 0;
+        }
+
+        if (!readyToReadUnlocked(500ms))
+        {
+            throw TimeoutException("Can't read from socket: timeout");
+        }
+    }
 }
 
 void TCPSocket::setProxy(shared_ptr<Proxy> proxy)

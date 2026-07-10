@@ -475,6 +475,11 @@ size_t SocketVirtualMethods::recvUnlocked(uint8_t* buffer, const size_t len)
     const int result = recv(m_socketFd, bit_cast<char*>(buffer), static_cast<int32_t>(len), 0);
     if (result == -1)
     {
+        if (const auto error = getSocketError();
+            error == EAGAIN || error == EINTR || error == EINPROGRESS)
+        {
+            return RECV_RETRY;
+        }
         throwSocketError("Can't read from socket");
     }
     return static_cast<size_t>(result);

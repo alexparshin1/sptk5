@@ -44,7 +44,20 @@ public:
      * @brief Constructor.
      * @param url           URL as a string.
      */
-    explicit URL(const std::string& url);
+    explicit URL(const std::string& url = "");
+
+    /**
+     * @brief Constructor.
+     * @param protocol          Protocol, such as "http" or "ssh", etc.
+     * @param host              Host.
+     * @param port              Port.
+     * @param username          Optional username.
+     * @param password          Optional password.
+     * @param path              Optional path.
+     */
+    explicit URL(const std::string& protocol, const std::string& host, uint16_t port = 0,
+                 const std::string& username = "", const std::string& password = "",
+                 const std::string& path = "");
 
     /**
      * @brief Copy constructor.

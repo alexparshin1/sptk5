@@ -46,6 +46,8 @@ vector<Variant> RedisConnect::connect(const string& host, const uint16_t port,
         throw RedisConnectException("Already connected, please disconnect, first.");
     }
 
+    m_redisUrl = URL("redis", host, port, username, password, clientName);
+
     m_socket->host(Host(host, port));
     m_socket->open();
     m_socket->setOption(IPPROTO_TCP, TCP_NODELAY, 1);
@@ -70,6 +72,12 @@ vector<Variant> RedisConnect::connect(const string& host, const uint16_t port,
     executeCommand(command, results);
 
     return results;
+}
+
+std::vector<Variant> RedisConnect::connect(const URL& connectURL)
+{
+    const auto& [host, port] = connectURL.hostAndPort();
+    return connect(host, port, connectURL.username(), connectURL.password(), connectURL.path());
 }
 
 bool RedisConnect::isConnected() const
@@ -523,6 +531,11 @@ std::string RedisConnect::toString() const
 {
     scoped_lock lock(m_mutex);
     return m_socket->host().toString();
+}
+
+URL RedisConnect::getRedisUrl() const
+{
+    return m_redisUrl;
 }
 
 Variant RedisConnect::getValue(const string& key)

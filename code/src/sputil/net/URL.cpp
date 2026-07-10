@@ -35,6 +35,11 @@ using namespace sptk;
 
 URL::URL(const string& url)
 {
+    if (url.empty())
+    {
+        return;
+    }
+
     static const RegularExpression matchUrl(R"(^((\w+)://)?(([^:]+)(:\S*)?@)?([\w:\-\.\[\]]+)?(/[^?\s]*)?(\?\S+)?$)");
 
     try
@@ -100,6 +105,15 @@ URL::URL(const string& url)
     {
         throw Exception(format("Invalid URL: {}", e.what()));
     }
+}
+
+URL::URL(const std::string& protocol, const std::string& host, const uint16_t port, const std::string& username, const std::string& password, const std::string& path)
+    : m_protocol(protocol)
+    , m_username(username)
+    , m_password(password)
+    , m_hostAndPort(port == 0 ? host : host + ":" + std::to_string(port))
+    , m_path(path)
+{
 }
 
 string URL::toString() const

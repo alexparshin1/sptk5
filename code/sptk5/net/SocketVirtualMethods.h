@@ -242,10 +242,17 @@ protected:
     [[nodiscard]] virtual bool readyToWriteUnlocked(const std::chrono::milliseconds& timeout);
 
     /**
+     * @brief Returned by recvUnlocked() when the operation should be retried
+     * (EAGAIN/EINTR): no data was read, and the socket wasn't closed.
+     */
+    static constexpr size_t RECV_RETRY = static_cast<size_t>(-1);
+
+    /**
      * @brief Reads data from the socket in regular or SSL mode.
      * @param buffer            The destination buffer.
      * @param len              The destination buffer size.
-     * @returns the number of bytes read from the socket.
+     * @returns the number of bytes read from the socket, 0 if the peer closed the
+     * connection, or RECV_RETRY if the operation should be retried (EAGAIN/EINTR).
      */
     [[nodiscard]] virtual size_t recvUnlocked(uint8_t* buffer, size_t len);
 

@@ -147,8 +147,6 @@ protected:
 
 private:
     std::shared_ptr<Proxy> m_proxy; ///< Optional proxy.
-
-    void handleReadFromSocketErrorUnlocked(int error);
 };
 
 using STCPSocket = std::shared_ptr<TCPSocket>;
