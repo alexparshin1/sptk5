@@ -58,7 +58,7 @@ IF (OS_FLAVOUR STREQUAL "debian" OR OS_FLAVOUR STREQUAL "linuxmint" OR OS_FLAVOU
 
     SET(CPACK_DEBIAN_COMPRESSION_TYPE "xz")
     SET(CPACK_DEBIAN_CORE_PACKAGE_DEPENDS "libpcre2-dev, libbrotli-dev, libgtest-dev")
-    SET(CPACK_DEBIAN_DB_PACKAGE_DEPENDS "mariadb-client, sqlite3, postgresql, unixodbc")
+    SET(CPACK_DEBIAN_DB_PACKAGE_DEPENDS "mariadb-client, sqlite3, postgresql-client, unixodbc")
     SET(CPACK_DEBIAN_GUI_PACKAGE_DEPENDS "libfltk1.3, aspell")
 ENDIF ()
 

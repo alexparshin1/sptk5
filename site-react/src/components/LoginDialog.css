@@ -1,0 +1,89 @@
+.LoginOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+}
+
+.LoginDialog {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    width: 280px;
+    padding: 20px;
+    background-color: #FAFAF1;
+    border: 1px solid #C8C8BE;
+    border-radius: 6px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+    font-family: Verdana;
+    font-size: 0.9em;
+    text-align: left;
+}
+
+.LoginTitle {
+    font-size: 1.2em;
+    font-weight: bold;
+    color: #800000;
+    border-bottom: 1px dotted #999;
+    padding-bottom: 6px;
+    margin-bottom: 8px;
+}
+
+.LoginDialog label {
+    color: #333;
+}
+
+.LoginDialog input {
+    padding: 6px;
+    border: 1px solid #C8C8BE;
+    border-radius: 4px;
+    font-family: Verdana;
+    font-size: 1em;
+}
+
+.LoginDialog input:focus {
+    outline: none;
+    border-color: #006600;
+}
+
+.LoginError {
+    color: #B00000;
+    font-size: 0.85em;
+}
+
+.LoginButtons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.LoginButtons button {
+    padding: 6px 16px;
+    border: 1px solid #C8C8BE;
+    border-radius: 4px;
+    background-color: #EFEFE6;
+    font-family: Verdana;
+    font-size: 1em;
+    cursor: pointer;
+}
+
+.LoginButtons button:hover {
+    background-color: #E4E4D8;
+}
+
+.LoginButtons button[type="submit"] {
+    background-color: #006600;
+    border-color: #006600;
+    color: white;
+}
+
+.LoginButtons button[type="submit"]:hover {
+    background-color: #007700;
+}

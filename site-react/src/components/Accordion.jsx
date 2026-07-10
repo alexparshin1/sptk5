@@ -50,11 +50,10 @@ export default class Accordion extends React.Component
         };
     }
 
-    onGroupClick(title)
+    onGroupClick(title, link)
     {
         this.setState({selectedGroup: title});
         if (this.props.onChange) {
-            let link = this.state.selectedLinks[title];
             this.props.onChange(link);
         }
     }
@@ -76,14 +75,19 @@ export default class Accordion extends React.Component
 
     renderGroup(group, groupIsSelected)
     {
+        // Groups may appear after mount (e.g. Administration after login),
+        // so fall back to the first item when the group isn't in selectedLinks yet
+        const groupLink = this.state.selectedLinks[group.title] ?? group.items[0].link;
+
         if (!groupIsSelected) {
-            return <div key={"accordion-" + group.title} className="AccordionGroup"
-                        onClick={() => this.onGroupClick(group.title)}>{group.title}</div>;
+            return <NavLink key={"accordion-" + group.title} className="AccordionGroup"
+                            to={groupLink}
+                            onClick={() => this.onGroupClick(group.title, groupLink)}>{group.title}</NavLink>;
         }
 
         let items = [];
         for (let item of group.items) {
-            let itemIsSelected = item.link === this.state.selectedLinks[group.title];
+            let itemIsSelected = item.link === groupLink;
             let itemClass = itemIsSelected ? "AccordionItemSelected" : "AccordionItem";
             items.push(
                 <div key={item.title + "-item"} className={itemClass}>
@@ -92,8 +96,9 @@ export default class Accordion extends React.Component
                 </div>);
         }
         return <div key={"accordion-group-" + group.title}>
-            <div key={"accordion-" + group.title} className="AccordionGroup"
-                 onClick={() => this.onGroupClick(group.title)}>{group.title}</div>
+            <NavLink key={"accordion-" + group.title} className="AccordionGroup AccordionGroupSelected"
+                     to={groupLink}
+                     onClick={() => this.onGroupClick(group.title, groupLink)}>{group.title}</NavLink>
             {items}
         </div>;
     }
@@ -104,7 +109,7 @@ export default class Accordion extends React.Component
         for (let group of this.props.menu) {
             groups.push(this.renderGroup(group, group.title === this.state.selectedGroup));
         }
-        return <div key={"accordion"}>
+        return <div key={"accordion"} className="Accordion">
             {groups}
         </div>;
     }

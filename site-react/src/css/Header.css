@@ -8,3 +8,23 @@
 .Credits {
     color: #FFFFFF;
 }
+
+.LoginArea {
+    color: #FFFFFF;
+    font-size: 0.8em;
+}
+
+.LoginLink {
+    background: none;
+    border: none;
+    padding: 2px 8px;
+    font-family: Verdana;
+    font-size: 1em;
+    color: #FFFFFF;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.LoginLink:hover {
+    color: #CFE8CF;
+}

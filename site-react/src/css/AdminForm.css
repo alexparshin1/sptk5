@@ -1,0 +1,74 @@
+.AdminForm {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    max-width: 480px;
+    text-align: left;
+}
+
+.AdminForm label {
+    color: #333;
+    font-weight: bold;
+    margin-top: 6px;
+}
+
+.AdminForm input,
+.AdminForm textarea {
+    padding: 6px;
+    border: 1px solid #C8C8BE;
+    border-radius: 4px;
+    background-color: #FFF;
+    font-family: Verdana;
+    font-size: 1em;
+}
+
+.AdminForm input:focus,
+.AdminForm textarea:focus {
+    outline: none;
+    border-color: #006600;
+}
+
+.AdminForm input:disabled {
+    background-color: #EFEFE6;
+    color: #666;
+}
+
+.AdminForm textarea {
+    height: 160px;
+    resize: vertical;
+}
+
+.AdminMessage {
+    color: #006600;
+    font-size: 0.9em;
+}
+
+.AdminError {
+    color: #B00000;
+    font-size: 0.9em;
+}
+
+.AdminButtons {
+    margin-top: 10px;
+}
+
+.AdminButtons button {
+    padding: 6px 16px;
+    border: 1px solid #006600;
+    border-radius: 4px;
+    background-color: #006600;
+    color: white;
+    font-family: Verdana;
+    font-size: 1em;
+    cursor: pointer;
+}
+
+.AdminButtons button:hover {
+    background-color: #007700;
+}
+
+.AdminButtons button:disabled {
+    background-color: #999;
+    border-color: #999;
+    cursor: default;
+}

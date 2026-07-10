@@ -1,36 +1,84 @@
+.Accordion {
+    background-color: #FFF;
+    border: 1px solid #C8C8BE;
+    border-radius: 6px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    font-size: 0.9em;
+}
+
 .AccordionGroup {
     display: flex;
-    flex-direction: column;
-    padding: 4px;
-    border-bottom-style: groove;
-    background-color: #DDD;
-    text-align: left;
-}
-
-.AccordionItem > a {
-    text-decoration: none;
-    color: black;
-}
-
-.AccordionItemSelected > a {
-    text-decoration: none;
-    color: black;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 12px;
+    background-color: #EFEFE6;
+    border-bottom: 1px solid #D8D8CE;
+    color: #333;
     font-weight: bold;
-}
-
-.AccordionItem {
-    display: flex;
-    flex-direction: column;
-    padding: 4px 4px 4px 16px;
-    background-color: #EEE;
     text-align: left;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background-color 0.15s ease, color 0.15s ease;
 }
 
+.AccordionGroup::after {
+    content: "\25B8"; /* ▸ */
+    font-weight: normal;
+    color: #999;
+    transition: transform 0.15s ease;
+}
+
+.AccordionGroup:hover {
+    background-color: #E4E4D8;
+    color: #006600;
+}
+
+.AccordionGroupSelected {
+    color: #006600;
+}
+
+.AccordionGroupSelected::after {
+    transform: rotate(90deg);
+    color: #006600;
+}
+
+.AccordionItem,
 .AccordionItemSelected {
     display: flex;
     flex-direction: column;
-    padding: 4px 4px 4px 16px;
-    background-color: #EEE;
+    padding: 0;
+    background-color: #FFF;
+    border-bottom: 1px solid #EEE;
+    border-left: 3px solid transparent;
     text-align: left;
-    color: red;
+    transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.AccordionItem > a,
+.AccordionItemSelected > a {
+    display: block;
+    padding: 7px 12px 7px 21px;
+    text-decoration: none;
+    color: #333;
+}
+
+.AccordionItem > a:hover {
+    color: #006600;
+}
+
+.AccordionItem:hover {
+    background-color: #F5F5EB;
+}
+
+.AccordionItemSelected {
+    background-color: #F0F6EC;
+    border-left-color: #006600;
+}
+
+.AccordionItemSelected > a,
+.AccordionItemSelected > a:hover {
+    color: #006600;
+    font-weight: bold;
 }

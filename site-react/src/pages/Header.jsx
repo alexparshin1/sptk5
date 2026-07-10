@@ -2,19 +2,44 @@ import React from "react";
 import logo from "../images/logo.png";
 import linotex from "../images/linotex_white_1.png";
 import advancedInstaller from "../images/AdvancedInstallerLogo.png";
+import LoginDialog from "../components/LoginDialog";
+import LocalAuth from "../LocalAuth";
 import "../css/Header.css";
 
 export default class Header extends React.Component
 {
     state = {
-        fileName: ""
+        showLogin: false,
+        loggedInUser: LocalAuth.username
     };
+
+    logout()
+    {
+        LocalAuth.logout();
+        this.setState({loggedInUser: ""});
+    }
+
+    renderLoginArea()
+    {
+        if (this.state.loggedInUser) {
+            return <span>
+                Logged in as <b>{this.state.loggedInUser}</b>
+                <button className="LoginLink" onClick={() => this.logout()}>Logout</button>
+            </span>;
+        }
+        return <button className="LoginLink" onClick={() => this.setState({showLogin: true})}>Login</button>;
+    }
 
     render()
     {
         return <div className="Header">
             <table style={{width: "100%"}}>
                 <tbody>
+                <tr className="LoginArea">
+                    <td colSpan={5} align="right">
+                        {this.renderLoginArea()}
+                    </td>
+                </tr>
                 <tr>
                     <td align="left" colSpan={2}><img src={logo} alt=""/></td>
                     <td align="right">
@@ -38,6 +63,10 @@ export default class Header extends React.Component
                 </tr>
                 </tbody>
             </table>
+            {this.state.showLogin &&
+                <LoginDialog onClose={(success) => {
+                    this.setState({showLogin: false, loggedInUser: LocalAuth.username});
+                }}/>}
         </div>;
     }
 }

@@ -14,18 +14,23 @@ import XMQ_tests from "./pages/XMQ_tests";
 import XMQ_configuration from "./pages/XMQ_configuration";
 import Downloads from "./pages/Downloads";
 import SPTK_about from "./pages/SPTK_about";
+import AdminChangePassword from "./pages/AdminChangePassword";
+import AdminAddNews from "./pages/AdminAddNews";
 import Accordion from "./components/Accordion";
 import {Component} from "react";
 import ControlAPI from "./ControlAPI";
+import LocalAuth from "./LocalAuth";
 
 class App extends Component
 {
     state = {
-        counter: 0
+        counter: 0,
+        loggedIn: LocalAuth.isLoggedIn
     }
 
     componentDidMount()
     {
+        LocalAuth.onChanged = (isLoggedIn) => this.setState({loggedIn: isLoggedIn});
         this.getCounter(window.location.pathname).then(counter => {
             this.setState({counter: counter});
         });
@@ -76,6 +81,14 @@ class App extends Component
                 ]
             },
         ];
+        if (this.state.loggedIn) {
+            accordionMenu.push({
+                title: "Administration", items: [
+                    {title: "Change Password", link: "/admin_change_password"},
+                    {title: "Add News", link: "/admin_add_news"},
+                ]
+            });
+        }
         return (
             <div className="App" style={{height: "100%", background: "#ddd"}}>
                 <div className='content'>
@@ -114,6 +127,8 @@ class App extends Component
                                         <Route path="/sptk_themes" Component={SPTK_themes}/>
                                         <Route path="/sptk_documentation" Component={SPTK_documentation}/>
                                         <Route path="/downloads" Component={Downloads}/>
+                                        <Route path="/admin_change_password" Component={AdminChangePassword}/>
+                                        <Route path="/admin_add_news" Component={AdminAddNews}/>
                                     </Routes>
                                 </td>
                             </tr>
