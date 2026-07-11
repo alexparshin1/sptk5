@@ -91,12 +91,6 @@ public:
     Host(const Host& other);
 
     /**
-     * @brief Move constructor.
-     * @param other             The other object.
-     */
-    Host(Host&& other) noexcept;
-
-    /**
      * @brief Destructor.
      */
     ~Host() = default;
@@ -106,12 +100,6 @@ public:
      * @param other             The other object.
      */
     Host& operator=(const Host& other) = delete;
-
-    /**
-     * @brief Move assignment from another host.
-     * @param other             The other object.
-     */
-    Host& operator=(Host&& other) noexcept = delete;
 
     /**
      * @brief Compare to another host.

@@ -66,7 +66,7 @@ LoadBalance::LoadBalance(const uint16_t listenerPort, Loop<Host>& destinations, 
 
 void LoadBalance::threadFunction()
 {
-    struct sockaddr_in addr {};
+    sockaddr_storage addr {};
 
     m_sourceEvents.run();
     m_destinationEvents.run();
@@ -79,8 +79,9 @@ void LoadBalance::threadFunction()
         Channel* channel {nullptr};
         try
         {
+            socklen_t addrLen = sizeof(addr);
             if (SocketType sourceFD;
-                m_listener.accept(sourceFD, addr, acceptTimeout))
+                m_listener.accept(sourceFD, addr, addrLen, acceptTimeout))
             {
                 channel = new Channel(m_sourceEvents, m_destinationEvents);
                 const Host&   destination = m_destinations.loop();

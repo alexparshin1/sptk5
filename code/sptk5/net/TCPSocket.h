@@ -97,12 +97,16 @@ public:
      * @brief In server mode, waits for the incoming connection.
      *
      * When the incoming connection is made, it exits and returns the connection info.
-     * @param clientSocketFD    Connected client socket FD.
-     * @param clientInfo        Connected client info.
+     * Switches the listener socket to non-blocking mode, so a connection aborted by
+     * the peer between the readiness poll and accept() returns false instead of blocking.
+     * @param clientSocketFD    Connected client socket FD, or INVALID_SOCKET if not accepted.
+     * @param clientInfo        Connected client address (sized for any address family).
+     * @param clientInfoLength  Actual length of the returned client address.
      * @param timeout           Accept operation timeout.
      * @returns                 True if accepted a connection.
      */
-    [[nodiscard]] virtual bool accept(SocketType& clientSocketFD, struct sockaddr_in& clientInfo, const std::chrono::milliseconds& timeout);
+    [[nodiscard]] virtual bool accept(SocketType& clientSocketFD, struct sockaddr_storage& clientInfo,
+                                      socklen_t& clientInfoLength, const std::chrono::milliseconds& timeout);
 
 protected:
     /**

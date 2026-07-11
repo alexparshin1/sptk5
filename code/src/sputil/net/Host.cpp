@@ -164,13 +164,6 @@ Host::Host(const Host& other)
     m_address = other.m_address;
 }
 
-Host::Host(Host&& other) noexcept
-{
-    m_hostname = exchange(other.m_hostname, "");
-    m_port = exchange(other.m_port, static_cast<uint16_t>(0));
-    m_address = other.m_address;
-}
-
 bool Host::operator==(const Host& other) const
 {
     try

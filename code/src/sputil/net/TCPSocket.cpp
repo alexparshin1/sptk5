@@ -77,21 +77,45 @@ void TCPSocket::openUnlocked(const sockaddr_in& address, const OpenMode openMode
     }
 }
 
-bool TCPSocket::accept(SocketType& clientSocketFD, sockaddr_in& clientInfo, const chrono::milliseconds& timeout)
+bool TCPSocket::accept(SocketType& clientSocketFD, sockaddr_storage& clientInfo, socklen_t& clientInfoLength,
+                       const chrono::milliseconds& timeout)
 {
-    socklen_t len = sizeof(clientInfo);
-    if (readyToRead(timeout))
+    clientSocketFD = INVALID_SOCKET;
+    clientInfoLength = 0;
+
+    if (!readyToRead(timeout))
     {
-        const ReadLock lock(getMutex());
-        clientSocketFD = ::accept(fd(), bit_cast<sockaddr*>(&clientInfo), &len);
-        if (clientSocketFD != INVALID_SOCKET)
-        {
-            return true;
-        }
-        throwSocketError("Error on accept(). ");
+        return false;
     }
 
-    return false;
+    const WriteLock lock(getMutex());
+
+    if (!activeUnlocked())
+    {
+        return false;
+    }
+
+    // The pending connection can be aborted by the peer, or taken by another thread,
+    // between the poll above and the accept() below. Non-blocking mode turns that
+    // race into EAGAIN instead of an indefinitely blocked accept().
+    setBlockingModeUnlocked(false);
+
+    clientInfoLength = sizeof(clientInfo);
+    clientSocketFD = ::accept(fd(), bit_cast<sockaddr*>(&clientInfo), &clientInfoLength);
+    if (clientSocketFD != INVALID_SOCKET)
+    {
+        return true;
+    }
+
+    clientInfoLength = 0;
+    if (const auto error = getSocketError();
+        error == EAGAIN || error == EINTR || error == ECONNABORTED)
+    {
+        // The pending connection disappeared before it could be accepted.
+        return false;
+    }
+
+    throwSocketError("Error on accept(). ");
 }
 
 size_t TCPSocket::readUnlocked(uint8_t* destination, const size_t size, sockaddr*)

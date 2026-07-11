@@ -81,6 +81,10 @@ void SocketVirtualMethods::openAddressUnlocked(const sockaddr_in& addr, const Op
         throwSocketError("Can't create socket");
     }
 
+    // A newly created socket is blocking. Reset the cached mode so the first
+    // setBlockingModeUnlocked(false) is not skipped as an apparent no-op.
+    m_blockingMode = true;
+
     auto result = 0;
     auto currentOperation = "connect";
 
