@@ -1,0 +1,279 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Test",
+    "description": "",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://www.example.org/"
+    }
+  ],
+  "paths": {
+    "/AccountBalance": {
+      "post": {
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "",
+        "operationId": "AccountBalance",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AccountBalance"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Ok",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountBalanceResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    },
+    "/Hello": {
+      "post": {
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "",
+        "operationId": "Hello",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Hello"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Ok",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HelloResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    },
+    "/Login": {
+      "post": {
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "",
+        "operationId": "Login",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Login"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Ok",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AccountBalance": {
+        "type": "object",
+        "properties": {
+          "account_number": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "account_number"
+        ]
+      },
+      "AccountBalanceResponse": {
+        "type": "object",
+        "properties": {
+          "account_balance": {
+            "type": "number",
+            "format": "double"
+          }
+        },
+        "required": [
+          "account_balance"
+        ]
+      },
+      "Hello": {
+        "type": "object",
+        "properties": {
+          "action": {
+            "type": "string"
+          },
+          "first_name": {
+            "type": "string"
+          },
+          "last_name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "action",
+          "first_name",
+          "last_name"
+        ]
+      },
+      "HelloResponse": {
+        "type": "object",
+        "properties": {
+          "date_of_birth": {
+            "type": "string",
+            "format": "date"
+          },
+          "verified": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "retired": {
+            "type": "boolean"
+          },
+          "hour_rate": {
+            "type": "number",
+            "format": "double"
+          },
+          "vacation_days": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "height": {
+            "type": "number",
+            "format": "double"
+          }
+        },
+        "required": [
+          "date_of_birth",
+          "verified",
+          "retired",
+          "hour_rate",
+          "vacation_days",
+          "height"
+        ]
+      },
+      "Login": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          },
+          "servers": {
+            "type": "string"
+          },
+          "project": {
+            "$ref": "#/components/schemas/ProjectInfo"
+          }
+        },
+        "required": [
+          "username",
+          "password"
+        ]
+      },
+      "LoginResponse": {
+        "type": "object",
+        "properties": {
+          "jwt": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "jwt"
+        ]
+      },
+      "ProjectInfo": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "expiration": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "expiration"
+        ]
+      }
+    },
+    "securitySchemes": {
+      "basicAuth": {
+        "type": "http",
+        "scheme": "basic"
+      },
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  }
+}

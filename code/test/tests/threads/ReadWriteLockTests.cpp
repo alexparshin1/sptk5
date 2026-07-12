@@ -28,7 +28,6 @@
 #include "sptk5/Stopwatch.h"
 #include "sptk5/threads/ReadWriteLock.h"
 
-
 #include <atomic>
 #include <future>
 #include <gtest/gtest.h>
@@ -39,6 +38,8 @@
 using namespace std;
 using namespace chrono;
 using namespace sptk;
+
+namespace sptk {
 
 TEST(ReadWriteLockTests, sharedLockAllowsConcurrentReaders)
 {
@@ -369,7 +370,7 @@ TEST(ReadWriteLockTests, writerNotStarvedByContinuousReaders)
     this_thread::sleep_for(20ms);
 
     // The writer should acquire despite the constant reader load
-    auto acquired = false;
+    bool acquired;
     try
     {
         const ReadWriteLock writerLock(rwMutex, ReadWriteLock::Mode::Writer, 2000ms);
@@ -387,12 +388,11 @@ TEST(ReadWriteLockTests, writerNotStarvedByContinuousReaders)
 TEST(ReadWriteLockTests, downgradeFromExclusiveToShared)
 {
     ReadWriteMutex rwMutex;
-    int            sharedValue = 0;
 
-    ReadWriteLock rwLock(rwMutex, ReadWriteLock::Mode::Writer);
+    const ReadWriteLock rwLock(rwMutex, ReadWriteLock::Mode::Writer);
 
     // Write under exclusive lock
-    sharedValue = 42;
+    int sharedValue = 42;
 
     // Downgrade to reader lock
     rwLock.downgradeToReadLock();
@@ -432,12 +432,12 @@ TEST(ReadWriteLockTests, mixedContentionStress)
     // Hammer the mutex with readers, writers, upgraders and downgraders all at once to
     // surface lost wake-ups or deadlocks in the lazy-notify / split-CV logic. A protected
     // counter is checked for exclusive-section integrity.
-    ReadWriteMutex  rwMutex;
-    atomic          stop {false};
-    atomic<int>     activeWriters {0};
-    atomic<bool>    writerOverlap {false};
-    long long       protectedValue = 0;
-    atomic<bool>    readInconsistency {false};
+    ReadWriteMutex rwMutex;
+    atomic         stop {false};
+    atomic<int>    activeWriters {0};
+    atomic<bool>   writerOverlap {false};
+    long long      protectedValue = 0;
+    atomic<bool>   readInconsistency {false};
 
     vector<jthread> threads;
 
@@ -519,9 +519,9 @@ TEST(ReadWriteLockTests, mixedContentionStress)
                                          const ReadWriteLock lock(rwMutex, ReadWriteLock::Mode::Writer, 5ms);
                                          enterWriteSection();
                                      }
-                                     catch (const Exception&)
+                                     catch (const Exception& e)
                                      {
-                                         // timed out — fine, just retry
+                                         CERR("Timed out waiting for write lock: " << e.what() << ", retrying...");
                                      }
                                  }
                              });
@@ -539,7 +539,7 @@ TEST(ReadWriteLockTests, mixedContentionStress)
 
 TEST(ReadWriteLockTests, performance)
 {
-    constexpr size_t iterationCount = 4 * 1024 * 1024;
+    constexpr size_t iterationCount = 4ul * 1024 * 1024;
     constexpr size_t threadCount = 4;
     constexpr auto   iterationsPerThread = iterationCount / threadCount;
 
@@ -581,3 +581,5 @@ TEST(ReadWriteLockTests, performance)
     stopwatch.stop();
     COUT("RWLock/Upgrade locks: " << fixed << setprecision(1) << stopwatch.milliseconds() << " ms: " << iterationCount / stopwatch.milliseconds() << "K/s");
 }
+
+} // namespace sptk

@@ -146,19 +146,22 @@ void HttpProxy::sendRequest(const Host& destination, const shared_ptr<TCPSocket>
 }
 
 #ifdef _WIN32
-static bool windowsGetDefaultProxy(Host& host, String& username, String& password)
+static shared_ptr<Host> windowsGetDefaultProxy(String& username, String& password)
 {
+    shared_ptr<Host>          host;
     WINHTTP_AUTOPROXY_OPTIONS AutoProxyOptions {};
     WINHTTP_PROXY_INFO        ProxyInfo {};
 
-    HINTERNET hHttpSession = WinHttpOpen(L"WinHTTP AutoProxy",
+    const HINTERNET hHttpSession = WinHttpOpen(L"WinHTTP AutoProxy",
                                          WINHTTP_ACCESS_TYPE_NO_PROXY,
                                          WINHTTP_NO_PROXY_NAME,
                                          WINHTTP_NO_PROXY_BYPASS,
                                          0);
 
     if (!hHttpSession)
+    {
         throw Exception("Can't initialize WinHTTP");
+    }
 
     // Use auto-detection because the Proxy
     // Auto-Config URL is not known.
@@ -182,17 +185,23 @@ static bool windowsGetDefaultProxy(Host& host, String& username, String& passwor
                               &ProxyInfo))
     {
         if (ProxyInfo.lpszProxy == nullptr)
-            return false;
+        {
+            return {};
+        }
 
         char proxy[256] {};
         wcstombs(proxy, ProxyInfo.lpszProxy, sizeof(proxy));
-        host = Host(proxy);
+        host = make_shared<Host>(proxy);
 
         if (WinHttpQueryOption(hHttpSession, WINHTTP_OPTION_PROXY_USERNAME, userName, &size))
+        {
             username = userName;
+        }
 
         if (WinHttpQueryOption(hHttpSession, WINHTTP_OPTION_PROXY_PASSWORD, passWord, &size))
+        {
             password = passWord;
+        }
     }
 
     if (ProxyInfo.lpszProxy != nullptr)
@@ -203,14 +212,14 @@ static bool windowsGetDefaultProxy(Host& host, String& username, String& passwor
 
     WinHttpCloseHandle(hHttpSession);
 
-    return true;
+    return host;
 }
 #endif
 
 shared_ptr<Host> HttpProxy::getDefaultProxy(String& proxyUser, String& proxyPassword)
 {
 #ifdef _WIN32
-    return windowsGetDefaultProxy(proxyHost, proxyUser, proxyPassword);
+    return windowsGetDefaultProxy(proxyUser, proxyPassword);
 #else
     const RegularExpression matchProxy(R"(^(http://)?((\S+[^:])(:\S+)@)?(\S+:\d+)$)");
     const char*             proxyEnv = getenv("http_proxy");

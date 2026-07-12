@@ -43,11 +43,16 @@ namespace {
 void checkSocketsInitialized()
 {
     static atomic_bool initialized = false;
-    scoped_lock        lock(initMutex);
-    if (!initialized)
+    static mutex initMutex;
+
+    if (!initialized.load())
     {
-        Socket::init();
-        initialized = true;
+        scoped_lock lock(initMutex);
+        if (!initialized.load())
+        {
+            Socket::init();
+            initialized = true;
+        }
     }
 }
 } // namespace
@@ -124,7 +129,7 @@ Host::Host(const sockaddr_in6* addressAndPort)
     constexpr socklen_t addressLen = sizeof(sockaddr_in6);
 
     const auto* addressAndPort6 = addressAndPort;
-    memcpy(bit_cast<sockaddr_in6*>(m_address.data()), addressAndPort6, addressLen);
+    memcpy(m_address.data(), addressAndPort6, addressLen);
     m_port = ntohs(ip_v6().sin6_port);
 
     setHostNameFromAddress(addressLen);
@@ -135,7 +140,7 @@ void Host::setHostNameFromAddress(const socklen_t addressLen)
     array<char, NI_MAXHOST> hostBuffer {};
     array<char, NI_MAXSERV> addressBuffer {};
 
-    if (getnameinfo(bit_cast<const sockaddr*>(m_address.data()), addressLen, hostBuffer.data(), sizeof(hostBuffer), addressBuffer.data(),
+    if (getnameinfo(reinterpret_cast<const sockaddr*>(m_address.data()), addressLen, hostBuffer.data(), sizeof(hostBuffer), addressBuffer.data(),
                     sizeof(addressBuffer), 0) == 0)
     {
         m_hostname = string(hostBuffer.data());
@@ -146,11 +151,11 @@ void Host::setHostNameFromAddress(const socklen_t addressLen)
         // Get the pointer to the address itself, different fields in IPv4 and IPv6
         if (any().sa_family == AF_INET)
         {
-            addr = bit_cast<uint8_t*>(&(ip_v4().sin_addr));
+            addr = reinterpret_cast<uint8_t*>(&(ip_v4().sin_addr));
         }
         else
         {
-            addr = bit_cast<uint8_t*>(&(ip_v6().sin6_addr));
+            addr = reinterpret_cast<uint8_t*>(&(ip_v6().sin6_addr));
         }
 
         m_hostname = ipAddressToString(addr);
@@ -199,11 +204,10 @@ constexpr int EAI_ADDRFAMILY = EAI_FAMILY;
 void Host::getHostAddressUnlocked()
 {
     addrinfo* result = nullptr;
-    auto      exitCode = 0;
     string    error;
 
-    constexpr addrinfo hints_INET = {.ai_family = AF_INET, .ai_socktype = SOCK_STREAM, .ai_protocol = 0};
-    exitCode = getaddrinfo(m_hostname.c_str(), nullptr, &hints_INET, &result);
+    constexpr addrinfo hintsInet = {.ai_flags = 0, .ai_family = AF_INET, .ai_socktype = SOCK_STREAM, .ai_protocol = 0};
+    auto               exitCode = getaddrinfo(m_hostname.c_str(), nullptr, &hintsInet, &result);
     if (exitCode != 0)
     {
         error = gai_strerror(exitCode);
@@ -211,8 +215,8 @@ void Host::getHostAddressUnlocked()
 
     if (exitCode == EAI_ADDRFAMILY || exitCode == EAI_NONAME)
     {
-        constexpr addrinfo hints_INET6 = {.ai_family = AF_INET6, .ai_socktype = SOCK_STREAM, .ai_protocol = 0};
-        exitCode = getaddrinfo(m_hostname.c_str(), nullptr, &hints_INET6, &result);
+        constexpr addrinfo hintsInet6 = {.ai_flags = 0, .ai_family = AF_INET6, .ai_socktype = SOCK_STREAM, .ai_protocol = 0};
+        exitCode = getaddrinfo(m_hostname.c_str(), nullptr, &hintsInet6, &result);
         if (exitCode != 0)
         {
             error = gai_strerror(exitCode);
@@ -221,7 +225,7 @@ void Host::getHostAddressUnlocked()
 
     if (exitCode == 0)
     {
-        memcpy(&m_address, bit_cast<sockaddr_in*>(result->ai_addr), result->ai_addrlen);
+        memcpy(&m_address, result->ai_addr, result->ai_addrlen);
         freeaddrinfo(result);
     }
     else
@@ -256,11 +260,11 @@ string Host::toString(const bool forceAddress) const
             // Get the pointer to the address itself, different fields in IPv4 and IPv6
             if (any().sa_family == AF_INET)
             {
-                addr = bit_cast<uint8_t*>(&(ip_v4().sin_addr));
+                addr = reinterpret_cast<const uint8_t*>(&(ip_v4().sin_addr));
             }
             else
             {
-                addr = bit_cast<uint8_t*>(&(ip_v6().sin6_addr));
+                addr = reinterpret_cast<const uint8_t*>(&(ip_v6().sin6_addr));
             }
 
             address = ipAddressToString(addr);
