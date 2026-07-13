@@ -68,7 +68,7 @@ public:
      * The return of the bytes() method will be 0.
      * @param sz                Buffer size to be pre-allocated
      */
-    explicit BufferStorage(size_t sz)
+    explicit BufferStorage(const size_t sz)
     {
         if (sz)
         {
@@ -164,7 +164,7 @@ public:
      * @param sz                Data buffer size
      */
     template<typename T>
-    BufferStorage(const T* data, size_t sz)
+    BufferStorage(const T* data, const size_t sz)
     {
         allocate(std::bit_cast<const uint8_t*>(data), sz);
     }
@@ -207,7 +207,21 @@ public:
      * Allocates memory if needed.
      * @param sz                Required memory size
      */
-    void checkSize(size_t sz)
+    void checkSize(const size_t sz)
+    {
+        if (sz >= m_allocated) [[unlikely]]
+        {
+            adjustSize(sz);
+        }
+    }
+
+    /**
+     * @brief Checks if the current buffer size is enough.
+     * Synonym for checkSize().
+     * Allocates memory if needed.
+     * @param sz                Required memory size
+     */
+    void reserve(const size_t sz)
     {
         if (sz >= m_allocated) [[unlikely]]
         {
@@ -223,7 +237,7 @@ public:
      * @param sz                Required memory size
      */
     template<typename T>
-    void set(const T* data, size_t sz)
+    void set(const T* data, const size_t sz)
     {
         _set(std::bit_cast<const uint8_t*>(data), sz);
     }
@@ -343,7 +357,7 @@ public:
     }
 
     /**
-     * Append a value of primitive type or structure to the current buffer.
+     * Append a value of the primitive type or structure to the current buffer.
      *
      * Allocates memory if needed.
      * @param val               Primitive type or structure
@@ -352,7 +366,7 @@ public:
         requires std::is_integral_v<T>
     void append(T val)
     {
-        append(std::bit_cast<uint8_t*>(&val), sizeof(val));
+        append(reinterpret_cast<uint8_t*>(&val), sizeof(val));
     }
 
     /**
@@ -421,7 +435,7 @@ public:
      * Resizes current buffer
      * @param size                Required memory size
      */
-    void adjustSize(size_t size)
+    void adjustSize(const size_t size)
     {
         if (size > m_allocated)
         {
@@ -435,7 +449,7 @@ protected:
      * @param data              Data to copy in
      * @param size              Number of bytes for the new buffer
      */
-    void allocate(const uint8_t* data, size_t size)
+    void allocate(const uint8_t* data, const size_t size)
     {
         if (m_allocated < size + 1)
         {
@@ -453,7 +467,7 @@ protected:
      * Reallocate memory
      * @param size              Number of bytes for the new buffer
      */
-    void reallocate(size_t size)
+    void reallocate(const size_t size)
     {
         auto* newBuffer = malloc(size + 1);
         if (newBuffer == nullptr) [[unlikely]]
@@ -476,7 +490,7 @@ protected:
         m_allocated = size;
     }
 
-    void init(const uint8_t* data, size_t size, size_t bytes)
+    void init(const uint8_t* data, const size_t size, const size_t bytes)
     {
         allocate(data, size);
         m_size = bytes;
