@@ -127,6 +127,8 @@ if [ $RUN_TESTS = "true" ]; then
         echo "10.1.1.242  theater oracledb dbhost_oracle dbhost_mssql dbhost_pg dbhost_mysql smtp_host redis_server mosquitto_server" >> /etc/hosts
     fi
 
+    cp /usr/share/zoneinfo/Australia/Melbourne /etc/localtime
+
     ulimit -n 32768
     ulimit -a
     cd $CWD/test && ${lcPACKAGE}_unit_tests --gtest_filter=-*Scenario* 2>&1 > /build/logs/${lcPACKAGE}_unit_tests.$OS_TYPE.log
