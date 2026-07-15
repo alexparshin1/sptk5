@@ -91,7 +91,7 @@ void JWT::sign_sha_hmac(Buffer& out, const char* str) const
             throw Exception("Invalid sign algorithm");
     }
 
-    out.checkSize(EVP_MAX_MD_SIZE);
+    out.reserve(EVP_MAX_MD_SIZE);
 
     unsigned len = 0;
     HMAC(algorithm, key.c_str(), static_cast<int>(key.length()),
@@ -152,7 +152,7 @@ void JWT::verify_sha_hmac(const char* head, const char* sig) const
     len = BIO_pending(bmem);
     if (len >= 0)
     {
-        readBuf.checkSize(static_cast<size_t>(len) + 1);
+        readBuf.reserve(static_cast<size_t>(len) + 1);
         len = BIO_read(bmem, readBuf.data(), len);
         readBuf.bytes(static_cast<size_t>(len));
         readBuf[len] = 0;
@@ -287,7 +287,7 @@ void JWT::sign_sha_pem(Buffer& out, const char* str) const
         }
 
         /* Allocate memory for signature based on returned size */
-        sig_buffer.checkSize(slen);
+        sig_buffer.reserve(slen);
         auto* sig_ptr = sig_buffer.data();
 
         /* Get the signature */
@@ -519,7 +519,7 @@ void JWT::verify_sha_pem(const char* head, const char* sig_b64) const
             ECDSA_SIG_set0(ec_sig, ec_sig_r, ec_sig_s);
 
             slen = i2d_ECDSA_SIG(ec_sig, nullptr);
-            sig_buffer.checkSize(static_cast<size_t>(slen));
+            sig_buffer.reserve(static_cast<size_t>(slen));
             sig_ptr = sig_buffer.data();
 
             p = sig_ptr;

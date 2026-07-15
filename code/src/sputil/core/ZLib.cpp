@@ -83,7 +83,7 @@ void ZLib::compress(Buffer& dest, const Buffer& src, const int level, const bool
         // compression if all the source has been read inputBuffer
         do
         {
-            dest.checkSize(dest.bytes() + CHUNK * 2);
+            dest.reserve(dest.bytes() + CHUNK * 2);
             strm.avail_out = CHUNK;
             strm.next_out = dest.data() + dest.bytes();
             ret = deflate(&strm, flush); // no bad return value
@@ -146,7 +146,7 @@ void ZLib::decompress(Buffer& dest, const Buffer& src, const bool append)
         // Run inflate() on input until output buffer not full
         do
         {
-            dest.checkSize(dest.bytes() + CHUNK * 2);
+            dest.reserve(dest.bytes() + CHUNK * 2);
 
             strm.avail_out = CHUNK;
             strm.next_out = dest.data() + dest.bytes();

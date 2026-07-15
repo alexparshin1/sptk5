@@ -207,20 +207,6 @@ public:
      * Allocates memory if needed.
      * @param sz                Required memory size
      */
-    void checkSize(const size_t sz)
-    {
-        if (sz >= m_allocated) [[unlikely]]
-        {
-            adjustSize(sz);
-        }
-    }
-
-    /**
-     * @brief Checks if the current buffer size is enough.
-     * Synonym for checkSize().
-     * Allocates memory if needed.
-     * @param sz                Required memory size
-     */
     void reserve(const size_t sz)
     {
         if (sz >= m_allocated) [[unlikely]]
@@ -350,7 +336,7 @@ public:
         {
             return;
         }
-        checkSize(m_size + size + 1);
+        reserve(m_size + size + 1);
         memcpy(m_buffer + m_size, data, size);
         m_size += size;
         m_buffer[m_size] = 0;
@@ -403,7 +389,7 @@ public:
     template<typename... Args>
     size_t append(const size_t maxLength, std::format_string<Args...> fmt, Args&&... args)
     {
-        checkSize(size() + maxLength);
+        reserve(size() + maxLength);
         const std::format_to_n_result result = std::format_to_n(data() + size(), maxLength, fmt, std::forward<Args>(args)...);
         *result.out = '\0';
         const auto written = std::min(static_cast<size_t>(result.size), maxLength);

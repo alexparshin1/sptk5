@@ -43,7 +43,7 @@ void BufferStorage::swapInternal(BufferStorage& other)
 
 void BufferStorage::_set(const uint8_t* data, const size_t size)
 {
-    checkSize(size + 1);
+    reserve(size + 1);
     if (data != nullptr && size > 0)
     {
         memcpy(m_buffer, data, size);
@@ -58,7 +58,7 @@ void BufferStorage::_set(const uint8_t* data, const size_t size)
 
 void BufferStorage::append(const char chr)
 {
-    checkSize(m_size + 1);
+    reserve(m_size + 1);
     m_buffer[m_size] = chr;
     m_buffer[++m_size] = 0;
 }
@@ -67,7 +67,7 @@ void BufferStorage::reset(const size_t size)
 {
     if (size > m_allocated)
     {
-        checkSize(size);
+        reserve(size);
     }
     m_buffer[0] = 0;
     m_size = 0;
@@ -75,7 +75,7 @@ void BufferStorage::reset(const size_t size)
 
 void BufferStorage::fill(const char chr, const size_t count)
 {
-    checkSize(count);
+    reserve(count);
     memset(m_buffer, chr, count);
     m_size = count;
     m_buffer[m_size] = 0;

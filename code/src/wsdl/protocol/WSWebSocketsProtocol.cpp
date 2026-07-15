@@ -102,7 +102,7 @@ void WSWebSocketsMessage::decode(const char* incomingData)
             break;
     }
 
-    m_payload.checkSize(payloadLength);
+    m_payload.reserve(payloadLength);
     m_payload.bytes(payloadLength);
 
     if (masked)

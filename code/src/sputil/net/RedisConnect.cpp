@@ -670,7 +670,7 @@ void RedisConnect::readResponse(std::vector<Variant>& results, Variant* cursor)
                 return;
             }
             const auto readLength = len + 2;
-            m_readBuffer.checkSize(readLength);
+            m_readBuffer.reserve(readLength);
             m_reader->read(m_readBuffer, readLength);     // Also read \r\n
             m_readBuffer.bytes(m_readBuffer.bytes() - 2); // Cut off \r\n
             if (cursor)

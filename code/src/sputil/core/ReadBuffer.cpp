@@ -90,7 +90,7 @@ bool ReadBuffer::read(Buffer& data, const size_t length)
         return false;
     }
 
-    data.checkSize(length);
+    data.reserve(length);
     memcpy(data.data(), c_str() + m_readOffset, length);
     data.bytes(length);
 

@@ -200,7 +200,7 @@ public:
      */
     size_t printf(const size_t maxLength, const char* format, ...)
     {
-        checkSize(size() + maxLength);
+        reserve(size() + maxLength);
         va_list args;
         va_start(args, format);
         const auto written = vsnprintf(reinterpret_cast<char*>(data() + size()), maxLength + 1, format, args);
