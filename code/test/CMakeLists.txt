@@ -6,6 +6,14 @@ IF (GTEST_FLAG)
 
     TARGET_LINK_LIBRARIES(sptk_unit_tests sputil5 spdb5 spwsdl5 gtest)
 
+    # On Windows with MSVC, add googletest as a Visual Studio NuGet package
+    # so Visual Studio will auto-restore the package when opening/building the project.
+    if (WIN32 AND MSVC)
+        # Requires CMake 3.21+ (CMake in this environment is 4.2)
+        set(gtest_nuget "Google.Test;1.8.3")
+        set_property(TARGET sptk_unit_tests PROPERTY VS_PACKAGE_REFERENCES "${gtest_nuget}")
+    endif()
+
     INSTALL(TARGETS sptk_unit_tests
             RUNTIME DESTINATION bin COMPONENT unit_tests
             LIBRARY DESTINATION lib COMPONENT unit_tests
