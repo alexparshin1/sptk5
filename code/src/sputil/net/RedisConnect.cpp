@@ -1088,14 +1088,19 @@ void RedisConnect::getHashValuesAsync(const string& hash, ResultCallback<KeysAnd
 
 void RedisConnect::deleteHashKeysAsync(const string& hash, const vector<string>& keys, CompletionCallback callback)
 {
-    enqueue([this, hash, keys, callback = std::move(callback)]
-            {
-                deleteHashKeys(hash, keys);
-                if (callback)
-                {
-                    callback();
-                }
-            });
+    // Enqueue as a single command rather than a self-contained task: commands are pipelined
+    // by the worker, while each self-contained task flushes the pipeline and performs its own
+    // synchronous round trip, which is dramatically slower for bulk deletes.
+    RedisCommand command("HDEL", hash);
+    command.emplace_back(keys);
+    enqueueCommand(std::move(command),
+                   [callback = std::move(callback)](vector<Variant>&)
+                   {
+                       if (callback)
+                       {
+                           callback();
+                       }
+                   });
 }
 
 void RedisConnect::scanAsync(const string& pattern, size_t limit, ResultCallback<vector<string>> callback)

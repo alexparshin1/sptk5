@@ -159,6 +159,9 @@ public:
      */
     bool pop_front(std::vector<T>& items, size_t itemCount, const std::chrono::milliseconds& timeout)
     {
+        // Destroy the caller's previous items before taking the lock: item destructors may
+        // re-enter this queue (e.g. push_back), which would self-deadlock under m_mutex.
+        items.clear();
         std::unique_lock lock(m_mutex);
         if (!m_condition.wait_for(lock, timeout, [this] { return !m_queue.empty() || m_wakeups > 0; }))
         {
@@ -172,7 +175,6 @@ public:
             }
             return false;
         }
-        items.clear();
         while (!m_queue.empty() && itemCount > 0)
         {
             items.push_back(std::move(m_queue.front()));
