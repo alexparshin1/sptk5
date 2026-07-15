@@ -99,7 +99,7 @@ DatabaseField::DatabaseField(const String& fieldName, const int fieldType,
 
 void DatabaseField::checkSize(const size_t sz)
 {
-    m_data.get<Buffer>().checkSize(sz);
+    m_data.get<Buffer>().reserve(sz);
 }
 
 String DatabaseField::doubleDataToString() const

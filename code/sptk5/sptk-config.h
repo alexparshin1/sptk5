@@ -2,9 +2,8 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2026 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
-║  code review          2024-04-16                                             ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
 │   This library is free software; you can redistribute it and/or modify it    │
@@ -25,77 +24,34 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include "sptk5/ReadBuffer.h"
+#pragma once
 
-using namespace std;
-using namespace sptk;
+constexpr const char* VERSION = "5.6.7";
+constexpr const char* THEMES_PREFIX = "/usr/local";
 
-bool ReadBuffer::read(uint8_t* data, const size_t length)
-{
-    if (length == 0)
-    {
-        return true;
-    }
+#define HAVE_FLTK
+#define HAVE_ODBC
+#define HAVE_SQLITE3
+#define HAVE_POSTGRESQL
 
-    if (available() < length)
-    {
-        return false;
-    }
+#define HAVE_EPOLL
 
-    if (data != nullptr)
-    {
-        memcpy(data, c_str() + m_readOffset, length);
-    }
+#define HAVE_MYSQL
+#define HAVE_MARIADB
+#define MYSQL_HAS_MYBOOL
 
-    m_readOffset += length;
-    compact();
+// Oracle SQL is not used
+#define HAVE_ORACLE_OCI
+#define HAVE_ASPELL
+// PCRE is not used
+#define HAVE_PCRE2
+#define HAVE_OPENSSL
+#define HAVE_ZLIB
+#define HAVE_BROTLI
 
-    return true;
-}
+#define USE_NEW_ABI
+#define USE_GTEST
 
-bool ReadBuffer::read(String& data, const size_t length)
-{
-    if (length == 0)
-    {
-        return true;
-    }
-    if (available() < length)
-    {
-        return false;
-    }
+constexpr const char* TEST_DIRECTORY = "/home/alexeyp/workspace/sptk5/code/test";    ///< Directory that contains data, used in unit tests
 
-    data.resize(length);
-    memcpy(data.data(), c_str() + m_readOffset, length);
-
-    m_readOffset += length;
-    compact();
-
-    return true;
-}
-
-bool ReadBuffer::read(Buffer& data, const size_t length)
-{
-    if (&data == this)
-    {
-        throw Exception("ReadBuffer::read: cannot read into itself");
-    }
-
-    if (length == 0)
-    {
-        return true;
-    }
-
-    if (available() < length)
-    {
-        return false;
-    }
-
-    data.reserve(length);
-    memcpy(data.data(), c_str() + m_readOffset, length);
-    data.bytes(length);
-
-    m_readOffset += length;
-    compact();
-
-    return true;
-}
+#define BUILD_TEST_WS

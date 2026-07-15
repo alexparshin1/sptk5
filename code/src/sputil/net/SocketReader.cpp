@@ -127,7 +127,7 @@ void SocketReader::readMoreFromSocket(const size_t availableBytes)
     else
     {
         const auto cap = m_buffer.capacity();
-        m_buffer.checkSize(std::max(cap * 2, cap + readBytesLWM));
+        m_buffer.reserve(std::max(cap * 2, cap + readBytesLWM));
     }
 
     const auto receivedBytes = m_socket->read(m_buffer.data() + availableBytes, m_buffer.capacity() - availableBytes);
@@ -312,7 +312,7 @@ bool SocketReader::readyToRead(const chrono::milliseconds& timeout) const
 
 size_t SocketReader::read(Buffer& destinationBuffer, const size_t size)
 {
-    destinationBuffer.checkSize(size);
+    destinationBuffer.reserve(size);
     const auto bytes = read(destinationBuffer.data(), size);
     destinationBuffer.bytes(bytes);
     return bytes;
@@ -363,7 +363,7 @@ size_t SocketReader::readLine(Buffer& destinationBuffer, const char delimiter)
             if (const auto desiredCapacity = std::min(maxBufferSize, destinationBuffer.capacity() * 2 + readBytesLWM);
                 desiredCapacity > destinationBuffer.capacity())
             {
-                destinationBuffer.checkSize(desiredCapacity);
+                destinationBuffer.reserve(desiredCapacity);
                 bytesToRead = static_cast<int>(destinationBuffer.capacity() - total - 1);
             }
         }

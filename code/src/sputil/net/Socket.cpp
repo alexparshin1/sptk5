@@ -70,7 +70,7 @@ Socket::~Socket()
 
 size_t Socket::read(Buffer& buffer, const size_t size, sockaddr* from)
 {
-    buffer.checkSize(size);
+    buffer.reserve(size);
     const auto bytes = readUnlocked(buffer.data(), size, from);
     buffer.bytes(bytes);
 

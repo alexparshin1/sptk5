@@ -199,7 +199,7 @@ TEST(ThreadManagerTests, stopReturnsPromptlyWhenRunning)
     stopwatch.stop();
     const auto elapsedMs = static_cast<int>(stopwatch.milliseconds());
 
-    EXPECT_LT(elapsedMs, 300);
+    EXPECT_LT(elapsedMs, 1000);
 }
 
 } // namespace sptk

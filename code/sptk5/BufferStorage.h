@@ -68,7 +68,7 @@ public:
      * The return of the bytes() method will be 0.
      * @param sz                Buffer size to be pre-allocated
      */
-    explicit BufferStorage(size_t sz)
+    explicit BufferStorage(const size_t sz)
     {
         if (sz)
         {
@@ -164,7 +164,7 @@ public:
      * @param sz                Data buffer size
      */
     template<typename T>
-    BufferStorage(const T* data, size_t sz)
+    BufferStorage(const T* data, const size_t sz)
     {
         allocate(std::bit_cast<const uint8_t*>(data), sz);
     }
@@ -207,7 +207,7 @@ public:
      * Allocates memory if needed.
      * @param sz                Required memory size
      */
-    void checkSize(size_t sz)
+    void reserve(const size_t sz)
     {
         if (sz >= m_allocated) [[unlikely]]
         {
@@ -223,7 +223,7 @@ public:
      * @param sz                Required memory size
      */
     template<typename T>
-    void set(const T* data, size_t sz)
+    void set(const T* data, const size_t sz)
     {
         _set(std::bit_cast<const uint8_t*>(data), sz);
     }
@@ -336,14 +336,14 @@ public:
         {
             return;
         }
-        checkSize(m_size + size + 1);
+        reserve(m_size + size + 1);
         memcpy(m_buffer + m_size, data, size);
         m_size += size;
         m_buffer[m_size] = 0;
     }
 
     /**
-     * Append a value of primitive type or structure to the current buffer.
+     * Append a value of the primitive type or structure to the current buffer.
      *
      * Allocates memory if needed.
      * @param val               Primitive type or structure
@@ -352,7 +352,7 @@ public:
         requires std::is_integral_v<T>
     void append(T val)
     {
-        append(std::bit_cast<uint8_t*>(&val), sizeof(val));
+        append(reinterpret_cast<uint8_t*>(&val), sizeof(val));
     }
 
     /**
@@ -389,7 +389,7 @@ public:
     template<typename... Args>
     size_t append(const size_t maxLength, std::format_string<Args...> fmt, Args&&... args)
     {
-        checkSize(size() + maxLength);
+        reserve(size() + maxLength);
         const std::format_to_n_result result = std::format_to_n(data() + size(), maxLength, fmt, std::forward<Args>(args)...);
         *result.out = '\0';
         const auto written = std::min(static_cast<size_t>(result.size), maxLength);
@@ -421,7 +421,7 @@ public:
      * Resizes current buffer
      * @param size                Required memory size
      */
-    void adjustSize(size_t size)
+    void adjustSize(const size_t size)
     {
         if (size > m_allocated)
         {
@@ -435,7 +435,7 @@ protected:
      * @param data              Data to copy in
      * @param size              Number of bytes for the new buffer
      */
-    void allocate(const uint8_t* data, size_t size)
+    void allocate(const uint8_t* data, const size_t size)
     {
         if (m_allocated < size + 1)
         {
@@ -453,7 +453,7 @@ protected:
      * Reallocate memory
      * @param size              Number of bytes for the new buffer
      */
-    void reallocate(size_t size)
+    void reallocate(const size_t size)
     {
         auto* newBuffer = malloc(size + 1);
         if (newBuffer == nullptr) [[unlikely]]
@@ -476,7 +476,7 @@ protected:
         m_allocated = size;
     }
 
-    void init(const uint8_t* data, size_t size, size_t bytes)
+    void init(const uint8_t* data, const size_t size, const size_t bytes)
     {
         allocate(data, size);
         m_size = bytes;

@@ -70,7 +70,7 @@ void Base64::encode(Buffer& bufDest, const uint8_t* bufSource, size_t len)
     const auto* current = bufSource;
     auto        outputLen = (len + 2) / 3 * 4;
 
-    bufDest.checkSize(outputLen + 1);
+    bufDest.reserve(outputLen + 1);
     auto* output = bufDest.data();
 
     while (len >= 3)
@@ -142,7 +142,7 @@ size_t internal_decode(Buffer& dest, const uint8_t* source, const size_t sourceL
         return 0;
     }
 
-    dest.checkSize(sourceLen / 4 * 3 + 3);
+    dest.reserve(sourceLen / 4 * 3 + 3);
 
     uint32_t val = 0;
     auto     valb = -8;

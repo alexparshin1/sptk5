@@ -102,7 +102,7 @@ void BaseMailConnect::mimeFile(const String& fileName, const String& fileAlias, 
 
     // Split encoded data to lines
     const auto dataLen = strDest.length();
-    buffer.checkSize(dataLen + dataLen / LINE_CHARS);
+    buffer.reserve(dataLen + dataLen / LINE_CHARS);
 
     const char* ptr = strDest.c_str();
     for (size_t pos = 0; pos < dataLen; pos += LINE_CHARS)

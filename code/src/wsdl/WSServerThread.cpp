@@ -103,6 +103,12 @@ void WSServerThreads::terminate()
     {
         thread->terminate();
     }
+
+    for (const auto& thread: m_threads)
+    {
+        thread->join();
+    }
+
     m_threads.clear();
 }
 

@@ -34,7 +34,7 @@ using namespace sptk;
 namespace {
 void bufferAppendCount(Buffer& buffer, size_t value)
 {
-    buffer.checkSize(buffer.size() + 24);
+    buffer.reserve(buffer.size() + 24);
     char* start = reinterpret_cast<char*>(buffer.data()) + buffer.size();
     auto* end = std::to_chars(start, start + 24, value).ptr;
     *end = 0;

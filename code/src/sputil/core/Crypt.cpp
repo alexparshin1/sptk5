@@ -67,7 +67,7 @@ void Crypt::encrypt(Buffer& dest, const Buffer& src, const String& key, const St
 
         auto len = 0;
         dest.bytes(0);
-        dest.checkSize(src.bytes());
+        dest.reserve(src.bytes());
         for (size_t position = 0; position < src.bytes(); position += TEXT_BLOCK)
         {
             const auto* intext = src.data() + position;
@@ -76,7 +76,7 @@ void Crypt::encrypt(Buffer& dest, const Buffer& src, const String& key, const St
             {
                 inlen = TEXT_BLOCK;
             }
-            dest.checkSize(position + TEXT_BLOCK);
+            dest.reserve(position + TEXT_BLOCK);
             if (EVP_EncryptUpdate(ctx, dest.data() + dest.bytes(), &len, intext, static_cast<int>(inlen)) != 1)
             {
                 throw Exception("Error calling EVP_EncryptUpdate()");
@@ -84,7 +84,7 @@ void Crypt::encrypt(Buffer& dest, const Buffer& src, const String& key, const St
             dest.bytes(dest.bytes() + len);
         }
 
-        dest.checkSize(dest.bytes() + TEXT_BLOCK);
+        dest.reserve(dest.bytes() + TEXT_BLOCK);
         if (EVP_EncryptFinal_ex(ctx, dest.data() + dest.bytes(), &len) != 1)
         {
             throw Exception("Error calling EVP_EncryptFinal_ex()");
@@ -136,7 +136,7 @@ void Crypt::decrypt(Buffer& dest, const Buffer& src, const String& key, const St
 
         auto len = 0;
         dest.bytes(0);
-        dest.checkSize(src.bytes());
+        dest.reserve(src.bytes());
         for (size_t position = 0; position < src.bytes(); position += TEXT_BLOCK)
         {
             const auto* intext = src.data() + position;
@@ -145,7 +145,7 @@ void Crypt::decrypt(Buffer& dest, const Buffer& src, const String& key, const St
             {
                 inlen = TEXT_BLOCK;
             }
-            dest.checkSize(position + TEXT_BLOCK);
+            dest.reserve(position + TEXT_BLOCK);
             if (EVP_DecryptUpdate(ctx, dest.data() + dest.bytes(), &len, intext, static_cast<int>(inlen)) != 1)
             {
                 throw Exception("Error calling EVP_DecryptUpdate()");
@@ -157,7 +157,7 @@ void Crypt::decrypt(Buffer& dest, const Buffer& src, const String& key, const St
             }
         }
 
-        dest.checkSize(dest.bytes() + TEXT_BLOCK);
+        dest.reserve(dest.bytes() + TEXT_BLOCK);
         if (EVP_DecryptFinal_ex(ctx, dest.data() + dest.bytes(), &len) != 1)
         {
             throw Exception("Error calling EVP_DecryptFinal_ex()");
