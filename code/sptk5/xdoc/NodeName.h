@@ -84,7 +84,7 @@ public:
         parseQualifiedName();
     }
 
-    NodeName(NodeName&& other)
+    NodeName(NodeName&& other) noexcept
         : m_qualifiedName(std::move(other.m_qualifiedName))
     {
         parseQualifiedName();
@@ -100,7 +100,7 @@ public:
         return *this;
     }
 
-    NodeName& operator=(NodeName&& other)
+    NodeName& operator=(NodeName&& other) noexcept
     {
         if (this != &other)
         {
@@ -203,7 +203,7 @@ private:
     /**
      * @brief Parse internal qualified name into namespace and node name.
      */
-    void parseQualifiedName()
+    void parseQualifiedName() noexcept
     {
         if (const auto* pos = strchr(m_qualifiedName.c_str(), ':'))
         {
