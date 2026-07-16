@@ -79,16 +79,29 @@ function osVersionNames()
         "ubuntu-jammy"   => "Ubuntu 22.04",
         "ubuntu-noble"  => "Ubuntu 24.04",
         "ubuntu-oracular"  => "Ubuntu 24.10",
+        "ubuntu-plucky"  => "Ubuntu 25.04",
+        "ubuntu-questing"  => "Ubuntu 25.10",
+        "ubuntu-resolute"  => "Ubuntu 26.04",
         "debian-bookworm"  => "Debian Bookworm",
+        "debian-trixie"  => "Debian Trixie",
         "fedora-37"      => "Fedora 37",
         "fedora-38"      => "Fedora 38",
         "fedora-39"      => "Fedora 39",
         "fedora-40"      => "Fedora 40",
         "fedora-41"      => "Fedora 41",
+        "fedora-42"      => "Fedora 42",
+        "fedora-43"      => "Fedora 43",
         "oraclelinux9"   => "Oracle Linux 9",
+        "oraclelinux-9.5" => "Oracle Linux 9.5",
         "tar" => "Source code (OS-independent)",
         "windows" => "Windows 10"
     );
+}
+
+// Fallback title for directories not listed in osVersionNames()
+function prettyOsName($dirname)
+{
+    return ucwords(str_replace(array("-", "_"), " ", $dirname));
 }
 
 function getSptkVersions($downloadDirectory)
@@ -142,11 +155,23 @@ function getAllDownloads($versions)
         echo "    \"sptk_version\": \"$sptkVersion\",\n";
         echo "    \"directories\": [\n";
 
-        $firstDir = true;
+        // Known directories first, in the curated order of osVersionNames(),
+        // then any other sub-directories with a title generated from their name
+        $directories = array();
         foreach(osVersionNames() as $dirname => $osVersion) {
-            if (!file_exists("$versionDirectory/$dirname")) {
+            if (file_exists("$versionDirectory/$dirname")) {
+                $directories[$dirname] = $osVersion;
+            }
+        }
+        foreach (scandir($versionDirectory) as $dirname) {
+            if ($dirname[0] == "." || isset($directories[$dirname]) || !is_dir("$versionDirectory/$dirname")) {
                 continue;
             }
+            $directories[$dirname] = prettyOsName($dirname);
+        }
+
+        $firstDir = true;
+        foreach($directories as $dirname => $osVersion) {
             if ($firstDir) {
                 $firstDir = false;
             } else {
