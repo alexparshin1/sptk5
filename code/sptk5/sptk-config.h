@@ -27,9 +27,9 @@
 #pragma once
 
 constexpr const char* VERSION = "5.6.7";
-constexpr const char* THEMES_PREFIX = "/usr/local";
+constexpr const char* THEMES_PREFIX = "C:/Program Files/SPTK";
 
-#define HAVE_FLTK
+// FLTK is not used
 #define HAVE_ODBC
 #define HAVE_SQLITE3
 #define HAVE_POSTGRESQL
@@ -41,17 +41,17 @@ constexpr const char* THEMES_PREFIX = "/usr/local";
 #define MYSQL_HAS_MYBOOL
 
 // Oracle SQL is not used
-#define HAVE_ORACLE_OCI
-#define HAVE_ASPELL
+
+// ASpell is not used
 // PCRE is not used
 #define HAVE_PCRE2
 #define HAVE_OPENSSL
 #define HAVE_ZLIB
-#define HAVE_BROTLI
+// Brotli is not used
 
-#define USE_NEW_ABI
+
 #define USE_GTEST
 
-constexpr const char* TEST_DIRECTORY = "/home/alexeyp/workspace/sptk5/code/test";    ///< Directory that contains data, used in unit tests
+constexpr const char* TEST_DIRECTORY = "C:/workspace/sptk5/code/test";    ///< Directory that contains data, used in unit tests
 
-#define BUILD_TEST_WS
+// TestWebService is not built

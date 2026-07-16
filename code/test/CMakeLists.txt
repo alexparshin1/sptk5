@@ -6,6 +6,12 @@ IF (GTEST_FLAG)
 
     TARGET_LINK_LIBRARIES(sptk_unit_tests sputil5 spdb5 spwsdl5 gtest)
 
+    # On Windows with MSVC, add googletest as a Visual Studio NuGet package.
+    if (WIN32 AND MSVC)
+        set(gtest_nuget "Google.Test;1.8.3")
+        set_property(TARGET sptk_unit_tests PROPERTY VS_PACKAGE_REFERENCES "${gtest_nuget}")
+    endif()
+
     INSTALL(TARGETS sptk_unit_tests
             RUNTIME DESTINATION bin COMPONENT unit_tests
             LIBRARY DESTINATION lib COMPONENT unit_tests
