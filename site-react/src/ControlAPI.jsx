@@ -1,6 +1,11 @@
 export default class ControlAPI {
 
-    static serviceURL = "http://www.sptk.net";
+    // In production, the API is served from the same host as the SPA, so use the page's
+    // own origin (works for both https:// and http://). During local development
+    // (npm start), the SPA runs on localhost while the API stays on www.sptk.net;
+    // REACT_APP_SERVICE_URL overrides either at build time.
+    static serviceURL = process.env.REACT_APP_SERVICE_URL ||
+        (process.env.NODE_ENV === "development" ? "http://www.sptk.net" : window.location.origin);
     static isConnected = false;
     static token = "";
 
