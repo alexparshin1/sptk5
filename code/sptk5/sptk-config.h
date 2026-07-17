@@ -37,8 +37,8 @@ constexpr const char* THEMES_PREFIX = "C:/Program Files/SPTK";
 #define HAVE_EPOLL
 
 #define HAVE_MYSQL
-#define HAVE_MARIADB
-#define MYSQL_HAS_MYBOOL
+// MariaDB is not used
+// MySQL doesn't define my_bool
 
 // Oracle SQL is not used
 

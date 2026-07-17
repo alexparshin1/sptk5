@@ -117,17 +117,17 @@ void SocketPool::removeSocket(const SocketType socketFd) const
 
 bool SocketPool::waitForEvents(const chrono::milliseconds& timeout)
 {
-    Buffer eventsBuffer(sizeof(epoll_event) * m_maxEvents);
-    auto*  events = reinterpret_cast<epoll_event*>(eventsBuffer.data());
+    m_eventsBuffer.reserve(sizeof(epoll_event) * m_maxEvents);
+    auto* events = reinterpret_cast<epoll_event*>(m_eventsBuffer.data());
 
     const auto eventCount = epoll_wait(m_pool, events, m_maxEvents, static_cast<int>(timeout.count()));
     if (eventCount < 0)
     {
         return m_pool != INVALID_EPOLL;
     }
-    eventsBuffer.bytes(sizeof(epoll_event) * eventCount);
+    m_eventsBuffer.bytes(sizeof(epoll_event) * eventCount);
 
-    dispatchEvents(eventsBuffer);
+    dispatchEvents(m_eventsBuffer);
 
     return true;
 }

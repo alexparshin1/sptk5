@@ -40,7 +40,7 @@ using namespace sptk;
 using namespace std;
 
 namespace {
-constexpr string RedisHost {"theater"};
+const string RedisHost {"theater"};
 }
 
 class RedisConnectTests : public ::testing::Test
