@@ -45,6 +45,7 @@ size_t BROTLI_MAX_BACKWARD_LIMIT(const uint32_t W)
 
 static constexpr size_t kBufferSize = 1 << 16;
 
+namespace {
 class Context
 {
 public:
@@ -120,6 +121,7 @@ private:
         available_out = 0;
     }
 };
+} // namespace
 
 BrotliEncoderState* Context::createEncoderInstance() const
 {
