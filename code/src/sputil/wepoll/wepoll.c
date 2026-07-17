@@ -2022,7 +2022,22 @@ int sock_feed_event(port_state_t*       port_state,
     /* If the the socket has the EPOLLONESHOT flag set, unmonitor all events,
    * even EPOLLERR and EPOLLHUP. But always keep looking for closed sockets. */
     if (sock_state->user_events & EPOLLONESHOT)
+    {
         sock_state->user_events = 0;
+
+        /* SPTK deviation from upstream wepoll: don't resubmit a poll operation
+     * for a disarmed one-shot socket. Upstream requeues it so a poll watching
+     * only AFD_POLL_LOCAL_CLOSE keeps running (to reap sockets closed without
+     * EPOLL_CTL_DEL); the next EPOLL_CTL_MOD re-arm must then cancel that poll
+     * (NtCancelIoFileEx) and wait for the cancellation completion before it
+     * can submit the real one — two extra syscalls and a spurious epoll_wait
+     * wakeup per re-arm. Leaving the socket idle lets the re-arm submit its
+     * poll directly. The trade-off: a fired one-shot socket that is closed
+     * without EPOLL_CTL_DEL is not detected until it's re-armed or the port is
+     * closed. SPTK's SocketPool always deletes sockets explicitly, so this is
+     * safe here. */
+        port_cancel_socket_update(port_state, sock_state);
+    }
 
     ev->data = sock_state->user_data;
     ev->events = epoll_events;

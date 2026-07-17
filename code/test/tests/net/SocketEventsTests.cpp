@@ -157,9 +157,7 @@ TEST(SocketEventsTests, minimalEdgeTriggered)
  */
 TEST(SocketEventsTests, minimalOneShot)
 {
-#ifndef _WIN32
     testSocketEvents(SocketPoolTriggerMode::OneShot);
-#endif
 }
 
 TEST(SocketEventsTests, performance)
