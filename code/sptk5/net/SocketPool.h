@@ -264,6 +264,31 @@ public:
     }
 
     /**
+     * @brief Re-arm an already-watched one-shot socket (EPOLL_CTL_MOD).
+     *
+     * The registration created by add() is left untouched, so unlike add() this path takes
+     * no lock and copies no shared pointers. Valid only in OneShot mode for a socket that
+     * is still registered with this pool; use add() for the first arm.
+     * @param socket            Socket previously added to this pool.
+     */
+    void rearm(const std::shared_ptr<Socket>& socket)
+    {
+        if (!socket)
+        {
+            throw Exception("SocketObjectPool::rearm(): socket is null");
+        }
+
+        auto*      socketPtr = socket.get();
+        const auto fd = socketPtr->fd();
+        if (fd == INVALID_SOCKET)
+        {
+            return;
+        }
+
+        addSocket(fd, reinterpret_cast<uint8_t*>(socketPtr), true);
+    }
+
+    /**
      * @brief Remove the socket from the monitored pool.
      *
      * Events already collected by the current poll batch may still carry this socket's cookie;
