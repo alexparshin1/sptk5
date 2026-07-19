@@ -104,6 +104,14 @@ public:
     }
 
     /**
+     * @brief Unlock mutex previously locked in shared mode.
+     */
+    void unlock_shared()
+    {
+        m_mutex.unlock_shared();
+    }
+
+    /**
      * @return Locl location as string.
      */
     [[nodiscard]] std::string location() const;
@@ -195,7 +203,7 @@ public:
     {
         if (m_locked)
         {
-            m_mutex.unlock();
+            m_mutex.unlock_shared();
         }
     }
 
@@ -207,7 +215,7 @@ public:
 
     void unlock()
     {
-        m_mutex.unlock();
+        m_mutex.unlock_shared();
         m_locked = false;
     }
 

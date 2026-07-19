@@ -114,6 +114,56 @@ void SocketVirtualMethods::openAddressUnlocked(const sockaddr_in& addr, const Op
                 }
                 try
                 {
+#ifdef _WIN32
+                    // Windows processes non-blocking connect completion lazily: the blocking
+                    // poll wake-up and the SO_ERROR query both stall for 1-2 system timer
+                    // ticks (8-25ms measured on loopback) while the completion "settles",
+                    // even though a zero-timeout WSAPoll sees the established state within
+                    // microseconds and the socket is immediately usable. Probe the state
+                    // directly and skip the SO_ERROR query on a clean success: SO_ERROR is
+                    // only needed when the probe reports an error condition (a refused
+                    // connect raises POLLWRNORM together with POLLERR|POLLHUP), and by then
+                    // it no longer stalls.
+                    auto cleanConnectSeen = false;
+                    {
+                        WSAPOLLFD connectPoll {};
+                        connectPoll.fd = m_socketFd;
+                        connectPoll.events = POLLWRNORM;
+                        for (const auto spinDeadline = chrono::steady_clock::now() + min(timeout, chrono::milliseconds(2));
+                             chrono::steady_clock::now() < spinDeadline;)
+                        {
+                            connectPoll.revents = 0;
+                            if (WSAPoll(&connectPoll, 1, 0) > 0 && connectPoll.revents != 0)
+                            {
+                                break;
+                            }
+                            this_thread::yield();
+                        }
+
+                        if (connectPoll.revents == 0)
+                        {
+                            // Slow (remote) connect: fall back to the blocking wait. By the
+                            // time it wakes, the completion has settled and SO_ERROR is cheap.
+                            if (!readyToWriteUnlocked(timeout))
+                            {
+                                throw Exception("Connection timeout");
+                            }
+                        }
+                        else
+                        {
+                            cleanConnectSeen = (connectPoll.revents & POLLWRNORM) != 0 &&
+                                               (connectPoll.revents & (POLLERR | POLLHUP)) == 0;
+                        }
+                    }
+                    if (!cleanConnectSeen)
+                    {
+                        getOptionUnlocked(SOL_SOCKET, SO_ERROR, result);
+                        if (result != 0)
+                        {
+                            throwSocketError("Can't connect");
+                        }
+                    }
+#else
                     if (!readyToWriteUnlocked(timeout))
                     {
                         throw Exception("Connection timeout");
@@ -123,6 +173,7 @@ void SocketVirtualMethods::openAddressUnlocked(const sockaddr_in& addr, const Op
                     {
                         throwSocketError("Can't connect");
                     }
+#endif
                 }
                 catch (const Exception&)
                 {
