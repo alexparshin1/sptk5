@@ -10,7 +10,8 @@ export default class XMQ_tests extends React.Component
         super();
         this.menuItems = {
             "/xmq_about": "About",
-            "/xmq_tests": "Tests",
+            "/xmq_tests": "MQTT Tests",
+            "/xmq_mqtt_test_suite": "MQTT Test Suite",
             "/xmq_configuration": "Configuration"
         };
     }
@@ -31,7 +32,7 @@ export default class XMQ_tests extends React.Component
                 </li>
             </ul>
             <p>
-                The testing utilities xmq_con, xmq_pub, and xmq_sub, are using MQTT protocols 3.1 to 5.0.
+                The testing utilities xmq_con, xmq_pub, xmq_sub, and xmq_scn are using MQTT protocols 3.1 to 5.0.
                 They can be used with any MQTT server, not just XMQ, when one or more MQTT clients simulation is required.
                 The testing is comparing XMQ to recognised leaders in the are, such as eMQX and Mosquitto.
             </p>

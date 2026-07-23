@@ -11,6 +11,7 @@ import Footer from "./pages/Footer";
 import Support from "./pages/Support";
 import XMQ_about from "./pages/XMQ_about";
 import XMQ_tests from "./pages/XMQ_tests";
+import XMQ_mqtt_test_suite from "./pages/XMQ_mqtt_test_suite";
 import XMQ_configuration from "./pages/XMQ_configuration";
 import Downloads from "./pages/Downloads";
 import SPTK_about from "./pages/SPTK_about";
@@ -67,6 +68,7 @@ class App extends Component
                 title: "XMQ", items: [
                     {title: "About", link: "/xmq_about"},
                     {title: "Tests", link: "/xmq_tests"},
+                    {title: "MQTT Test Suite", link: "/xmq_mqtt_test_suite"},
                     {title: "Configuration", link: "/xmq_configuration"},
                 ]
             },
@@ -121,6 +123,7 @@ class App extends Component
                                         <Route path="/support" Component={Support}/>
                                         <Route path="/xmq_about" Component={XMQ_about}/>
                                         <Route path="/xmq_tests" Component={XMQ_tests}/>
+                                        <Route path="/xmq_mqtt_test_suite" Component={XMQ_mqtt_test_suite}/>
                                         <Route path="/xmq_configuration" Component={XMQ_configuration}/>
                                         <Route path="/sptk_about" Component={SPTK_about}/>
                                         <Route path="/sptk_screenshots" Component={SPTK_screenshots}/>
