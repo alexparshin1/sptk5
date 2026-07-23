@@ -20,7 +20,7 @@ export default class XMQ_about extends React.Component
                 XMQ server is written in C++ and uses SPTK class library for cross-platform
                 functionality.
                 It is accompanied by the test utilities that allow implementing various test scenarious.
-                The <Link to="/xmq_tests">test utilities</Link> are using standard MQTT protocols that allows comparing
+                The <Link to="/xmq_mqtt_test_suite">test utilities</Link> are using standard MQTT protocols that allows comparing
                 XMQ with
                 other MQTT server.
             </p>
