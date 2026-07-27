@@ -1,3 +1,13 @@
+Conditions (all tests):
+
+Server Host:   8xCPU, 20GB RAM
+Clients Host:  8xCPU, 32GB RAM
+
+MQTT Protocol: 3.1
+MQTT QOS:      1
+
+Note: NanoMQ timed out during the test. Only 395K clients completed connections.
+
 Server:   EMQX
 Port:     1882
 Max CPU:  272%

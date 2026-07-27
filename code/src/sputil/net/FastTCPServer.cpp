@@ -109,15 +109,20 @@ bool FastTcpServerListener::acceptConnection(const chrono::milliseconds& timeout
         auto       acceptedAny = false;
         while (!terminated())
         {
-            sockaddr_in connectionInfo = {};
-            socklen_t   addressLength = sizeof(connectionInfo);
-            const auto  connectionFD = ::accept(listenerFd, bit_cast<sockaddr*>(&connectionInfo), &addressLength);
+            // sockaddr_storage, not sockaddr_in: an IPv6 (or dual-stack) peer's sockaddr_in6
+            // is 28 bytes. A sockaddr_in-sized (16-byte) buffer would let the kernel truncate
+            // the address, and downstream code that reinterprets it as sockaddr_in6 (e.g.
+            // ServerConnection::parseAddress) would read past the end of the buffer, producing
+            // garbled peer addresses in logs.
+            sockaddr_storage connectionStorage = {};
+            socklen_t        addressLength = sizeof(connectionStorage);
+            const auto       connectionFD = ::accept(listenerFd, bit_cast<sockaddr*>(&connectionStorage), &addressLength);
             if (connectionFD == INVALID_SOCKET)
             {
                 // Backlog drained (EWOULDBLOCK/EAGAIN) or transient error: stop draining.
                 break;
             }
-            m_server.acceptIncoming(m_connectionType, connectionFD, connectionInfo);
+            m_server.acceptIncoming(m_connectionType, connectionFD, *bit_cast<const sockaddr_in*>(&connectionStorage));
             acceptedAny = true;
         }
         return acceptedAny;

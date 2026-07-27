@@ -35,6 +35,8 @@
 #include <sptk5/net/Socket.h>
 #include <sptk5/threads/Thread.h>
 
+#include <atomic>
+#include <cstdint>
 #include <functional>
 #include <memory>
 #include <mutex>
@@ -155,10 +157,10 @@ protected:
     /**
      * @brief Add the socket to the monitored pool.
      * @param socketFd            Socket to monitor events.
-     * @param userData          User data to pass to the callback function.
+     * @param token             Opaque per-registration token to pass to the callback function.
      * @param rearmOneShot      Re-arm the one-shot event that is already watched. Only used in EdgeTriggered mode.
      */
-    void addSocket(SocketType socketFd, const uint8_t* userData, bool rearmOneShot = false) const;
+    void addSocket(SocketType socketFd, uint64_t token, bool rearmOneShot = false) const;
 
     /**
      * @brief Remove the socket from the monitored pool.
@@ -168,11 +170,14 @@ protected:
 
     /**
      * @brief Event callback method.
-     * @param eventData         Opaque per-socket cookie supplied to addSocket() (stored in the poll
-     *                          event), identifying the signaled socket without a lookup.
+     * @param token             Opaque per-registration token supplied to addSocket() (stored in the
+     *                          poll event), identifying the signaled socket's registration. A fresh,
+     *                          never-reused value per addSocket() call - unlike a raw pointer, it
+     *                          can't alias a different, later registration if the original socket's
+     *                          memory gets freed and reused before a stale batched event is processed.
      * @param eventType         Event type.
      */
-    virtual void onEvent(void* eventData, SocketEventType eventType) = 0;
+    virtual void onEvent(uint64_t token, SocketEventType eventType) = 0;
 
 private:
     /**
@@ -197,6 +202,11 @@ private:
 
 /**
  * @brief Socket pool that stores user objects in events.
+ *
+ * A socket may be registered with at most one pool at a time: its registration token lives on the
+ * Socket (see Socket::poolToken()), so adding the same socket to a second pool would invalidate the
+ * first pool's registration. Registering several sockets that share one user object is fine - the
+ * load balancer does exactly that, watching a channel's source and destination in separate pools.
  * @tparam T Socket event object type.
  */
 template<typename T>
@@ -244,21 +254,41 @@ public:
         // poll.
         const auto rearmInPlace = getTriggerMode() == SocketPoolTriggerMode::OneShot && rearmOneShot;
 
+        // Every registration gets a fresh, never-reused token instead of using socketPtr itself as
+        // the identity: socketPtr is a raw address, and once this Socket is destroyed that address
+        // can be handed straight back out to an unrelated Socket by the allocator. A stale event for
+        // the old registration, already sitting in a poll batch collected before the removal, would
+        // then resolve to the new registration instead of being recognized as stale - delivering one
+        // connection's data to a completely different connection. A monotonic token can't alias like
+        // that: an old token is simply never found once erased, no matter what address gets reused.
+        //
+        // The token is kept on the socket itself, so rearm() and remove() find it without a
+        // socket-to-token map (and therefore without taking the lock to read it).
+        const auto token = m_nextToken.fetch_add(1, std::memory_order_relaxed);
+
         // Publish the registration before the kernel registration: an event may be dispatched
         // as soon as addSocket() returns, and onEvent() must find the entry.
         {
             std::scoped_lock lock(m_mutex);
-            m_objects[socketPtr] = Registration {socket, userData};
+            if (const auto previousToken = socketPtr->poolToken(); previousToken != 0)
+            {
+                // Re-adding an already-tracked socket (only reachable via rearmOneShot=true, unused by
+                // current callers but kept correct): drop its old token so it doesn't leak in m_objects.
+                m_objects.erase(previousToken);
+            }
+            m_objects.emplace(token, Registration {socket, userData});
+            socketPtr->poolToken(token);
         }
 
         try
         {
-            addSocket(fd, reinterpret_cast<uint8_t*>(socketPtr), rearmInPlace);
+            addSocket(fd, token, rearmInPlace);
         }
         catch (...)
         {
+            socketPtr->poolToken(0);
             std::scoped_lock lock(m_mutex);
-            m_objects.erase(socketPtr);
+            m_objects.erase(token);
             throw;
         }
     }
@@ -266,9 +296,12 @@ public:
     /**
      * @brief Re-arm an already-watched one-shot socket (EPOLL_CTL_MOD).
      *
-     * The registration created by add() is left untouched, so unlike add() this path takes
-     * no lock and copies no shared pointers. Valid only in OneShot mode for a socket that
-     * is still registered with this pool; use add() for the first arm.
+     * The registration created by add() is left untouched; this just re-issues the same token
+     * already on file for the socket. Valid only in OneShot mode for a socket that is still
+     * registered with this pool; use add() for the first arm.
+     *
+     * Takes no lock: the token lives on the socket, so this is an atomic load plus the
+     * epoll_ctl(MOD) syscall. In OneShot mode this runs once per request, on worker threads.
      * @param socket            Socket previously added to this pool.
      */
     void rearm(const std::shared_ptr<Socket>& socket)
@@ -278,21 +311,31 @@ public:
             throw Exception("SocketObjectPool::rearm(): socket is null");
         }
 
-        auto*      socketPtr = socket.get();
-        const auto fd = socketPtr->fd();
+        const auto fd = socket->fd();
         if (fd == INVALID_SOCKET)
         {
             return;
         }
 
-        addSocket(fd, reinterpret_cast<uint8_t*>(socketPtr), true);
+        const auto token = socket->poolToken();
+        if (token == 0)
+        {
+            throw Exception("SocketObjectPool::rearm(): socket is not registered");
+        }
+
+        addSocket(fd, token, true);
     }
 
     /**
      * @brief Remove the socket from the monitored pool.
      *
-     * Events already collected by the current poll batch may still carry this socket's cookie;
-     * they are ignored, and the cookie is used only as a lookup key, never dereferenced.
+     * Events already collected by the current poll batch may still carry this socket's token;
+     * they are ignored (the token is a lookup key only, never dereferenced), and since tokens are
+     * never reused, a stale one can never resolve to some other, later registration.
+     *
+     * Removing a socket that isn't registered is a no-op: callers legitimately overlap (a
+     * connection may be unwatched and then closed), and claiming the token up front means the
+     * redundant calls cost neither a syscall nor the lock.
      * @param socket            Socket from this pool.
      */
     void remove(const std::shared_ptr<Socket>& socket)
@@ -302,12 +345,18 @@ public:
             throw Exception("SocketObjectPool::remove(): socket is null");
         }
 
+        const auto token = socket->takePoolToken();
+        if (token == 0)
+        {
+            return;
+        }
+
         removeSocket(socket->fd()); // DEL: the kernel delivers no further events for this socket.
 
         std::shared_ptr<Socket> erased;
         {
             std::scoped_lock lock(m_mutex);
-            erased = eraseLocked(socket.get());
+            erased = eraseLocked(token);
         }
         // 'erased' is destroyed here, outside the lock.
     }
@@ -315,40 +364,44 @@ public:
 protected:
     /**
      * @brief Handle a socket event.
-     * @param eventData         Cookie stored at add() time: a pointer to the registered socket.
+     * @param token             Token stored at add() time, identifying the registration.
      * @param eventType         Type of event.
      */
-    void onEvent(void* eventData, SocketEventType eventType) override
+    void onEvent(const uint64_t token, SocketEventType eventType) override
     {
-        auto* socket = static_cast<Socket*>(eventData);
-        if (socket == nullptr)
-        {
-            return;
-        }
-
-        std::weak_ptr<T> userData;
-        SocketType       fd = INVALID_SOCKET;
+        std::weak_ptr<T>        userData;
+        SocketType              fd = INVALID_SOCKET;
+        std::shared_ptr<Socket> socket;
         {
             std::scoped_lock lock(m_mutex);
-            const auto       it = m_objects.find(socket);
+            const auto       it = m_objects.find(token);
             if (it == m_objects.end())
             {
                 // Removed after this batch was collected; whoever removed it did the cleanup.
                 return;
             }
             userData = it->second.userData;
-            fd = it->second.socket->fd();
+            socket = it->second.socket;
+            fd = socket->fd();
         }
 
         if (userData.expired())
         {
-            // The user object is gone: deregister the socket and drop its registration.
+            // The user object is gone: deregister the socket and drop its registration. Claim the
+            // token first, so a concurrent remove() doesn't do the same work twice - and so that a
+            // socket already removed and re-added under a newer token keeps that newer
+            // registration, since only the token this event carries is released.
+            if (!socket->releasePoolToken(token))
+            {
+                return;
+            }
+
             removeSocket(fd); // DEL: the kernel delivers no further events for this socket.
 
             std::shared_ptr<Socket> erased;
             {
                 std::scoped_lock lock(m_mutex);
-                erased = eraseLocked(socket);
+                erased = eraseLocked(token);
             }
             return; // 'erased' is destroyed here, outside the lock.
         }
@@ -365,25 +418,25 @@ private:
      */
     struct Registration
     {
-        std::shared_ptr<Socket> socket;   ///< Keeps the cookie address valid while registered.
+        std::shared_ptr<Socket> socket;   ///< Keeps the socket alive while registered.
         std::weak_ptr<T>        userData; ///< User data delivered to the callback.
     };
 
-    std::mutex                                m_mutex;          ///< Protects m_objects.
-    SocketEventCallback<T>                    m_eventsCallback; ///< Sockets event callback function.
-    std::unordered_map<Socket*, Registration> m_objects;        ///< Map of monitored sockets to their registrations.
+    std::mutex                                 m_mutex;          ///< Protects m_objects.
+    SocketEventCallback<T>                     m_eventsCallback; ///< Sockets event callback function.
+    std::unordered_map<uint64_t, Registration> m_objects;        ///< Map of registration tokens to their registrations.
+    std::atomic<uint64_t>                      m_nextToken {1};  ///< Never-reused per-registration token generator.
 
     /**
-     * @brief Erase the socket's registration. Call with m_mutex held.
-     * @param socket            Registered socket.
+     * @brief Erase a registration. Call with m_mutex held.
+     * @param token             Registration token, as claimed from the socket.
      * @return The co-owned socket, so the caller can destroy it after releasing m_mutex.
      */
-    std::shared_ptr<Socket> eraseLocked(Socket* socket)
+    std::shared_ptr<Socket> eraseLocked(const uint64_t token)
     {
         std::shared_ptr<Socket> owned;
 
-        const auto it = m_objects.find(socket);
-        if (it != m_objects.end())
+        if (const auto it = m_objects.find(token); it != m_objects.end())
         {
             owned = std::move(it->second.socket);
             m_objects.erase(it);

@@ -34,6 +34,7 @@
 #include <filesystem>
 #include <iomanip>
 #include <sptk5/threads/Semaphore.h>
+#include <unordered_map>
 #include <vector>
 
 #ifndef _WIN32
@@ -81,6 +82,10 @@ protected:
     {
         if (eventType.m_hangup || eventType.m_error)
         {
+            {
+                const scoped_lock lock(m_pendingMutex);
+                m_pending.erase(connection.get());
+            }
             closeConnection(connection);
             return;
         }
@@ -90,25 +95,49 @@ protected:
             return;
         }
 
-        const auto socket = connection->getSocket();
-        auto       available = socket->socketBytes();
-        while (available >= m_messageSize)
+        const auto        socket = connection->getSocket();
+        const scoped_lock lock(m_pendingMutex);
+        auto&             pending = m_pending[connection.get()];
+
+        // Socket::read() is a single recv() and may return a short read, so drain whatever the
+        // socket has into a per-connection buffer and advance by the bytes actually read. Assuming
+        // each read yields a whole message desynchronizes the accounting from the socket and
+        // strands a partial message there, which a level-triggered poll then re-reports forever.
+        auto available = socket->socketBytes();
+        while (available > 0)
         {
-            const auto bytes = socket->read(m_buffer.data(), m_messageSize);
-            const auto echoSize = m_ackSize ? min(m_ackSize, bytes) : bytes;
-            socket->write(m_buffer.data(), echoSize);
-            available -= m_messageSize;
+            const auto offset = pending.size();
+            pending.resize(offset + available);
+            const auto bytes = socket->read(pending.data() + offset, available);
+            pending.resize(offset + bytes);
+            if (bytes == 0)
+            {
+                break; // Peer closed the connection.
+            }
+            available -= bytes;
+        }
+
+        // Echo only whole messages; a trailing partial one stays buffered for the next event.
+        size_t processed = 0;
+        while (pending.size() - processed >= m_messageSize)
+        {
+            const auto echoSize = m_ackSize ? min(m_ackSize, m_messageSize) : m_messageSize;
+            socket->write(pending.data() + processed, echoSize);
+            processed += m_messageSize;
             ++m_sentMessages;
         }
+        pending.erase(pending.begin(), pending.begin() + static_cast<ptrdiff_t>(processed));
     }
 
 private:
-    vector<uint8_t>           m_buffer = vector<uint8_t>(64 * 1024);
     size_t                    m_messageSize {0};
     size_t                    m_ackSize {0};
     size_t                    m_sentMessages {0};
     mutex                     m_connectionsMutex;
     vector<SServerConnection> m_connections;
+    mutex                     m_pendingMutex; ///< Protects m_pending.
+    std::unordered_map<ServerConnection*, vector<uint8_t>>
+        m_pending; ///< Bytes received but not yet forming a whole message, per connection.
 };
 
 array<uint8_t, messageSize> makeMessage()
