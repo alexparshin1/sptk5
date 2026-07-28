@@ -162,9 +162,9 @@ namespace {
  */
 struct Frame
 {
-    uint32_t pairId {0};      ///< Pair this frame belongs to.
-    uint32_t role {0};        ///< Role of the sender, on the registration frame.
-    uint64_t timestampNs {0}; ///< steady_clock at publish time, carried through to the subscriber.
+    uint32_t pairId{0}; ///< Pair this frame belongs to.
+    uint32_t role{0}; ///< Role of the sender, on the registration frame.
+    uint64_t timestampNs{0}; ///< steady_clock at publish time, carried through to the subscriber.
 };
 
 constexpr size_t frameSize = sizeof(Frame);
@@ -188,8 +188,8 @@ constexpr uint16_t largeScenarioPort = 12501;
  * 100K sockets over 8 addresses is 12.5K ports each, comfortably below the ~40K at which the
  * kernel's ephemeral port search degrades.
  */
-const vector<String> sourceAddresses {"127.0.0.1", "127.0.0.2", "127.0.0.3", "127.0.0.4",
-                                      "127.0.0.5", "127.0.0.6", "127.0.0.7", "127.0.0.8"};
+const vector<String> sourceAddresses{"127.0.0.1", "127.0.0.2", "127.0.0.3", "127.0.0.4",
+                                     "127.0.0.5", "127.0.0.6", "127.0.0.7", "127.0.0.8"};
 
 /**
  * @brief Granularity at which each publish interval is spread out.
@@ -226,7 +226,7 @@ size_t envSize(const char* name, const size_t defaultValue)
  */
 SocketPoolTriggerMode triggerModeFromEnv()
 {
-    const auto* text = getenv("SPTK_SCALE_TRIGGER");
+    const auto*  text = getenv("SPTK_SCALE_TRIGGER");
     const String mode = text != nullptr ? String(text) : String("edge");
 
     if (mode == "level")
@@ -244,7 +244,7 @@ String triggerModeName(const SocketPoolTriggerMode mode)
 {
     switch (mode)
     {
-        using enum SocketPoolTriggerMode;
+            using enum SocketPoolTriggerMode;
         case LevelTriggered:
             return "LevelTriggered";
         case EdgeTriggered:
@@ -257,7 +257,7 @@ String triggerModeName(const SocketPoolTriggerMode mode)
 
 constexpr size_t connectThreadCount = 8; ///< Threads opening client connections.
 constexpr size_t publishThreadCount = 4; ///< Threads driving the publishers.
-constexpr size_t clientPoolCount = 8;    ///< Client-side reactors, see runScenario().
+constexpr size_t clientPoolCount = 8; ///< Client-side reactors, see runScenario().
 
 uint64_t nowNs()
 {
@@ -279,11 +279,11 @@ public:
     {
     }
 
-    array<uint8_t, frameSize> m_partial {};     ///< Incomplete frame carried to the next event.
-    size_t                    m_partialSize {0};
-    uint32_t                  m_pairId {0};
-    bool                      m_registered {false}; ///< First frame received (the registration frame).
-    size_t                    m_receiveThread {0}; ///< Receive thread this connection is pinned to.
+    array<uint8_t, frameSize> m_partial{}; ///< Incomplete frame carried to the next event.
+    size_t                    m_partialSize{0};
+    uint32_t                  m_pairId{0};
+    bool                      m_registered{false}; ///< First frame received (the registration frame).
+    size_t                    m_receiveThread{0}; ///< Receive thread this connection is pinned to.
 
     /**
      * @brief Set while this connection is queued for, or being handled by, a receive thread.
@@ -293,7 +293,7 @@ public:
      * shred m_partial. This flag keeps a connection to one worker at a time in both arrangements,
      * so the queue type stays the only difference between them.
      */
-    atomic_bool m_queued {false};
+    atomic_bool m_queued{false};
 };
 
 /**
@@ -314,7 +314,7 @@ size_t threadCpuTicks(const long tid)
     }
     // utime and stime are fields 14 and 15, after a comm field that may itself contain spaces -
     // so parse from the closing parenthesis rather than counting fields from the start.
-    array<char, 1024> line {};
+    array<char, 1024> line{};
     const auto        read = fread(line.data(), 1, line.size() - 1, stat);
     fclose(stat);
     if (read == 0)
@@ -380,13 +380,13 @@ void simulateWork(const size_t microseconds)
 class PointToPointServer : public FastTCPServer
 {
 public:
-    PointToPointServer(const string& name, const size_t pairCount, const SocketPoolTriggerMode triggerMode,
-                       const size_t maxEvents, const size_t receiveThreadCount, const size_t workMicroseconds,
-                       const bool sharedQueue)
+    PointToPointServer(const string& name, const size_t      pairCount, const SocketPoolTriggerMode triggerMode,
+                       const size_t  maxEvents, const size_t receiveThreadCount, const size_t       workMicroseconds,
+                       const bool    sharedQueue)
         : FastTCPServer(name, nullptr, triggerMode, maxEvents)
-        , m_subscribers(pairCount)
-        , m_receiveThreadCount(receiveThreadCount)
-        , m_workMicroseconds(workMicroseconds)
+          , m_subscribers(pairCount)
+          , m_receiveThreadCount(receiveThreadCount)
+          , m_workMicroseconds(workMicroseconds)
     {
         // receiveThreadCount == 0 keeps the routing on the reactor thread.
         if (receiveThreadCount > 0)
@@ -427,7 +427,7 @@ public:
     }
 
     SServerConnection createConnection(const ServerConnection::Type connectionType, const SocketType connectionSocket,
-                                       const sockaddr_in* peer) override
+                                       const sockaddr_in*           peer) override
     {
         const STCPSocket socket = createConnectionSocket(connectionType, connectionSocket);
 
@@ -686,7 +686,7 @@ private:
         vector<unique_ptr<Queue>> m_queues;
         vector<thread>            m_threads;
         bool                      m_shared;
-        atomic_bool               m_terminated {false};
+        atomic_bool               m_terminated{false};
         mutable mutex             m_tidsMutex;
         vector<long>              m_tids; ///< Worker thread ids, for CPU accounting.
     };
@@ -733,15 +733,15 @@ private:
         }
     }
 
-    vector<STCPSocket>           m_subscribers; ///< Subscriber socket per pair id.
-    unique_ptr<ReceivePool>      m_receivePool; ///< Null when routing on the reactor thread.
-    size_t                       m_receiveThreadCount {0};
-    size_t                       m_nextReceiveThread {0}; ///< Listener thread only.
-    size_t                       m_workMicroseconds {0};
-    atomic<size_t>                     m_registrations {0};
-    atomic<size_t>                     m_routed {0};
-    atomic<size_t>                     m_dropped {0};
-    atomic<long>                       m_reactorTid {0}; ///< For CPU accounting.
+    vector<STCPSocket>      m_subscribers; ///< Subscriber socket per pair id.
+    unique_ptr<ReceivePool> m_receivePool; ///< Null when routing on the reactor thread.
+    size_t                  m_receiveThreadCount{0};
+    size_t                  m_nextReceiveThread{0}; ///< Listener thread only.
+    size_t                  m_workMicroseconds{0};
+    atomic<size_t>          m_registrations{0};
+    atomic<size_t>          m_routed{0};
+    atomic<size_t>          m_dropped{0};
+    atomic<long>            m_reactorTid{0}; ///< For CPU accounting.
 };
 
 /**
@@ -750,8 +750,8 @@ private:
 class SubscriberSocket : public TCPSocket
 {
 public:
-    array<uint8_t, frameSize> m_partial {};
-    size_t                    m_partialSize {0};
+    array<uint8_t, frameSize> m_partial{};
+    size_t                    m_partialSize{0};
 };
 
 /**
@@ -766,15 +766,15 @@ struct ClientPool
 
 struct LatencyStats
 {
-    size_t samples {0};
-    double medianUs {0};
-    double meanUs {0};
-    double p99Us {0};
-    double maxUs {0};
-    size_t routed {0};
-    size_t dropped {0};
-    size_t published {0};
-    size_t peakQueue {0}; ///< Deepest receive queue seen while measuring.
+    size_t samples{0};
+    double medianUs{0};
+    double meanUs{0};
+    double p99Us{0};
+    double maxUs{0};
+    size_t routed{0};
+    size_t dropped{0};
+    size_t published{0};
+    size_t peakQueue{0}; ///< Deepest receive queue seen while measuring.
 };
 
 /**
@@ -783,26 +783,26 @@ struct LatencyStats
  */
 struct ScenarioConfig
 {
-    SocketPoolTriggerMode triggerMode {SocketPoolTriggerMode::EdgeTriggered};
-    size_t                maxEvents {32};
-    size_t                publishesPerSecond {1};
-    size_t                receiveThreadCount {0}; ///< 0 routes on the reactor thread.
-    size_t                workMicroseconds {0};   ///< Simulated per-message parsing/lookup cost.
-    bool                  sharedQueue {false};    ///< One queue for all receive threads, or one each.
-    chrono::seconds       warmup {5};
-    chrono::seconds       measure {10};
+    SocketPoolTriggerMode triggerMode{SocketPoolTriggerMode::EdgeTriggered};
+    size_t                maxEvents{32};
+    size_t                publishesPerSecond{1};
+    size_t                receiveThreadCount{0}; ///< 0 routes on the reactor thread.
+    size_t                workMicroseconds{0}; ///< Simulated per-message parsing/lookup cost.
+    bool                  sharedQueue{false}; ///< One queue for all receive threads, or one each.
+    chrono::seconds       warmup{5};
+    chrono::seconds       measure{10};
 };
 
 ScenarioConfig configFromEnv()
 {
-    return ScenarioConfig {.triggerMode = triggerModeFromEnv(),
-                           .maxEvents = envSize("SPTK_SCALE_MAX_EVENTS", 32),
-                           .publishesPerSecond = envSize("SPTK_SCALE_RATE", 1),
-                           .receiveThreadCount = envSize("SPTK_SCALE_RECEIVE_THREADS", 0),
-                           .workMicroseconds = envSize("SPTK_SCALE_WORK_US", 0),
-                           .sharedQueue = envSize("SPTK_SCALE_SHARED_QUEUE", 0) != 0,
-                           .warmup = chrono::seconds(envSize("SPTK_SCALE_WARMUP_SEC", 5)),
-                           .measure = chrono::seconds(envSize("SPTK_SCALE_MEASURE_SEC", 10))};
+    return ScenarioConfig{.triggerMode = triggerModeFromEnv(),
+                          .maxEvents = envSize("SPTK_SCALE_MAX_EVENTS", 32),
+                          .publishesPerSecond = envSize("SPTK_SCALE_RATE", 1),
+                          .receiveThreadCount = envSize("SPTK_SCALE_RECEIVE_THREADS", 0),
+                          .workMicroseconds = envSize("SPTK_SCALE_WORK_US", 0),
+                          .sharedQueue = envSize("SPTK_SCALE_SHARED_QUEUE", 0) != 0,
+                          .warmup = chrono::seconds(envSize("SPTK_SCALE_WARMUP_SEC", 5)),
+                          .measure = chrono::seconds(envSize("SPTK_SCALE_MEASURE_SEC", 10))};
 }
 
 LatencyStats summarize(vector<uint64_t> samplesNs)
@@ -856,7 +856,7 @@ LatencyStats runScenario(const size_t pairCount, const uint16_t port, const Scen
                               workMicroseconds, sharedQueue);
     server.addListener(ServerConnection::Type::TCP, Host("127.0.0.1", port));
 
-    atomic<bool> collecting {false};
+    atomic<bool> collecting{false};
 
     // The client's receive path is sharded over several reactors, while the server under test has
     // the single reactor FastTCPServer creates. Without that the harness would saturate alongside
@@ -928,14 +928,14 @@ LatencyStats runScenario(const size_t pairCount, const uint16_t port, const Scen
             auto subscriber = make_shared<SubscriberSocket>();
             subscriber->open(serverHost, Socket::OpenMode::CONNECT, true, chrono::milliseconds(0),
                              sourceAddress.c_str());
-            const Frame subscriberFrame {.pairId = static_cast<uint32_t>(pairId), .role = roleSubscriber};
+            const Frame subscriberFrame{.pairId = static_cast<uint32_t>(pairId), .role = roleSubscriber};
             subscriber->write(bit_cast<const uint8_t*>(&subscriberFrame), frameSize);
 
             auto publisher = make_shared<TCPSocket>();
             publisher->open(serverHost, Socket::OpenMode::CONNECT, true, chrono::milliseconds(0),
                             sourceAddress.c_str());
             publisher->setOption(IPPROTO_TCP, TCP_NODELAY, 1);
-            const Frame publisherFrame {.pairId = static_cast<uint32_t>(pairId), .role = rolePublisher};
+            const Frame publisherFrame{.pairId = static_cast<uint32_t>(pairId), .role = rolePublisher};
             publisher->write(bit_cast<const uint8_t*>(&publisherFrame), frameSize);
 
             subscribers[pairId] = subscriber;
@@ -970,8 +970,8 @@ LatencyStats runScenario(const size_t pairCount, const uint16_t port, const Scen
 
     // Publish one frame per publisher per second, spread across the second rather than bursted,
     // matching independently timed MQTT publishers.
-    atomic<bool>   publishing {true};
-    atomic<size_t> published {0};
+    atomic<bool>   publishing{true};
+    atomic<size_t> published{0};
     vector<thread> publisherThreads;
     for (size_t threadIndex = 0; threadIndex < publishThreadCount; ++threadIndex)
     {
@@ -998,9 +998,9 @@ LatencyStats runScenario(const size_t pairCount, const uint16_t port, const Scen
                     for (size_t pairId = threadIndex + publishThreadCount * slice; pairId < pairCount;
                          pairId += stride)
                     {
-                        const Frame frame {.pairId = static_cast<uint32_t>(pairId),
-                                           .role = rolePublisher,
-                                           .timestampNs = nowNs()};
+                        const Frame frame{.pairId = static_cast<uint32_t>(pairId),
+                                          .role = rolePublisher,
+                                          .timestampNs = nowNs()};
                         try
                         {
                             publishers[pairId]->write(bit_cast<const uint8_t*>(&frame), frameSize);
@@ -1064,27 +1064,29 @@ LatencyStats runScenario(const size_t pairCount, const uint16_t port, const Scen
     stats.peakQueue = peakQueue;
 
     COUT("  trigger=" << triggerModeName(triggerMode) << " maxEvents=" << maxEvents
-                      << " rate=" << publishesPerSecond << "/s"
-                      << " receiveThreads=" << (receiveThreadCount == 0 ? String("inline") : String(to_string(receiveThreadCount)))
-                      << " queue=" << (receiveThreadCount == 0 ? "n/a" : (sharedQueue ? "shared" : "pinned"))
-                      << " workUs=" << workMicroseconds << " peakQueue=" << peakQueue << endl);
+        << " rate=" << publishesPerSecond << "/s"
+        << " receiveThreads=" << (receiveThreadCount == 0 ? String("inline") : String(to_string(receiveThreadCount)))
+        << " queue=" << (receiveThreadCount == 0 ? "n/a" : (sharedQueue ? "shared" : "pinned"))
+        << " workUs=" << workMicroseconds << " peakQueue=" << peakQueue << endl);
     COUT("  pairs=" << pairCount << " connections=" << pairCount * 2 << " registered=" << server.registrations()
-                    << " published=" << published.load() << " routed=" << stats.routed << " dropped=" << stats.dropped
-                    << endl);
+        << " published=" << published.load() << " routed=" << stats.routed << " dropped=" << stats.dropped
+        << endl);
     COUT("  round trip: median=" << stats.medianUs << "us mean=" << stats.meanUs << "us p99=" << stats.p99Us
-                                 << "us max=" << stats.maxUs << "us over " << stats.samples << " samples" << endl);
+        << "us max=" << stats.maxUs << "us over " << stats.samples << " samples" << endl);
 
+#ifndef _WIN32
     const auto ticksPerSecond = static_cast<double>(sysconf(_SC_CLK_TCK));
     if (ticksPerSecond > 0 && cpuTicksUsed > 0)
     {
         const auto cpuSeconds = static_cast<double>(cpuTicksUsed) / ticksPerSecond;
         const auto cores = cpuSeconds / static_cast<double>(measureDuration.count());
         COUT("  server CPU: " << cores << " cores over the window ("
-                              << (routedWhileMeasuring > 0
-                                      ? cpuSeconds * 1e6 / static_cast<double>(routedWhileMeasuring)
-                                      : 0.0)
-                              << "us per routed message, excludes this test's client)" << endl);
+            << (routedWhileMeasuring > 0
+                ? cpuSeconds * 1e6 / static_cast<double>(routedWhileMeasuring)
+                : 0.0)
+            << "us per routed message, excludes this test's client)" << endl);
     }
+#endif
 
     for (auto& publisher: publishers)
     {
@@ -1103,6 +1105,10 @@ LatencyStats runScenario(const size_t pairCount, const uint16_t port, const Scen
 
 namespace sptk {
 
+#ifdef small
+#undef small
+#endif
+
 /**
  * @brief Baseline: round trip latency must not collapse as the connection count grows.
  *
@@ -1116,22 +1122,21 @@ TEST(FastTcpServerScaleTests, DISABLED_roundTripScaling)
     const auto largePairs = envSize("SPTK_SCALE_PAIRS_LARGE", largePairCount);
     const auto config = configFromEnv();
 
-    COUT("Small scenario:" << endl);
+    COUT("Small scenario:");
     const auto small = runScenario(smallPairs, smallScenarioPort, config);
 
     // Let the small scenario's sockets leave TIME_WAIT before the large one claims ports.
     this_thread::sleep_for(chrono::seconds(10));
 
-    COUT("Large scenario:" << endl);
+    COUT("Large scenario:");
     const auto large = runScenario(largePairs, largeScenarioPort, config);
 
     ASSERT_GT(small.samples, 0U) << "Small scenario collected no round trip samples";
     ASSERT_GT(large.samples, 0U) << "Large scenario collected no round trip samples";
 
     const auto ratio = large.medianUs / small.medianUs;
-    COUT(endl
-         << "Round trip median: " << small.medianUs << "us at " << smallPairs << " pairs vs " << large.medianUs
-         << "us at " << largePairs << " pairs - " << ratio << "x" << endl);
+    COUT("\nRound trip median: " << small.medianUs << "us at " << smallPairs << " pairs vs " << large.medianUs
+        << "us at " << largePairs << " pairs - " << ratio << "x");
 
     if (config.receiveThreadCount != 0 || config.workMicroseconds != 0)
     {
@@ -1179,21 +1184,20 @@ TEST(FastTcpServerScaleTests, DISABLED_receiveThreadSaturation)
     config.receiveThreadCount = envSize("SPTK_SCALE_RECEIVE_THREADS", 3);
     config.workMicroseconds = envSize("SPTK_SCALE_WORK_US", 100);
 
-    COUT("Small scenario:" << endl);
+    COUT("Small scenario:");
     const auto small = runScenario(smallPairs, smallScenarioPort, config);
 
     this_thread::sleep_for(chrono::seconds(10));
 
-    COUT("Large scenario:" << endl);
+    COUT("Large scenario:");
     const auto large = runScenario(largePairs, largeScenarioPort, config);
 
     ASSERT_GT(small.samples, 0U) << "Small scenario collected no round trip samples";
     ASSERT_GT(large.samples, 0U) << "Large scenario collected no round trip samples";
 
     const auto ratio = large.medianUs / small.medianUs;
-    COUT(endl
-         << "Round trip median: " << small.medianUs << "us at " << smallPairs << " pairs vs " << large.medianUs
-         << "us at " << largePairs << " pairs - " << ratio << "x" << endl);
+    COUT("\nRound trip median: " << small.medianUs << "us at " << smallPairs << " pairs vs " << large.medianUs
+        << "us at " << largePairs << " pairs - " << ratio << "x");
 
     // The small scenario must stay below the knee, otherwise the comparison says nothing.
     EXPECT_LT(small.medianUs, 5000.0) << "Small scenario was already saturated at " << small.medianUs
