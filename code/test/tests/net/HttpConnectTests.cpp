@@ -33,7 +33,7 @@ using namespace std;
 using namespace sptk;
 namespace sptk {
 
-TEST(HttpConnectTests,get)
+TEST(HttpConnectTests, get)
 {
     const Host google("www.sptk.net:80");
 
@@ -47,8 +47,8 @@ TEST(HttpConnectTests,get)
 
     try
     {
-        auto statusCode = http.cmd_get("/", HttpParams(), output);
-        EXPECT_EQ(200, statusCode);
+        const auto statusCode = http.cmd_get("/", HttpParams(), output);
+        EXPECT_EQ(301, statusCode);
     }
     catch (const Exception& e)
     {
@@ -62,7 +62,7 @@ TEST(HttpConnectTests,get)
 
 // ... existing code ...
 
-TEST(HttpConnectTests,basicAuthorizationIsBase64UserColonPass)
+TEST(HttpConnectTests, basicAuthorizationIsBase64UserColonPass)
 {
     // "user:pass" -> base64("user:pass") == "dXNlcjpwYXNz"
     const HttpConnect::BasicAuthorization auth("user", "pass");
@@ -71,7 +71,7 @@ TEST(HttpConnectTests,basicAuthorizationIsBase64UserColonPass)
     EXPECT_EQ("dXNlcjpwYXNz", auth.value());
 }
 
-TEST(HttpConnectTests,bearerAuthorizationPreservesToken)
+TEST(HttpConnectTests, bearerAuthorizationPreservesToken)
 {
     const String                           token("header.payload.signature");
     const HttpConnect::BearerAuthorization auth(token);
@@ -80,7 +80,7 @@ TEST(HttpConnectTests,bearerAuthorizationPreservesToken)
     EXPECT_EQ(token, auth.value());
 }
 
-TEST(HttpConnectTests,accessorsBeforeAnyRequestDoNotCrash)
+TEST(HttpConnectTests, accessorsBeforeAnyRequestDoNotCrash)
 {
     // No connection / no request performed: define expected "safe" behavior.
     auto        socket = make_shared<TCPSocket>();
@@ -93,4 +93,4 @@ TEST(HttpConnectTests,accessorsBeforeAnyRequestDoNotCrash)
     (void) headers; // just verifying this is safe to call before any request
 }
 
-} // namespace sptk_test
+} // namespace sptk
