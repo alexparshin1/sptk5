@@ -188,11 +188,13 @@ public:
      * @brief Opens the server socket connection on port (binds/listens).
      * @param portNumber        The port number.
      * @param reusePort         If true, then set SO_REUSEPORT on listener socket.
+     * @param backlog           listen() backlog. See DEFAULT_LISTEN_BACKLOG.
      */
-    void listen(const uint16_t portNumber = 0, const bool reusePort = true)
+    void listen(const uint16_t portNumber = 0, const bool reusePort = true,
+                const int backlog = DEFAULT_LISTEN_BACKLOG)
     {
         const WriteLock lock(m_mutex);
-        listenUnlocked(portNumber, reusePort);
+        listenUnlocked(portNumber, reusePort, backlog);
     }
 
     /**

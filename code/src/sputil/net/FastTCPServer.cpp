@@ -60,10 +60,12 @@ void closeSocketHandle(SocketType connectionFD)
 
 // ─────────────────────────────────────────── FastTcpServerListener ───────────────────────────────────────────
 
-FastTcpServerListener::FastTcpServerListener(FastTCPServer& server, const Host& listenerHost, const ServerConnection::Type connectionType)
+FastTcpServerListener::FastTcpServerListener(FastTCPServer& server, const Host& listenerHost, const ServerConnection::Type connectionType,
+                                             const int backlog)
     : Thread("FastTcpServer::Listener")
     , m_server(server)
     , m_connectionType(connectionType)
+    , m_backlog(backlog)
 {
     m_listenerSocket.host(listenerHost);
 }
@@ -72,7 +74,7 @@ void FastTcpServerListener::listen()
 {
     if (!running())
     {
-        m_listenerSocket.listen(0, true);
+        m_listenerSocket.listen(0, true, m_backlog);
         run();
     }
 }
@@ -134,7 +136,8 @@ bool FastTcpServerListener::acceptConnection(const chrono::milliseconds& timeout
     return false;
 }
 
-FastTCPServer::FastTCPServer(const std::string& serverName, std::shared_ptr<LogEngine> logEngine, SocketPoolTriggerMode triggerMode, const size_t maxEvents)
+FastTCPServer::FastTCPServer(const std::string& serverName, std::shared_ptr<LogEngine> logEngine, SocketPoolTriggerMode triggerMode, const size_t maxEvents,
+                             const int backlog)
     : m_logEngine(std::move(logEngine))
     , m_socketEvents(
           serverName,
@@ -148,6 +151,7 @@ FastTCPServer::FastTCPServer(const std::string& serverName, std::shared_ptr<LogE
               }
           },
           std::chrono::milliseconds(100), triggerMode, maxEvents)
+    , m_backlog(backlog)
 {
     if (m_logEngine)
     {
@@ -246,7 +250,7 @@ void FastTCPServer::addListener(const ServerConnection::Type connectionType, con
 
     for (uint16_t i = 0; i < listenerCount; ++i)
     {
-        auto listener = make_shared<FastTcpServerListener>(*this, listenerHost, connectionType);
+        auto listener = make_shared<FastTcpServerListener>(*this, listenerHost, connectionType, m_backlog);
         listeners.push_back(listener);
         listener->listen();
     }

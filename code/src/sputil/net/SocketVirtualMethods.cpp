@@ -65,7 +65,7 @@ bool SocketVirtualMethods::activeUnlocked() const
 
 void SocketVirtualMethods::openAddressUnlocked(const sockaddr_in& addr, const OpenMode openMode,
                                                const chrono::milliseconds& timeout, const bool reusePort,
-                                               const char* clientBindAddress)
+                                               const char* clientBindAddress, const int backlog)
 {
     const auto timeoutMS = static_cast<int>(timeout.count());
 
@@ -207,7 +207,7 @@ void SocketVirtualMethods::openAddressUnlocked(const sockaddr_in& addr, const Op
             result = ::bind(m_socketFd, bit_cast<const sockaddr*>(&addr), sizeof(sockaddr_in));
             if (result == 0 && m_type != SOCK_DGRAM)
             {
-                result = listen(m_socketFd, SOMAXCONN);
+                result = listen(m_socketFd, backlog);
                 currentOperation = "listen";
             }
             break;
@@ -402,7 +402,7 @@ void SocketVirtualMethods::bindUnlocked(const char* address, const uint32_t port
     }
 }
 
-void SocketVirtualMethods::listenUnlocked(const uint16_t portNumber, const bool reusePort)
+void SocketVirtualMethods::listenUnlocked(const uint16_t portNumber, const bool reusePort, const int backlog)
 {
     if (portNumber != 0)
     {
@@ -416,7 +416,7 @@ void SocketVirtualMethods::listenUnlocked(const uint16_t portNumber, const bool 
     address.sin_addr.s_addr = htonl(INADDR_ANY);
     address.sin_port = htons(m_host->port());
 
-    openAddressUnlocked(address, OpenMode::BIND, chrono::milliseconds(0), reusePort);
+    openAddressUnlocked(address, OpenMode::BIND, chrono::milliseconds(0), reusePort, nullptr, backlog);
 }
 
 #if (__FreeBSD__ | __OpenBSD__)

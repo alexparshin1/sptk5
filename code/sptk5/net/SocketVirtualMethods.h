@@ -73,6 +73,26 @@ namespace sptk {
  */
 
 /**
+ * @brief Default listen() backlog: the depth of the kernel's completed-connection queue.
+ *
+ * Connections that finish their TCP handshake wait here until the application calls
+ * accept(). If the queue is full, the kernel drops the connection (visible as
+ * TcpExtListenOverflows in `nstat`) and the client sees a connect timeout, so the
+ * backlog needs to cover the burst a server can receive between accept() calls -
+ * not its steady-state connection count.
+ *
+ * 4096 matches the value of SOMAXCONN on current Linux, which is what this code passed
+ * before the backlog became configurable, so the default is a no-op there. Note that
+ * Windows defines SOMAXCONN as 0x7FFFFFFF ("pick a reasonable maximum"), so on Windows
+ * this default is a change to a smaller, but explicit and predictable, queue.
+ *
+ * The kernel silently caps the effective backlog at net.core.somaxconn, so raising this
+ * above that sysctl has no effect. Servers accepting at high connection rates should
+ * raise both.
+ */
+static constexpr int DEFAULT_LISTEN_BACKLOG = 4096;
+
+/**
  * @brief Virtual methods for the Socket class.
  *
  * All methods are not locking a mutex.
@@ -111,10 +131,12 @@ protected:
      * @param timeout           Connection timeout. If 0, then wait forever.
      * @param reusePort         If true, reuse port.
      * @param clientBindAddress Client binding IP address.
+     * @param backlog           listen() backlog, used for OpenMode::BIND only.
      */
     void openAddressUnlocked(const sockaddr_in& addr, OpenMode openMode = OpenMode::CREATE,
                              const std::chrono::milliseconds& timeout = std::chrono::milliseconds(0),
-                             bool reusePort = true, const char* clientBindAddress = nullptr);
+                             bool reusePort = true, const char* clientBindAddress = nullptr,
+                             int backlog = DEFAULT_LISTEN_BACKLOG);
 
     /**
      * @brief Opens the client socket connection by host and port.
@@ -156,8 +178,9 @@ protected:
      * @brief Opens the server socket connection on port (binds/listens).
      * @param portNumber        The port number.
      * @param reusePort         True if the port is reused.
+     * @param backlog           listen() backlog. See DEFAULT_LISTEN_BACKLOG.
      */
-    void listenUnlocked(uint16_t portNumber, bool reusePort);
+    void listenUnlocked(uint16_t portNumber, bool reusePort, int backlog = DEFAULT_LISTEN_BACKLOG);
 
     /**
      * @brief Close socket.

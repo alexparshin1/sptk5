@@ -65,8 +65,10 @@ public:
      * @param server            Fast TCP server that owns this listener.
      * @param listenerHost      Listener host and port number.
      * @param connectionType    Connection type (TCP or SSL).
+     * @param backlog           listen() backlog for this listener socket.
      */
-    FastTcpServerListener(FastTCPServer& server, const Host& listenerHost, ServerConnection::Type connectionType);
+    FastTcpServerListener(FastTCPServer& server, const Host& listenerHost, ServerConnection::Type connectionType,
+                          int backlog = DEFAULT_LISTEN_BACKLOG);
 
     ~FastTcpServerListener() override = default;
 
@@ -104,6 +106,7 @@ private:
     FastTCPServer&         m_server;             ///< Owning server.
     TCPSocket              m_listenerSocket;     ///< Listener socket.
     ServerConnection::Type m_connectionType;     ///< Connection type.
+    int                    m_backlog;            ///< listen() backlog for this listener socket.
     Flag                   m_hasStarted {false}; ///< True once the listener thread has started.
 
     bool acceptConnection(const std::chrono::milliseconds& timeout);
@@ -138,9 +141,12 @@ public:
      * @param logEngine         Optional log engine.
      * @param triggerMode       Socket pool trigger mode.
      * @param maxEvents         Maximum number of events to process per reactor loop.
+     * @param backlog           listen() backlog applied to every listener socket of this
+     *                          server. See DEFAULT_LISTEN_BACKLOG for how to size it.
      */
     explicit FastTCPServer(const std::string& serverName, std::shared_ptr<LogEngine> logEngine = nullptr,
-                           SocketPoolTriggerMode triggerMode = SocketPoolTriggerMode::LevelTriggered, const size_t maxEvents = 128);
+                           SocketPoolTriggerMode triggerMode = SocketPoolTriggerMode::LevelTriggered, const size_t maxEvents = 128,
+                           int backlog = DEFAULT_LISTEN_BACKLOG);
 
     /**
      * @brief Destructor.
@@ -354,6 +360,7 @@ private:
     std::shared_ptr<SSLKeys>                                                 m_keys;                ///< Server SSL keys.
     std::map<Host, Listeners, HostCompare>                                   m_listeners;           ///< Server listeners.
     SocketEventCallback<ServerConnection>                                    m_socketEventCallback; ///< Optional socket event callback.
+    int                                                                      m_backlog;             ///< listen() backlog for all listener sockets.
 
     /**
      * @brief Accept an incoming connection (called by the listener thread).
