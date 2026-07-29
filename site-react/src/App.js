@@ -11,6 +11,7 @@ import Footer from "./pages/Footer";
 import Support from "./pages/Support";
 import XMQ_about from "./pages/XMQ_about";
 import XMQ_tests_connections from "./pages/XMQ_tests_connections";
+import XMQ_tests_environment from "./pages/XMQ_tests_environment";
 import XMQ_tests_fanin from "./pages/XMQ_tests_fanin";
 import XMQ_tests_fanout from "./pages/XMQ_tests_fanout";
 import XMQ_tests_p2p from "./pages/XMQ_tests_p2p";
@@ -71,6 +72,7 @@ class App extends Component
                 title: "XMQ", items: [
                     {title: "About", link: "/xmq_about"},
                     {title: "Tests", items: [
+                        {title: "Test Environment", link: "/xmq_tests_environment"},
                         {title: "Connections", link: "/xmq_tests_connections"},
                         {title: "Fan-in", link: "/xmq_tests_fanin"},
                         {title: "Fan-out", link: "/xmq_tests_fanout"},
@@ -130,6 +132,7 @@ class App extends Component
                                         <Route path="/" Component={Home}/>
                                         <Route path="/support" Component={Support}/>
                                         <Route path="/xmq_about" Component={XMQ_about}/>
+                                        <Route path="/xmq_tests_environment" Component={XMQ_tests_environment}/>
                                         <Route path="/xmq_tests_connections" Component={XMQ_tests_connections}/>
                                         <Route path="/xmq_tests_fanin" Component={XMQ_tests_fanin}/>
                                         <Route path="/xmq_tests_fanout" Component={XMQ_tests_fanout}/>
