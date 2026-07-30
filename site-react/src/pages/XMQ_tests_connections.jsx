@@ -177,7 +177,7 @@ function ConnectionsTest({title, test})
         return null;
 
     const {conditions, note, servers} = test;
-    const extraColumns = ["Port", "Max CPU", "Max RAM"].filter((key) =>
+    const extraColumns = ["Version", "Port", "Max CPU", "Max RAM"].filter((key) =>
         servers.some((s) => s.meta[key] !== undefined && !SKIPPED_META_KEYS.includes(key))
     );
 

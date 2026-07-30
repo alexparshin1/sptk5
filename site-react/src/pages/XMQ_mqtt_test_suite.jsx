@@ -109,7 +109,7 @@ export default class XMQ_mqtt_test_suite extends React.Component
                 </li>
                 <li><code>--bind-to-interfaces</code>/<code>-I</code> &mdash; spread clients across several local
                     network interfaces (a comma-separated IP list, or a mask such as
-                    {" "}<code>10.1.1.1/8</code>), needed to run more than 64K clients from one host.
+                    {" "}<code>192.0.2.1/24</code>), needed to run more than 64K clients from one host.
                 </li>
                 <li><code>--id-prefix</code> &mdash; prepended to the publishers' and subscribers'
                     {" "}<code>id_prefix</code> from the scenario file, so client IDs don't collide when
