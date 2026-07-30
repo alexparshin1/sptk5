@@ -60,10 +60,12 @@ void closeSocketHandle(SocketType connectionFD)
 
 // ─────────────────────────────────────────── FastTcpServerListener ───────────────────────────────────────────
 
-FastTcpServerListener::FastTcpServerListener(FastTCPServer& server, const Host& listenerHost, const ServerConnection::Type connectionType)
+FastTcpServerListener::FastTcpServerListener(FastTCPServer& server, const Host& listenerHost, const ServerConnection::Type connectionType,
+                                             const int backlog)
     : Thread("FastTcpServer::Listener")
     , m_server(server)
     , m_connectionType(connectionType)
+    , m_backlog(backlog)
 {
     m_listenerSocket.host(listenerHost);
 }
@@ -72,7 +74,7 @@ void FastTcpServerListener::listen()
 {
     if (!running())
     {
-        m_listenerSocket.listen(0, true);
+        m_listenerSocket.listen(0, true, m_backlog);
         run();
     }
 }
@@ -109,15 +111,20 @@ bool FastTcpServerListener::acceptConnection(const chrono::milliseconds& timeout
         auto       acceptedAny = false;
         while (!terminated())
         {
-            sockaddr_in connectionInfo = {};
-            socklen_t   addressLength = sizeof(connectionInfo);
-            const auto  connectionFD = ::accept(listenerFd, bit_cast<sockaddr*>(&connectionInfo), &addressLength);
+            // sockaddr_storage, not sockaddr_in: an IPv6 (or dual-stack) peer's sockaddr_in6
+            // is 28 bytes. A sockaddr_in-sized (16-byte) buffer would let the kernel truncate
+            // the address, and downstream code that reinterprets it as sockaddr_in6 (e.g.
+            // ServerConnection::parseAddress) would read past the end of the buffer, producing
+            // garbled peer addresses in logs.
+            sockaddr_storage connectionStorage = {};
+            socklen_t        addressLength = sizeof(connectionStorage);
+            const auto       connectionFD = ::accept(listenerFd, bit_cast<sockaddr*>(&connectionStorage), &addressLength);
             if (connectionFD == INVALID_SOCKET)
             {
                 // Backlog drained (EWOULDBLOCK/EAGAIN) or transient error: stop draining.
                 break;
             }
-            m_server.acceptIncoming(m_connectionType, connectionFD, connectionInfo);
+            m_server.acceptIncoming(m_connectionType, connectionFD, *bit_cast<const sockaddr_in*>(&connectionStorage));
             acceptedAny = true;
         }
         return acceptedAny;
@@ -129,7 +136,8 @@ bool FastTcpServerListener::acceptConnection(const chrono::milliseconds& timeout
     return false;
 }
 
-FastTCPServer::FastTCPServer(const std::string& serverName, std::shared_ptr<LogEngine> logEngine, SocketPoolTriggerMode triggerMode, const size_t maxEvents)
+FastTCPServer::FastTCPServer(const std::string& serverName, std::shared_ptr<LogEngine> logEngine, SocketPoolTriggerMode triggerMode, const size_t maxEvents,
+                             const int backlog)
     : m_logEngine(std::move(logEngine))
     , m_socketEvents(
           serverName,
@@ -143,6 +151,7 @@ FastTCPServer::FastTCPServer(const std::string& serverName, std::shared_ptr<LogE
               }
           },
           std::chrono::milliseconds(100), triggerMode, maxEvents)
+    , m_backlog(backlog)
 {
     if (m_logEngine)
     {
@@ -241,7 +250,7 @@ void FastTCPServer::addListener(const ServerConnection::Type connectionType, con
 
     for (uint16_t i = 0; i < listenerCount; ++i)
     {
-        auto listener = make_shared<FastTcpServerListener>(*this, listenerHost, connectionType);
+        auto listener = make_shared<FastTcpServerListener>(*this, listenerHost, connectionType, m_backlog);
         listeners.push_back(listener);
         listener->listen();
     }

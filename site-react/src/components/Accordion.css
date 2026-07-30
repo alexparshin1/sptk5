@@ -82,3 +82,79 @@
     color: #006600;
     font-weight: bold;
 }
+
+.AccordionSubHeader {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: 7px 12px 7px 21px;
+    background-color: #FFF;
+    border-bottom: 1px solid #EEE;
+    color: #666;
+    font-weight: bold;
+    text-align: left;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.AccordionSubHeader::after {
+    content: "\25B8"; /* ▸ */
+    font-weight: normal;
+    color: #999;
+    transition: transform 0.15s ease;
+}
+
+.AccordionSubHeader:hover {
+    background-color: #F5F5EB;
+    color: #006600;
+}
+
+.AccordionSubHeaderSelected {
+    color: #006600;
+}
+
+.AccordionSubHeaderSelected::after {
+    transform: rotate(90deg);
+    color: #006600;
+}
+
+.AccordionSubItem,
+.AccordionSubItemSelected {
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    background-color: #FFF;
+    border-bottom: 1px solid #EEE;
+    border-left: 3px solid transparent;
+    text-align: left;
+    transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.AccordionSubItem > a,
+.AccordionSubItemSelected > a {
+    display: block;
+    padding: 7px 12px 7px 33px;
+    text-decoration: none;
+    color: #333;
+}
+
+.AccordionSubItem > a:hover {
+    color: #006600;
+}
+
+.AccordionSubItem:hover {
+    background-color: #F5F5EB;
+}
+
+.AccordionSubItemSelected {
+    background-color: #F0F6EC;
+    border-left-color: #006600;
+}
+
+.AccordionSubItemSelected > a,
+.AccordionSubItemSelected > a:hover {
+    color: #006600;
+    font-weight: bold;
+}

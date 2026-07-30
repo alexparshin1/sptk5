@@ -1,0 +1,86 @@
+Conditions (all tests):
+
+Server Host:   8xCPU, 20GB RAM
+Clients Host:  8xCPU, 32GB RAM
+
+MQTT Protocol: 3.1
+MQTT QOS:      1
+
+Server:   XMQ
+Scenario: 100K Connection Test
+Interval        Count    Latency
+────────────────────────────────
+0ms             10000      301us
+4000ms           9999      286us
+8000ms          10001      273us
+12000ms          9999      274us
+16000ms         10001      285us
+20000ms         10000      296us
+24000ms         10000      317us
+28000ms         10000      338us
+32000ms         10000      393us
+36000ms         10000      284us
+────────────────────────────────
+Average        100000      305us
+
+Server:   Mosquitto
+Scenario: 100K Connection Test
+Interval        Count    Latency
+────────────────────────────────
+0ms              9999      305us
+4000ms          10001      300us
+8000ms          10000      303us
+12000ms          9999      322us
+16000ms         10001      317us
+20000ms          9999      303us
+24000ms         10000      303us
+28000ms         10000      285us
+32000ms         10000      334us
+36000ms         10001      305us
+────────────────────────────────
+Average        100000      308us
+
+Server:   EMQX
+Scenario: 100K Connection Test
+Interval        Count    Latency
+────────────────────────────────
+0ms              9999      705us
+4000ms          10000      619us
+8000ms          10000      591us
+12000ms          9999      671us
+16000ms         10001      658us
+20000ms         10000      630us
+24000ms         10000      645us
+28000ms          9999      659us
+32000ms         10001      689us
+36000ms         10000      678us
+40000ms             1      555us
+────────────────────────────────
+Average        100000      655us
+
+Server:   NanoMQ
+Scenario: 100K Connection Test
+Interval        Count    Latency
+────────────────────────────────
+0ms              9999      416us
+4000ms          10000      337us
+8000ms          10000      329us
+12000ms          7849    16253us
+16000ms           524  1800910us
+20000ms           493  3506719us
+24000ms           175  5376133us
+28000ms          2533  3539492us
+32000ms          2691   536887us
+36000ms          3883  2140463us
+40000ms          5406  4054157us
+44000ms          6929  5258753us
+48000ms          5331  4582266us
+52000ms          4432  5896159us
+56000ms          5477  6699679us
+60000ms          4948  7546663us
+64000ms          6726  9647037us
+68000ms          6120 10587999us
+72000ms          4121 11746928us
+76000ms          2363 12364465us
+────────────────────────────────
+Average        100000  4127338us

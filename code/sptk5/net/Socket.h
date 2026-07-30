@@ -32,6 +32,9 @@
 
 #include <sptk5/net/SocketVirtualMethods.h>
 
+#include <atomic>
+#include <cstdint>
+
 namespace sptk {
 template<typename T>
 concept is_integral_array = std::is_array_v<T> && std::is_integral_v<std::remove_all_extents_t<T>>;
@@ -185,11 +188,13 @@ public:
      * @brief Opens the server socket connection on port (binds/listens).
      * @param portNumber        The port number.
      * @param reusePort         If true, then set SO_REUSEPORT on listener socket.
+     * @param backlog           listen() backlog. See DEFAULT_LISTEN_BACKLOG.
      */
-    void listen(const uint16_t portNumber = 0, const bool reusePort = true)
+    void listen(const uint16_t portNumber = 0, const bool reusePort = true,
+                const int backlog = DEFAULT_LISTEN_BACKLOG)
     {
         const WriteLock lock(m_mutex);
-        listenUnlocked(portNumber, reusePort);
+        listenUnlocked(portNumber, reusePort, backlog);
     }
 
     /**
@@ -347,6 +352,55 @@ public:
     static void cleanup() noexcept;
 #endif
 
+    /**
+     * @brief Get the socket's reactor registration token.
+     *
+     * Reactor-internal: maintained by SocketObjectPool while this socket is registered with it.
+     * Storing the token here (rather than in a socket-to-token map inside the pool) makes
+     * rearm() a lock-free atomic load, and lets remove() skip its work when the socket is
+     * already deregistered.
+     * @return registration token, or 0 if the socket isn't registered with a pool.
+     */
+    [[nodiscard]] uint64_t poolToken() const noexcept
+    {
+        return m_poolToken.load(std::memory_order_acquire);
+    }
+
+    /**
+     * @brief Set the socket's reactor registration token.
+     * @param token             Registration token, or 0 to mark the socket as unregistered.
+     */
+    void poolToken(const uint64_t token) noexcept
+    {
+        m_poolToken.store(token, std::memory_order_release);
+    }
+
+    /**
+     * @brief Atomically claim the registration token, marking the socket unregistered.
+     *
+     * Of several concurrent (or simply duplicated) deregistrations, exactly one gets the
+     * non-zero token and does the work; the rest get 0 and skip it.
+     * @return the token in effect before the call, or 0 if the socket was already unregistered.
+     */
+    uint64_t takePoolToken() noexcept
+    {
+        return m_poolToken.exchange(0, std::memory_order_acq_rel);
+    }
+
+    /**
+     * @brief Atomically claim the registration token, but only if it is still the expected one.
+     *
+     * Unlike takePoolToken(), this leaves a newer registration alone: if the socket was removed
+     * and added again since the expected token was read, the new token stays in place.
+     * @param expected          Token the caller believes is current.
+     * @return true if the call cleared the token, false if it had already changed.
+     */
+    bool releasePoolToken(uint64_t expected) noexcept
+    {
+        return m_poolToken.compare_exchange_strong(expected, 0, std::memory_order_acq_rel,
+                                                   std::memory_order_relaxed);
+    }
+
 protected:
     ReadWriteMutex& getMutex() const
     {
@@ -378,7 +432,8 @@ protected:
     }
 
 private:
-    mutable ReadWriteMutex m_mutex; ///< Mutex that protects host data.
+    mutable ReadWriteMutex m_mutex;        ///< Mutex that protects host data.
+    std::atomic<uint64_t>  m_poolToken {0}; ///< Reactor registration token, 0 when not registered.
 };
 
 /**

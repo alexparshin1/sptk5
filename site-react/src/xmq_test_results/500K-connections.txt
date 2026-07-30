@@ -1,0 +1,70 @@
+Conditions (all tests):
+
+Server Host:   8xCPU, 20GB RAM
+Clients Host:  8xCPU, 32GB RAM
+
+MQTT Protocol: 3.1
+MQTT QOS:      1
+
+Note: NanoMQ timed out during the test. Only 395K clients completed connections.
+
+Server:   EMQX
+Port:     1882
+Max CPU:  272%
+Max RAM:  6.2Gb
+Interval        Count    Latency
+────────────────────────────────
+0ms             49999      615us
+20000ms         50000      618us
+40000ms         50000      646us
+60000ms         49999      651us
+80000ms         50001      655us
+100000ms        50000      682us
+120000ms        50000      702us
+140000ms        49999      848us
+160000ms        50000      732us
+180000ms        50000      767us
+200000ms            2      698us
+────────────────────────────────
+Average        500000      692us
+
+
+Server:   Mosquitto
+Port:     1883
+Max CPU:  12%
+Max RAM:  0.43Gb
+Interval        Count    Latency
+────────────────────────────────
+0ms             50000      294us
+20000ms         49999      305us
+40000ms         50001      292us
+60000ms         50000      345us
+80000ms         50000      288us
+100000ms        50000      305us
+120000ms        50000      842us
+140000ms        49999      393us
+160000ms        50001      297us
+180000ms        50000      314us
+────────────────────────────────
+Average        500000      368us
+
+
+Server:   XMQ
+Port:     1884
+Max CPU:  17%
+Max RAM:  2.1Gb
+Interval        Count    Latency
+────────────────────────────────
+0ms             50000      330us
+20000ms         50000      321us
+40000ms         50000      325us
+60000ms         50000      365us
+80000ms         50000      390us
+100000ms        50000      327us
+120000ms        50000      311us
+140000ms        50000      638us
+160000ms        50000      322us
+180000ms        49999      653us
+200000ms            1      389us
+────────────────────────────────
+Average        500000      398us
