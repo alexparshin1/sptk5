@@ -39,9 +39,9 @@ int SSLContext::s_server_session_id_context = 1;
 
 void SSLContext::throwError(const String& humanDescription)
 {
-    const auto          error = ERR_get_error();
-    const auto*         reason = ERR_reason_error_string(error);
-    string              errorStr = ERR_error_string(error, nullptr);
+    const auto  error = ERR_get_error();
+    const auto* reason = ERR_reason_error_string(error);
+    string      errorStr = ERR_error_string(error, nullptr);
     if (reason != nullptr)
     {
         errorStr += string("(): ") + reason;
@@ -79,7 +79,7 @@ SSLContext::SSLContext(const String& cipherList, const bool tlsOnly)
         SSL_CTX_set_min_proto_version(m_ctx.get(), TLS1_1_VERSION);
     }
 
-    SSL_CTX_set_ecdh_auto(m_ctx.get(), 1);
+    (void) SSL_CTX_set_ecdh_auto(m_ctx.get(), 1);
 }
 
 SSL_CTX* SSLContext::handle() const
