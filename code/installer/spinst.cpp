@@ -110,7 +110,7 @@ private:
     void goBack();
     void doCancel();
     void startInstallation();
-    void installThread();
+    void installThread(stop_token token);
 
     void postLog(const String& text);
     void postProgress(float value);
@@ -141,6 +141,7 @@ private:
     bool    m_installing {false};
     bool    m_installDone {false};
     bool    m_installSuccess {false};
+    bool    m_cancelRequested {false};
     jthread m_installWorker;
 };
 
@@ -296,8 +297,9 @@ void InstallerWizard::updateButtons()
     else
         m_nextButton->activate();
 
-    // Cancel button
-    if (page == PAGE_COMPLETED || m_installing)
+    // Cancel button. It stays enabled while the installation runs, so a slow
+    // download or a stuck package manager can still be interrupted
+    if (page == PAGE_COMPLETED || m_cancelRequested)
         m_cancelButton->deactivate();
     else
         m_cancelButton->activate();
@@ -354,6 +356,21 @@ void InstallerWizard::goBack()
 
 void InstallerWizard::doCancel()
 {
+    if (m_installing)
+    {
+        if (fl_choice("The installation is in progress.\n"
+                      "Stop it after the current step completes?",
+                      "No", "Yes", nullptr)
+            != 1)
+            return;
+
+        m_cancelRequested = true;
+        m_installWorker.request_stop();
+        m_progressPage->addLogLine("Cancelling, waiting for the current step to finish...");
+        updateButtons();
+        return;
+    }
+
     if (fl_choice("Are you sure you want to cancel the installation?", "No", "Yes", nullptr) == 1)
         m_window->hide();
 }
@@ -404,16 +421,26 @@ void InstallerWizard::startInstallation()
 {
     m_installing = true;
     m_installDone = false;
+    m_cancelRequested = false;
     updateButtons();
 
-    m_installWorker = jthread([this](stop_token)
+    m_installWorker = jthread([this](stop_token token)
                               {
-                                  installThread();
+                                  installThread(token);
                               });
 }
 
-void InstallerWizard::installThread()
+void InstallerWizard::installThread(stop_token token)
 {
+    // Cancellation is honoured between the installation steps. Killing a running
+    // package manager could leave a partially installed package behind
+    const auto postCancelled = [this]
+    {
+        postLog("Installation cancelled.");
+        postProgress(100);
+        postDone(false);
+    };
+
     postLog("Starting installation...");
     postProgress(5);
 
@@ -553,8 +580,16 @@ int main(int argc, char* argv[])
         InstallerConfig config;
         config.load(argv[1]);
 
+        // FLTK threading support must be initialised before any window is created.
+        // Without it Fl::awake() from the installation thread is silently dropped,
+        // and the progress page never receives a log, progress or completion message.
+        Fl::lock();
+
         InstallerWizard wizard(config, argc, argv);
-        return wizard.run();
+        int             exitCode = wizard.run();
+
+        Fl::unlock();
+        return exitCode;
     }
     catch (const Exception& e)
     {
