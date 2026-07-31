@@ -28,6 +28,10 @@ OS_VERSION=$(grep -E "^VERSION_ID=" /etc/os-release | sed -re 's/^VERSION_ID=//;
 OS_CODENAME=$(grep -E '^VERSION_CODENAME=' /etc/os-release | sed -re 's/^.*=(\w+)?.*$/\1/')  #'
 PLATFORM=$(grep -E '^PLATFORM_ID=' /etc/os-release | sed -re 's/^.*:(\w+).*$/\1/')  #'
 
+if [ "$OS_VERSION" = "" ]; then
+    OS_VERSION=$OS_CODENAME
+fi
+
 OS_FULLNAME=$OS_NAME
 if [ "$OS_NAME" = "ol" ]; then
     OS_FULLNAME="oraclelinux"
@@ -44,6 +48,10 @@ PACKAGE_NAME="$PACKAGE-$VERSION"
 DOWNLOAD_DIRNAME=$OS_NAME-$OS_CODENAME
 OS_TYPE="$OS_NAME-$OS_VERSION"
 case $OS_NAME in
+    debian)
+        OS_TYPE="debian-$OS_VERSION"
+        ;;
+
     ubuntu)
         OS_TYPE="ubuntu-$OS_VERSION"
         ;;
@@ -58,9 +66,9 @@ case $OS_NAME in
         ;;
 esac
 
-echo OS_NAME:   $OS_NAME
-echo PLATFORM:  $PLATFORM
-echo PACKAGE:   $PACKAGE_NAME
+echo OS_NAME:    $OS_NAME
+echo PLATFORM:   $PLATFORM
+echo PACKAGE:    $PACKAGE_NAME
 echo ──────────────────────────────────────────────────────────────────
 cd /build/$PACKAGE_NAME || exit
 
