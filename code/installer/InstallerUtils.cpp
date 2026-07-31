@@ -1,6 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
+║                       InstallerUtils.cpp - installer helper functions        ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  copyright            © 1999-2026 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
@@ -24,73 +25,94 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <gtest/gtest.h>
-#include <sptk5/Printer.h>
-#include <sptk5/md5.h>
-#include <sptk5/net/HttpConnect.h>
+#include "InstallerUtils.h"
+
+#include <array>
+#include <cstdio>
+#include <map>
 
 using namespace std;
 using namespace sptk;
-namespace sptk {
 
-TEST(HttpConnectTests, get)
+String htmlEscape(const String& text)
 {
-    const Host google("www.sptk.net:80");
-
-    const auto socket = make_shared<TCPSocket>();
-
-    EXPECT_NO_THROW(socket->open(google));
-    EXPECT_TRUE(socket->active());
-
-    HttpConnect http(socket);
-    Buffer      output;
-
-    try
+    String escaped;
+    for (char ch: text)
     {
-        const auto statusCode = http.cmd_get("/", HttpParams(), output);
-        EXPECT_TRUE(statusCode == 301 || statusCode == 200);
+        switch (ch)
+        {
+            case '&':
+                escaped += "&amp;";
+                break;
+            case '<':
+                escaped += "&lt;";
+                break;
+            case '>':
+                escaped += "&gt;";
+                break;
+            default:
+                escaped += ch;
+                break;
+        }
     }
-    catch (const Exception& e)
+    return escaped;
+}
+
+filesystem::path normalizeDirectory(const String& directory)
+{
+    String name = directory.trim();
+    while (name.length() > 1 && (name.back() == '/' || name.back() == '\\'))
+        name.pop_back();
+    if (name.empty())
+        return {};
+    return filesystem::path(name.c_str()).lexically_normal();
+}
+
+filesystem::path existingAncestor(const filesystem::path& directory)
+{
+    error_code ec;
+    for (filesystem::path path = directory; !path.empty(); path = path.parent_path())
     {
-        FAIL() << e.what();
+        if (filesystem::is_directory(path, ec))
+            return path;
+        if (path.parent_path() == path)
+            break;
     }
-    EXPECT_TRUE(http.statusText() == "OK" || http.statusText() == "Moved Permanently");
-
-    const String data(output.c_str(), output.bytes());
-    EXPECT_TRUE(data.toLowerCase().find("</html>") != string::npos);
+    return {};
 }
 
-// ... existing code ...
-
-TEST(HttpConnectTests, basicAuthorizationIsBase64UserColonPass)
+bool isDirectoryWritable(const filesystem::path& directory)
 {
-    // "user:pass" -> base64("user:pass") == "dXNlcjpwYXNz"
-    const HttpConnect::BasicAuthorization auth("user", "pass");
+    static map<string, bool> probeCache;
+    static unsigned          probeIndex = 0;
 
-    EXPECT_EQ("basic", auth.method().toLowerCase());
-    EXPECT_EQ("dXNlcjpwYXNz", auth.value());
+    auto [itor, inserted] = probeCache.try_emplace(directory.string(), false);
+    if (!inserted)
+        return itor->second;
+
+    error_code ec;
+    auto       probe = directory / (".spinst_write_test." + to_string(++probeIndex));
+    if (filesystem::create_directory(probe, ec))
+    {
+        filesystem::remove(probe, ec);
+        itor->second = true;
+    }
+    return itor->second;
 }
 
-TEST(HttpConnectTests, bearerAuthorizationPreservesToken)
+String formatByteSize(uintmax_t bytes)
 {
-    const String                           token("header.payload.signature");
-    const HttpConnect::BearerAuthorization auth(token);
+    static constexpr array units {"bytes", "KB", "MB", "GB", "TB"};
 
-    EXPECT_EQ("bearer", auth.method().toLowerCase());
-    EXPECT_EQ(token, auth.value());
+    auto   value = static_cast<double>(bytes);
+    size_t unit = 0;
+    while (value >= 1024 && unit < units.size() - 1)
+    {
+        value /= 1024;
+        unit++;
+    }
+
+    char buffer[64];
+    snprintf(buffer, sizeof(buffer), unit == 0 ? "%.0f %s" : "%.1f %s", value, units[unit]);
+    return String(buffer);
 }
-
-TEST(HttpConnectTests, accessorsBeforeAnyRequestDoNotCrash)
-{
-    // No connection / no request performed: define expected "safe" behavior.
-    auto        socket = make_shared<TCPSocket>();
-    HttpConnect http(socket);
-
-    EXPECT_EQ(0, http.statusCode());
-    EXPECT_TRUE(http.statusText().empty());
-
-    const auto& headers = http.responseHeaders();
-    (void) headers; // just verifying this is safe to call before any request
-}
-
-} // namespace sptk

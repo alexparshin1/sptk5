@@ -1,6 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
+║                       WelcomePage.h - wizard welcome page                    ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  copyright            © 1999-2026 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
@@ -24,73 +25,19 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <gtest/gtest.h>
-#include <sptk5/Printer.h>
-#include <sptk5/md5.h>
-#include <sptk5/net/HttpConnect.h>
+#pragma once
 
-using namespace std;
-using namespace sptk;
-namespace sptk {
+#include "WizardPage.h"
 
-TEST(HttpConnectTests, get)
+/**
+ * @brief The greeting page, describing what is about to be installed
+ */
+class WelcomePage
+    : public WizardPage
 {
-    const Host google("www.sptk.net:80");
+public:
+    explicit WelcomePage(InstallerConfig& config);
 
-    const auto socket = make_shared<TCPSocket>();
-
-    EXPECT_NO_THROW(socket->open(google));
-    EXPECT_TRUE(socket->active());
-
-    HttpConnect http(socket);
-    Buffer      output;
-
-    try
-    {
-        const auto statusCode = http.cmd_get("/", HttpParams(), output);
-        EXPECT_TRUE(statusCode == 301 || statusCode == 200);
-    }
-    catch (const Exception& e)
-    {
-        FAIL() << e.what();
-    }
-    EXPECT_TRUE(http.statusText() == "OK" || http.statusText() == "Moved Permanently");
-
-    const String data(output.c_str(), output.bytes());
-    EXPECT_TRUE(data.toLowerCase().find("</html>") != string::npos);
-}
-
-// ... existing code ...
-
-TEST(HttpConnectTests, basicAuthorizationIsBase64UserColonPass)
-{
-    // "user:pass" -> base64("user:pass") == "dXNlcjpwYXNz"
-    const HttpConnect::BasicAuthorization auth("user", "pass");
-
-    EXPECT_EQ("basic", auth.method().toLowerCase());
-    EXPECT_EQ("dXNlcjpwYXNz", auth.value());
-}
-
-TEST(HttpConnectTests, bearerAuthorizationPreservesToken)
-{
-    const String                           token("header.payload.signature");
-    const HttpConnect::BearerAuthorization auth(token);
-
-    EXPECT_EQ("bearer", auth.method().toLowerCase());
-    EXPECT_EQ(token, auth.value());
-}
-
-TEST(HttpConnectTests, accessorsBeforeAnyRequestDoNotCrash)
-{
-    // No connection / no request performed: define expected "safe" behavior.
-    auto        socket = make_shared<TCPSocket>();
-    HttpConnect http(socket);
-
-    EXPECT_EQ(0, http.statusCode());
-    EXPECT_TRUE(http.statusText().empty());
-
-    const auto& headers = http.responseHeaders();
-    (void) headers; // just verifying this is safe to call before any request
-}
-
-} // namespace sptk
+protected:
+    void build() override;
+};

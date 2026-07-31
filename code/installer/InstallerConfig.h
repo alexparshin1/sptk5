@@ -1,6 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
+║                       InstallerConfig.h - installer configuration            ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  copyright            © 1999-2026 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
@@ -24,73 +25,48 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <gtest/gtest.h>
-#include <sptk5/Printer.h>
-#include <sptk5/md5.h>
-#include <sptk5/net/HttpConnect.h>
+#pragma once
 
-using namespace std;
-using namespace sptk;
-namespace sptk {
+#include <sptk5/Strings.h>
 
-TEST(HttpConnectTests, get)
+#include <filesystem>
+#include <map>
+#include <vector>
+
+/**
+ * @brief A single installation option, as defined in the configuration file
+ */
+struct InstallOption
 {
-    const Host google("www.sptk.net:80");
+    sptk::String name;
+    sptk::String value;
+};
 
-    const auto socket = make_shared<TCPSocket>();
-
-    EXPECT_NO_THROW(socket->open(google));
-    EXPECT_TRUE(socket->active());
-
-    HttpConnect http(socket);
-    Buffer      output;
-
-    try
-    {
-        const auto statusCode = http.cmd_get("/", HttpParams(), output);
-        EXPECT_TRUE(statusCode == 301 || statusCode == 200);
-    }
-    catch (const Exception& e)
-    {
-        FAIL() << e.what();
-    }
-    EXPECT_TRUE(http.statusText() == "OK" || http.statusText() == "Moved Permanently");
-
-    const String data(output.c_str(), output.bytes());
-    EXPECT_TRUE(data.toLowerCase().find("</html>") != string::npos);
-}
-
-// ... existing code ...
-
-TEST(HttpConnectTests, basicAuthorizationIsBase64UserColonPass)
+/**
+ * @brief Installer configuration.
+ *
+ * Besides the data loaded from the configuration file, it carries the choices
+ * made by the user: installDirectory is overwritten by DirectoryPage, and
+ * selectedOptions is filled in by OptionsPage.
+ */
+struct InstallerConfig
 {
-    // "user:pass" -> base64("user:pass") == "dXNlcjpwYXNz"
-    const HttpConnect::BasicAuthorization auth("user", "pass");
+    sptk::String                         application {"Application"};
+    sptk::String                         version {"1.0.0"};
+    sptk::String                         description;
+    sptk::String                         installDirectory {"/opt/app"};
+    sptk::String                         sidebarImage;
+    std::vector<InstallOption>           options;
+    std::map<sptk::String, sptk::String> packages;
 
-    EXPECT_EQ("basic", auth.method().toLowerCase());
-    EXPECT_EQ("dXNlcjpwYXNz", auth.value());
-}
+    /**
+     * @brief Options picked on the options page, filled in by the wizard
+     */
+    sptk::Strings selectedOptions;
 
-TEST(HttpConnectTests, bearerAuthorizationPreservesToken)
-{
-    const String                           token("header.payload.signature");
-    const HttpConnect::BearerAuthorization auth(token);
-
-    EXPECT_EQ("bearer", auth.method().toLowerCase());
-    EXPECT_EQ(token, auth.value());
-}
-
-TEST(HttpConnectTests, accessorsBeforeAnyRequestDoNotCrash)
-{
-    // No connection / no request performed: define expected "safe" behavior.
-    auto        socket = make_shared<TCPSocket>();
-    HttpConnect http(socket);
-
-    EXPECT_EQ(0, http.statusCode());
-    EXPECT_TRUE(http.statusText().empty());
-
-    const auto& headers = http.responseHeaders();
-    (void) headers; // just verifying this is safe to call before any request
-}
-
-} // namespace sptk
+    /**
+     * @brief Loads the configuration from a JSON file
+     * @param configFile        Configuration file name
+     */
+    void load(const std::filesystem::path& configFile);
+};

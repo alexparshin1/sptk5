@@ -1,6 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
+║                       WizardPage.h - wizard page base class                  ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  copyright            © 1999-2026 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
@@ -24,73 +25,61 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <gtest/gtest.h>
-#include <sptk5/Printer.h>
-#include <sptk5/md5.h>
-#include <sptk5/net/HttpConnect.h>
+#pragma once
 
-using namespace std;
-using namespace sptk;
-namespace sptk {
+#include "InstallerConfig.h"
 
-TEST(HttpConnectTests, get)
+#include <sptk5/gui/CTabs.h>
+
+/**
+ * @brief Base class for the installer wizard pages.
+ *
+ * A page creates and owns its own widgets in build(), refreshes itself in
+ * onEnter() right before it becomes visible, and validates its data in
+ * onLeave() when the user moves forward.
+ */
+class WizardPage
 {
-    const Host google("www.sptk.net:80");
+public:
+    /**
+     * @brief Constructor
+     * @param config            Installer configuration, shared by all pages
+     * @param title             Page title, shown when the tab bar is visible
+     * @param scrollable        Create the page as a scroll area
+     */
+    WizardPage(InstallerConfig& config, sptk::String title, bool scrollable = true);
 
-    const auto socket = make_shared<TCPSocket>();
+    virtual ~WizardPage() = default;
 
-    EXPECT_NO_THROW(socket->open(google));
-    EXPECT_TRUE(socket->active());
+    WizardPage(const WizardPage&) = delete;
+    WizardPage& operator=(const WizardPage&) = delete;
 
-    HttpConnect http(socket);
-    Buffer      output;
+    /**
+     * @brief Adds the page to the wizard tabs and populates it with widgets
+     * @param tabs              Wizard tabs
+     */
+    void create(sptk::CTabs& tabs);
 
-    try
-    {
-        const auto statusCode = http.cmd_get("/", HttpParams(), output);
-        EXPECT_TRUE(statusCode == 301 || statusCode == 200);
-    }
-    catch (const Exception& e)
-    {
-        FAIL() << e.what();
-    }
-    EXPECT_TRUE(http.statusText() == "OK" || http.statusText() == "Moved Permanently");
+    /**
+     * @brief Refreshes the page content right before the page becomes visible
+     */
+    virtual void onEnter();
 
-    const String data(output.c_str(), output.bytes());
-    EXPECT_TRUE(data.toLowerCase().find("</html>") != string::npos);
-}
+    /**
+     * @brief Validates the page data.
+     * @returns false to keep the wizard on this page
+     */
+    virtual bool onLeave();
 
-// ... existing code ...
+protected:
+    /**
+     * @brief Creates the page widgets, called with the page group open
+     */
+    virtual void build() = 0;
 
-TEST(HttpConnectTests, basicAuthorizationIsBase64UserColonPass)
-{
-    // "user:pass" -> base64("user:pass") == "dXNlcjpwYXNz"
-    const HttpConnect::BasicAuthorization auth("user", "pass");
+    InstallerConfig& m_config;
 
-    EXPECT_EQ("basic", auth.method().toLowerCase());
-    EXPECT_EQ("dXNlcjpwYXNz", auth.value());
-}
-
-TEST(HttpConnectTests, bearerAuthorizationPreservesToken)
-{
-    const String                           token("header.payload.signature");
-    const HttpConnect::BearerAuthorization auth(token);
-
-    EXPECT_EQ("bearer", auth.method().toLowerCase());
-    EXPECT_EQ(token, auth.value());
-}
-
-TEST(HttpConnectTests, accessorsBeforeAnyRequestDoNotCrash)
-{
-    // No connection / no request performed: define expected "safe" behavior.
-    auto        socket = make_shared<TCPSocket>();
-    HttpConnect http(socket);
-
-    EXPECT_EQ(0, http.statusCode());
-    EXPECT_TRUE(http.statusText().empty());
-
-    const auto& headers = http.responseHeaders();
-    (void) headers; // just verifying this is safe to call before any request
-}
-
-} // namespace sptk
+private:
+    sptk::String m_title;
+    bool         m_scrollable;
+};

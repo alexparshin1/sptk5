@@ -1,6 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
+║                       InstallerConfig.cpp - installer configuration          ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  copyright            © 1999-2026 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
@@ -24,73 +25,41 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <gtest/gtest.h>
-#include <sptk5/Printer.h>
-#include <sptk5/md5.h>
-#include <sptk5/net/HttpConnect.h>
+#include "InstallerConfig.h"
+
+#include <sptk5/Buffer.h>
+#include <sptk5/xdoc/Document.h>
 
 using namespace std;
 using namespace sptk;
-namespace sptk {
 
-TEST(HttpConnectTests, get)
+void InstallerConfig::load(const filesystem::path& configFile)
 {
-    const Host google("www.sptk.net:80");
+    Buffer buf;
+    buf.loadFromFile(configFile);
 
-    const auto socket = make_shared<TCPSocket>();
+    xdoc::Document doc;
+    doc.load(buf);
+    const auto& root = doc.root();
 
-    EXPECT_NO_THROW(socket->open(google));
-    EXPECT_TRUE(socket->active());
+    application = root->getString("application");
+    version = root->getString("version");
+    description = root->getString("description");
+    installDirectory = root->getString("install_directory");
+    sidebarImage = root->getString("sidebar_image");
 
-    HttpConnect http(socket);
-    Buffer      output;
-
-    try
+    for (const auto& optNode: root->nodes("options"))
     {
-        const auto statusCode = http.cmd_get("/", HttpParams(), output);
-        EXPECT_TRUE(statusCode == 301 || statusCode == 200);
+        InstallOption opt;
+        opt.name = optNode->getString("name");
+        opt.value = optNode->getString("value");
+        options.push_back(opt);
     }
-    catch (const Exception& e)
+
+    auto pkgNode = root->findFirst("packages");
+    if (pkgNode)
     {
-        FAIL() << e.what();
+        for (const auto& child: pkgNode->nodes())
+            packages[string(child->getName())] = child->getString();
     }
-    EXPECT_TRUE(http.statusText() == "OK" || http.statusText() == "Moved Permanently");
-
-    const String data(output.c_str(), output.bytes());
-    EXPECT_TRUE(data.toLowerCase().find("</html>") != string::npos);
 }
-
-// ... existing code ...
-
-TEST(HttpConnectTests, basicAuthorizationIsBase64UserColonPass)
-{
-    // "user:pass" -> base64("user:pass") == "dXNlcjpwYXNz"
-    const HttpConnect::BasicAuthorization auth("user", "pass");
-
-    EXPECT_EQ("basic", auth.method().toLowerCase());
-    EXPECT_EQ("dXNlcjpwYXNz", auth.value());
-}
-
-TEST(HttpConnectTests, bearerAuthorizationPreservesToken)
-{
-    const String                           token("header.payload.signature");
-    const HttpConnect::BearerAuthorization auth(token);
-
-    EXPECT_EQ("bearer", auth.method().toLowerCase());
-    EXPECT_EQ(token, auth.value());
-}
-
-TEST(HttpConnectTests, accessorsBeforeAnyRequestDoNotCrash)
-{
-    // No connection / no request performed: define expected "safe" behavior.
-    auto        socket = make_shared<TCPSocket>();
-    HttpConnect http(socket);
-
-    EXPECT_EQ(0, http.statusCode());
-    EXPECT_TRUE(http.statusText().empty());
-
-    const auto& headers = http.responseHeaders();
-    (void) headers; // just verifying this is safe to call before any request
-}
-
-} // namespace sptk

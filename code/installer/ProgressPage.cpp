@@ -1,6 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
+║                       ProgressPage.cpp - installation progress page          ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  copyright            © 1999-2026 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
@@ -24,73 +25,41 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <gtest/gtest.h>
-#include <sptk5/Printer.h>
-#include <sptk5/md5.h>
-#include <sptk5/net/HttpConnect.h>
+#include "ProgressPage.h"
+
+#include <sptk5/gui/CHtmlBox.h>
 
 using namespace std;
 using namespace sptk;
-namespace sptk {
 
-TEST(HttpConnectTests, get)
+ProgressPage::ProgressPage(InstallerConfig& config)
+    : WizardPage(config, "Progress", false)
 {
-    const Host google("www.sptk.net:80");
-
-    const auto socket = make_shared<TCPSocket>();
-
-    EXPECT_NO_THROW(socket->open(google));
-    EXPECT_TRUE(socket->active());
-
-    HttpConnect http(socket);
-    Buffer      output;
-
-    try
-    {
-        const auto statusCode = http.cmd_get("/", HttpParams(), output);
-        EXPECT_TRUE(statusCode == 301 || statusCode == 200);
-    }
-    catch (const Exception& e)
-    {
-        FAIL() << e.what();
-    }
-    EXPECT_TRUE(http.statusText() == "OK" || http.statusText() == "Moved Permanently");
-
-    const String data(output.c_str(), output.bytes());
-    EXPECT_TRUE(data.toLowerCase().find("</html>") != string::npos);
 }
 
-// ... existing code ...
-
-TEST(HttpConnectTests, basicAuthorizationIsBase64UserColonPass)
+void ProgressPage::build()
 {
-    // "user:pass" -> base64("user:pass") == "dXNlcjpwYXNz"
-    const HttpConnect::BasicAuthorization auth("user", "pass");
+    auto* label = new CHtmlBox("", 30, CLayoutAlign::TOP);
+    label->data("<h3>Installing...</h3>");
 
-    EXPECT_EQ("basic", auth.method().toLowerCase());
-    EXPECT_EQ("dXNlcjpwYXNz", auth.value());
+    m_progressBar = new CProgressBar("Progress:", 25, CLayoutAlign::TOP);
+    m_progressBar->minimum(0);
+    m_progressBar->maximum(100);
+    m_progressBar->data(Variant(0.0f));
+
+    m_logView = new CListView("Installation Log:", 10, CLayoutAlign::CLIENT);
+    m_logView->addColumn(CColumn("Message", VariantDataType::VAR_STRING, 500));
+    m_logView->showGrid(true);
 }
 
-TEST(HttpConnectTests, bearerAuthorizationPreservesToken)
+void ProgressPage::addLogLine(const String& text)
 {
-    const String                           token("header.payload.signature");
-    const HttpConnect::BearerAuthorization auth(token);
-
-    EXPECT_EQ("bearer", auth.method().toLowerCase());
-    EXPECT_EQ(token, auth.value());
+    m_logView->addRow(0, Strings {text});
+    m_logView->redraw();
 }
 
-TEST(HttpConnectTests, accessorsBeforeAnyRequestDoNotCrash)
+void ProgressPage::progress(float value)
 {
-    // No connection / no request performed: define expected "safe" behavior.
-    auto        socket = make_shared<TCPSocket>();
-    HttpConnect http(socket);
-
-    EXPECT_EQ(0, http.statusCode());
-    EXPECT_TRUE(http.statusText().empty());
-
-    const auto& headers = http.responseHeaders();
-    (void) headers; // just verifying this is safe to call before any request
+    m_progressBar->data(Variant(static_cast<double>(value)));
+    m_progressBar->redraw();
 }
-
-} // namespace sptk

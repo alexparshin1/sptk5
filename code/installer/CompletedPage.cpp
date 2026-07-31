@@ -1,6 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
+║                       CompletedPage.cpp - installation result page           ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  copyright            © 1999-2026 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
@@ -24,73 +25,36 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <gtest/gtest.h>
-#include <sptk5/Printer.h>
-#include <sptk5/md5.h>
-#include <sptk5/net/HttpConnect.h>
+#include "CompletedPage.h"
 
 using namespace std;
 using namespace sptk;
-namespace sptk {
 
-TEST(HttpConnectTests, get)
+CompletedPage::CompletedPage(InstallerConfig& config)
+    : WizardPage(config, "Completed")
 {
-    const Host google("www.sptk.net:80");
-
-    const auto socket = make_shared<TCPSocket>();
-
-    EXPECT_NO_THROW(socket->open(google));
-    EXPECT_TRUE(socket->active());
-
-    HttpConnect http(socket);
-    Buffer      output;
-
-    try
-    {
-        const auto statusCode = http.cmd_get("/", HttpParams(), output);
-        EXPECT_TRUE(statusCode == 301 || statusCode == 200);
-    }
-    catch (const Exception& e)
-    {
-        FAIL() << e.what();
-    }
-    EXPECT_TRUE(http.statusText() == "OK" || http.statusText() == "Moved Permanently");
-
-    const String data(output.c_str(), output.bytes());
-    EXPECT_TRUE(data.toLowerCase().find("</html>") != string::npos);
 }
 
-// ... existing code ...
-
-TEST(HttpConnectTests, basicAuthorizationIsBase64UserColonPass)
+void CompletedPage::build()
 {
-    // "user:pass" -> base64("user:pass") == "dXNlcjpwYXNz"
-    const HttpConnect::BasicAuthorization auth("user", "pass");
-
-    EXPECT_EQ("basic", auth.method().toLowerCase());
-    EXPECT_EQ("dXNlcjpwYXNz", auth.value());
+    m_completedHtml = new CHtmlBox("", 10, CLayoutAlign::CLIENT);
+    m_completedHtml->data("<h3>Installation Complete</h3>"
+                          "<p>Click <b>Finish</b> to exit the wizard.</p>");
 }
 
-TEST(HttpConnectTests, bearerAuthorizationPreservesToken)
+void CompletedPage::showResult(bool success)
 {
-    const String                           token("header.payload.signature");
-    const HttpConnect::BearerAuthorization auth(token);
+    String html;
+    if (success)
+        html = "<h3>Installation Complete</h3>"
+               "<p><b>" +
+               m_config.application + " " + m_config.version + "</b> has been successfully installed.</p>"
+                                                               "<p>Click <b>Finish</b> to exit the wizard.</p>";
+    else
+        html = "<h3>Installation Failed</h3>"
+               "<p>There were errors during installation. "
+               "Please check the installation log for details.</p>"
+               "<p>Click <b>Finish</b> to exit the wizard.</p>";
 
-    EXPECT_EQ("bearer", auth.method().toLowerCase());
-    EXPECT_EQ(token, auth.value());
+    m_completedHtml->data(Variant(html));
 }
-
-TEST(HttpConnectTests, accessorsBeforeAnyRequestDoNotCrash)
-{
-    // No connection / no request performed: define expected "safe" behavior.
-    auto        socket = make_shared<TCPSocket>();
-    HttpConnect http(socket);
-
-    EXPECT_EQ(0, http.statusCode());
-    EXPECT_TRUE(http.statusText().empty());
-
-    const auto& headers = http.responseHeaders();
-    (void) headers; // just verifying this is safe to call before any request
-}
-
-} // namespace sptk

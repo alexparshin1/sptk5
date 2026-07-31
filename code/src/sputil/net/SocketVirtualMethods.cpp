@@ -35,6 +35,7 @@
 #endif
 
 #include <fcntl.h>
+#include <fstream>
 #include <thread>
 
 using namespace std;
@@ -360,6 +361,39 @@ SocketType SocketVirtualMethods::detachUnlocked()
     return socketFd;
 }
 
+#ifndef _WIN32
+namespace {
+
+// IP_LOCAL_PORT_RANGE arrived in Linux 6.3. Define it when the build host's headers are
+// older: the option number is ABI, and an older kernel just answers ENOPROTOOPT.
+#ifndef IP_LOCAL_PORT_RANGE
+constexpr int IP_LOCAL_PORT_RANGE = 51;
+#endif
+
+/// @brief Reads net.ipv4.ip_local_port_range, packed the way IP_LOCAL_PORT_RANGE wants it:
+/// low port in the low 16 bits, high port in the high 16 bits.
+/// @returns Packed range, or 0 if it could not be read or made no sense.
+uint32_t localPortRange()
+{
+    static const uint32_t range = []() -> uint32_t
+    {
+        unsigned low = 0;
+        unsigned high = 0;
+        if (ifstream file("/proc/sys/net/ipv4/ip_local_port_range"); file >> low >> high)
+        {
+            if (low > 0 && high >= low && high <= 65535)
+            {
+                return static_cast<uint32_t>(high) << 16U | static_cast<uint32_t>(low);
+            }
+        }
+        return 0;
+    }();
+    return range;
+}
+
+} // namespace
+#endif
+
 void SocketVirtualMethods::bindUnlocked(const char* address, const uint32_t portNumber, const bool reusePort)
 {
     if (m_socketFd == INVALID_SOCKET)
@@ -419,6 +453,26 @@ void SocketVirtualMethods::bindUnlocked(const char* address, const uint32_t port
         // optimisation, not a requirement - ignore the result and carry on.
         constexpr int enable = 1;
         (void) ::setsockopt(m_socketFd, IPPROTO_IP, IP_BIND_ADDRESS_NO_PORT, &enable, sizeof(enable));
+
+        // Second half of the same problem. __inet_hash_connect() walks candidate ports
+        // with a step of 2, taking only one parity - the other half is left to
+        // bind()-time allocation - so IP_BIND_ADDRESS_NO_PORT on its own can reach only
+        // 32256 of the 64512 ports per source address. Setting IP_LOCAL_PORT_RANGE, to
+        // whatever the netns range already is, flips that step to 1 and makes the whole
+        // range reachable.
+        //
+        // Measured from a single source address: without this the connect rate holds
+        // ~135000/s up to 32245 connections and then collapses to ~740/s, because every
+        // later connect scans the whole exhausted parity before trying the other one.
+        // With it, 60000 connections from one address stay at ~126000/s.
+        //
+        // The parity split exists to stop connect() and bind(0) competing for the same
+        // ports. Taking the full range is the right trade for a socket that only ever
+        // allocates at connect() time - exactly the portNumber == 0 case here.
+        if (const uint32_t range = localPortRange(); range != 0)
+        {
+            (void) ::setsockopt(m_socketFd, IPPROTO_IP, IP_LOCAL_PORT_RANGE, &range, sizeof(range));
+        }
     }
 #endif
 

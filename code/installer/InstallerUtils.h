@@ -1,6 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
+║                       InstallerUtils.h - installer helper functions          ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  copyright            © 1999-2026 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
@@ -24,73 +25,37 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <gtest/gtest.h>
-#include <sptk5/Printer.h>
-#include <sptk5/md5.h>
-#include <sptk5/net/HttpConnect.h>
+#pragma once
 
-using namespace std;
-using namespace sptk;
-namespace sptk {
+#include <sptk5/String.h>
 
-TEST(HttpConnectTests, get)
-{
-    const Host google("www.sptk.net:80");
+#include <cstdint>
+#include <filesystem>
 
-    const auto socket = make_shared<TCPSocket>();
+/**
+ * @brief Escapes the characters that are special to the CHtmlBox markup
+ */
+sptk::String htmlEscape(const sptk::String& text);
 
-    EXPECT_NO_THROW(socket->open(google));
-    EXPECT_TRUE(socket->active());
+/**
+ * @brief Trims the directory name and drops any trailing slashes, keeping the root slash intact
+ */
+std::filesystem::path normalizeDirectory(const sptk::String& directory);
 
-    HttpConnect http(socket);
-    Buffer      output;
+/**
+ * @brief Returns the closest existing directory at or above the given path
+ * @returns an empty path if there is no such directory
+ */
+std::filesystem::path existingAncestor(const std::filesystem::path& directory);
 
-    try
-    {
-        const auto statusCode = http.cmd_get("/", HttpParams(), output);
-        EXPECT_TRUE(statusCode == 301 || statusCode == 200);
-    }
-    catch (const Exception& e)
-    {
-        FAIL() << e.what();
-    }
-    EXPECT_TRUE(http.statusText() == "OK" || http.statusText() == "Moved Permanently");
+/**
+ * @brief Probes the effective write access by creating and removing a temporary sub-directory.
+ *
+ * The result is cached, because the callers may ask for the same directory on every keystroke.
+ */
+bool isDirectoryWritable(const std::filesystem::path& directory);
 
-    const String data(output.c_str(), output.bytes());
-    EXPECT_TRUE(data.toLowerCase().find("</html>") != string::npos);
-}
-
-// ... existing code ...
-
-TEST(HttpConnectTests, basicAuthorizationIsBase64UserColonPass)
-{
-    // "user:pass" -> base64("user:pass") == "dXNlcjpwYXNz"
-    const HttpConnect::BasicAuthorization auth("user", "pass");
-
-    EXPECT_EQ("basic", auth.method().toLowerCase());
-    EXPECT_EQ("dXNlcjpwYXNz", auth.value());
-}
-
-TEST(HttpConnectTests, bearerAuthorizationPreservesToken)
-{
-    const String                           token("header.payload.signature");
-    const HttpConnect::BearerAuthorization auth(token);
-
-    EXPECT_EQ("bearer", auth.method().toLowerCase());
-    EXPECT_EQ(token, auth.value());
-}
-
-TEST(HttpConnectTests, accessorsBeforeAnyRequestDoNotCrash)
-{
-    // No connection / no request performed: define expected "safe" behavior.
-    auto        socket = make_shared<TCPSocket>();
-    HttpConnect http(socket);
-
-    EXPECT_EQ(0, http.statusCode());
-    EXPECT_TRUE(http.statusText().empty());
-
-    const auto& headers = http.responseHeaders();
-    (void) headers; // just verifying this is safe to call before any request
-}
-
-} // namespace sptk
+/**
+ * @brief Formats a byte count using the largest unit that keeps the number readable
+ */
+sptk::String formatByteSize(std::uintmax_t bytes);

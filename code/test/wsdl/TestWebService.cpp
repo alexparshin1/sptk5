@@ -42,9 +42,9 @@ using namespace test_service;
 using namespace xdoc;
 
 namespace {
-    // JWT encryption key
-    static const String jwtEncryptionKey256("012345678901234567890123456789XY");
-}
+// JWT encryption key
+static const String jwtEncryptionKey256("012345678901234567890123456789XY");
+} // namespace
 
 namespace sptk {
 
@@ -120,7 +120,7 @@ void TestWebService::AccountBalance(const CAccountBalance& input, CAccountBalanc
 
     output.m_account_balance = testAmount;
 }
-}
+} // namespace sptk
 
 #ifdef USE_GTEST
 
@@ -189,10 +189,9 @@ String exportToString(const WSComplexType& object)
     document.root()->exportTo(xdoc::DataFormat::JSON, buffer, true);
     return String(buffer);
 }
-}
+} // namespace
 
 namespace sptk {
-
 /**
  * Test Hello WS method input and output
  */
@@ -620,6 +619,5 @@ TEST(WSGeneratedClassesTests, UnloadQueryParameters)
     EXPECT_STREQ(query.param("password").asString().c_str(), "secret");
     EXPECT_STREQ(query.param("servers").asString().c_str(), R"(["x1","x2"])");
 }
-
+} // namespace sptk
 #endif
-} // namespace

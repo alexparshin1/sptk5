@@ -24,13 +24,15 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <ranges>
 #include <sptk5/Printer.h>
 #include <sptk5/cutils>
 #include <sptk5/db/DatabaseConnectionPool.h>
 #include <sptk5/db/DatabaseTests.h>
 #include <sptk5/db/InsertQuery.h>
 #include <sptk5/threads/Flag.h>
+
+#include <gtest/gtest.h>
+#include <ranges>
 
 #ifdef USE_GTEST
 #include <gtest/gtest.h>

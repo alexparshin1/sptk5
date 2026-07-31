@@ -1,6 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
+║                       OptionsPage.cpp - installation options page            ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  copyright            © 1999-2026 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
@@ -24,73 +25,44 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <gtest/gtest.h>
-#include <sptk5/Printer.h>
-#include <sptk5/md5.h>
-#include <sptk5/net/HttpConnect.h>
+#include "OptionsPage.h"
+
+#include <sptk5/gui/CHtmlBox.h>
 
 using namespace std;
 using namespace sptk;
-namespace sptk {
 
-TEST(HttpConnectTests, get)
+OptionsPage::OptionsPage(InstallerConfig& config)
+    : WizardPage(config, "Options")
 {
-    const Host google("www.sptk.net:80");
+}
 
-    const auto socket = make_shared<TCPSocket>();
+void OptionsPage::build()
+{
+    auto* label = new CHtmlBox("", 50, CLayoutAlign::TOP);
+    label->data("<h3>Installation Options</h3>"
+                "<p>Select the components you want to install.</p>");
 
-    EXPECT_NO_THROW(socket->open(google));
-    EXPECT_TRUE(socket->active());
+    m_checkButtons = new CCheckButtons("Options:", 20, CLayoutAlign::CLIENT);
+    Strings buttonLabels;
+    for (const auto& opt: m_config.options)
+        buttonLabels.push_back(opt.name);
+    m_checkButtons->buttons(buttonLabels);
 
-    HttpConnect http(socket);
-    Buffer      output;
-
-    try
+    // Select all by default
+    String allSelected;
+    for (size_t i = 0; i < m_config.options.size(); i++)
     {
-        const auto statusCode = http.cmd_get("/", HttpParams(), output);
-        EXPECT_TRUE(statusCode == 301 || statusCode == 200);
+        if (i > 0)
+            allSelected += "|";
+        allSelected += m_config.options[i].name;
     }
-    catch (const Exception& e)
-    {
-        FAIL() << e.what();
-    }
-    EXPECT_TRUE(http.statusText() == "OK" || http.statusText() == "Moved Permanently");
-
-    const String data(output.c_str(), output.bytes());
-    EXPECT_TRUE(data.toLowerCase().find("</html>") != string::npos);
+    m_checkButtons->data(Variant(allSelected));
 }
 
-// ... existing code ...
-
-TEST(HttpConnectTests, basicAuthorizationIsBase64UserColonPass)
+bool OptionsPage::onLeave()
 {
-    // "user:pass" -> base64("user:pass") == "dXNlcjpwYXNz"
-    const HttpConnect::BasicAuthorization auth("user", "pass");
-
-    EXPECT_EQ("basic", auth.method().toLowerCase());
-    EXPECT_EQ("dXNlcjpwYXNz", auth.value());
+    String selected = m_checkButtons->data().getString();
+    m_config.selectedOptions = selected.empty() ? Strings() : Strings(selected, "|");
+    return true;
 }
-
-TEST(HttpConnectTests, bearerAuthorizationPreservesToken)
-{
-    const String                           token("header.payload.signature");
-    const HttpConnect::BearerAuthorization auth(token);
-
-    EXPECT_EQ("bearer", auth.method().toLowerCase());
-    EXPECT_EQ(token, auth.value());
-}
-
-TEST(HttpConnectTests, accessorsBeforeAnyRequestDoNotCrash)
-{
-    // No connection / no request performed: define expected "safe" behavior.
-    auto        socket = make_shared<TCPSocket>();
-    HttpConnect http(socket);
-
-    EXPECT_EQ(0, http.statusCode());
-    EXPECT_TRUE(http.statusText().empty());
-
-    const auto& headers = http.responseHeaders();
-    (void) headers; // just verifying this is safe to call before any request
-}
-
-} // namespace sptk
