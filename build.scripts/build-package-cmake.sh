@@ -28,6 +28,10 @@ OS_VERSION=$(grep -E "^VERSION_ID=" /etc/os-release | sed -re 's/^VERSION_ID=//;
 OS_CODENAME=$(grep -E '^VERSION_CODENAME=' /etc/os-release | sed -re 's/^.*=(\w+)?.*$/\1/')  #'
 PLATFORM=$(grep -E '^PLATFORM_ID=' /etc/os-release | sed -re 's/^.*:(\w+).*$/\1/')  #'
 
+if [ "$OS_VERSION" = "" ]; then
+    OS_VERSION=$OS_CODENAME
+fi
+
 OS_FULLNAME=$OS_NAME
 if [ "$OS_NAME" = "ol" ]; then
     OS_FULLNAME="oraclelinux"
@@ -44,6 +48,10 @@ PACKAGE_NAME="$PACKAGE-$VERSION"
 DOWNLOAD_DIRNAME=$OS_NAME-$OS_CODENAME
 OS_TYPE="$OS_NAME-$OS_VERSION"
 case $OS_NAME in
+    debian)
+        OS_TYPE="debian-$OS_VERSION"
+        ;;
+
     ubuntu)
         OS_TYPE="ubuntu-$OS_VERSION"
         ;;
@@ -58,9 +66,9 @@ case $OS_NAME in
         ;;
 esac
 
-echo OS_NAME:   $OS_NAME
-echo PLATFORM:  $PLATFORM
-echo PACKAGE:   $PACKAGE_NAME
+echo OS_NAME:    $OS_NAME
+echo PLATFORM:   $PLATFORM
+echo PACKAGE:    $PACKAGE_NAME
 echo ──────────────────────────────────────────────────────────────────
 cd /build/$PACKAGE_NAME || exit
 
@@ -84,7 +92,7 @@ fi
 
 sh ./distclean.sh
 ulimit -n 16384
-cmake . $BUILD_OPTIONS && make -j6 install && make -j6 package || exit 1
+cmake . $BUILD_OPTIONS -DCMAKE_BUILD_TYPE=Release && make -j8 install && make -j6 package || exit 1
 
 echo ──────────────────────────────────────────────────────────────────
 BUILD_OUTPUT_DIR=/build/output/$PACKAGE-$VERSION
@@ -126,6 +134,8 @@ if [ $RUN_TESTS = "true" ]; then
     if [ $? == 1 ]; then
         echo "10.1.1.242  theater oracledb dbhost_oracle dbhost_mssql dbhost_pg dbhost_mysql smtp_host redis_server mosquitto_server" >> /etc/hosts
     fi
+
+    cp /usr/share/zoneinfo/Australia/Melbourne /etc/localtime
 
     ulimit -n 32768
     ulimit -a

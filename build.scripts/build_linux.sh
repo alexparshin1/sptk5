@@ -38,7 +38,7 @@ rm -f logs/*.log
 
 #for dname in /home/alexeyp/Docker/Dockerfile.*
 #for dname in /home/alexeyp/Docker/Dockerfile.ubuntu-25.10
-for dname in /home/alexeyp/Docker/Dockerfile.debian-trixie
+for dname in /home/alexeyp/Docker/Dockerfile.debian-forky
 do
     name=$(echo $dname | sed -re 's/^.*Dockerfile.//')
     echo "$(date +%H:%M:%S) Building $name"
