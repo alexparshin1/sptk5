@@ -396,6 +396,32 @@ void SocketVirtualMethods::bindUnlocked(const char* address, const uint32_t port
 #endif
     }
 
+#if !defined(_WIN32) && defined(IP_BIND_ADDRESS_NO_PORT)
+    if (portNumber == 0)
+    {
+        // Binding a source address with port 0 - "this address, any port" - is the client
+        // case: pick the local interface, don't care which port. Left alone, the kernel
+        // must choose the port during bind(), before it knows the destination, so it has
+        // to prove (address, port) is free against every other binding by walking the
+        // bhash2 conflict chains. Those chains grow with the number of bound sockets, so
+        // each connect costs O(chain length) - quadratic overall.
+        //
+        // Measured on a 1M-connection run: inet_bind2_bucket_match_addr_any and its
+        // callers went from ~8% of client CPU at 500K connections to ~95% at 950K, and
+        // the connect rate collapsed from 5000/s to ~70/s.
+        //
+        // IP_BIND_ADDRESS_NO_PORT defers port selection to connect(), where the full
+        // 4-tuple is known and the cheap __inet_check_established path applies - and it
+        // lets the same port be reused toward different destinations.
+        //
+        // Deliberately not setOptionUnlocked(): that throws on failure, which would turn a
+        // kernel that does not support the option into a failed bind. This is an
+        // optimisation, not a requirement - ignore the result and carry on.
+        constexpr int enable = 1;
+        (void) ::setsockopt(m_socketFd, IPPROTO_IP, IP_BIND_ADDRESS_NO_PORT, &enable, sizeof(enable));
+    }
+#endif
+
     if (::bind(m_socketFd, bit_cast<sockaddr*>(&addr), sizeof(addr)) != 0)
     {
         throwSocketError("Can't bind socket to port " + to_string(portNumber));
