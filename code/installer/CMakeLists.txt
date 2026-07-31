@@ -12,10 +12,12 @@ IF (FLTK_FLAG)
         LINK_LIBRARIES(pthread rt)
     ENDIF (UNIX)
 
+    FILE(GLOB INSTALLER_SOURCE_FILES *.h *.cpp)
+
     IF (WIN32)
-        ADD_EXECUTABLE(spinst WIN32 spinst.cpp)
+        ADD_EXECUTABLE(spinst WIN32 ${INSTALLER_SOURCE_FILES})
     ELSE (WIN32)
-        ADD_EXECUTABLE(spinst spinst.cpp)
+        ADD_EXECUTABLE(spinst ${INSTALLER_SOURCE_FILES})
     ENDIF (WIN32)
 
     IF (SET_RPATH)

@@ -1,0 +1,63 @@
+/*
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
+║                       ConfirmationPage.cpp - installation summary page       ║
+╟──────────────────────────────────────────────────────────────────────────────╢
+║  copyright            © 1999-2026 Alexey Parshin. All rights reserved.       ║
+║  email                alexeyp@gmail.com                                      ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+┌──────────────────────────────────────────────────────────────────────────────┐
+│   This library is free software; you can redistribute it and/or modify it    │
+│   under the terms of the GNU Library General Public License as published by  │
+│   the Free Software Foundation; either version 2 of the License, or (at your │
+│   option) any later version.                                                 │
+│                                                                              │
+│   This library is distributed in the hope that it will be useful, but        │
+│   WITHOUT ANY WARRANTY; without even the implied warranty of                 │
+│   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Library   │
+│   General Public License for more details.                                   │
+│                                                                              │
+│   You should have received a copy of the GNU Library General Public License  │
+│   along with this library; if not, write to the Free Software Foundation,    │
+│   Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.               │
+│                                                                              │
+│   Please report all bugs and problems to alexeyp@gmail.com.                  │
+└──────────────────────────────────────────────────────────────────────────────┘
+*/
+
+#include "ConfirmationPage.h"
+#include "InstallerUtils.h"
+
+using namespace std;
+using namespace sptk;
+
+ConfirmationPage::ConfirmationPage(InstallerConfig& config)
+    : WizardPage(config, "Confirm")
+{
+}
+
+void ConfirmationPage::build()
+{
+    m_confirmHtml = new CHtmlBox("", 10, CLayoutAlign::CLIENT);
+    m_confirmHtml->data("<h3>Ready to Install</h3>"
+                        "<p>Click <b>Install</b> to begin the installation.</p>");
+}
+
+void ConfirmationPage::onEnter()
+{
+    String html = "<h3>Ready to Install</h3>";
+    html += "<p><b>Application:</b> " + m_config.application + " " + m_config.version + "</p>";
+    html += "<p><b>Install to:</b> " + htmlEscape(m_config.installDirectory) + "</p>";
+
+    if (!m_config.selectedOptions.empty())
+    {
+        html += "<p><b>Options:</b></p><ul>";
+        for (const auto& opt: m_config.selectedOptions)
+            html += "<li>" + htmlEscape(String(opt)) + "</li>";
+        html += "</ul>";
+    }
+
+    html += "<p>Click <b>Install</b> to begin.</p>";
+
+    m_confirmHtml->data(Variant(html));
+}

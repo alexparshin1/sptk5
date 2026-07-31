@@ -26,6 +26,14 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
+#include "CompletedPage.h"
+#include "ConfirmationPage.h"
+#include "DirectoryPage.h"
+#include "InstallerConfig.h"
+#include "OptionsPage.h"
+#include "ProgressPage.h"
+#include "WelcomePage.h"
+
 #include <FL/Fl.H>
 #include <FL/Fl_Box.H>
 #include <FL/fl_ask.H>
@@ -33,71 +41,17 @@
 #include <sptk5/OsProcess.h>
 #include <sptk5/cgui>
 #include <sptk5/cutils>
-#include <sptk5/gui/CCheckButtons.h>
-#include <sptk5/gui/CListView.h>
 #include <sptk5/gui/CPngImage.h>
-#include <sptk5/gui/CProgressBar.h>
 #include <sptk5/net/HttpConnect.h>
 #include <sptk5/net/SSLSocket.h>
 #include <sptk5/net/URL.h>
-#include <sptk5/xdoc/Document.h>
 
 #include <filesystem>
+#include <memory>
 #include <thread>
 
 using namespace std;
 using namespace sptk;
-
-// ── Configuration ───────────────────────────────────────────────────────────
-
-struct InstallOption
-{
-    String name;
-    String value;
-};
-
-struct InstallerConfig
-{
-
-    String                application {"Application"};
-    String                version {"1.0.0"};
-    String                description;
-    String                installDirectory {"/opt/app"};
-    String                sidebarImage;
-    vector<InstallOption> options;
-    map<String, String>   packages;
-
-    void load(const filesystem::path& configFile)
-    {
-        Buffer buf;
-        buf.loadFromFile(configFile);
-
-        xdoc::Document doc;
-        doc.load(buf);
-        const auto& root = doc.root();
-
-        application = root->getString("application");
-        version = root->getString("version");
-        description = root->getString("description");
-        installDirectory = root->getString("install_directory");
-        sidebarImage = root->getString("sidebar_image");
-
-        for (const auto& optNode: root->nodes("options"))
-        {
-            InstallOption opt;
-            opt.name = optNode->getString("name");
-            opt.value = optNode->getString("value");
-            options.push_back(opt);
-        }
-
-        auto pkgNode = root->findFirst("packages");
-        if (pkgNode)
-        {
-            for (const auto& child: pkgNode->nodes())
-                packages[string(child->getName())] = child->getString();
-        }
-    }
-};
 
 // ── Page indices ────────────────────────────────────────────────────────────
 
@@ -148,14 +102,10 @@ public:
     void handleMessage(GuiMessage* msg);
 
 private:
-    void createWelcomePage();
-    void createDirectoryPage();
-    void createOptionsPage();
-    void createConfirmationPage();
-    void createProgressPage();
-    void createCompletedPage();
+    void createPages();
 
     void updateButtons();
+    void showPage(uint32_t page);
     void goNext();
     void goBack();
     void doCancel();
@@ -168,7 +118,6 @@ private:
 
     String detectPackageType() const;
     String getDownloadUrl() const;
-    String buildConfirmationHtml() const;
 
     static void cb_next(Fl_Widget*, void* data);
     static void cb_back(Fl_Widget*, void* data);
@@ -182,13 +131,12 @@ private:
     CButton*         m_nextButton {nullptr};
     CButton*         m_cancelButton {nullptr};
 
-    CHtmlBox*      m_welcomeHtml {nullptr};
-    CInput*        m_dirInput {nullptr};
-    CCheckButtons* m_checkButtons {nullptr};
-    CHtmlBox*      m_confirmHtml {nullptr};
-    CProgressBar*  m_progressBar {nullptr};
-    CListView*     m_logView {nullptr};
-    CHtmlBox*      m_completedHtml {nullptr};
+    // Wizard pages, indexed by the Page enum
+    vector<unique_ptr<WizardPage>> m_pages;
+
+    // Pages the wizard talks to directly, owned by m_pages
+    ProgressPage*  m_progressPage {nullptr};
+    CompletedPage* m_completedPage {nullptr};
 
     bool    m_installing {false};
     bool    m_installDone {false};
@@ -226,13 +174,11 @@ void InstallerWizard::handleMessage(GuiMessage* msg)
     switch (msg->type)
     {
         case GuiMessage::LOG:
-            m_logView->addRow(0, Strings {msg->text});
-            m_logView->redraw();
+            m_progressPage->addLogLine(msg->text);
             break;
 
         case GuiMessage::PROGRESS:
-            m_progressBar->data(Variant(static_cast<double>(msg->progress)));
-            m_progressBar->redraw();
+            m_progressPage->progress(msg->progress);
             break;
 
         case GuiMessage::DONE:
@@ -273,12 +219,7 @@ InstallerWizard::InstallerWizard(InstallerConfig& config, int argc, char* argv[]
     m_tabs = new CTabs("", 10, CLayoutAlign::CLIENT);
     m_tabs->showTabs(false);
 
-    createWelcomePage();
-    createDirectoryPage();
-    createOptionsPage();
-    createConfirmationPage();
-    createProgressPage();
-    createCompletedPage();
+    createPages();
 
     m_tabs->end();
 
@@ -305,103 +246,27 @@ InstallerWizard::InstallerWizard(InstallerConfig& config, int argc, char* argv[]
 
 // ── Page creation ───────────────────────────────────────────────────────────
 
-void InstallerWizard::createWelcomePage()
+void InstallerWizard::createPages()
 {
-    Fl_Group* page = m_tabs->newScroll("Welcome", false);
+    // The pages are added in the order of the Page enum
+    m_pages.push_back(make_unique<WelcomePage>(m_config));
+    m_pages.push_back(make_unique<DirectoryPage>(m_config));
+    m_pages.push_back(make_unique<OptionsPage>(m_config));
+    m_pages.push_back(make_unique<ConfirmationPage>(m_config));
 
-    m_welcomeHtml = new CHtmlBox("", 10, CLayoutAlign::CLIENT);
-    String html = "<h2>Welcome to " + m_config.application + " Setup</h2>"
-                                                             "<p>" +
-                  m_config.description + "</p>"
-                                         "<p>This wizard will guide you through the installation of <b>" +
-                  m_config.application + " " + m_config.version + "</b>.</p>"
-                                                                  "<p>Click Next to continue.</p>";
-    m_welcomeHtml->data(html);
+    auto progressPage = make_unique<ProgressPage>(m_config);
+    m_progressPage = progressPage.get();
+    m_pages.push_back(move(progressPage));
 
-    page->end();
-}
+    auto completedPage = make_unique<CompletedPage>(m_config);
+    m_completedPage = completedPage.get();
+    m_pages.push_back(move(completedPage));
 
-void InstallerWizard::createDirectoryPage()
-{
-    Fl_Group* page = m_tabs->newScroll("Directory", false);
+    if (m_pages.size() != PAGE_COUNT)
+        throw Exception("The wizard page list doesn't match the Page enum");
 
-    auto* label = new CHtmlBox("", 50, CLayoutAlign::TOP);
-    label->data(Variant("<h3>Installation Directory</h3>"
-                        "<p>Choose the directory where " +
-                        m_config.application + " will be installed.</p>"));
-
-    m_dirInput = new CInput("Install to:", 30, CLayoutAlign::TOP);
-    m_dirInput->data(m_config.installDirectory);
-
-    page->end();
-}
-
-void InstallerWizard::createOptionsPage()
-{
-    Fl_Group* page = m_tabs->newScroll("Options", false);
-
-    auto* label = new CHtmlBox("", 50, CLayoutAlign::TOP);
-    label->data("<h3>Installation Options</h3>"
-                "<p>Select the components you want to install.</p>");
-
-    m_checkButtons = new CCheckButtons("Options:", 20, CLayoutAlign::CLIENT);
-    Strings buttonLabels;
-    for (const auto& opt: m_config.options)
-        buttonLabels.push_back(opt.name);
-    m_checkButtons->buttons(buttonLabels);
-
-    // Select all by default
-    String allSelected;
-    for (size_t i = 0; i < m_config.options.size(); i++)
-    {
-        if (i > 0)
-            allSelected += "|";
-        allSelected += m_config.options[i].name;
-    }
-    m_checkButtons->data(Variant(allSelected));
-
-    page->end();
-}
-
-void InstallerWizard::createConfirmationPage()
-{
-    Fl_Group* page = m_tabs->newScroll("Confirm", false);
-
-    m_confirmHtml = new CHtmlBox("", 10, CLayoutAlign::CLIENT);
-    m_confirmHtml->data("<h3>Ready to Install</h3>"
-                        "<p>Click <b>Install</b> to begin the installation.</p>");
-
-    page->end();
-}
-
-void InstallerWizard::createProgressPage()
-{
-    Fl_Group* page = m_tabs->newPage("Progress", false);
-
-    auto* label = new CHtmlBox("", 30, CLayoutAlign::TOP);
-    label->data("<h3>Installing...</h3>");
-
-    m_progressBar = new CProgressBar("Progress:", 25, CLayoutAlign::TOP);
-    m_progressBar->minimum(0);
-    m_progressBar->maximum(100);
-    m_progressBar->data(Variant(0.0f));
-
-    m_logView = new CListView("Installation Log:", 10, CLayoutAlign::CLIENT);
-    m_logView->addColumn(CColumn("Message", VariantDataType::VAR_STRING, 500));
-    m_logView->showGrid(true);
-
-    page->end();
-}
-
-void InstallerWizard::createCompletedPage()
-{
-    Fl_Group* page = m_tabs->newScroll("Completed", false);
-
-    m_completedHtml = new CHtmlBox("", 10, CLayoutAlign::CLIENT);
-    m_completedHtml->data("<h3>Installation Complete</h3>"
-                          "<p>Click <b>Finish</b> to exit the wizard.</p>");
-
-    page->end();
+    for (const auto& page: m_pages)
+        page->create(*m_tabs);
 }
 
 // ── Navigation ──────────────────────────────────────────────────────────────
@@ -421,8 +286,6 @@ void InstallerWizard::updateButtons()
         m_nextButton->label("Install");
     else if (page == PAGE_COMPLETED)
         m_nextButton->label("Finish");
-    else if (page == PAGE_PROGRESS)
-        m_nextButton->label("Next");
     else
         m_nextButton->label("Next");
 
@@ -440,6 +303,13 @@ void InstallerWizard::updateButtons()
         m_cancelButton->activate();
 }
 
+void InstallerWizard::showPage(uint32_t page)
+{
+    m_pages[page]->onEnter();
+    m_tabs->pageNumber(page);
+    updateButtons();
+}
+
 void InstallerWizard::goNext()
 {
     uint32_t page = m_tabs->pageNumber();
@@ -452,75 +322,40 @@ void InstallerWizard::goNext()
 
     if (page == PAGE_CONFIRMATION)
     {
-        m_tabs->pageNumber(PAGE_PROGRESS);
-        updateButtons();
+        showPage(PAGE_PROGRESS);
         startInstallation();
         return;
     }
 
-    if (page == PAGE_PROGRESS && m_installDone)
+    if (page == PAGE_PROGRESS)
     {
-        if (m_installSuccess)
-            m_completedHtml->data(Variant("<h3>Installation Complete</h3>"
-                                          "<p><b>" +
-                                          m_config.application + " " + m_config.version + "</b> has been successfully installed.</p>"
-                                                                                          "<p>Click <b>Finish</b> to exit the wizard.</p>"));
-        else
-            m_completedHtml->data(Variant("<h3>Installation Failed</h3>"
-                                          "<p>There were errors during installation. "
-                                          "Please check the installation log for details.</p>"
-                                          "<p>Click <b>Finish</b> to exit the wizard.</p>"));
+        if (!m_installDone)
+            return;
 
-        m_tabs->pageNumber(PAGE_COMPLETED);
-        updateButtons();
+        m_completedPage->showResult(m_installSuccess);
+        showPage(PAGE_COMPLETED);
         return;
     }
 
-    // Update confirmation summary when entering confirmation page
-    if (page + 1 == PAGE_CONFIRMATION)
-        m_confirmHtml->data(buildConfirmationHtml());
+    // The page data must be valid before the wizard moves on
+    if (!m_pages[page]->onLeave())
+        return;
 
     if (page < PAGE_COUNT - 1)
-    {
-        m_tabs->pageNumber(page + 1);
-        updateButtons();
-    }
+        showPage(page + 1);
 }
 
 void InstallerWizard::goBack()
 {
     uint32_t page = m_tabs->pageNumber();
     if (page > 0)
-    {
-        m_tabs->pageNumber(page - 1);
-        updateButtons();
-    }
+        showPage(page - 1);
 }
 
 void InstallerWizard::doCancel()
 {
     if (fl_choice("Are you sure you want to cancel the installation?", "No", "Yes", nullptr) == 1)
         m_window->hide();
-}
-
-String InstallerWizard::buildConfirmationHtml() const
-{
-    String html = "<h3>Ready to Install</h3>";
-    html += "<p><b>Application:</b> " + m_config.application + " " + m_config.version + "</p>";
-    html += "<p><b>Install to:</b> " + String(m_dirInput->data().getString()) + "</p>";
-
-    String selectedOpts = m_checkButtons->data().getString();
-    if (!selectedOpts.empty())
-    {
-        html += "<p><b>Options:</b></p><ul>";
-        Strings opts(selectedOpts, "|");
-        for (const auto& opt: opts)
-            html += "<li>" + String(opt) + "</li>";
-        html += "</ul>";
-    }
-
-    html += "<p>Click <b>Install</b> to begin.</p>";
-    return html;
 }
 
 // ── Thread-safe message posting ─────────────────────────────────────────────
@@ -648,8 +483,8 @@ void InstallerWizard::installThread()
         postProgress(60);
 
         // Install using package manager
-        String installCmd;
-        String installDir = m_dirInput->data().getString();
+        String        installCmd;
+        const String& installDir = m_config.installDirectory;
 
         if (pkgType == "linux_deb")
             installCmd = "sudo apt install -y " + tmpFile.string();
