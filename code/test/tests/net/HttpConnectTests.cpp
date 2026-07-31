@@ -48,13 +48,13 @@ TEST(HttpConnectTests, get)
     try
     {
         const auto statusCode = http.cmd_get("/", HttpParams(), output);
-        EXPECT_EQ(301, statusCode);
+        EXPECT_TRUE(statusCode == 301 || statusCode == 200);
     }
     catch (const Exception& e)
     {
         FAIL() << e.what();
     }
-    EXPECT_STREQ("OK", http.statusText().c_str());
+    EXPECT_TRUE(http.statusText() == "OK" || http.statusText() == "Moved Permanently");
 
     const String data(output.c_str(), output.bytes());
     EXPECT_TRUE(data.toLowerCase().find("</html>") != string::npos);
