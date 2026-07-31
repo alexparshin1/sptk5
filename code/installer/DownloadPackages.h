@@ -56,10 +56,9 @@ private:
      * @brief Get list of packages for the current OS version.
      * @return List of packages.
      */
-    std::string getOsVersion() const;
+    Strings getOsPackages() const;
 
-    std::string& m_downloadUrl;
-
+    std::string       m_downloadUrl;
     const std::string m_getOsVersionNamesScript = "";
 };
 
