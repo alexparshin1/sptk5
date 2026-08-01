@@ -92,7 +92,7 @@ fi
 
 sh ./distclean.sh
 ulimit -n 16384
-cmake . $BUILD_OPTIONS -DCMAKE_BUILD_TYPE=Release && make -j8 install && make -j6 package || exit 1
+cmake . $BUILD_OPTIONS -DCMAKE_BUILD_TYPE=Debug && make -j8 install && make -j6 package || exit 1
 
 echo ──────────────────────────────────────────────────────────────────
 BUILD_OUTPUT_DIR=/build/output/$PACKAGE-$VERSION
@@ -138,8 +138,7 @@ if [ $RUN_TESTS = "true" ]; then
     cp /usr/share/zoneinfo/Australia/Melbourne /etc/localtime
 
     ulimit -n 32768
-    ulimit -a
-    cd $CWD/test && ${lcPACKAGE}_unit_tests --gtest_filter=-*Scenario* 2>&1 > /build/logs/${lcPACKAGE}_unit_tests.$OS_TYPE.log
+    cd $CWD/test && ${lcPACKAGE}_unit_tests 2>&1 > /build/logs/${lcPACKAGE}_unit_tests.$OS_TYPE.log
     RC=$?
 
     if [ $RC != 0 ]; then
