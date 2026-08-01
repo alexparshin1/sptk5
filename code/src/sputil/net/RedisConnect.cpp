@@ -1014,14 +1014,35 @@ void RedisConnect::setHashValueAsync(const string& hash, const string& key, cons
 
 void RedisConnect::setHashValuesAsync(const string& hash, const KeysAndValues& keysAndValues, CompletionCallback callback)
 {
-    enqueue([this, hash, keysAndValues, callback = std::move(callback)]
-            {
-                setHashValues(hash, keysAndValues);
-                if (callback)
-                {
-                    callback();
-                }
-            });
+    if (keysAndValues.empty())
+    {
+        if (callback)
+        {
+            callback();
+        }
+        return;
+    }
+
+    // Enqueue as a single command rather than a self-contained task, for the same reason as
+    // deleteHashKeysAsync: commands are pipelined by the worker, while a self-contained task
+    // flushes the pipeline and performs its own synchronous round trip. This one was the last
+    // async operation still taking that path, which made it slower than the singular
+    // setHashValueAsync despite writing more per call - the opposite of what its name suggests.
+    RedisCommand command("HSET", hash);
+    for (const auto& [key, value]: keysAndValues)
+    {
+        command.emplace_back(key);
+        command.emplace_back(value);
+    }
+
+    enqueueCommand(std::move(command),
+                   [callback = std::move(callback)](vector<Variant>&)
+                   {
+                       if (callback)
+                       {
+                           callback();
+                       }
+                   });
 }
 
 void RedisConnect::getHashKeysAsync(const string& hashName, ResultCallback<vector<string>> callback)
