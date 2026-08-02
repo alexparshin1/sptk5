@@ -32,7 +32,7 @@ using namespace sptk;
 
 WizardPage::WizardPage(InstallerConfig& config, String title, bool scrollable)
     : m_config(config)
-    , m_title(move(title))
+    , m_title(std::move(title))
     , m_scrollable(scrollable)
 {
 }

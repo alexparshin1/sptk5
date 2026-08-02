@@ -257,11 +257,11 @@ void InstallerWizard::createPages()
 
     auto progressPage = make_unique<ProgressPage>(m_config);
     m_progressPage = progressPage.get();
-    m_pages.push_back(move(progressPage));
+    m_pages.push_back(std::move(progressPage));
 
     auto completedPage = make_unique<CompletedPage>(m_config);
     m_completedPage = completedPage.get();
-    m_pages.push_back(move(completedPage));
+    m_pages.push_back(std::move(completedPage));
 
     if (m_pages.size() != PAGE_COUNT)
         throw Exception("The wizard page list doesn't match the Page enum");
@@ -360,8 +360,7 @@ void InstallerWizard::doCancel()
     {
         if (fl_choice("The installation is in progress.\n"
                       "Stop it after the current step completes?",
-                      "No", "Yes", nullptr)
-            != 1)
+                      "No", "Yes", nullptr) != 1)
             return;
 
         m_cancelRequested = true;

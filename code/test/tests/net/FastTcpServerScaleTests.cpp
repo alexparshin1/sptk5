@@ -148,6 +148,7 @@
 
 #ifndef _WIN32
 #include <netinet/tcp.h>
+#include <sys/syscall.h>
 #include <unistd.h>
 #endif
 
