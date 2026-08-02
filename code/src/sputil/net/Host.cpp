@@ -43,7 +43,7 @@ namespace {
 void checkSocketsInitialized()
 {
     static atomic_bool initialized = false;
-    static mutex initMutex;
+    static mutex       initMutex;
 
     if (!initialized.load())
     {
@@ -73,7 +73,7 @@ Host::Host(string hostname, const uint16_t port)
     checkSocketsInitialized();
 #endif
     getHostAddressUnlocked();
-    setPortUnlocked(m_port);
+    setPort(m_port);
 }
 
 Host::Host(const string& hostAndPort)
@@ -106,7 +106,7 @@ Host::Host(const string& hostAndPort)
         }
     }
     getHostAddressUnlocked();
-    setPortUnlocked(m_port);
+    setPort(m_port);
 }
 
 Host::Host(const sockaddr_in* addressAndPort)
@@ -181,7 +181,7 @@ bool Host::operator==(const Host& other) const
     }
 }
 
-void Host::setPortUnlocked(const uint16_t port)
+void Host::setPort(const uint16_t port)
 {
     m_port = port;
     switch (any().sa_family)

@@ -118,15 +118,6 @@ public:
     }
 
     /**
-     * @brief Set the port number.
-     * @param p                 Port number.
-     */
-    void port(uint16_t p)
-    {
-        setPortUnlocked(p);
-    }
-
-    /**
      * @brief Get the port number.
      * @return port number.
      */
@@ -240,7 +231,7 @@ private:
      * @brief Set the port number.
      * @param port                 Port number.
      */
-    void setPortUnlocked(uint16_t port);
+    void setPort(uint16_t port);
 };
 
 using SHost = std::shared_ptr<Host>;

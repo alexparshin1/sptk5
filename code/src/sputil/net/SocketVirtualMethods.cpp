@@ -486,7 +486,7 @@ void SocketVirtualMethods::listenUnlocked(const uint16_t portNumber, const bool 
 {
     if (portNumber != 0)
     {
-        m_host->port(portNumber);
+        m_host = make_unique<Host>(m_host->hostname(), m_host->port());
     }
 
     sockaddr_in address = {};
