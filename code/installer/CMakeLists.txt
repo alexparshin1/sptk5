@@ -30,16 +30,16 @@ IF (FLTK_FLAG)
             ARCHIVE DESTINATION lib
     )
 
-    MESSAGE("COPY:    ${CMAKE_CURRENT_LIST_DIR}/images")
-    MESSAGE("COPY TO: ${CMAKE_CURRENT_BINARY_DIR}/images")
     add_custom_target(copy_installer_images
             COMMAND ${CMAKE_COMMAND} -E copy_directory
             ${CMAKE_CURRENT_LIST_DIR}/images ${CMAKE_CURRENT_BINARY_DIR}/images
     )
+
     add_custom_target(copy_installer_configs
             COMMAND ${CMAKE_COMMAND} -E copy
             ${CMAKE_CURRENT_LIST_DIR}/config.json ${CMAKE_CURRENT_BINARY_DIR}/config.json
     )
+
     add_dependencies(spinst copy_installer_images copy_installer_configs)
 
 ENDIF (FLTK_FLAG)
