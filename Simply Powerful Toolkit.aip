@@ -9,10 +9,10 @@
     <ROW Property="ARPURLINFOABOUT" Value="http://www.sptk.net"/>
     <ROW Property="Manufacturer" Value="Alexey Parshin"/>
     <ROW Property="MsiLogging" MultiBuildValue="DefaultBuild:vp"/>
-    <ROW Property="ProductCode" Value="1033:{FAAED162-973B-4650-9861-9862AAC39746} " Type="16"/>
+    <ROW Property="ProductCode" Value="1033:{C5C58E9E-B803-4353-83C4-4710F10415CB} " Type="16"/>
     <ROW Property="ProductLanguage" Value="1033"/>
     <ROW Property="ProductName" Value="SPTK"/>
-    <ROW Property="ProductVersion" Value="5.6.6" Options="32"/>
+    <ROW Property="ProductVersion" Value="5.6.7" Options="32"/>
     <ROW Property="SecureCustomProperties" Value="OLDPRODUCTS;AI_NEWERPRODUCTFOUND"/>
     <ROW Property="UpgradeCode" Value="{7DE1367E-A155-4C2D-8B6A-922D34EF53C7}"/>
     <ROW Property="WindowsType9X" MultiBuildValue="DefaultBuild:Windows 9x/ME" ValueLocId="-"/>
@@ -67,12 +67,16 @@
     <ROW Component="CancellationToken.h" ComponentId="{698F7EF4-53CF-400A-B121-0C8184C9EBC7}" Directory_="threads_Dir" Attributes="0" KeyPath="CancellationToken.h" Type="0"/>
     <ROW Component="CategoryCount" ComponentId="{BCAFF568-6B0E-4089-8707-2663C170E4CE}" Directory_="APPDIR" Attributes="260" KeyPath="CategoryCount"/>
     <ROW Component="CategoryMessageFile" ComponentId="{609E634C-812E-4920-8EE1-F8F16184B8BF}" Directory_="APPDIR" Attributes="260" KeyPath="CategoryMessageFile"/>
+    <ROW Component="DriverLoaders.h" ComponentId="{BE9D40FB-AA3B-457E-82E8-7366393AEC0F}" Directory_="db_Dir" Attributes="0" KeyPath="DriverLoaders.h" Type="0"/>
     <ROW Component="EventLog" ComponentId="{72558A19-B26C-43EE-B8CF-73F9C318D46F}" Directory_="APPDIR" Attributes="260" KeyPath="EventLog"/>
     <ROW Component="EventMessageFile" ComponentId="{5D57D2E4-3290-47F9-91CD-F3DDB4B499D6}" Directory_="APPDIR" Attributes="260" KeyPath="EventMessageFile"/>
+    <ROW Component="FastTCPServer.h" ComponentId="{F1B6B8DA-0C22-4D86-94B4-E102CC725F6B}" Directory_="net_Dir" Attributes="0" KeyPath="FastTCPServer.h" Type="0"/>
     <ROW Component="New_Key" ComponentId="{1AC045D3-FD6C-473C-AA41-48D4F69D95AF}" Directory_="APPDIR" Attributes="260" KeyPath="New_Key"/>
     <ROW Component="OpenApiGenerator.h" ComponentId="{D0A0CC58-2C03-4833-AC19-A4E425C2E83F}" Directory_="wsdl_Dir" Attributes="0" KeyPath="OpenApiGenerator.h" Type="0"/>
+    <ROW Component="OrderedMap.h" ComponentId="{7A4E3195-98F1-4BCC-99A8-BC245525428D}" Directory_="sptk5_Dir" Attributes="0" KeyPath="OrderedMap.h" Type="0"/>
     <ROW Component="ParameterMessageFile" ComponentId="{A00B10D6-392E-4AFF-95A2-FA3FA635DC4B}" Directory_="APPDIR" Attributes="260" KeyPath="ParameterMessageFile"/>
     <ROW Component="ProductInformation" ComponentId="{9F3242C3-7926-48D4-88F7-F62CF2DBAFD5}" Directory_="APPDIR" Attributes="4" KeyPath="Version"/>
+    <ROW Component="ReadWriteLock.h" ComponentId="{165A5079-8D4D-459D-B734-DE981CC24315}" Directory_="threads_Dir" Attributes="0" KeyPath="ReadWriteLock.h" Type="0"/>
     <ROW Component="SPTK" ComponentId="{807A61C7-EF7A-4460-B738-8503430945C4}" Directory_="SPTK_1_Dir" Attributes="0"/>
     <ROW Component="SYSTEM" ComponentId="{018D2633-AEB0-4B3E-9AC6-C847985E397A}" Directory_="APPDIR" Attributes="260" KeyPath="SYSTEM"/>
     <ROW Component="Services" ComponentId="{5139979C-7948-4BC9-96F1-0F0F087D6922}" Directory_="APPDIR" Attributes="260" KeyPath="Services"/>
@@ -88,7 +92,6 @@
     <ROW Component="exceptions.exe" ComponentId="{13C30DDF-B4A2-4192-8C9E-B78ADAFE410D}" Directory_="bin_1_Dir" Attributes="256"/>
     <ROW Component="gtest.dll" ComponentId="{E7AEF8F8-2918-4876-B5B6-78597E1ED513}" Directory_="bin_Dir" Attributes="256" KeyPath="gtest.dll"/>
     <ROW Component="gtest_main.dll" ComponentId="{764928B4-3362-4B15-B98A-AADDD5EB6B4E}" Directory_="bin_Dir" Attributes="256" KeyPath="gtest_main.dll"/>
-    <ROW Component="include" ComponentId="{7D1C7603-BA10-438F-BE82-1731F87A0246}" Directory_="include_Dir" Attributes="0"/>
     <ROW Component="libcrypto3x64.dll" ComponentId="{AFDDF382-32FB-4A5C-A331-707DB5487734}" Directory_="bin_Dir" Attributes="256" KeyPath="libcrypto3x64.dll"/>
     <ROW Component="libiconv2.dll" ComponentId="{CB04F228-4C87-413A-9228-8C884845B4D9}" Directory_="bin_Dir" Attributes="256" KeyPath="libiconv2.dll"/>
     <ROW Component="libintl9.dll" ComponentId="{C3D1B193-5816-48AC-B355-98621505EEDA}" Directory_="bin_Dir" Attributes="256" KeyPath="libintl9.dll"/>
@@ -179,7 +182,6 @@
     <ROW File="PoolDatabaseConnection.h" Component_="AutoDatabaseConnection.h" FileName="POOLDA~1.H|PoolDatabaseConnection.h" Attributes="0" SourcePath="code\sptk5\db\PoolDatabaseConnection.h" SelfReg="false"/>
     <ROW File="PostgreSQLConnection.h" Component_="AutoDatabaseConnection.h" FileName="POSTGR~1.H|PostgreSQLConnection.h" Attributes="0" SourcePath="code\sptk5\db\PostgreSQLConnection.h" SelfReg="false"/>
     <ROW File="Query.h" Component_="AutoDatabaseConnection.h" FileName="Query.h" Attributes="0" SourcePath="code\sptk5\db\Query.h" SelfReg="false"/>
-    <ROW File="QueryBuilder.h" Component_="AutoDatabaseConnection.h" FileName="QUERYB~1.H|QueryBuilder.h" Attributes="0" SourcePath="code\sptk5\db\QueryBuilder.h" SelfReg="false"/>
     <ROW File="QueryParameter.h" Component_="AutoDatabaseConnection.h" FileName="QUERYP~1.H|QueryParameter.h" Attributes="0" SourcePath="code\sptk5\db\QueryParameter.h" SelfReg="false"/>
     <ROW File="QueryParameterBinding.h" Component_="AutoDatabaseConnection.h" FileName="QUERYP~2.H|QueryParameterBinding.h" Attributes="0" SourcePath="code\sptk5\db\QueryParameterBinding.h" SelfReg="false"/>
     <ROW File="QueryParameterList.h" Component_="AutoDatabaseConnection.h" FileName="QUERYP~3.H|QueryParameterList.h" Attributes="0" SourcePath="code\sptk5\db\QueryParameterList.h" SelfReg="false"/>
@@ -281,7 +283,6 @@
     <ROW File="MailMessageBody.h" Component_="BaseMailConnect.h" FileName="MAILME~1.H|MailMessageBody.h" Attributes="0" SourcePath="code\sptk5\net\MailMessageBody.h" SelfReg="false"/>
     <ROW File="Proxy.h" Component_="BaseMailConnect.h" FileName="Proxy.h" Attributes="0" SourcePath="code\sptk5\net\Proxy.h" SelfReg="false"/>
     <ROW File="RequestInfo.h" Component_="BaseMailConnect.h" FileName="REQUES~1.H|RequestInfo.h" Attributes="0" SourcePath="code\sptk5\net\RequestInfo.h" SelfReg="false"/>
-    <ROW File="RunableServerConnection.h" Component_="BaseMailConnect.h" FileName="RUNABL~1.H|RunableServerConnection.h" Attributes="0" SourcePath="code\sptk5\net\RunableServerConnection.h" SelfReg="false"/>
     <ROW File="ServerConnection.h" Component_="BaseMailConnect.h" FileName="SERVER~1.H|ServerConnection.h" Attributes="0" SourcePath="code\sptk5\net\ServerConnection.h" SelfReg="false"/>
     <ROW File="SmtpConnect.h" Component_="BaseMailConnect.h" FileName="SMTPCO~1.H|SmtpConnect.h" Attributes="0" SourcePath="code\sptk5\net\SmtpConnect.h" SelfReg="false"/>
     <ROW File="Socket.h" Component_="BaseMailConnect.h" FileName="Socket.h" Attributes="0" SourcePath="code\sptk5\net\Socket.h" SelfReg="false"/>
@@ -293,9 +294,7 @@
     <ROW File="SSLKeys.h" Component_="BaseMailConnect.h" FileName="SSLKeys.h" Attributes="0" SourcePath="code\sptk5\net\SSLKeys.h" SelfReg="false"/>
     <ROW File="SSLServerConnection.h" Component_="BaseMailConnect.h" FileName="SSLSER~1.H|SSLServerConnection.h" Attributes="0" SourcePath="code\sptk5\net\SSLServerConnection.h" SelfReg="false"/>
     <ROW File="SSLSocket.h" Component_="BaseMailConnect.h" FileName="SSLSOC~1.H|SSLSocket.h" Attributes="0" SourcePath="code\sptk5\net\SSLSocket.h" SelfReg="false"/>
-    <ROW File="TCPServer.h" Component_="BaseMailConnect.h" FileName="TCPSER~1.H|TCPServer.h" Attributes="0" SourcePath="code\sptk5\net\TCPServer.h" SelfReg="false"/>
     <ROW File="TCPServerConnection.h" Component_="BaseMailConnect.h" FileName="TCPSER~2.H|TCPServerConnection.h" Attributes="0" SourcePath="code\sptk5\net\TCPServerConnection.h" SelfReg="false"/>
-    <ROW File="TCPServerListener.h" Component_="BaseMailConnect.h" FileName="TCPSER~3.H|TCPServerListener.h" Attributes="0" SourcePath="code\sptk5\net\TCPServerListener.h" SelfReg="false"/>
     <ROW File="TCPSocket.h" Component_="BaseMailConnect.h" FileName="TCPSOC~1.H|TCPSocket.h" Attributes="0" SourcePath="code\sptk5\net\TCPSocket.h" SelfReg="false"/>
     <ROW File="UDPSocket.h" Component_="BaseMailConnect.h" FileName="UDPSOC~1.H|UDPSocket.h" Attributes="0" SourcePath="code\sptk5\net\UDPSocket.h" SelfReg="false"/>
     <ROW File="URL.h" Component_="BaseMailConnect.h" FileName="URL.h" Attributes="0" SourcePath="code\sptk5\net\URL.h" SelfReg="false"/>
@@ -319,8 +318,6 @@
     <ROW File="CancellationToken.h" Component_="CancellationToken.h" FileName="CANCEL~1.H|CancellationToken.h" Attributes="0" SourcePath="code\sptk5\threads\CancellationToken.h" SelfReg="false"/>
     <ROW File="Counter.h" Component_="CancellationToken.h" FileName="Counter.h" Attributes="0" SourcePath="code\sptk5\threads\Counter.h" SelfReg="false"/>
     <ROW File="Flag.h" Component_="CancellationToken.h" FileName="Flag.h" Attributes="0" SourcePath="code\sptk5\threads\Flag.h" SelfReg="false"/>
-    <ROW File="IntervalTimer.h" Component_="CancellationToken.h" FileName="INTERV~1.H|IntervalTimer.h" Attributes="0" SourcePath="code\sptk5\threads\IntervalTimer.h" SelfReg="false"/>
-    <ROW File="Location.h" Component_="CancellationToken.h" FileName="Location.h" Attributes="0" SourcePath="code\sptk5\threads\Location.h" SelfReg="false"/>
     <ROW File="Runable.h" Component_="CancellationToken.h" FileName="Runable.h" Attributes="0" SourcePath="code\sptk5\threads\Runable.h" SelfReg="false"/>
     <ROW File="Semaphore.h" Component_="CancellationToken.h" FileName="SEMAPH~1.H|Semaphore.h" Attributes="0" SourcePath="code\sptk5\threads\Semaphore.h" SelfReg="false"/>
     <ROW File="SmartLock.h" Component_="CancellationToken.h" FileName="SMARTL~1.H|SmartLock.h" Attributes="0" SourcePath="code\sptk5\threads\SmartLock.h" SelfReg="false"/>
@@ -412,6 +409,16 @@
     <ROW File="showcert.sh" Component_="mycert.pem" FileName="showcert.sh" Attributes="0" SourcePath="code\test\test_ssl_keys\showcert.sh" SelfReg="false"/>
     <ROW File="test.cert" Component_="mycert.pem" FileName="TEST~1.CER|test.cert" Attributes="0" SourcePath="code\test\test_ssl_keys\test.cert" SelfReg="false"/>
     <ROW File="test.key" Component_="mycert.pem" FileName="test.key" Attributes="0" SourcePath="code\test\test_ssl_keys\test.key" SelfReg="false"/>
+    <ROW File="DriverLoaders.h" Component_="DriverLoaders.h" FileName="DRIVER~1.H|DriverLoaders.h" Attributes="0" SourcePath="code\sptk5\db\DriverLoaders.h" SelfReg="false"/>
+    <ROW File="FastTCPServer.h" Component_="FastTCPServer.h" FileName="FASTTC~1.H|FastTCPServer.h" Attributes="0" SourcePath="code\sptk5\net\FastTCPServer.h" SelfReg="false"/>
+    <ROW File="LogDetails.h" Component_="FastTCPServer.h" FileName="LOGDET~1.H|LogDetails.h" Attributes="0" SourcePath="code\sptk5\net\LogDetails.h" SelfReg="false"/>
+    <ROW File="RedisCommand.h" Component_="FastTCPServer.h" FileName="REDISC~1.H|RedisCommand.h" Attributes="0" SourcePath="code\sptk5\net\RedisCommand.h" SelfReg="false"/>
+    <ROW File="RedisConnect.h" Component_="FastTCPServer.h" FileName="REDISC~2.H|RedisConnect.h" Attributes="0" SourcePath="code\sptk5\net\RedisConnect.h" SelfReg="false"/>
+    <ROW File="convert_doxygen_add_trailing_dots.pl" Component_="FastTCPServer.h" FileName="CONVER~1.PL|convert_doxygen_add_trailing_dots.pl" Attributes="0" SourcePath="code\sptk5\net\convert_doxygen_add_trailing_dots.pl" SelfReg="false"/>
+    <ROW File="ReadWriteLock.h" Component_="ReadWriteLock.h" FileName="READWR~1.H|ReadWriteLock.h" Attributes="0" SourcePath="code\sptk5\threads\ReadWriteLock.h" SelfReg="false"/>
+    <ROW File="ReadWriteMutex.h" Component_="ReadWriteLock.h" FileName="READWR~2.H|ReadWriteMutex.h" Attributes="0" SourcePath="code\sptk5\threads\ReadWriteMutex.h" SelfReg="false"/>
+    <ROW File="OrderedMap.h" Component_="OrderedMap.h" FileName="ORDERE~1.H|OrderedMap.h" Attributes="0" SourcePath="code\sptk5\OrderedMap.h" SelfReg="false"/>
+    <ROW File="StreamLogEngine.h" Component_="OrderedMap.h" FileName="STREAM~1.H|StreamLogEngine.h" Attributes="0" SourcePath="code\sptk5\StreamLogEngine.h" SelfReg="false"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.BootstrapperUISequenceComponent">
     <ROW Action="AI_BACKUP_AI_SETUPEXEPATH" Sequence="249"/>
@@ -499,7 +506,6 @@
   <COMPONENT cid="caphyon.advinst.msicomp.MsiCreateFolderComponent">
     <ROW Directory_="bin_1_Dir" Component_="bin" ManualDelete="false"/>
     <ROW Directory_="doc_Dir" Component_="doc" ManualDelete="false"/>
-    <ROW Directory_="include_Dir" Component_="include" ManualDelete="false"/>
     <ROW Directory_="APPDIR" Component_="APPDIR" ManualDelete="true"/>
     <ROW Directory_="SPTK_1_Dir" Component_="SPTK" ManualDelete="false"/>
   </COMPONENT>
@@ -551,7 +557,6 @@
     <ROW Feature_="SPTK_Feature" Component_="TypesSupported"/>
     <ROW Feature_="SPTK_Feature" Component_="bin"/>
     <ROW Feature_="SPTK_Feature" Component_="doc"/>
-    <ROW Feature_="SPTK_Feature" Component_="include"/>
     <ROW Feature_="SPTK_Feature" Component_="spdb5_odbc.dll"/>
     <ROW Feature_="SPTK_Feature" Component_="spdb5_odbc.dll_1"/>
     <ROW Feature_="SPTK_Feature" Component_="spdb5_postgresql.dll"/>
@@ -609,6 +614,10 @@
     <ROW Feature_="Prerequisites" Component_="pcre28.dll"/>
     <ROW Feature_="UnitTests_Feature" Component_="SPTK"/>
     <ROW Feature_="UnitTests_Feature" Component_="mycert.pem"/>
+    <ROW Feature_="UnitTests_Feature" Component_="DriverLoaders.h"/>
+    <ROW Feature_="UnitTests_Feature" Component_="FastTCPServer.h"/>
+    <ROW Feature_="UnitTests_Feature" Component_="ReadWriteLock.h"/>
+    <ROW Feature_="UnitTests_Feature" Component_="OrderedMap.h"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiInstExSeqComponent">
     <ROW Action="AI_DOWNGRADE" Condition="AI_NEWERPRODUCTFOUND AND (UILevel &lt;&gt; 5)" Sequence="210"/>
