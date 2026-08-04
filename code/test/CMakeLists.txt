@@ -4,7 +4,7 @@ IF (GTEST_FLAG)
     ADD_EXECUTABLE(sptk_unit_tests ${TEST_SOURCE_FILES})
     SET_SPTK_TARGET_PROPERTIES(sptk_unit_tests)
 
-    TARGET_LINK_LIBRARIES(sptk_unit_tests sputil5 spdb5 spwsdl5 gtest)
+    TARGET_LINK_LIBRARIES(sptk_unit_tests spdb5_static spwsdl5_static sputil5_static gtest)
 
     # On Windows with MSVC, add googletest as a Visual Studio NuGet package.
     #if (WIN32 AND MSVC)

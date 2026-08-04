@@ -10,8 +10,6 @@ ELSE (NO_EXAMPLES)
     ADD_SUBDIRECTORY(database)
     ADD_SUBDIRECTORY(core)
 
-    ADD_SUBDIRECTORY(datasources)
-
     IF (FLTK_FLAG)
         ADD_SUBDIRECTORY(gui)
     ENDIF (FLTK_FLAG)
