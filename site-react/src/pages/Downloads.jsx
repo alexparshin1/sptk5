@@ -69,10 +69,6 @@ export default class Downloads extends React.Component
     {
         const requeredForXMQ = [
             "sptk-core",
-            "sptk-db_5",
-            "sptk-db_mysql",
-            "sptk-db_postgresql",
-            "sptk-db_sqlite3",
             "xmq-server"
         ];
 

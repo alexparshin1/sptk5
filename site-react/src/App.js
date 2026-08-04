@@ -17,6 +17,7 @@ import XMQ_tests_fanout from "./pages/XMQ_tests_fanout";
 import XMQ_tests_p2p from "./pages/XMQ_tests_p2p";
 import XMQ_mqtt_test_suite from "./pages/XMQ_mqtt_test_suite";
 import XMQ_configuration from "./pages/XMQ_configuration";
+import XMQ_documentation from "./pages/XMQ_documentation";
 import Downloads from "./pages/Downloads";
 import SPTK_about from "./pages/SPTK_about";
 import AdminChangePassword from "./pages/AdminChangePassword";
@@ -80,6 +81,7 @@ class App extends Component
                         {title: "MQTT Test Suite", link: "/xmq_mqtt_test_suite"},
                     ]},
                     {title: "Configuration", link: "/xmq_configuration"},
+                    {title: "Documentation", link: "/xmq_documentation"},
                 ]
             },
             {
@@ -139,6 +141,7 @@ class App extends Component
                                         <Route path="/xmq_tests_p2p" Component={XMQ_tests_p2p}/>
                                         <Route path="/xmq_mqtt_test_suite" Component={XMQ_mqtt_test_suite}/>
                                         <Route path="/xmq_configuration" Component={XMQ_configuration}/>
+                                        <Route path="/xmq_documentation" Component={XMQ_documentation}/>
                                         <Route path="/sptk_about" Component={SPTK_about}/>
                                         <Route path="/sptk_screenshots" Component={SPTK_screenshots}/>
                                         <Route path="/sptk_themes" Component={SPTK_themes}/>
