@@ -2,15 +2,16 @@ import React from "react";
 import "./UserManual.css";
 
 /**
- * XMQ user manual.
+ * XMQ user manual, served as a single page from the configuration interface.
+ * The content describes the installed server, so it is kept next to the interface
+ * rather than published separately: what it documents is what is running.
  *
- * Served both from the server's own configuration interface and from the SPTK website, from
- * the same source: this file and UserManual.css are copied verbatim into the site's
- * site-react/src/pages/. It therefore carries no dependency on either application - no
- * ControlAPI, no shared components - and its wording names the configuration interface
- * rather than saying "this interface", which would be wrong in one of the two places.
- *
- * The XMQ repository is the original; the website copy is downstream of it.
+ * The same page is published on the SPTK website. This file and UserManual.css are copied
+ * verbatim into the site's site-react/src/pages/, so this copy is the original and the website
+ * one is downstream of it. Two things keep a plain copy sufficient: the page depends on nothing
+ * from either application - no ControlAPI, no shared components - and its wording names the
+ * configuration interface rather than saying "this interface", which would be wrong on the
+ * website, where the reader is not in it. Keep both when editing.
  */
 export default class UserManualScreen extends React.Component {
 
@@ -187,7 +188,7 @@ sudo journalctl -u xmq_server -f`}</pre>
 
             <p>
                 Once the server runs, the configuration interface is reachable on port 18883 by default:
-                <code>http://&lt;server&gt;:18883</code>. Sign in with an administrative account;
+                <code>http://&lt;server&gt;:18883</code>. Sign in with an account from the Users page;
                 a fresh installation ships with <code>admin</code>.
             </p>
 
@@ -345,7 +346,7 @@ sudo sysctl --system`}</pre>
 
             <p>
                 The service port itself is set on the <b>Service</b> page. Changing it takes effect
-                after a restart, and the interface then answers on the new port only.
+                after a restart, and the configuration interface then answers on the new port only.
             </p>
 
             <h5>SSL certificates</h5>
@@ -503,6 +504,187 @@ sudo sysctl --system`}</pre>
                     remote broker must be listening on its TLS port.
                 </li>
             </ul>
+
+            <h5>Bridging two XMQ servers, step by step</h5>
+
+            <p>
+                This walks through joining two XMQ servers so that a client on either one sees
+                traffic published on the other. Call them <b>mq-a</b> and <b>mq-b</b>; substitute
+                your own host names throughout. Each server gets one bridge, pointed at the other,
+                in <code>inout</code> mode - two bridges in total, one owned by each server.
+            </p>
+
+            <p>
+                The shipped configuration defines <b>no bridges and no cluster nodes</b>, so the
+                Bridges page is empty on a fresh installation. Everything below is added by hand.
+            </p>
+
+            <p><b>Before you start</b></p>
+
+            <ul>
+                <li>Both servers installed, running, and reachable from each other on their MQTT
+                    port - a bridge is an ordinary outbound MQTT connection, so a firewall between
+                    the hosts needs that port open in both directions.</li>
+                <li>Decide which topics to carry. This example uses <code>test/#</code>. Prefer a
+                    specific prefix to <code>#</code>: it keeps the link's traffic to what you
+                    actually meant to share.</li>
+                <li>An account on each server for the other's bridge to log in as. The bridge
+                    authenticates like any client, so it needs a real account on the
+                    <em>remote</em> server. A non-administrator account is enough; create it on the
+                    <b>Users</b> page if you do not already have one.</li>
+            </ul>
+
+            <p><b>Step 1 - add the bridge on mq-a</b></p>
+
+            <p>
+                Open <code>http://mq-a:18883</code>, sign in as an administrator, and go to the
+                <b>Bridges</b> page. It is a master-detail page: the bridge list on top, and the
+                settings of the selected bridge below. Press <b>Add</b>, fill the settings in, and
+                press <b>Save Bridge</b>:
+            </p>
+
+            <table className="userManualTable">
+                <thead>
+                <tr>
+                    <th>Field</th>
+                    <th>Value on mq-a</th>
+                    <th>Notes</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr><td>Node name</td><td><code>mq-b</code></td>
+                    <td>The name this server knows the remote by. It appears in the log and marks
+                        messages that arrived over the link, which is how loops are prevented.
+                        A name already used by another bridge is rejected.</td></tr>
+                <tr><td>Host / port</td><td><code>mq-b</code> / <code>1883</code></td>
+                    <td>The remote MQTT listener, not its configuration port. A second bridge to
+                        the same host and port is rejected: it would carry every message twice.</td></tr>
+                <tr><td>Mode</td><td><code>inout</code></td><td>Both directions.</td></tr>
+                <tr><td>Username</td><td>the account on <b>mq-b</b></td>
+                    <td>Credentials for the remote server, not this one.</td></tr>
+                <tr><td>Password</td><td>its password</td><td></td></tr>
+                <tr><td>Client ID</td><td>leave empty</td>
+                    <td>XMQ then derives a stable id from the two node names. Set one only if the
+                        remote requires a particular id, and never one that varies.</td></tr>
+                <tr><td>Enabled</td><td>ticked</td><td></td></tr>
+                <tr><td>Clean session</td><td>unticked</td>
+                    <td>So mq-b keeps the subscriptions and queues messages while the link is down.</td></tr>
+                <tr><td>Encrypted</td><td>unticked</td>
+                    <td>Tick it only when bridging to the remote's TLS port; it reveals the key
+                        file fields, which are paths on this host.</td></tr>
+                </tbody>
+            </table>
+
+            <p>
+                Then fill the <b>Topics</b> table below the settings. Press its <b>Add</b> and give
+                the topic a <b>Pattern</b> of <code>test/#</code>, a <b>Direction</b> of
+                <code>inout</code>, and a <b>QoS</b> of 1. A bridge with no topics connects and
+                carries nothing, so this table is not optional.
+            </p>
+
+            <p>
+                Press <b>Save Bridge</b>. The bridge appears in the list with its topic count, and
+                the configuration file is written immediately.
+            </p>
+
+            <p><b>Step 2 - add the mirrored bridge on mq-b</b></p>
+
+            <p>
+                Open <code>http://mq-b:18883</code> and repeat, swapping the two ends:
+                <b>Node name</b> is <code>mq-a</code>, <b>Host</b> is <code>mq-a</code>, and the
+                credentials are for an account on <b>mq-a</b>. The topic, mode, and clean session
+                stay the same. Each server's bridge is its own configuration entry - neither
+                server learns about the other's.
+            </p>
+
+            <p><b>Step 3 - restart both servers</b></p>
+
+            <p>
+                This step is easy to miss. Saving a bridge stores it, but does <em>not</em> start
+                the connection; the link is established when the server starts. On each host:
+            </p>
+
+            <pre className="userManualCode">{`sudo systemctl restart xmq_server`}</pre>
+
+            <p>
+                Order does not matter. A bridge whose remote is not up yet retries until it
+                answers, which is what lets two servers that bridge to each other both start.
+            </p>
+
+            <p><b>Step 4 - confirm both links came up</b></p>
+
+            <p>
+                With <b>Connections</b> at <code>DEBUG</code> on the <b>Logging</b> page, each
+                server's log carries a line per bridge:
+            </p>
+
+            <pre className="userManualCode">{`Bridge to mq-b forwarding 1 outbound topic(s).
+Bridge to mq-b (mq-b:1883) connected, 1 inbound topic(s).`}</pre>
+
+            <p>
+                Both counts matter. <code>connected</code> with <b>0 inbound topics</b> means the
+                bridge reached the remote but carries nothing - almost always an empty or
+                mistyped Topics field.
+            </p>
+
+            <p><b>Step 5 - prove a message crosses</b></p>
+
+            <p>
+                Subscribe on one server and publish on the other. The subscriber has no other way
+                to see the message, so receiving it is itself the proof the bridge carried it:
+            </p>
+
+            <pre className="userManualCode">{`xmq_sub -h mq-b -p 1883 -u user -P secret -t test/bridge -q 1 -v -C 1 -W 15
+
+xmq_pub -h mq-a -p 1883 -u user -P secret -t test/bridge -q 1 -m "over the bridge"`}</pre>
+
+            <p>
+                Then swap the two hosts and repeat, to check the other direction: with
+                <code>inout</code> bridges on both sides it is quite possible for one direction to
+                work while the other is misconfigured.
+            </p>
+
+            <p>
+                For a measured run rather than a single message, <code>xmq_scn</code> can publish
+                to one server and subscribe on the other:
+            </p>
+
+            <pre className="userManualCode">{`xmq_scn -s Basic/Point-To-Point-1K-1K-1K-1K.json \\
+        --host mq-a --port 1883 --subscriber-host mq-b --subscriber-port 1883`}</pre>
+
+            <p>
+                Every message it counts has crossed the bridge, so the reported latency includes
+                the extra broker hop and the round trip between the hosts. Compare it against the
+                same scenario run without <code>--subscriber-host</code> to see what the link costs.
+            </p>
+
+            <p><b>If nothing crosses</b></p>
+
+            <ul>
+                <li><b>No bridge line in the log at all</b> - the server was not restarted after
+                    the bridge was saved, or the bridge is not enabled.</li>
+                <li><b>Repeated connect failures</b> - the host or port is wrong, the port is
+                    blocked, or the credentials name an account that does not exist on the
+                    <em>remote</em> server. The log names the reason.</li>
+                <li><b>Connected, nothing carried</b> - the topic pattern does not cover the topic
+                    being published. Patterns are matched as MQTT subscriptions:
+                    <code>test/#</code> covers <code>test/bridge</code>, while <code>test</code>
+                    on its own does not.</li>
+                <li><b>One direction only</b> - check the mode on both bridges. A bridge in
+                    <code>out</code> mode forwards but never subscribes.</li>
+            </ul>
+
+            <p><b>A note on the pair</b></p>
+
+            <p>
+                Two <code>inout</code> bridges is deliberately redundant: each server independently
+                pulls from and pushes to the other, so the link survives one side's bridge being
+                disabled or misconfigured. It relies on XMQ refusing to send a message back the way
+                it came, which it does by marking the origin node. That marking is XMQ's own, so
+                keep this arrangement between XMQ servers. Pointing two overlapping
+                <code>inout</code> bridges through a broker that does not mark origins can loop a
+                message indefinitely.
+            </p>
 
             <h5>Server limits</h5>
 
@@ -681,7 +863,7 @@ xmq_pub -h localhost -p 1883 -u user --password secret -t bridged/test -m "over 
 
             <p>
                 XMQ is an MQTT 5, 3.1.1, and 3.1 server. This manual covers installing it, tuning
-                the host it runs on, configuring it from the web interface, and proving that the
+                the host it runs on, configuring it from the configuration interface, and proving that the
                 result works.
             </p>
 
