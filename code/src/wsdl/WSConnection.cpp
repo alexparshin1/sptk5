@@ -82,11 +82,11 @@ void printMessage(stringstream& logMessage, const String& prefix, const RequestI
 
 void WSConnection::processSingleConnection() const
 {
-    auto logDebugMessages = m_logger.destination().minPriority() == LogPriority::Debug;
-    if (logDebugMessages)
-    {
-        m_logger.debug("Processing connection");
-    }
+    // The connection lifecycle is deliberately not logged. It said only that a connection arrived
+    // and that it finished, which nothing can act on, and it produced two lines for every request
+    // - so an application at debug level lost its own messages among them as soon as anything
+    // polled the service. What a request actually carried is logged below, under the logDetails
+    // options, where it can be asked for on its own.
 
     if (constexpr chrono::seconds readTimeout30sec(30);
         !getSocket()->readyToRead(readTimeout30sec) // Client communication timeout
@@ -117,10 +117,6 @@ void WSConnection::processSingleConnection() const
             httpReader.close();
         }
 
-        if (logDebugMessages)
-        {
-            m_logger.debug("Processed OPTIONS");
-        }
         return;
     }
 
@@ -145,10 +141,6 @@ void WSConnection::processSingleConnection() const
 
     if (processed)
     {
-        if (logDebugMessages)
-        {
-            m_logger.debug("Processed " + protocolName);
-        }
         return;
     }
 
@@ -172,10 +164,11 @@ void WSConnection::processSingleConnection() const
 
     requestStopwatch.stop();
 
-    if (logDebugMessages)
-    {
-        logConnectionDetails(requestStopwatch, httpReader, requestInfo);
-    }
+    // Called unconditionally: it logs only what the logDetails options ask for, and logs nothing
+    // at all when none are set. Asking the log engine's priority here as well made the library's
+    // behaviour depend on the application's log level, which is how a broker at debug level ended
+    // up with two lines of connection chatter per request from its own configuration interface.
+    logConnectionDetails(requestStopwatch, httpReader, requestInfo);
 }
 
 void WSConnection::run()
