@@ -73,7 +73,7 @@ public:
     bool terminated() const;
 
 private:
-    using EventMap = std::multimap<long, std::shared_ptr<TimerEvent>>;
+    using EventMap = std::multimap<int64_t, std::shared_ptr<TimerEvent>>;
 
     mutable std::shared_mutex           m_mutex;  ///< Mutex that protects access to the event collection.
     EventMap                            m_events; ///< Events collection.

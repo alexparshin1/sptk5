@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstdint>
 #include <functional>
 #include <mutex>
 #include <sptk5/DateTime.h>
@@ -78,10 +79,13 @@ private:
     /**
      * @return event fire at timestamp.
      */
-    long mcs_since_epoch() const
+    int64_t mcs_since_epoch() const
     {
         auto duration = m_when.time_since_epoch();
-        return (long) std::chrono::duration_cast<std::chrono::microseconds>(duration).count();
+        // int64_t, not long: microseconds since the epoch need 51 bits, and long is 32-bit on
+        // Windows. Truncating wrapped the value every ~71 minutes, so an event scheduled past a
+        // wrap sorted ahead of events that were already due and starved them until it fired.
+        return std::chrono::duration_cast<std::chrono::microseconds>(duration).count();
     }
 };
 
