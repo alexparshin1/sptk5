@@ -15,6 +15,7 @@ import XMQ_tests_environment from "./pages/XMQ_tests_environment";
 import XMQ_tests_fanin from "./pages/XMQ_tests_fanin";
 import XMQ_tests_fanout from "./pages/XMQ_tests_fanout";
 import XMQ_tests_p2p from "./pages/XMQ_tests_p2p";
+import XMQ_tests_persistence from "./pages/XMQ_tests_persistence";
 import XMQ_mqtt_test_suite from "./pages/XMQ_mqtt_test_suite";
 import XMQ_configuration from "./pages/XMQ_configuration";
 import XMQ_documentation from "./pages/XMQ_documentation";
@@ -78,6 +79,7 @@ class App extends Component
                         {title: "Fan-in", link: "/xmq_tests_fanin"},
                         {title: "Fan-out", link: "/xmq_tests_fanout"},
                         {title: "Point-to-point", link: "/xmq_tests_p2p"},
+                        {title: "Persistence", link: "/xmq_tests_persistence"},
                         {title: "MQTT Test Suite", link: "/xmq_mqtt_test_suite"},
                     ]},
                     {title: "Configuration", link: "/xmq_configuration"},
@@ -139,6 +141,7 @@ class App extends Component
                                         <Route path="/xmq_tests_fanin" Component={XMQ_tests_fanin}/>
                                         <Route path="/xmq_tests_fanout" Component={XMQ_tests_fanout}/>
                                         <Route path="/xmq_tests_p2p" Component={XMQ_tests_p2p}/>
+                                        <Route path="/xmq_tests_persistence" Component={XMQ_tests_persistence}/>
                                         <Route path="/xmq_mqtt_test_suite" Component={XMQ_mqtt_test_suite}/>
                                         <Route path="/xmq_configuration" Component={XMQ_configuration}/>
                                         <Route path="/xmq_documentation" Component={XMQ_documentation}/>

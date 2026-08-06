@@ -1,0 +1,123 @@
+Scenario: Fan-Out 250K - Fan-Out-5-1000-5-250K-5min.json
+          5 publishers / 5 topics / 1000 subscribers, each subscribed to all 5 topics.
+          50 msg/s per publisher = 250/s in, delivered as 250/s x 1000 = 250k/s out.
+          QoS 1, 16B payload, MQTT 3, 5 minutes.
+          Mirrors the Open MQTT Benchmark Suite's singlenode-fanout-5-1000-5-250K case,
+          duration-bound rather than message_count-bound (the parent scenario stops after
+          1000 published messages, which at this rate lasts seconds).
+Date:     2026-07-30
+Server:   AWS c5n.4xlarge, 16 vCPU (8 physical cores x 2 threads), 40Gb RAM
+Client:   AWS c5n.4xlarge, 16 vCPU, 40Gb RAM, same AZ + cluster placement group
+Client:   xmq_scn 0.9.13
+
+Only 1005 connections, and the inbound side is trivial at 250 msg/s. What this measures
+is delivery fan-out: one received message becoming a thousand sends.
+
+CPU percentages are of ONE core: 1600% = all 16 vCPU. xmq_server pins one thread per
+physical core (its shipping default, faster than --no-cpu-affinity), so its ceiling is
+800%; EMQX and Mosquitto run unpinned with all 1600% available.
+
+
+Server:   XMQ
+Version:  0.9.13
+CPU Load: 329% mean / 595% peak
+Max RAM:  22.2 Mb
+Interval        Count    Latency       Rate/s
+─────────────────────────────────────────────
+0ms           7499851     2416us       249995
+30000ms       7500146     2409us       250004
+60000ms       7499891     2463us       249996
+90000ms       7500044     2470us       250001
+120000ms      7499949     2478us       249998
+150000ms      7500005     2503us       250000
+180000ms      7499894     2523us       249996
+210000ms      7500051     2517us       250001
+240000ms      7499950     2518us       249998
+270000ms      7498403     2501us       249946
+─────────────────────────────────────────────
+Average      74998184     2480us       249993
+
+  server CPU   mean 329%, peak 595%   (of 800% available to it)
+  server RSS   22.2 Mb peak
+  MemAvailable floor 38.5 Gb
+  client CPU   mean 422%, peak 442%   (of 1600%)
+
+  Full rate at 2.48ms, flat across every interval (2.41-2.52ms), in 22Mb of RSS.
+
+
+Server:   EMQX
+Version:  5.8.9
+CPU Load: 870% mean / 1557% peak
+Max RAM:  430 Mb
+Interval        Count    Latency       Rate/s
+─────────────────────────────────────────────
+0ms           7499987     4184us       249999
+30000ms       7499615     4386us       249987
+60000ms       7499087     4396us       249969
+90000ms       7500244     4174us       250008
+120000ms      7500855     4380us       250028
+150000ms      7500180     4152us       250006
+180000ms      7500021     3798us       250000
+210000ms      7499196     3615us       249973
+240000ms      7500172     3642us       250005
+270000ms      7490600     3620us       249686
+─────────────────────────────────────────────
+Average      74989957     4035us       249966
+
+  server CPU   mean 870%, peak 1557%  (of 1600%)
+  server RSS   430 Mb peak
+  MemAvailable floor 36.6 Gb
+  client CPU   mean 415%, peak 431%   (of 1600%)
+
+  Also held the full rate. Against XMQ on the same box, same client, same scenario:
+  1.6x the latency, 2.6x the CPU, 19x the memory - and XMQ was confined to half the
+  machine while EMQX had all of it.
+
+  EMQX's published figure for this scenario is 2.27ms (EMQX 5.0.21, c5.4xlarge); we
+  measured 4.04ms for 5.8.9. Same direction and rough magnitude as the discrepancy
+  seen in the point-to-point comparison, now with hardware effectively matched.
+
+
+Server:   Mosquitto
+Version:  2.0.22-5build1
+CPU Load: 74% mean / 100% peak
+Max RAM:  2.52 Gb
+Interval        Count    Latency       Rate/s
+─────────────────────────────────────────────
+0ms           3190204  8551479us       106340
+30000ms       3126400 26000769us       104213
+60000ms       3127968 43471178us       104265
+90000ms       3134375 60945239us       104479
+120000ms      3132792 78408791us       104426
+150000ms      3129687 95897169us       104322
+180000ms      3127622 113376270us       104254
+210000ms      3126851 130861623us       104228
+240000ms      3129100 148353537us       104303
+270000ms      3156389 165878129us       105212
+─────────────────────────────────────────────
+Average      31381388 87086966us       104604
+
+  server CPU   mean 74%, peak 100%    (one core - its single event-loop ceiling)
+  server RSS   2.52 Gb peak
+  MemAvailable floor 35.4 Gb
+  client CPU   mean 202%, peak 211%   (of 1600%)
+
+  Did not reach the offered rate: 104604/s of 250000/s. Latency grows linearly with
+  elapsed time, 8.5s to 165.9s - a fixed deficit converting straight into backlog,
+  bounded only by run length.
+
+  This is the one ceiling in the suite that does NOT move with better hardware: one
+  event-loop thread is one thread on any machine. It did beat its published 81000/s
+  for this scenario, consistent with faster cores, but the shape is unchanged.
+
+  Client CPU was only 202% here precisely because the broker delivered 104k/s rather
+  than 250k/s - the load generator had nothing like the work the other two gave it.
+
+
+NOTES
+  The client was never the bottleneck: xmq_scn peaked at 442% of 1600% available
+  (~28% of the client box) during the heaviest run. Both 250k/s results are broker
+  measurements, not load-generator artifacts.
+
+  Each broker was restarted immediately before its own run. Runs were strictly
+  sequential - two brokers competing for the same cores would corrupt both results.

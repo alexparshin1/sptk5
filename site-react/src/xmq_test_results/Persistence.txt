@@ -1,0 +1,90 @@
+Test requirements:
+- XMQ start_clean is true (with empty Redis DB).
+- XMQ persistence is enabled.
+
+Server:   XMQ
+Version:  0.9.13
+CPU Load: 228% (XMQ)
+CPU Load: 44%  (Redis)
+Max RAM:  0.13 Gb
+Scenario: Point-To-Point 10K (persistent sessions)
+Interval        Count    Latency       Rate/s
+─────────────────────────────────────────────
+0ms            299998      256us         9999
+30000ms        300000      256us        10000
+60000ms        300000      256us        10000
+90000ms        300000      258us        10000
+120000ms       300000      256us        10000
+150000ms       300000      259us        10000
+180000ms       300000      257us        10000
+210000ms       299998      257us         9999
+240000ms       300001      258us        10000
+270000ms       299057      258us         9968
+─────────────────────────────────────────────
+Average       2999054      257us         9996
+
+
+Server:   XMQ
+Version:  0.9.13
+CPU Load: 415% (XMQ)
+CPU Load: 87%  (Redis)
+Max RAM:  0.25 Gb
+Scenario: Point-To-Point 20K (persistent sessions)
+Interval        Count    Latency       Rate/s
+─────────────────────────────────────────────
+0ms            599995      251us        19999
+30000ms        600000      244us        20000
+60000ms        600001      248us        20000
+90000ms        600000      251us        20000
+120000ms       599999      248us        19999
+150000ms       600001      248us        20000
+180000ms       599999      248us        19999
+210000ms       600001      249us        20000
+240000ms       599998      250us        19999
+270000ms       595008      252us        19833
+─────────────────────────────────────────────
+Average       5995002      249us        19983
+
+
+Server:   XMQ
+Version:  0.9.13
+CPU Load: 423% (XMQ)
+CPU Load: 85%  (Redis)
+Max RAM:  0.34 Gb
+Scenario: Point-To-Point 30K (persistent sessions)
+Interval        Count    Latency       Rate/s
+─────────────────────────────────────────────
+0ms            899999      322us        29999
+30000ms        900001      323us        30000
+60000ms        900000      328us        30000
+90000ms        900000      326us        30000
+120000ms       900000      332us        30000
+150000ms       900000      331us        30000
+180000ms       900000      331us        30000
+210000ms       900006      332us        30000
+240000ms       900013      332us        30000
+270000ms       888946      344us        29631
+─────────────────────────────────────────────
+Average       8988965      330us        29963
+
+
+Server:   XMQ
+Version:  0.9.13
+CPU Load: 512% (XMQ)
+CPU Load: 94%  (Redis)
+Max RAM:  0.45 Gb
+Scenario: Point-To-Point 40K (persistent sessions)
+Interval        Count    Latency       Rate/s
+─────────────────────────────────────────────
+0ms           1199965      847us        39998
+30000ms       1200000      881us        40000
+60000ms       1199997      963us        39999
+90000ms       1200000     1019us        40000
+120000ms      1200016     1143us        40000
+150000ms      1199949     1297us        39998
+180000ms      1200023     1328us        40000
+210000ms      1199954     1398us        39998
+240000ms      1200045     1277us        40001
+270000ms      1179827     2740us        39327
+─────────────────────────────────────────────
+Average      11979776     1287us        39932

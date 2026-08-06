@@ -510,8 +510,10 @@ sudo sysctl --system`}</pre>
             <p>
                 This walks through joining two XMQ servers so that a client on either one sees
                 traffic published on the other. Call them <b>mq-a</b> and <b>mq-b</b>; substitute
-                your own host names throughout. Each server gets one bridge, pointed at the other,
-                in <code>inout</code> mode - two bridges in total, one owned by each server.
+                your own host names throughout. One bridge is enough, defined on <b>mq-a</b> and
+                pointing at <b>mq-b</b>, in <code>inout</code> mode - that single bridge carries
+                both directions. Do not define a second one on mq-b pointing back; see the end of
+                this section for why.
             </p>
 
             <p>
@@ -587,35 +589,42 @@ sudo sysctl --system`}</pre>
                 the configuration file is written immediately.
             </p>
 
-            <p><b>Step 2 - add the mirrored bridge on mq-b</b></p>
+            <p><b>Step 2 - nothing to do on mq-b</b></p>
 
             <p>
-                Open <code>http://mq-b:18883</code> and repeat, swapping the two ends:
-                <b>Node name</b> is <code>mq-a</code>, <b>Host</b> is <code>mq-a</code>, and the
-                credentials are for an account on <b>mq-a</b>. The topic, mode, and clean session
-                stay the same. Each server's bridge is its own configuration entry - neither
-                server learns about the other's.
+                mq-b needs no bridge of its own. It needs only the account the bridge signs in
+                with, which it already has if you used one of its existing users. Nothing on mq-b
+                records that a bridge exists: to it, mq-a's bridge is an ordinary client that
+                subscribes and publishes.
             </p>
 
-            <p><b>Step 3 - restart both servers</b></p>
+            <p><b>Step 3 - press Apply on each server</b></p>
 
             <p>
                 This step is easy to miss. Saving a bridge stores it, but does <em>not</em> start
-                the connection; the link is established when the server starts. On each host:
+                the connection. <b>Apply</b>, on the Bridges page, rebuilds the connections from
+                the configuration as it now stands: the bridges that were running are stopped, and
+                the configured ones are started. Press it on <b>mq-a</b>.
+            </p>
+
+            <p>
+                Neither server has to be restarted, and mq-b does not have to be up yet: a bridge
+                whose remote is not answering retries on its own, the wait between attempts growing
+                to half a minute and dropping back as soon as it connects.
+            </p>
+
+            <p>
+                Restarting the server has the same effect, since bridges are started with it, and
+                remains the way to apply a change made by editing the configuration file directly:
             </p>
 
             <pre className="userManualCode">{`sudo systemctl restart xmq_server`}</pre>
 
-            <p>
-                Order does not matter. A bridge whose remote is not up yet retries until it
-                answers, which is what lets two servers that bridge to each other both start.
-            </p>
-
-            <p><b>Step 4 - confirm both links came up</b></p>
+            <p><b>Step 4 - confirm the link came up</b></p>
 
             <p>
-                With <b>Connections</b> at <code>DEBUG</code> on the <b>Logging</b> page, each
-                server's log carries a line per bridge:
+                With <b>Connections</b> at <code>DEBUG</code> on the <b>Logging</b> page, mq-a's
+                log carries two lines for the bridge:
             </p>
 
             <pre className="userManualCode">{`Bridge to mq-b forwarding 1 outbound topic(s).
@@ -639,9 +648,9 @@ Bridge to mq-b (mq-b:1883) connected, 1 inbound topic(s).`}</pre>
 xmq_pub -h mq-a -p 1883 -u user -P secret -t test/bridge -q 1 -m "over the bridge"`}</pre>
 
             <p>
-                Then swap the two hosts and repeat, to check the other direction: with
-                <code>inout</code> bridges on both sides it is quite possible for one direction to
-                work while the other is misconfigured.
+                Then swap the two hosts and repeat, to check the other direction: one
+                <code>inout</code> bridge carries both, but the two use different halves of it, and
+                it is quite possible for one to work while the other does not.
             </p>
 
             <p>
@@ -661,8 +670,9 @@ xmq_pub -h mq-a -p 1883 -u user -P secret -t test/bridge -q 1 -m "over the bridg
             <p><b>If nothing crosses</b></p>
 
             <ul>
-                <li><b>No bridge line in the log at all</b> - the server was not restarted after
-                    the bridge was saved, or the bridge is not enabled.</li>
+                <li><b>No bridge line in the log at all</b> - <b>Apply</b> was not pressed after
+                    the bridge was saved, or the bridge is not enabled. Saving stores the bridge;
+                    it does not start it.</li>
                 <li><b>Repeated connect failures</b> - the host or port is wrong, the port is
                     blocked, or the credentials name an account that does not exist on the
                     <em>remote</em> server. The log names the reason.</li>
@@ -672,18 +682,114 @@ xmq_pub -h mq-a -p 1883 -u user -P secret -t test/bridge -q 1 -m "over the bridg
                     on its own does not.</li>
                 <li><b>One direction only</b> - check the mode on both bridges. A bridge in
                     <code>out</code> mode forwards but never subscribes.</li>
+                <li><b>Everything arrives twice</b> - a bridge is defined on both servers, each
+                    covering the same topics. One <code>inout</code> bridge carries both
+                    directions by itself, so the second one only moves the same message a second
+                    way; remove it. The subscribers on the publishing server still see one copy,
+                    which is what makes this look like a delivery fault rather than a
+                    configuration one. This is explained under <i>Why one bridge, and not one on
+                    each server</i> below.</li>
             </ul>
 
-            <p><b>A note on the pair</b></p>
+            <p><b>Why one bridge, and not one on each server</b></p>
 
             <p>
-                Two <code>inout</code> bridges is deliberately redundant: each server independently
-                pulls from and pushes to the other, so the link survives one side's bridge being
-                disabled or misconfigured. It relies on XMQ refusing to send a message back the way
-                it came, which it does by marking the origin node. That marking is XMQ's own, so
-                keep this arrangement between XMQ servers. Pointing two overlapping
-                <code>inout</code> bridges through a broker that does not mark origins can loop a
-                message indefinitely.
+                An <code>inout</code> bridge already carries both directions on its own: it
+                subscribes on the remote for what comes in, and subscribes locally for what goes
+                out. A second bridge, defined on the other server and pointing back, adds nothing
+                but a second copy - the message arrives once because this server pulled it, and
+                again because the other server pushed it. Both copies are legitimate deliveries,
+                so nothing detects or suppresses them: a subscriber simply receives everything
+                twice.
+            </p>
+
+            <p>
+                Define the bridge on one of the two servers only. Which one does not matter.
+            </p>
+
+            <p>
+                Bridged traffic is not sent back the way it came - a message is marked with the
+                node it arrived from, and a bridge subscription is never given a marked message.
+                That marking is XMQ's own, so it only covers the bridges XMQ itself makes. When
+                the broker at the other end is doing the bridging, what protects you is described
+                next.
+            </p>
+
+            <h5>More than two servers</h5>
+
+            <p>
+                Bridged traffic is not passed on. A message that reached this server over one
+                bridge is delivered to its own subscribers, but it is not handed to a second
+                bridge - that is the same rule that stops a message going back where it came
+                from, and it cannot tell "back" from "onward".
+            </p>
+
+            <p>
+                So the shapes that look natural do not work. In a chain
+                <code>A - B - C</code>, B sees everything from both, but A and C never see each
+                other. In a star, the hub sees every spoke and no spoke sees another.
+            </p>
+
+            <p>
+                Give every pair its own bridge instead. Three servers need three:
+                <code>A-B</code>, <code>A-C</code> and <code>B-C</code>, each defined once, on
+                either end. Every server then has a direct link to every other, so nothing needs
+                relaying - and because nothing is relayed, nothing is duplicated either: each
+                message arrives exactly once at each server.
+            </p>
+
+            <p>
+                The cost is that the number of bridges grows as the square of the number of
+                servers: three servers need three bridges, four need six, five need ten. Bridging
+                suits a handful of servers, and the arithmetic is what limits it.
+            </p>
+
+            <h5>Bridging to a broker that is not XMQ</h5>
+
+            <p>
+                A bridge to Mosquitto, EMQX, or anything else speaking MQTT is configured exactly
+                as above; only the remote's own settings differ. One of them is worth getting
+                right, because it decides whether messages can circulate endlessly between the two
+                brokers.
+            </p>
+
+            <p>
+                <b>Configure the remote's bridge to use MQTT 5.</b> In Mosquitto that is one line
+                in its bridge block:
+            </p>
+
+            <pre className="userManualCode">{`connection xmq
+address xmq-host:1883
+topic test/# both 0 "" ""
+remote_username user
+remote_password secret
+bridge_protocol_version mqttv50`}</pre>
+
+            <p>
+                MQTT 5 defines two subscription options that exist for precisely this purpose.
+                <b>No Local</b> tells the broker not to send a subscriber back what that same
+                connection published, which is what stops a message going round; and <b>Retain As
+                Published</b> keeps a retained message retained as it crosses. A bridge that
+                subscribes with them cannot be echoed to, and XMQ honours both, whoever set them.
+                XMQ's own bridges set them too, which is why a bridge between two XMQ servers needs
+                nothing configured for this.
+            </p>
+
+            <p>
+                Mosquitto defaults to <code>mqttv311</code> instead. Such a bridge still connects
+                and still carries messages, but the loop protection is absent: MQTT 3.1.1 has no
+                subscription options to carry it, and the non-standard "bridge" protocol variant
+                Mosquitto tries first - a protocol level with the high bit set - is not something
+                XMQ accepts. Mosquitto notices the refusal and reconnects as an ordinary client,
+                so the only visible cost is one rejected connection attempt, and the invisible one
+                is that XMQ cannot tell that client is a bridge.
+            </p>
+
+            <p>
+                With a 3.1.1 remote bridge, then, keep the topic patterns from overlapping in both
+                directions - carry <code>a/#</code> one way and <code>b/#</code> the other, rather
+                than <code>#</code> both ways - or drive the link entirely from the XMQ side, where
+                the origin marking applies.
             </p>
 
             <h5>Server limits</h5>

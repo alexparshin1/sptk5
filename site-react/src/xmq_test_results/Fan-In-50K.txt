@@ -1,0 +1,134 @@
+Scenario: Fan-In 50K (shared subscription) - Fan-In-50K-500-50K-50K.json
+          50000 publishers / 50000 topics / 500 subscribers on one shared subscription
+          ($share/benchmark/test/#), 1 msg/s per publisher = 50k/s aggregate,
+          QoS 1, 16B payload, MQTT 5, 30 minutes.
+          Mirrors the Open MQTT Benchmark Suite's singlenode-sharesub-50K-500-50K-50K case.
+Date:     2026-07-30
+Server:   AWS c5n.4xlarge, 16 vCPU (8 physical cores x 2 threads), 40Gb RAM
+Client:   AWS c5n.4xlarge, 16 vCPU, 40Gb RAM, 30 source IPs, same AZ + cluster placement group
+Client:   xmq_scn 0.9.13
+
+CPU percentages are of ONE core: 1600% = all 16 vCPU. xmq_server pins one thread per
+physical core (its shipping default, faster than --no-cpu-affinity), so its ceiling is
+800%; EMQX and Mosquitto run unpinned with all 1600% available.
+
+
+Server:   XMQ
+Version:  0.9.13
+CPU Load: 267% mean / 341% peak
+Max RAM:  242 Mb
+Interval        Count    Latency       Rate/s
+─────────────────────────────────────────────
+0ms           8999987      218us        49999
+180000ms      9000001      215us        50000
+360000ms      9000002      216us        50000
+540000ms      8999997      216us        49999
+720000ms      9000000      216us        50000
+900000ms      8999998      217us        49999
+1080000ms     9000002      216us        50000
+1260000ms     8999998      217us        49999
+1440000ms     9000001      218us        50000
+1620000ms     8999817      218us        49998
+─────────────────────────────────────────────
+Average      89999803      217us        49999
+
+  server CPU   mean 267%, peak 341%   (of 800% available to it)
+  server RSS   242 Mb peak
+  MemAvailable floor 26.5 Gb
+  client CPU   mean 283%, peak 305%   (of 1600%)
+
+  Held the full rate for 30 minutes at 217us, with a 3us spread across all ten
+  intervals (215-218us). Used a third of its own allowance - an eighth of the machine.
+
+
+Server:   EMQX
+Version:  5.8.9
+CPU Load: 1323% mean / 1649% peak
+Max RAM:  9.78 Gb
+Interval        Count    Latency       Rate/s
+─────────────────────────────────────────────
+0ms           8999973   225979us        49999
+180000ms      7600608 14468191us        42225
+360000ms      8674314 27389422us        48190
+540000ms      7112373 56242459us        39513
+720000ms      6786951 88811126us        37705
+900000ms      8855158 116705662us        49195
+1080000ms     6705878 140647968us        37254
+1260000ms     7346450 173207038us        40813
+1440000ms     7011975 216298858us        38955
+1620000ms     6431148 260250117us        35728
+─────────────────────────────────────────────
+Average      75524828 103168996us        41958
+
+  server CPU   mean 1323%, peak 1649%  (of 1600% - saturated)
+  server RSS   9.78 Gb peak
+  MemAvailable floor 26.5 Gb (not memory-bound)
+  client CPU   mean 275%, peak 332%    (of 1600% - not the bottleneck)
+
+  Did not reach the offered rate: 41958/s of 50000/s, 75.5M of the 90M messages.
+  Latency climbs from 226ms to 260s over the run - bounded by run length, not a
+  steady state.
+
+  DOES NOT MATCH EMQX'S PUBLISHED FIGURE for this scenario (50000/s at 2.51ms for
+  EMQX 5.0.21 on a c5.4xlarge). The explanations we can control were ruled out:
+    - emqx.conf is tuned per EMQX's own performance guide (process_limit 4194304,
+      max_ports 2097152, acceptors 64, backlog 8192, max_connections 2000000)
+    - the client had ample headroom (275% of 1600%)
+    - memory was never constrained (26.5Gb free at the floor)
+    - hardware is equivalent (c5n.4xlarge vs their c5.4xlarge, same 16 vCPU Skylake)
+  What remains is the broker version (5.8.9 vs their 5.0.21) and the load generator
+  (xmq_scn vs XMeter). Treat this as a result for this version under this harness,
+  not as a general statement about EMQX.
+
+  Worth noting alongside: Mosquitto held the full rate on ONE core in this same
+  scenario, while EMQX saturated thirteen. That gap is large enough to suggest
+  something pathological in 5.8.9's shared-subscription dispatch rather than a
+  simple capacity limit, and is worth investigating before drawing conclusions.
+
+
+Server:   Mosquitto
+Version:  2.0.22-5build1
+CPU Load: 100% mean / 101% peak
+Max RAM:  31.4 Gb
+Interval        Count    Latency       Rate/s
+─────────────────────────────────────────────
+0ms           8974705   236059us        49859
+180000ms      9001560   571564us        50008
+360000ms      8999812   488795us        49998
+540000ms      8972068   945914us        49844
+720000ms      9018329   582285us        50101
+900000ms      9025202   224016us        50140
+1080000ms     8998919   229543us        49993
+1260000ms     9001218   163974us        50006
+1440000ms     9001120   207854us        50006
+1620000ms     8974901   145009us        49860
+─────────────────────────────────────────────
+Average      89967834   379429us        49982
+
+  server CPU   mean 100%, peak 101%    (one core - its single event-loop ceiling)
+  server RSS   31.4 Gb peak
+  MemAvailable floor 4.6 Gb (of 40Gb - the run came close to exhausting the host)
+  client CPU   mean 305%, peak 326%    (of 1600%)
+
+  Held the full rate, and unlike every other overload case seen in this suite its
+  latency IMPROVES over the run (946ms peak down to 145ms) rather than diverging.
+  It beat EMQX here on both throughput and latency, using one core against thirteen.
+
+  The cost is memory: 31.4 Gb peak on a 40Gb host, leaving 4.6Gb free. This config
+  sets max_inflight_messages and max_queued_messages to 0 (unbounded), so the early
+  backlog - visible as the 236-946ms latencies in the first half - is absorbed as
+  heap rather than as drops, and glibc does not return it afterwards. A finite queue
+  cap would trade that memory for message loss.
+
+  Also beats its own published figure for this scenario (41000/s at 12476ms).
+
+
+NOTES
+  TcpExtListenOverflows: 2527 across the whole suite. Mosquitto 2.0.22 hardcodes
+  listen(sock, 100) and cannot absorb 50500 clients arriving at the connect rate;
+  net.core.somaxconn (65535 here) does not help, since the kernel applies
+  min(backlog, somaxconn). A connect-phase artifact, unrelated to steady-state
+  throughput. EMQX uses backlog 8192 and XMQ 4096 x 4 SO_REUSEPORT listeners.
+
+  Each broker was restarted immediately before its own run, so no run inherited
+  memory a previous one retained. Runs were strictly sequential.

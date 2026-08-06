@@ -1552,4 +1552,40 @@ TEST_F(RedisConnectTests, valueSetGetPerformanceAsync)
     COUT(format("Set {} keys for {:3.1f}ms ({:3.1f}K/s)", totalValues, stopwatch.milliseconds(), totalValues / stopwatch.milliseconds()));
 }
 
+
+// INFO answers with a RESP3 verbatim string, a type that was once not understood here. The cost
+// was not the missing reply but what it left behind: the payload stayed unread in the socket, so
+// the next command parsed those leftover bytes as if they were its own answer, and every command
+// after it on that connection was wrong. CONFIG GET follows deliberately - it is the command that
+// exposed the fault, by reporting a response type of "t" taken from the middle of INFO's text.
+TEST_F(RedisConnectTests, infoFollowedByConfigGet)
+{
+    vector<Variant> info;
+    ASSERT_NO_THROW(m_redis.executeCommand(RedisCommand("INFO", "memory"), info));
+    ASSERT_FALSE(info.empty());
+
+    const auto infoText = info.front().asString();
+    EXPECT_NE(infoText.find("used_memory:"), string::npos)
+        << "INFO memory should carry used_memory";
+    // The three-character format marker that precedes a verbatim string belongs to the protocol,
+    // not to the value, and must not reach the caller.
+    EXPECT_NE(infoText.compare(0, 4, "txt:"), 0) << "The verbatim format marker was not stripped";
+
+    // The real assertion: the connection is still usable, and this reply is this command's.
+    RedisCommand getDir("CONFIG", "GET");
+    getDir.emplace_back("dir");
+
+    vector<Variant> directory;
+    ASSERT_NO_THROW(m_redis.executeCommand(getDir, directory));
+    ASSERT_EQ(2U, directory.size()) << "CONFIG GET answers as name and value";
+    EXPECT_EQ("dir", directory[0].asString());
+    EXPECT_FALSE(directory[1].asString().empty());
+
+    // And an ordinary command after both still behaves, so nothing was left in the stream.
+    const string  key = "info_then_config_key";
+    const Variant value = "still_in_step";
+    EXPECT_NO_THROW(m_redis.setValue(key, value));
+    EXPECT_EQ(value.asString(), m_redis.getValue(key).asString());
+}
+
 } // namespace sptk

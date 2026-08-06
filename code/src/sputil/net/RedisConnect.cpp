@@ -661,6 +661,7 @@ void RedisConnect::readResponse(std::vector<Variant>& results, Variant* cursor)
             return;
         }
 
+        case '=':   // Verbatim String (RESP3)
         case '$': { // Bulk String
             int64_t len {0};
             std::from_chars(payload.data(), payload.data() + payload.size(), len);
@@ -673,6 +674,19 @@ void RedisConnect::readResponse(std::vector<Variant>& results, Variant* cursor)
             m_readBuffer.reserve(readLength);
             m_reader->read(m_readBuffer, readLength);     // Also read \r\n
             m_readBuffer.bytes(m_readBuffer.bytes() - 2); // Cut off \r\n
+            if (type == '=')
+            {
+                // A verbatim string begins with a three-character format and a colon, such as
+                // "txt:" or "mkd:", describing how the text should be presented. Callers want the
+                // text, so the marker is dropped here rather than by every one of them.
+                constexpr size_t formatMarkerLength = 4;
+                if (m_readBuffer.bytes() >= formatMarkerLength && m_readBuffer[3] == ':')
+                {
+                    memmove(m_readBuffer.data(), m_readBuffer.data() + formatMarkerLength,
+                            m_readBuffer.bytes() - formatMarkerLength);
+                    m_readBuffer.bytes(m_readBuffer.bytes() - formatMarkerLength);
+                }
+            }
             if (cursor)
             {
                 *cursor = m_readBuffer;
@@ -699,6 +713,25 @@ void RedisConnect::readResponse(std::vector<Variant>& results, Variant* cursor)
             }
             return;
         }
+        case '!': { // Blob Error (RESP3)
+            int64_t len {0};
+            std::from_chars(payload.data(), payload.data() + payload.size(), len);
+            if (len > 0)
+            {
+                const auto readLength = len + 2;
+                m_readBuffer.reserve(readLength);
+                m_reader->read(m_readBuffer, readLength);
+                m_readBuffer.bytes(m_readBuffer.bytes() - 2);
+                throw RedisConnectException(std::string(m_readBuffer.c_str(), m_readBuffer.bytes()));
+            }
+            throw RedisConnectException("Redis error");
+        }
+
+        case '(': { // Big number (RESP3), delivered as text - it may not fit an integer
+            results.emplace_back(std::string(payload));
+            return;
+        }
+
         case '_':                   // Null (RESP3)
             results.emplace_back(); // Null
             return;
