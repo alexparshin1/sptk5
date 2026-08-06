@@ -52,11 +52,31 @@ export default class UserManualScreen extends React.Component {
                 </tr>
                 </thead>
                 <tbody>
-                <tr><td>Debian</td><td>trixie, forky</td><td><code>.deb</code></td></tr>
-                <tr><td>Ubuntu</td><td>25.04, 25.10, 26.04</td><td><code>.deb</code></td></tr>
-                <tr><td>Fedora</td><td>42, 43, 44</td><td><code>.rpm</code></td></tr>
-                <tr><td>Oracle Linux</td><td>10</td><td><code>.rpm</code></td></tr>
-                <tr><td>Windows</td><td>10, 11, Server</td><td>installer</td></tr>
+                <tr>
+                    <td>Debian</td>
+                    <td>trixie, forky</td>
+                    <td><code>.deb</code></td>
+                </tr>
+                <tr>
+                    <td>Ubuntu</td>
+                    <td>25.04, 25.10, 26.04</td>
+                    <td><code>.deb</code></td>
+                </tr>
+                <tr>
+                    <td>Fedora</td>
+                    <td>42, 43, 44</td>
+                    <td><code>.rpm</code></td>
+                </tr>
+                <tr>
+                    <td>Oracle Linux</td>
+                    <td>10</td>
+                    <td><code>.rpm</code></td>
+                </tr>
+                <tr>
+                    <td>Windows</td>
+                    <td>10, 11, Server</td>
+                    <td>installer</td>
+                </tr>
                 </tbody>
             </table>
 
@@ -83,7 +103,7 @@ export default class UserManualScreen extends React.Component {
             </p>
 
             <p>
-                The dependencies for Linux include brotli and pcre2 packages that are included in all major 
+                The dependencies for Linux include brotli and pcre2 packages that are included in all major
                 Linux distributions. The dependencies for Windows are installed with XMQ.
             </p>
 
@@ -115,7 +135,8 @@ export default class UserManualScreen extends React.Component {
                 <tr>
                     <td><code>/usr/local/bin</code></td>
                     <td><code>xmq_server</code> and the <code>xmq_pub</code>, <code>xmq_sub</code>,
-                        <code>xmq_con</code>, <code>xmq_scn</code> utilities</td>
+                        <code>xmq_con</code>, <code>xmq_scn</code> utilities
+                    </td>
                 </tr>
                 <tr>
                     <td><code>/etc/xmq/xmq_server.conf</code></td>
@@ -169,20 +190,34 @@ sudo journalctl -u xmq_server -f`}</pre>
                 </tr>
                 </thead>
                 <tbody>
-                <tr><td><code>-s</code>, <code>--console</code></td>
+                <tr>
+                    <td><code>-s</code>, <code>--console</code></td>
                     <td>Stay in the foreground instead of self-daemonizing. This is what the
-                        systemd unit uses, so that systemd supervises the real process</td></tr>
-                <tr><td><code>-c</code>, <code>--configuration-file</code></td>
-                    <td>Use a configuration file other than the default</td></tr>
-                <tr><td><code>-l</code>, <code>--log-file</code></td>
-                    <td>Write the log somewhere other than the configured path</td></tr>
-                <tr><td><code>--no-cpu-affinity</code></td>
+                        systemd unit uses, so that systemd supervises the real process
+                    </td>
+                </tr>
+                <tr>
+                    <td><code>-c</code>, <code>--configuration-file</code></td>
+                    <td>Use a configuration file other than the default</td>
+                </tr>
+                <tr>
+                    <td><code>-l</code>, <code>--log-file</code></td>
+                    <td>Write the log somewhere other than the configured path</td>
+                </tr>
+                <tr>
+                    <td><code>--no-cpu-affinity</code></td>
                     <td>Stop pinning threads to physical cores. Affinity is the default and is
-                        Linux-only; it understands CPU sets, so it cooperates with containers</td></tr>
-                <tr><td><code>-d</code>, <code>--debug</code></td>
-                    <td>Verbose logging, regardless of the configured levels</td></tr>
-                <tr><td><code>--version</code></td>
-                    <td>Print the version and exit</td></tr>
+                        Linux-only; it understands CPU sets, so it cooperates with containers
+                    </td>
+                </tr>
+                <tr>
+                    <td><code>-d</code>, <code>--debug</code></td>
+                    <td>Verbose logging, regardless of the configured levels</td>
+                </tr>
+                <tr>
+                    <td><code>--version</code></td>
+                    <td>Print the version and exit</td>
+                </tr>
                 </tbody>
             </table>
 
@@ -303,9 +338,16 @@ sudo sysctl --system`}</pre>
 
             <p>
                 Everything in this section can be set from the configuration interface, and is written back to
-                <code>/etc/xmq/xmq_server.conf</code>. Hand-editing that file is still possible;
-                if you do, restart the server afterwards, since a running server rewrites the file
+                <code>/etc/xmq/xmq_server.conf</code>. The user data is stored in the file
+                <code>/etc/xmq/xmq_users.conf</code>. Hand-editing these files is still possible;
+                if you do, restart the server afterwards, since a running server rewrites the files
                 when settings change and would overwrite your edit.
+            </p>
+            <p>
+                The XMQ configuration interface is available through the browser at http://xmq_host:18883.
+                The xmq_host here is the host name where XMQ server is running.
+                The default administrative user credentials are: The username is "admin" and the password is
+                also "admin". It's highly recommended to change the default password.
             </p>
 
             <h5>Port numbers</h5>
@@ -324,9 +366,21 @@ sudo sysctl --system`}</pre>
                 </tr>
                 </thead>
                 <tbody>
-                <tr><td>1883</td><td>MQTT</td><td>Plain TCP, the standard MQTT port</td></tr>
-                <tr><td>8883</td><td>MQTT+SSL</td><td>TLS, the standard secure MQTT port</td></tr>
-                <tr><td>18883</td><td>HTTP</td><td>The configuration interface and its control API</td></tr>
+                <tr>
+                    <td>1883</td>
+                    <td>MQTT</td>
+                    <td>Plain TCP, the standard MQTT port</td>
+                </tr>
+                <tr>
+                    <td>8883</td>
+                    <td>MQTT+SSL</td>
+                    <td>TLS, the standard secure MQTT port</td>
+                </tr>
+                <tr>
+                    <td>18883</td>
+                    <td>HTTP</td>
+                    <td>The configuration interface and its control API</td>
+                </tr>
                 </tbody>
             </table>
 
@@ -460,12 +514,18 @@ sudo sysctl --system`}</pre>
                 </tr>
                 </thead>
                 <tbody>
-                <tr><td><code>out</code></td>
-                    <td>Messages published on this server are forwarded to the remote one</td></tr>
-                <tr><td><code>in</code></td>
-                    <td>This server subscribes to the remote one and republishes what it sends</td></tr>
-                <tr><td><code>inout</code></td>
-                    <td>Both directions</td></tr>
+                <tr>
+                    <td><code>out</code></td>
+                    <td>Messages published on this server are forwarded to the remote one</td>
+                </tr>
+                <tr>
+                    <td><code>in</code></td>
+                    <td>This server subscribes to the remote one and republishes what it sends</td>
+                </tr>
+                <tr>
+                    <td><code>inout</code></td>
+                    <td>Both directions</td>
+                </tr>
                 </tbody>
             </table>
 
@@ -526,14 +586,17 @@ sudo sysctl --system`}</pre>
             <ul>
                 <li>Both servers installed, running, and reachable from each other on their MQTT
                     port - a bridge is an ordinary outbound MQTT connection, so a firewall between
-                    the hosts needs that port open in both directions.</li>
+                    the hosts needs that port open in both directions.
+                </li>
                 <li>Decide which topics to carry. This example uses <code>test/#</code>. Prefer a
                     specific prefix to <code>#</code>: it keeps the link's traffic to what you
-                    actually meant to share.</li>
+                    actually meant to share.
+                </li>
                 <li>An account on each server for the other's bridge to log in as. The bridge
                     authenticates like any client, so it needs a real account on the
                     <em>remote</em> server. A non-administrator account is enough; create it on the
-                    <b>Users</b> page if you do not already have one.</li>
+                    <b>Users</b> page if you do not already have one.
+                </li>
             </ul>
 
             <p><b>Step 1 - add the bridge on mq-a</b></p>
@@ -554,26 +617,60 @@ sudo sysctl --system`}</pre>
                 </tr>
                 </thead>
                 <tbody>
-                <tr><td>Node name</td><td><code>mq-b</code></td>
+                <tr>
+                    <td>Node name</td>
+                    <td><code>mq-b</code></td>
                     <td>The name this server knows the remote by. It appears in the log and marks
                         messages that arrived over the link, which is how loops are prevented.
-                        A name already used by another bridge is rejected.</td></tr>
-                <tr><td>Host / port</td><td><code>mq-b</code> / <code>1883</code></td>
+                        A name already used by another bridge is rejected.
+                    </td>
+                </tr>
+                <tr>
+                    <td>Host / port</td>
+                    <td><code>mq-b</code> / <code>1883</code></td>
                     <td>The remote MQTT listener, not its configuration port. A second bridge to
-                        the same host and port is rejected: it would carry every message twice.</td></tr>
-                <tr><td>Mode</td><td><code>inout</code></td><td>Both directions.</td></tr>
-                <tr><td>Username</td><td>the account on <b>mq-b</b></td>
-                    <td>Credentials for the remote server, not this one.</td></tr>
-                <tr><td>Password</td><td>its password</td><td></td></tr>
-                <tr><td>Client ID</td><td>leave empty</td>
+                        the same host and port is rejected: it would carry every message twice.
+                    </td>
+                </tr>
+                <tr>
+                    <td>Mode</td>
+                    <td><code>inout</code></td>
+                    <td>Both directions.</td>
+                </tr>
+                <tr>
+                    <td>Username</td>
+                    <td>the account on <b>mq-b</b></td>
+                    <td>Credentials for the remote server, not this one.</td>
+                </tr>
+                <tr>
+                    <td>Password</td>
+                    <td>its password</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>Client ID</td>
+                    <td>leave empty</td>
                     <td>XMQ then derives a stable id from the two node names. Set one only if the
-                        remote requires a particular id, and never one that varies.</td></tr>
-                <tr><td>Enabled</td><td>ticked</td><td></td></tr>
-                <tr><td>Clean session</td><td>unticked</td>
-                    <td>So mq-b keeps the subscriptions and queues messages while the link is down.</td></tr>
-                <tr><td>Encrypted</td><td>unticked</td>
+                        remote requires a particular id, and never one that varies.
+                    </td>
+                </tr>
+                <tr>
+                    <td>Enabled</td>
+                    <td>ticked</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>Clean session</td>
+                    <td>unticked</td>
+                    <td>So mq-b keeps the subscriptions and queues messages while the link is down.</td>
+                </tr>
+                <tr>
+                    <td>Encrypted</td>
+                    <td>unticked</td>
                     <td>Tick it only when bridging to the remote's TLS port; it reveals the key
-                        file fields, which are paths on this host.</td></tr>
+                        file fields, which are paths on this host.
+                    </td>
+                </tr>
                 </tbody>
             </table>
 
@@ -672,23 +769,28 @@ xmq_pub -h mq-a -p 1883 -u user -P secret -t test/bridge -q 1 -m "over the bridg
             <ul>
                 <li><b>No bridge line in the log at all</b> - <b>Apply</b> was not pressed after
                     the bridge was saved, or the bridge is not enabled. Saving stores the bridge;
-                    it does not start it.</li>
+                    it does not start it.
+                </li>
                 <li><b>Repeated connect failures</b> - the host or port is wrong, the port is
                     blocked, or the credentials name an account that does not exist on the
-                    <em>remote</em> server. The log names the reason.</li>
+                    <em>remote</em> server. The log names the reason.
+                </li>
                 <li><b>Connected, nothing carried</b> - the topic pattern does not cover the topic
                     being published. Patterns are matched as MQTT subscriptions:
                     <code>test/#</code> covers <code>test/bridge</code>, while <code>test</code>
-                    on its own does not.</li>
+                    on its own does not.
+                </li>
                 <li><b>One direction only</b> - check the mode on both bridges. A bridge in
-                    <code>out</code> mode forwards but never subscribes.</li>
+                    <code>out</code> mode forwards but never subscribes.
+                </li>
                 <li><b>Everything arrives twice</b> - a bridge is defined on both servers, each
                     covering the same topics. One <code>inout</code> bridge carries both
                     directions by itself, so the second one only moves the same message a second
                     way; remove it. The subscribers on the publishing server still see one copy,
                     which is what makes this look like a delivery fault rather than a
                     configuration one. This is explained under <i>Why one bridge, and not one on
-                    each server</i> below.</li>
+                        each server</i> below.
+                </li>
             </ul>
 
             <p><b>Why one bridge, and not one on each server</b></p>
@@ -839,24 +941,42 @@ xmq_scn -s 1M-Connections-5K-rate.json -h broker -p 1883`}</pre>
                 </tr>
                 </thead>
                 <tbody>
-                <tr><td><code>-s</code>, <code>--scenario</code></td>
+                <tr>
+                    <td><code>-s</code>, <code>--scenario</code></td>
                     <td>Scenario file. A relative path is looked up in the current directory first,
-                        then in the installed scenario directory</td></tr>
-                <tr><td><code>-m</code>, <code>--payload-size</code></td>
-                    <td>Message size, overriding the scenario</td></tr>
-                <tr><td><code>-r</code>, <code>--publish-rate</code></td>
-                    <td>Messages per second per publisher. 0 means unpaced: as fast as possible</td></tr>
-                <tr><td><code>-d</code>, <code>--duration</code></td>
-                    <td>How long to run</td></tr>
-                <tr><td><code>-q</code>, <code>--qos</code></td>
-                    <td>Quality of service to publish with</td></tr>
-                <tr><td><code>--max-inflight</code></td>
+                        then in the installed scenario directory
+                    </td>
+                </tr>
+                <tr>
+                    <td><code>-m</code>, <code>--payload-size</code></td>
+                    <td>Message size, overriding the scenario</td>
+                </tr>
+                <tr>
+                    <td><code>-r</code>, <code>--publish-rate</code></td>
+                    <td>Messages per second per publisher. 0 means unpaced: as fast as possible</td>
+                </tr>
+                <tr>
+                    <td><code>-d</code>, <code>--duration</code></td>
+                    <td>How long to run</td>
+                </tr>
+                <tr>
+                    <td><code>-q</code>, <code>--qos</code></td>
+                    <td>Quality of service to publish with</td>
+                </tr>
+                <tr>
+                    <td><code>--max-inflight</code></td>
                     <td>Cap on a publisher's un-acknowledged QoS 1 backlog, so it throttles against
-                        its own round-trip time rather than publishing blindly at the configured rate</td></tr>
-                <tr><td><code>--id-prefix</code></td>
-                    <td>Client id prefix, so several client hosts don't collide</td></tr>
-                <tr><td><code>--progress</code></td>
-                    <td>Show a progress bar</td></tr>
+                        its own round-trip time rather than publishing blindly at the configured rate
+                    </td>
+                </tr>
+                <tr>
+                    <td><code>--id-prefix</code></td>
+                    <td>Client id prefix, so several client hosts don't collide</td>
+                </tr>
+                <tr>
+                    <td><code>--progress</code></td>
+                    <td>Show a progress bar</td>
+                </tr>
                 </tbody>
             </table>
 
@@ -869,7 +989,8 @@ xmq_scn -s 1M-Connections-5K-rate.json -h broker -p 1883`}</pre>
                 <code>remove_ip_addresses.sh</code> takes them away again:
             </p>
 
-            <pre className="userManualCode">{`./make_ip_addresses.sh -s <first three octets> -p <prefix> -f <first host octet> -c 29`}</pre>
+            <pre
+                className="userManualCode">{`./make_ip_addresses.sh -s <first three octets> -p <prefix> -f <first host octet> -c 29`}</pre>
 
             <p>
                 Scenarios spread their clients across whatever addresses the host has, so the
@@ -937,7 +1058,8 @@ xmq_pub -h localhost -p 1883 -u user --password secret -t test/hello -m "it work
                 way to see whether the host limits are in place:
             </p>
 
-            <pre className="userManualCode">{`xmq_con -h localhost -p 1883 -u user --password secret -n 10000 --show-counters`}</pre>
+            <pre
+                className="userManualCode">{`xmq_con -h localhost -p 1883 -u user --password secret -n 10000 --show-counters`}</pre>
 
             <p>
                 If it stops short of the number asked for, the file descriptor limit is the usual
