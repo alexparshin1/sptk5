@@ -67,6 +67,10 @@ public:
      */
     SocketType fd() const
     {
+        // Shared: this only reads m_socketFd, but close() writes it under the exclusive lock and
+        // the reactor reads it here while unregistering - SocketPool::removeSocket() takes the
+        // descriptor from this call, so an unlocked read can hand the pool a closed or reused fd.
+        const ReadLock lock(m_mutex);
         return getSocketFdUnlocked();
     }
 
@@ -97,6 +101,8 @@ public:
      */
     [[nodiscard]] size_t socketBytes() const
     {
+        // Shared, for the same reason as fd(): this ioctls on m_socketFd, which close() invalidates.
+        const ReadLock lock(m_mutex);
         return getSocketBytesUnlocked();
     }
 
@@ -246,7 +252,9 @@ public:
      */
     size_t read(uint8_t* buffer, const size_t size, sockaddr* from = nullptr)
     {
-        const WriteLock lock(m_mutex);
+        // Shared: readUnlocked() only reads m_socketFd. The exclusive lock belongs to the calls
+        // that change it - close(), attach(), detach(), open() - which this must not overlap.
+        const ReadLock lock(m_mutex);
         return readUnlocked(buffer, size, from);
     }
 
@@ -276,7 +284,7 @@ public:
         requires is_socket_readable<T>
     size_t read(T& value, sockaddr* from = nullptr)
     {
-        const WriteLock lock(m_mutex);
+        const ReadLock lock(m_mutex);
         return readUnlocked(reinterpret_cast<uint8_t*>(&value), sizeof(T), from);
     }
 
@@ -291,7 +299,12 @@ public:
      */
     size_t write(const uint8_t* buffer, const size_t size, const sockaddr* peer = nullptr)
     {
-        //const WriteLock lock(m_mutex);
+        // Shared, for the same reason as read(): writeUnlocked() only reads m_socketFd. Without any
+        // lock a write races closeUnlocked() setting it to INVALID_SOCKET, and since the kernel
+        // reuses descriptor numbers the write can land on whatever connection was accepted next.
+        // An exclusive lock here would serialise sends against receives on the same socket, which
+        // costs a third of bulk throughput for no added safety.
+        const ReadLock lock(m_mutex);
         return writeUnlocked(buffer, size, peer);
     }
 
