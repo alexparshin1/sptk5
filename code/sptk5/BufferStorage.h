@@ -28,6 +28,7 @@
 
 #include <cstdlib>
 #include <cstring>
+#include <format>
 #include <sptk5/Exception.h>
 #include <sptk5/sptk.h>
 

@@ -34,6 +34,7 @@
 
 
 #include <sptk5/db/PoolDatabaseConnection.h>
+#include <sptk5/db/QueryParameter.h>
 #include <sqlite3.h>
 
 namespace sptk {

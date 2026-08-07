@@ -27,7 +27,10 @@
 
 #pragma once
 
+#include <sptk5/sptk.h>
+
 #include <cstring>
+#include <format>
 
 namespace sptk::xdoc {
 

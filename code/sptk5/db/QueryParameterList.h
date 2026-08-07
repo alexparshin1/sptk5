@@ -27,6 +27,7 @@
 #pragma once
 
 #include <sptk5/db/QueryParameter.h>
+#include <unordered_map>
 #include <vector>
 
 namespace sptk {

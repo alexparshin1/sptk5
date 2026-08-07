@@ -26,6 +26,8 @@
 
 #pragma once
 
+#include <sptk5/sptk.h>
+
 #include <atomic>
 #include <shared_mutex>
 #include <source_location>
