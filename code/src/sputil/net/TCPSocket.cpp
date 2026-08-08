@@ -36,12 +36,7 @@ TCPSocket::TCPSocket(const SOCKET_ADDRESS_FAMILY domain, const int32_t type, con
 {
 }
 
-TCPSocket::~TCPSocket()
-{
-    close();
-}
-
-void TCPSocket::openUnlocked(const Host& host, const OpenMode openMode, const bool _blockingMode,
+void TCPSocket::openUnlocked(const Host&                 host, const OpenMode openMode, const bool _blockingMode,
                              const chrono::milliseconds& timeout, const char* clientBindAddress)
 {
     if (!host.hostname().empty())
@@ -66,8 +61,8 @@ void TCPSocket::openUnlocked(const Host& host, const OpenMode openMode, const bo
     }
 }
 
-void TCPSocket::openUnlocked(const sockaddr_in& address, const OpenMode openMode, const bool _blockingMode,
-                             const chrono::milliseconds& timeoutMS, const char* clientBindAddress)
+void TCPSocket::openUnlocked(const sockaddr_in&          address, const OpenMode openMode, const bool _blockingMode,
+                             const chrono::milliseconds& timeoutMS, const char*  clientBindAddress)
 {
     openAddressUnlocked(address, openMode, timeoutMS, true, clientBindAddress);
 
@@ -77,7 +72,7 @@ void TCPSocket::openUnlocked(const sockaddr_in& address, const OpenMode openMode
     }
 }
 
-bool TCPSocket::accept(SocketType& clientSocketFD, sockaddr_storage& clientInfo, socklen_t& clientInfoLength,
+bool TCPSocket::accept(SocketType&                 clientSocketFD, sockaddr_storage& clientInfo, socklen_t& clientInfoLength,
                        const chrono::milliseconds& timeout)
 {
     clientSocketFD = INVALID_SOCKET;
@@ -101,7 +96,7 @@ bool TCPSocket::accept(SocketType& clientSocketFD, sockaddr_storage& clientInfo,
     setBlockingModeUnlocked(false);
 
     clientInfoLength = sizeof(clientInfo);
-    clientSocketFD = ::accept(fd(), bit_cast<sockaddr*>(&clientInfo), &clientInfoLength);
+    clientSocketFD = ::accept(getSocketFdUnlocked(), bit_cast<sockaddr*>(&clientInfo), &clientInfoLength);
     if (clientSocketFD != INVALID_SOCKET)
     {
         return true;

@@ -94,6 +94,11 @@ public:
         }
     }
 
+    ReadWriteLock(const ReadWriteLock&) = delete;
+    ReadWriteLock(ReadWriteLock&&) = delete;
+    ReadWriteLock& operator=(const ReadWriteLock&) = delete;
+    ReadWriteLock& operator=(ReadWriteLock&&) = delete;
+
     /**
      * @brief Destructor.
      * @remarks Unlocks the mutex.

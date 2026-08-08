@@ -415,7 +415,7 @@ size_t SSLSocket::recvUnlocked(uint8_t* buffer, const size_t len)
                 // peer disconnected
                 return 0;
             default:
-                close();
+                closeUnlocked();
                 throwSSLError("SSL_read", result);
         }
     }
@@ -477,7 +477,7 @@ size_t SSLSocket::sendUnlocked(const uint8_t* buffer, const size_t len)
             case SSL_ERROR_SYSCALL:
                 throw SystemException("Error writing to SSL connection");
             default:
-                if (!active())
+                if (!activeUnlocked())
                 {
                     throw Exception("Error writing to SSL connection: Socket is closed");
                 }

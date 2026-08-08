@@ -220,8 +220,12 @@ void SocketVirtualMethods::openAddressUnlocked(const sockaddr_in& addr, const Op
     if (result != 0)
     {
         stringstream error;
-        error << "Can't " << currentOperation << " to " << m_host->toString(false) << ". "
-              << SystemException::osError()
+        error << "Can't " << currentOperation;
+        if (m_host)
+        {
+            error << " to " << m_host->toString(false);
+        }
+        error << ": " <<SystemException::osError()
               << ".";
         closeUnlocked();
         throw Exception(error.str());
@@ -259,6 +263,10 @@ void SocketVirtualMethods::setHostUnlocked(const Host& host)
 
 const Host& SocketVirtualMethods::getHostUnlocked() const
 {
+    if (!m_host)
+    {
+        throw Exception("Host not set");
+    }
     return *m_host;
 }
 
@@ -356,6 +364,7 @@ void SocketVirtualMethods::attachUnlocked(const SocketType socketHandle, bool)
 SocketType SocketVirtualMethods::detachUnlocked()
 {
     const SocketType socketFd = m_socketFd.load();
+    // Prevent closeUnlocked() from closing the detached socket.
     m_socketFd = INVALID_SOCKET;
     closeUnlocked();
     return socketFd;
@@ -486,7 +495,7 @@ void SocketVirtualMethods::listenUnlocked(const uint16_t portNumber, const bool 
 {
     if (portNumber != 0)
     {
-        m_host = make_unique<Host>(m_host->hostname(), m_host->port());
+        m_host = make_unique<Host>(m_host->hostname(), portNumber);
     }
 
     sockaddr_in address = {};
@@ -564,6 +573,12 @@ bool SocketVirtualMethods::readyToReadUnlocked(const chrono::milliseconds& timeo
 bool SocketVirtualMethods::readyToWriteUnlocked(const chrono::milliseconds& timeout)
 {
     const auto timeoutMS = static_cast<int>(timeout.count());
+
+    if (m_socketFd == INVALID_SOCKET)
+    {
+        return false;
+    }
+
 #ifdef _WIN32
     WSAPOLLFD fdArray {};
     fdArray.fd = m_socketFd;

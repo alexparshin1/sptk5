@@ -85,7 +85,7 @@ public:
     /**
     * @brief Destructor.
     */
-    ~TCPSocket() override;
+    ~TCPSocket() override = default;
 
     /**
      * @brief Set proxy.

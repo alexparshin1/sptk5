@@ -34,6 +34,7 @@
 
 #include <atomic>
 #include <cstdint>
+#include <memory>
 
 namespace sptk {
 template<typename T>
@@ -67,9 +68,6 @@ public:
      */
     SocketType fd() const
     {
-        // Shared: this only reads m_socketFd, but close() writes it under the exclusive lock and
-        // the reactor reads it here while unregistering - SocketPool::removeSocket() takes the
-        // descriptor from this call, so an unlocked read can hand the pool a closed or reused fd.
         const ReadLock lock(m_mutex);
         return getSocketFdUnlocked();
     }
@@ -93,6 +91,7 @@ public:
      */
     void blockingMode(const bool blockingMode)
     {
+        const WriteLock lock(m_mutex);
         setBlockingModeUnlocked(blockingMode);
     }
 
@@ -299,11 +298,6 @@ public:
      */
     size_t write(const uint8_t* buffer, const size_t size, const sockaddr* peer = nullptr)
     {
-        // Shared, for the same reason as read(): writeUnlocked() only reads m_socketFd. Without any
-        // lock a write races closeUnlocked() setting it to INVALID_SOCKET, and since the kernel
-        // reuses descriptor numbers the write can land on whatever connection was accepted next.
-        // An exclusive lock here would serialise sends against receives on the same socket, which
-        // costs a third of bulk throughput for no added safety.
         const ReadLock lock(m_mutex);
         return writeUnlocked(buffer, size, peer);
     }
@@ -330,7 +324,7 @@ public:
      */
     [[nodiscard]] bool readyToRead(const std::chrono::milliseconds& timeout)
     {
-        const WriteLock lock(m_mutex);
+        const ReadLock lock(m_mutex);
         return readyToReadUnlocked(timeout);
     }
 
@@ -340,7 +334,7 @@ public:
      */
     [[nodiscard]] virtual bool readyToWrite(const std::chrono::milliseconds& timeout)
     {
-        const WriteLock lock(m_mutex);
+        const ReadLock lock(m_mutex);
         return readyToWriteUnlocked(timeout);
     }
 
@@ -350,6 +344,7 @@ public:
      */
     [[nodiscard]] bool blockingMode() const
     {
+        const ReadLock lock(m_mutex);
         return getBlockingModeUnlocked();
     }
 
