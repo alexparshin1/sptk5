@@ -539,7 +539,9 @@ TEST(ReadWriteLockTests, mixedContentionStress)
 
 TEST(ReadWriteLockTests, performance)
 {
-    constexpr size_t iterationCount = 4ul * 1024 * 1024;
+    // 1M lock/unlock cycles across 4 threads is enough to get a stable throughput figure; the
+    // 4M this used to run took ~2.8s of the suite to report the same ratio.
+    constexpr size_t iterationCount = 1024ul * 1024;
     constexpr size_t threadCount = 4;
     constexpr auto   iterationsPerThread = iterationCount / threadCount;
 

@@ -26,6 +26,8 @@
 
 #include <gtest/gtest.h>
 
+#include "test/TestData.h"
+
 #include <sptk5/Buffer.h>
 #include <sptk5/net/FastTCPServer.h>
 #include <sptk5/net/SocketReader.h>
@@ -43,8 +45,7 @@ namespace {
 
 uint16_t getSocketReaderTestPort()
 {
-    static atomic_uint16_t port = 65000;
-    return port++;
+    return TestData::freePort();
 }
 
 /**
@@ -79,7 +80,16 @@ public:
         try
         {
             socket->write(m_data);
-            this_thread::sleep_for(500ms);
+            // Wait for the client to finish and close its end, rather than sleeping a flat
+            // 500ms: closing while the peer still has unread bytes can cost it those bytes,
+            // which is what the sleep was guarding against. readyToRead() reports the peer's
+            // FIN by throwing, and that is exactly the signal being waited for; the timeout
+            // only caps the wait for a client that goes away without closing.
+            (void) socket->readyToRead(500ms);
+        }
+        catch (const Exception&)
+        {
+            // Peer closed its end - the expected way out of the wait above.
         }
         catch (const exception& e)
         {

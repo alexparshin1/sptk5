@@ -24,6 +24,8 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
+#include "test/TestData.h"
+
 #include <gtest/gtest.h>
 
 #include <sptk5/Buffer.h>
@@ -42,8 +44,7 @@ namespace {
 
 uint16_t getHttpReaderTestPort()
 {
-    static atomic_uint16_t port = 20000;
-    return port++;
+    return TestData::freePort();
 }
 
 class FixedResponseServer : public FastTCPServer

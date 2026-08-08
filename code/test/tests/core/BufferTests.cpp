@@ -203,7 +203,10 @@ TEST(BufferTests, hexDump)
 
 TEST(BufferTests, createPerformance)
 {
-    constexpr auto count = 1000000;
+    // 100K x 100 appends is 10M appends per contender - still far more than enough to rank
+    // Buffer against std::string and std::vector, while keeping this comparison under a second
+    // instead of the seven it took at 1M.
+    constexpr auto count = 100000;
     constexpr auto appendCount = 100;
 
     Stopwatch stopWatch;

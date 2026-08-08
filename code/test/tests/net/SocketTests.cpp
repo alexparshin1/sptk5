@@ -35,9 +35,9 @@ namespace sptk {
 TEST(SocketTests,minimal)
 {
     constexpr uint16_t sslPort {443};
-    const Host yahoo("www.yahoo.com", sslPort);
+    const Host testHost("test_http_host", sslPort);
     sockaddr_in address {};
-    yahoo.getAddress(address);
+    testHost.getAddress(address);
 
     Socket socket;
     socket.open(address, sptk::Socket::OpenMode::CONNECT);
@@ -47,9 +47,9 @@ TEST(SocketTests,minimal)
 TEST(SocketTests,option)
 {
     constexpr uint16_t sslPort {443};
-    const Host yahoo("www.yahoo.com", sslPort);
+    const Host testHost("test_http_host", sslPort);
     sockaddr_in address {};
-    yahoo.getAddress(address);
+    testHost.getAddress(address);
 
     Socket socket;
     int value = 0;

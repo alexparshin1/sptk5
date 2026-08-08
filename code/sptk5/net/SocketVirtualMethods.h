@@ -188,6 +188,21 @@ protected:
     virtual void closeUnlocked();
 
     /**
+     * @brief Shuts both directions of the connection down, without closing the descriptor.
+     *
+     * Unlike the rest of the *Unlocked() family, this one is meant to be called with no lock
+     * held at all: it only reads the atomic descriptor, and its whole purpose is to run
+     * before close() contends for the exclusive lock. A thread parked in a blocking recv()
+     * or send() holds the lock until its syscall returns, and shutdown() is what makes that
+     * happen - so taking the lock first would wait for a wake-up that only this call can
+     * deliver.
+     *
+     * Errors are ignored: the descriptor may already be closed, or never have been connected
+     * (a listener), and neither case is worth reporting from a teardown path.
+     */
+    void shutdownUnlocked() const noexcept;
+
+    /**
      * @brief Get the socket OS handle.
      */
     SocketType getSocketFdUnlocked() const;

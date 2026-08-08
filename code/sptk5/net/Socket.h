@@ -54,6 +54,26 @@ concept is_socket_readable = std::is_integral_v<T> || std::is_floating_point_v<T
  * @brief Generic socket.
  *
  * Allows establishing a network connection to the host by name and port address.
+ *
+ * @par Thread safety
+ * Every public method takes m_mutex, which guards the socket's mutable state - the descriptor,
+ * the host, and the cached blocking mode. Methods that only observe that state take a shared
+ * lock; anything that changes it, performs I/O, or (in the TLS subclass) advances the SSL
+ * session takes the exclusive one. In particular read(), write() and socketBytes() are
+ * exclusive: their SSLSocket implementations mutate the SSL session, which OpenSSL does not
+ * allow two threads to touch at once, so they must not overlap even in opposite directions.
+ *
+ * The protected *Unlocked() family is the same set of operations with no locking; it exists so
+ * that these methods can call one another without re-entering the lock. ReadWriteMutex is not
+ * recursive, so any code running under the lock - including every override in a derived class -
+ * must call the *Unlocked() variant, never the public one.
+ *
+ * fd() is the deliberate exception: it takes no lock. The descriptor is atomic, so reading it
+ * is not a race, and a lock would not make the returned value any more valid once the caller
+ * has it - close() may run the moment the lock is released. What a lock would add is the
+ * socket's mutex on the reactor's hot path, where SocketObjectPool::onEvent() calls fd() while
+ * holding the pool lock, and where a socket parked in a slow open() or TLS handshake would
+ * then stall the whole event loop.
  */
 class SP_EXPORT Socket
     : public SocketVirtualMethods
@@ -67,6 +87,7 @@ public:
      */
     SocketType fd() const
     {
+        // Intentionally lock-free - see the thread-safety note on the class.
         return getSocketFdUnlocked();
     }
 
@@ -89,6 +110,9 @@ public:
      */
     void blockingMode(const bool blockingMode)
     {
+        // Exclusive: this changes the descriptor's flags and the cached mode, and must not
+        // interleave with open()/attach(), which set both.
+        const WriteLock lock(m_mutex);
         setBlockingModeUnlocked(blockingMode);
     }
 
@@ -97,6 +121,10 @@ public:
      */
     [[nodiscard]] size_t socketBytes() const
     {
+        // Exclusive despite being a query: SSLSocket's override pumps the record layer with a
+        // zero-length SSL_read() to find out what is buffered, so it advances the SSL session
+        // and must not run alongside a read() or write().
+        const WriteLock lock(m_mutex);
         return getSocketBytesUnlocked();
     }
 
@@ -202,6 +230,11 @@ public:
      */
     void close()
     {
+        // Wake any thread parked in a blocking recv()/send() before contending for the lock:
+        // it holds the lock until its syscall returns, so acquiring the lock first would wait
+        // on the very thread this call has to interrupt. Safe without the lock - see
+        // shutdownUnlocked().
+        shutdownUnlocked();
         const WriteLock lock(m_mutex);
         closeUnlocked();
     }
@@ -291,7 +324,7 @@ public:
      */
     size_t write(const uint8_t* buffer, const size_t size, const sockaddr* peer = nullptr)
     {
-        //const WriteLock lock(m_mutex);
+        const WriteLock lock(m_mutex);
         return writeUnlocked(buffer, size, peer);
     }
 
@@ -337,6 +370,9 @@ public:
      */
     [[nodiscard]] bool blockingMode() const
     {
+        // Shared: m_blockingMode is a plain bool, so reading it while another thread is inside
+        // blockingMode(bool) or open() would otherwise be a data race.
+        const ReadLock lock(m_mutex);
         return getBlockingModeUnlocked();
     }
 

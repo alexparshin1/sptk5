@@ -162,6 +162,21 @@ protected:
     size_t sendUnlocked(const uint8_t* buffer, size_t len) override;
 
 private:
+    /**
+     * @brief An SSL operation's return value together with the error code that explains it.
+     *
+     * SSL_get_error() reports on the last operation performed on the SSL object by this
+     * thread, so it is only meaningful when nothing has touched that object in between.
+     * Querying it in a separate, separately-locked call cannot promise that: another thread's
+     * read or write may land in the gap and the caller then acts on someone else's error.
+     * Returning both values from one locked call is what makes the pairing hold.
+     */
+    struct SslOutcome
+    {
+        int result; ///< Value returned by the SSL_* call.
+        int error;  ///< SSL_get_error() for that value, taken under the same lock.
+    };
+
     mutable std::mutex m_mutex;                ///< Mutex that protects access to m_ssl.
     SharedSSLContext   m_sslContext {nullptr}; ///< SSL context.
     SSL*               m_ssl {nullptr};        ///< SSL socket.
@@ -175,14 +190,28 @@ private:
     void sslConnectUnlocked(bool blockingMode, const std::chrono::milliseconds& timeout);
     void sslNew();
     void sslFree();
-    int  sslSetFd(SocketType fd) const;
-    int  sslSetExtHostName() const;
-    int  sslConnect() const;
-    int  sslGetErrorCode(int result) const;
-    int  sslAccept() const;
-    int  sslRead(uint8_t* buffer, size_t len) const;
-    int  sslWrite(const uint8_t* buffer, size_t len) const;
-    int  sslPending() const;
+
+    /**
+     * @brief Detaches or attaches the descriptor of the SSL object.
+     * @param fd                Descriptor to use, or INVALID_SOCKET to detach.
+     * @return 1 on success (including when there is no SSL object to touch), 0 on failure.
+     */
+    int sslSetFd(SocketType fd) const;
+
+    int sslSetExtHostName() const;
+    int sslPending() const;
+    int sslGetErrorCode(int result) const;
+
+    SslOutcome sslConnect() const;
+    SslOutcome sslAccept() const;
+    SslOutcome sslRead(uint8_t* buffer, size_t len) const;
+    SslOutcome sslWrite(const uint8_t* buffer, size_t len) const;
+
+    /**
+     * @brief Returns the SSL object, or throws if the socket was never initialized.
+     * @remarks The caller must hold m_mutex.
+     */
+    SSL* sslHandleLocked() const;
 };
 
 /**

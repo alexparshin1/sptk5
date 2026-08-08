@@ -49,7 +49,7 @@ TEST(SSLSocketTests,connect)
     {
         SSLSocket sslSocket;
         sslSocket.loadKeys(keys); // Optional step - not required for Google connect
-        sslSocket.open(Host("www.msn.com:443"));
+        sslSocket.open(Host("test_http_host:443"));
         sslSocket.close();
     }
     catch (const Exception& e)
@@ -60,12 +60,10 @@ TEST(SSLSocketTests,connect)
 
 TEST(SSLSocketTests,httpConnect)
 {
-    GTEST_SKIP();
-
     constexpr uint16_t sslPort {443};
-    const Host         yahoo("www.yahoo.com", sslPort);
+    const Host         testHost("test_http_host", sslPort);
     sockaddr_in        address {};
-    yahoo.getAddress(address);
+    testHost.getAddress(address);
 
     vector<future<tuple<String, String>>> tasks;
     for (int i = 0; i < 2; i++)
@@ -78,7 +76,7 @@ TEST(SSLSocketTests,httpConnect)
                               {
                                   const auto socket = make_shared<SSLSocket>();
 
-                                  socket->open(yahoo);
+                                  socket->open(testHost);
                                   HttpConnect http(socket);
 
                                   const auto statusCode = http.cmd_get("/", HttpParams(), output);

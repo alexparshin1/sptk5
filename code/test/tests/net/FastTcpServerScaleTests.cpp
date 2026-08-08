@@ -131,6 +131,8 @@
  *   until [ "$(ss -tan | grep -c TIME-WAIT)" -lt 2000 ]; do sleep 5; done
  */
 
+#include "test/TestData.h"
+
 #include <gtest/gtest.h>
 #include <sptk5/cutils>
 #include <sptk5/net/FastTCPServer.h>
@@ -179,8 +181,19 @@ constexpr uint32_t roleSubscriber = 1;
 constexpr size_t smallPairCount = 10000; ///< 20K connections.
 constexpr size_t largePairCount = 50000; ///< 100K connections.
 
-constexpr uint16_t smallScenarioPort = 12500;
-constexpr uint16_t largeScenarioPort = 12501;
+/// @brief Ports of the scenario servers, taken from the kernel on first use.
+/// @remarks See TestData::freePort() for why hard-coded numbers are not reliable here.
+uint16_t smallScenarioPort()
+{
+    static const uint16_t port = TestData::freePort();
+    return port;
+}
+
+uint16_t largeScenarioPort()
+{
+    static const uint16_t port = TestData::freePort();
+    return port;
+}
 
 /**
  * @brief Loopback source addresses the client sockets are spread over.
@@ -1130,13 +1143,13 @@ TEST(FastTcpServerScaleTests, DISABLED_roundTripScaling)
     const auto config = configFromEnv();
 
     COUT("Small scenario:");
-    const auto small = runScenario(smallPairs, smallScenarioPort, config);
+    const auto small = runScenario(smallPairs, smallScenarioPort(), config);
 
     // Let the small scenario's sockets leave TIME_WAIT before the large one claims ports.
     this_thread::sleep_for(chrono::seconds(10));
 
     COUT("Large scenario:");
-    const auto large = runScenario(largePairs, largeScenarioPort, config);
+    const auto large = runScenario(largePairs, largeScenarioPort(), config);
 
     ASSERT_GT(small.samples, 0U) << "Small scenario collected no round trip samples";
     ASSERT_GT(large.samples, 0U) << "Large scenario collected no round trip samples";
@@ -1192,12 +1205,12 @@ TEST(FastTcpServerScaleTests, DISABLED_receiveThreadSaturation)
     config.workMicroseconds = envSize("SPTK_SCALE_WORK_US", 100);
 
     COUT("Small scenario:");
-    const auto small = runScenario(smallPairs, smallScenarioPort, config);
+    const auto small = runScenario(smallPairs, smallScenarioPort(), config);
 
     this_thread::sleep_for(chrono::seconds(10));
 
     COUT("Large scenario:");
-    const auto large = runScenario(largePairs, largeScenarioPort, config);
+    const auto large = runScenario(largePairs, largeScenarioPort(), config);
 
     ASSERT_GT(small.samples, 0U) << "Small scenario collected no round trip samples";
     ASSERT_GT(large.samples, 0U) << "Large scenario collected no round trip samples";

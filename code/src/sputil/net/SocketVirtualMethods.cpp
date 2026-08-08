@@ -220,9 +220,14 @@ void SocketVirtualMethods::openAddressUnlocked(const sockaddr_in& addr, const Op
     if (result != 0)
     {
         stringstream error;
-        error << "Can't " << currentOperation << " to " << m_host->toString(false) << ". "
-              << SystemException::osError()
-              << ".";
+        error << "Can't " << currentOperation;
+        // open(sockaddr_in) never sets m_host, so the failure path must not assume one:
+        // dereferencing it here would replace the real error with a crash.
+        if (m_host)
+        {
+            error << " to " << m_host->toString(false);
+        }
+        error << ". " << SystemException::osError() << ".";
         closeUnlocked();
         throw Exception(error.str());
     }
@@ -242,6 +247,20 @@ void SocketVirtualMethods::closeUnlocked()
     }
 }
 
+void SocketVirtualMethods::shutdownUnlocked() const noexcept
+{
+    const SocketType socketFd = m_socketFd.load();
+    if (socketFd == INVALID_SOCKET)
+    {
+        return;
+    }
+#ifndef _WIN32
+    (void) shutdown(socketFd, SHUT_RDWR);
+#else
+    (void) shutdown(socketFd, SD_BOTH);
+#endif
+}
+
 SocketType SocketVirtualMethods::getSocketFdUnlocked() const
 {
     return m_socketFd;
@@ -259,6 +278,10 @@ void SocketVirtualMethods::setHostUnlocked(const Host& host)
 
 const Host& SocketVirtualMethods::getHostUnlocked() const
 {
+    if (!m_host)
+    {
+        throw Exception("Host is not set");
+    }
     return *m_host;
 }
 
@@ -351,6 +374,12 @@ void SocketVirtualMethods::attachUnlocked(const SocketType socketHandle, bool)
         closeUnlocked();
     }
     m_socketFd = socketHandle;
+
+    // A descriptor returned by accept(), or handed over by a proxy, is blocking: neither
+    // Linux nor Windows propagates O_NONBLOCK to it. Reset the cached mode to match, or the
+    // first setBlockingModeUnlocked(false) is skipped as an apparent no-op and the socket
+    // silently stays blocking - which then parks a reader in recv() while it holds the lock.
+    m_blockingMode = true;
 }
 
 SocketType SocketVirtualMethods::detachUnlocked()
@@ -404,6 +433,10 @@ void SocketVirtualMethods::bindUnlocked(const char* address, const uint32_t port
         {
             throwSocketError("Can't create socket");
         }
+
+        // A newly created socket is blocking; keep the cached mode in step, as
+        // openAddressUnlocked() does.
+        m_blockingMode = true;
     }
 
     sockaddr_in addr = {};
@@ -486,7 +519,7 @@ void SocketVirtualMethods::listenUnlocked(const uint16_t portNumber, const bool 
 {
     if (portNumber != 0)
     {
-        m_host = make_unique<Host>(m_host->hostname(), m_host->port());
+        m_host = make_unique<Host>(getHostUnlocked().hostname(), portNumber);
     }
 
     sockaddr_in address = {};
@@ -494,7 +527,7 @@ void SocketVirtualMethods::listenUnlocked(const uint16_t portNumber, const bool 
     memset(&address, 0, sizeof(address));
     address.sin_family = static_cast<SOCKET_ADDRESS_FAMILY>(m_domain);
     address.sin_addr.s_addr = htonl(INADDR_ANY);
-    address.sin_port = htons(m_host->port());
+    address.sin_port = htons(getHostUnlocked().port());
 
     openAddressUnlocked(address, OpenMode::BIND, chrono::milliseconds(0), reusePort, nullptr, backlog);
 }
@@ -564,6 +597,15 @@ bool SocketVirtualMethods::readyToReadUnlocked(const chrono::milliseconds& timeo
 bool SocketVirtualMethods::readyToWriteUnlocked(const chrono::milliseconds& timeout)
 {
     const auto timeoutMS = static_cast<int>(timeout.count());
+
+    // A closed socket is never ready, and asking the OS about it is worse than useless:
+    // WSAPoll() on INVALID_SOCKET falls into the error branch below and reports an unrelated
+    // error code. readyToReadUnlocked() guards the same way.
+    if (m_socketFd == INVALID_SOCKET)
+    {
+        return false;
+    }
+
 #ifdef _WIN32
     WSAPOLLFD fdArray {};
     fdArray.fd = m_socketFd;

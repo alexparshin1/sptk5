@@ -38,8 +38,19 @@ using namespace sptk;
 
 namespace {
 
-constexpr uint16_t testTcpEchoServerPort = 3001;
-constexpr uint16_t testSslEchoServerPort = 3002;
+/// @brief Ports of this file's echo server, taken from the kernel on first use.
+/// @remarks See TestData::freePort() for why hard-coded numbers are not reliable here.
+uint16_t testTcpEchoServerPort()
+{
+    static const uint16_t port = TestData::freePort();
+    return port;
+}
+
+uint16_t testSslEchoServerPort()
+{
+    static const uint16_t port = TestData::freePort();
+    return port;
+}
 
 /**
  * @brief Connection that carries a per-connection SocketReader for the event-driven echo server.
@@ -158,8 +169,8 @@ TEST(FastTcpServerTests, sslMinimal)
 
         echoServer.setSSLKeys(keys);
 
-        echoServer.addListener(ServerConnection::Type::TCP, {"localhost", testTcpEchoServerPort});
-        echoServer.addListener(ServerConnection::Type::SSL, {"localhost", testSslEchoServerPort});
+        echoServer.addListener(ServerConnection::Type::TCP, {"localhost", testTcpEchoServerPort()});
+        echoServer.addListener(ServerConnection::Type::SSL, {"localhost", testSslEchoServerPort()});
         this_thread::sleep_for(100ms);
 
         auto         socket = make_shared<SSLSocket>();
@@ -167,7 +178,7 @@ TEST(FastTcpServerTests, sslMinimal)
 
         try
         {
-            socket->open({"localhost", testSslEchoServerPort});
+            socket->open({"localhost", testSslEchoServerPort()});
         }
         catch (Exception& e)
         {

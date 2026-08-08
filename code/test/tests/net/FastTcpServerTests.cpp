@@ -46,8 +46,23 @@ using namespace sptk;
 
 namespace {
 
-constexpr uint16_t testPort = 12399;
-constexpr size_t   messageSize = 100;
+/// @brief Ports of this file's test servers, taken from the kernel on first use.
+/// @remarks See TestData::freePort() for why hard-coded numbers are not reliable here.
+/// The multi-listener test needs two ports; they are asked for separately, because a port
+/// next to a free one is not itself guaranteed to be free.
+uint16_t testPort()
+{
+    static const uint16_t port = TestData::freePort();
+    return port;
+}
+
+uint16_t secondTestPort()
+{
+    static const uint16_t port = TestData::freePort();
+    return port;
+}
+
+constexpr size_t messageSize = 100;
 
 /**
  * @brief Test server that echoes back every message it receives.
@@ -159,11 +174,11 @@ TEST(FastTcpServerTests, basicEcho)
     const auto message = makeMessage();
 
     EchoServer server("FastTcpServer Echo", 100, 100);
-    server.addListener(ServerConnection::Type::TCP, Host("127.0.0.1", testPort));
+    server.addListener(ServerConnection::Type::TCP, Host("127.0.0.1", testPort()));
     ASSERT_TRUE(server.active());
 
     TCPSocket client;
-    client.open(Host("127.0.0.1", testPort));
+    client.open(Host("127.0.0.1", testPort()));
     client.setOption(IPPROTO_TCP, TCP_NODELAY, 1);
 
     client.write(message.data(), message.size());
@@ -185,19 +200,19 @@ TEST(FastTcpServerTests, basicEcho)
 TEST(FastTcpServerTests, multipleListeners)
 {
     EchoServer server("FastTcpServer MultiListener", 100, 100);
-    server.addListener(ServerConnection::Type::TCP, Host("127.0.0.1", testPort));
-    server.addListener(ServerConnection::Type::TCP, Host("127.0.0.1", testPort + 1));
+    server.addListener(ServerConnection::Type::TCP, Host("127.0.0.1", testPort()));
+    server.addListener(ServerConnection::Type::TCP, Host("127.0.0.1", secondTestPort()));
 
     EXPECT_EQ(2U, server.listenerHosts().size());
 
     const auto message = makeMessage();
 
     TCPSocket client1;
-    client1.open(Host("127.0.0.1", testPort));
+    client1.open(Host("127.0.0.1", testPort()));
     client1.write(message.data(), message.size());
 
     TCPSocket client2;
-    client2.open(Host("127.0.0.1", testPort + 1));
+    client2.open(Host("127.0.0.1", secondTestPort()));
     client2.write(message.data(), message.size());
 
     Buffer buffer;
@@ -224,11 +239,11 @@ TEST(FastTcpServerTests, sslEcho)
 
     EchoServer server("FastTcpServer SSL Echo", 100, 100);
     server.setSSLKeys(make_shared<SSLKeys>(certFile, certFile));
-    server.addListener(ServerConnection::Type::SSL, Host("127.0.0.1", testPort));
+    server.addListener(ServerConnection::Type::SSL, Host("127.0.0.1", testPort()));
     ASSERT_TRUE(server.active());
 
     SSLSocket client;
-    client.open(Host("127.0.0.1", testPort));
+    client.open(Host("127.0.0.1", testPort()));
 
     client.write(message.data(), message.size());
 
@@ -256,10 +271,10 @@ TEST(FastTcpServerTests, throughput)
 
     // Echo is 10 first bytes like a short ACK.
     EchoServer server("FastTcpServer Throughput", 100, ackSize);
-    server.addListener(ServerConnection::Type::TCP, Host("127.0.0.1", testPort));
+    server.addListener(ServerConnection::Type::TCP, Host("127.0.0.1", testPort()));
 
     const auto sender = make_shared<TCPSocket>();
-    sender->open(Host("127.0.0.1", testPort));
+    sender->open(Host("127.0.0.1", testPort()));
     sender->setOption(IPPROTO_TCP, TCP_NODELAY, 1);
 
     const auto& receiver = sender;
@@ -339,14 +354,14 @@ TEST(FastTcpServerTests, acceptRate)
     constexpr uint16_t listenerThreads = 4;
 
     EchoServer server("FastTcpServer AcceptRate", 100, 100);
-    server.addListener(ServerConnection::Type::TCP, Host("127.0.0.1", testPort), listenerThreads);
+    server.addListener(ServerConnection::Type::TCP, Host("127.0.0.1", testPort()), listenerThreads);
 
     // Each thread owns its own socket vector to avoid contention.
     vector<vector<unique_ptr<TCPSocket>>> clientsPerThread(connectorThreads);
 
     // Resolve the server address once; reused for every connect so the measurement
     // is not skewed by per-connection name resolution (Host() calls getaddrinfo()).
-    const Host serverHost("127.0.0.1", testPort);
+    const Host serverHost("127.0.0.1", testPort());
 
     Stopwatch stopWatch;
     stopWatch.start();
@@ -407,12 +422,12 @@ TEST(FastTcpServerTests, latency)
     constexpr uint16_t listenerThreads = 4;
 
     EchoServer server("FastTcpServer AcceptRate", 5, 5);
-    server.addListener(ServerConnection::Type::TCP, Host("127.0.0.1", testPort), listenerThreads);
+    server.addListener(ServerConnection::Type::TCP, Host("127.0.0.1", testPort()), listenerThreads);
 
     // Each thread owns its own socket vector to avoid contention.
     vector<vector<unique_ptr<TCPSocket>>> clientsPerThread(connectorThreads);
 
-    const Host serverHost("127.0.0.1", testPort);
+    const Host serverHost("127.0.0.1", testPort());
 
     Stopwatch stopWatch;
     stopWatch.start();

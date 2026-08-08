@@ -24,6 +24,8 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
+#include "test/TestData.h"
+
 #include "TestImapServer.h"
 #include "sptk5/net/ImapConnect.h"
 #include <gtest/gtest.h>
@@ -39,8 +41,7 @@ namespace sptk {
 
 uint16_t getTestImapServerPort()
 {
-    static atomic<uint16_t> port(65100);
-    return port++;
+    return TestData::freePort();
 }
 
 TEST(ImapConnectTests, login)
