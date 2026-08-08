@@ -30,6 +30,7 @@
 #include <sptk5/Logger.h>
 #include <sptk5/threads/SynchronizedQueue.h>
 
+#include <mutex>
 #include <atomic>
 #include <set>
 #include <sptk5/threads/Thread.h>
@@ -221,6 +222,15 @@ protected:
 
 private:
     /**
+     * @brief Starts the message save thread, at most once.
+     *
+     * Called when the first message is logged rather than from the constructor: the thread calls
+     * the pure virtual saveMessage(), which belongs to a derived class that is not constructed yet
+     * while the base constructor runs.
+     */
+    void startSaveMessageThread();
+
+    /**
      * Mutex that protects internal data access
      */
     mutable std::mutex m_mutex;
@@ -229,6 +239,11 @@ private:
      * Thread that saves messages into the backend
      */
     std::jthread m_saveMessageThread;
+
+    /**
+     * Guards the one-time start of m_saveMessageThread
+     */
+    std::once_flag m_saveMessageThreadStarted;
 
     /**
      * Min message priority should be defined for every message

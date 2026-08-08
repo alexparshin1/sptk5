@@ -97,6 +97,21 @@ protected:
     size_t getSocketBytesUnlocked() const override;
 
     /**
+     * @brief Reports true if there is data to read, decrypted data included.
+     *
+     * The base implementation polls the socket, which is the wrong question for an encrypted
+     * connection: TLS arrives in records, and reading one hands over its whole plaintext, so the
+     * bytes a caller is waiting for are routinely sitting in the SSL buffer with nothing left on
+     * the socket to poll for. A request whose body shared a record with its headers - which is
+     * what a client that writes them separately produces, and what TLS 1.3 does with the last
+     * handshake flight - then waits for data that has already arrived, until some unrelated byte
+     * happens to come along and wake the poll.
+     *
+     * @param timeout           Read timeout.
+     */
+    [[nodiscard]] bool readyToReadUnlocked(const std::chrono::milliseconds& timeout) override;
+
+    /**
      * @brief Opens the socket connection by host and port.
      *
      * Initializes SSL first, if the host name is empty or port is 0, then the current host and port values are used.

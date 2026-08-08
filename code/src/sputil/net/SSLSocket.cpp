@@ -377,6 +377,30 @@ size_t SSLSocket::getSocketBytesUnlocked() const
     return static_cast<uint32_t>(sslPending());
 }
 
+bool SSLSocket::readyToReadUnlocked(const chrono::milliseconds& timeout)
+{
+    // Decrypted and waiting is still waiting. Polling the socket for it would find nothing: the
+    // record it arrived in has been read already, and its plaintext is held by OpenSSL.
+    if (sslPending() > 0)
+    {
+        return true;
+    }
+
+    // Nothing decrypted yet, but a record may be sitting on the socket unread. Asking for the
+    // available byte count decrypts it, and then there is an answer to give without waiting.
+    if (Socket::getSocketBytesUnlocked() > 0)
+    {
+        uint8_t dummy = 0;
+        sslRead(&dummy, 0);
+        if (sslPending() > 0)
+        {
+            return true;
+        }
+    }
+
+    return SocketVirtualMethods::readyToReadUnlocked(timeout);
+}
+
 size_t SSLSocket::recvUnlocked(uint8_t* buffer, const size_t len)
 {
     if (len == 0)

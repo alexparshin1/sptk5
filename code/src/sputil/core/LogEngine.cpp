@@ -36,17 +36,30 @@ using namespace sptk;
 
 LogEngine::LogEngine(const String&)
 {
-    m_saveMessageThread = jthread([this]()
-                                  {
-                                      try
-                                      {
-                                          threadFunction();
-                                      }
-                                      catch (const Exception& exception)
-                                      {
-                                          CERR(exception.what());
-                                      }
-                                  });
+}
+
+void LogEngine::startSaveMessageThread()
+{
+    std::call_once(m_saveMessageThreadStarted,
+                   [this]
+                   {
+                       if (terminated())
+                       {
+                           // Shutting down already - there would be nobody to drain the queue.
+                           return;
+                       }
+                       m_saveMessageThread = jthread([this]()
+                                                     {
+                                                         try
+                                                         {
+                                                             threadFunction();
+                                                         }
+                                                         catch (const Exception& exception)
+                                                         {
+                                                             CERR(exception.what());
+                                                         }
+                                                     });
+                   });
 }
 
 LogEngine::~LogEngine()
@@ -150,6 +163,8 @@ void LogEngine::log(Logger::UMessage&& message)
 
     if (m_minPriority >= message->priority)
     {
+        // Before the message is queued, not in the constructor - see startSaveMessageThread().
+        startSaveMessageThread();
         m_messages.push_back(std::move(message));
     }
 }
