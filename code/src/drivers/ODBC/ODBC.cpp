@@ -29,9 +29,11 @@
 #include "sptk5/Exception.h"
 #include "sptk5/String.h"
 
-
 #include <array>
 #include <cstring>
+#include <mutex>
+#include <sql.h>
+#include <sqltypes.h>
 
 #include <sptk5/db/ODBCEnvironment.h>
 

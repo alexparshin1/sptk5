@@ -52,7 +52,43 @@ public:
     [[nodiscard]] SP_EXPORT static SharedSSLContext get(const SSLKeys& keys, const String& cipherList, bool tlsOnly);
 
 private:
-    using CachedSSLContextMap = std::map<size_t, SharedSSLContext>;
+    /**
+     * @brief A cached context, and what the key files looked like when it was built.
+     *
+     * Keys are recognised by their file names, and a file name is not what a certificate is:
+     * renewal writes new content to the path that was always there. Remembering the size and
+     * write time of each file is what lets a replaced certificate be noticed at all.
+     */
+    struct CachedContext
+    {
+        SharedSSLContext                      context;   ///< The context itself.
+        String                                stamp;     ///< Key file sizes and write times it was built from.
+        std::chrono::steady_clock::time_point inspected; ///< When those files were last looked at.
+    };
+
+    using CachedSSLContextMap = std::map<size_t, CachedContext>;
+
+    /**
+     * @brief How long a cached context is trusted before its files are looked at again.
+     *
+     * A context is asked for on every connection, and a stat() per key file on every connection
+     * is a cost on the accept path that a certificate replaced once in sixty days does not earn.
+     * Within this interval the cached context is handed out without touching the filesystem;
+     * after it, the files are stamped once and the context is rebuilt only if they differ.
+     */
+    static constexpr std::chrono::seconds recheckInterval {1};
+
+    /**
+     * @brief How the key files look right now.
+     *
+     * Two different certificates written to the same path within one clock tick, at exactly the
+     * same size, would still look alike. That is unlikely enough to leave alone, and nothing
+     * short of reading both files would settle it.
+     *
+     * @param keys              Keys to stamp.
+     * @return the stamp, with a placeholder for each file that is not there.
+     */
+    [[nodiscard]] static String stampOf(const SSLKeys& keys);
 
     static std::shared_mutex   m_mutex;    ///< Mutex for thread safety.
     static CachedSSLContextMap m_contexts; ///< Cached SSL contexts.

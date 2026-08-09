@@ -220,7 +220,10 @@ TEST(TestWebServiceTests, Hello)
 class TestListener : public WSServer
 {
 public:
-    uint16_t            servicePort {11000};
+    // Asked for at construction rather than hard-coded: a fixed port collides with whatever
+    // else holds it - another test's outgoing connection, or this binary's own listener from a
+    // previous run still in TIME_WAIT - and the test then fails with EADDRINUSE.
+    uint16_t            servicePort {TestData::freePort()};
     shared_ptr<SSLKeys> sslKeys;
     SysLogEngine        logEngine {"TestWebService"};
 
@@ -229,7 +232,6 @@ public:
     {
         if (encrypted)
         {
-            servicePort = 11001;
             const auto keysDirectory = TestData::SslKeysDirectory();
             sslKeys = make_shared<SSLKeys>(keysDirectory / "test.key", keysDirectory / "test.cert");
             setSSLKeys(sslKeys);

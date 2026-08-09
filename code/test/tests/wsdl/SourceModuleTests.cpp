@@ -55,6 +55,21 @@ string readAllText(const filesystem::path& p)
     ss << in.rdbuf();
     return ss.str();
 }
+/// @brief Moves the files' modification times into the past.
+///
+/// Lets a test tell "rewritten" from "left alone" without waiting for wall-clock time to
+/// cross the filesystem's timestamp granularity: a rewrite stamps the file with "now",
+/// which is unmistakably newer than a backdated stamp even at 1-second resolution.
+/// writeOutputFiles() decides whether to rewrite by comparing content, never timestamps,
+/// so backdating cannot influence what is under test.
+void backdate(const initializer_list<filesystem::path> paths)
+{
+    constexpr auto shift = chrono::seconds(2);
+    for (const auto& path: paths)
+    {
+        filesystem::last_write_time(path, filesystem::last_write_time(path) - shift);
+    }
+}
 } // namespace
 namespace sptk {
 
@@ -101,11 +116,10 @@ TEST(SourceModuleTests,writeOutputFilesDoesNotRewriteWhenContentIsSame)
     ASSERT_TRUE(filesystem::exists(headerPath));
     ASSERT_TRUE(filesystem::exists(sourcePath));
 
+    backdate({headerPath, sourcePath});
+
     const auto headerTime1 = filesystem::last_write_time(headerPath);
     const auto sourceTime1 = filesystem::last_write_time(sourcePath);
-
-    // Ensure timestamp resolution is crossed on filesystems with 1-second granularity.
-    this_thread::sleep_for(chrono::milliseconds(1100));
 
     {
         SourceModule sourceModule("GeneratedUnit", outDir.string());
@@ -141,10 +155,10 @@ TEST(SourceModuleTests,writeOutputFilesRewritesWhenContentChanges)
         sourceModule.writeOutputFiles();
     }
 
+    backdate({headerPath, sourcePath});
+
     const auto headerTime1 = filesystem::last_write_time(headerPath);
     const auto sourceTime1 = filesystem::last_write_time(sourcePath);
-
-    this_thread::sleep_for(chrono::milliseconds(1100));
 
     {
         SourceModule sourceModule("GeneratedUnit", outDir.string());

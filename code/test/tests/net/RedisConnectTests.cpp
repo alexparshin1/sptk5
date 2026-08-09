@@ -41,7 +41,19 @@ using namespace std;
 
 namespace {
 const string RedisHost {"theater"};
-}
+
+/**
+ * @brief Everything these tests create is named with this prefix.
+ *
+ * The database is shared - other projects run their tests against the same server - so what is
+ * swept up afterwards has to be exactly what was put there, and nothing that merely looks like it.
+ */
+const string TestKeyPattern {"test:*"};
+
+/// How many keys a single sweep asks for. Scanning stops as soon as it has this many, so a small
+/// number keeps each pass cheap and simply costs more passes after a test that made thousands.
+constexpr size_t SweepLimit {1000};
+} // namespace
 
 class RedisConnectTests : public ::testing::Test
 {
@@ -56,7 +68,34 @@ protected:
     {
         if (m_redis.isConnected())
         {
+            removeTestKeys();
             EXPECT_NO_THROW(m_redis.disconnect());
+        }
+    }
+
+    /**
+     * @brief Remove what this test left in the database.
+     *
+     * After every test rather than at the end of the suite: the performance tests write tens of
+     * thousands of keys, and a database carrying them slows down everything else using the same
+     * server - including other projects' tests, where it looks like a regression of their own
+     * rather than leftovers from these.
+     */
+    void removeTestKeys()
+    {
+        try
+        {
+            for (auto keys = m_redis.scan(TestKeyPattern, SweepLimit); !keys.empty();
+                 keys = m_redis.scan(TestKeyPattern, SweepLimit))
+            {
+                (void) m_redis.deleteKeys(keys);
+            }
+        }
+        catch (const Exception& e)
+        {
+            // Reported rather than swallowed: keys left behind are the thing this exists to
+            // prevent, and a sweep that quietly does nothing is how they come back.
+            ADD_FAILURE() << "Could not remove the keys this test created: " << e.what();
         }
     }
 
@@ -72,7 +111,7 @@ TEST_F(RedisConnectTests, connectDisconnect)
 
 TEST_F(RedisConnectTests, setGet)
 {
-    const string  key = "test_key";
+    const string  key = "test:key";
     const Variant value = "test_value";
 
     EXPECT_NO_THROW(m_redis.setValue(key, value));
@@ -82,9 +121,9 @@ TEST_F(RedisConnectTests, setGet)
 TEST_F(RedisConnectTests, mset)
 {
     const RedisConnect::KeysAndValues testValues = {
-        {"orange", 120},
-        {"apple", 230},
-        {"watermelon", 3500}};
+        {"test:orange", 120},
+        {"test:apple", 230},
+        {"test:watermelon", 3500}};
 
     EXPECT_NO_THROW(m_redis.setValues(testValues));
 
@@ -104,7 +143,7 @@ TEST_F(RedisConnectTests, mset)
 
 TEST_F(RedisConnectTests, setGetInt)
 {
-    const string  key = "int_key";
+    const string  key = "test:int_key";
     const Variant value = static_cast<int64_t>(1234567890123LL);
 
     EXPECT_NO_THROW(m_redis.setValue(key, value));
@@ -113,7 +152,7 @@ TEST_F(RedisConnectTests, setGetInt)
 
 TEST_F(RedisConnectTests, incr)
 {
-    const string  key = "int_key";
+    const string  key = "test:int_key";
     const Variant value = static_cast<int64_t>(1234);
 
     m_redis.setValue(key, value);
@@ -124,8 +163,8 @@ TEST_F(RedisConnectTests, incr)
 
 TEST_F(RedisConnectTests, setGetBool)
 {
-    const string key_t = "bool_key_t";
-    const string key_f = "bool_key_f";
+    const string key_t = "test:bool_key_t";
+    const string key_f = "test:bool_key_f";
 
     EXPECT_NO_THROW(m_redis.setValue(key_t, true));
     EXPECT_EQ(m_redis.getValue(key_t).asBool(), true);
@@ -136,7 +175,7 @@ TEST_F(RedisConnectTests, setGetBool)
 
 TEST_F(RedisConnectTests, setGetDouble)
 {
-    const string   key = "double_key";
+    const string   key = "test:double_key";
     constexpr auto value = 3.1415926535;
 
     EXPECT_NO_THROW(m_redis.setValue(key, value));
@@ -147,7 +186,7 @@ TEST_F(RedisConnectTests, setGetDouble)
 
 TEST_F(RedisConnectTests, setGetBinary)
 {
-    const string key = "binary_key";
+    const string key = "test:binary_key";
     const char   data[] = {0x00, 0x01, 0x02, 0x03, 0x00, 0x04, 0x05};
     const Buffer binaryData(data, sizeof(data));
 
@@ -159,12 +198,12 @@ TEST_F(RedisConnectTests, setGetBinary)
 
 TEST_F(RedisConnectTests, getNonExistentKey)
 {
-    EXPECT_EQ(m_redis.getValue("non_existent_key").asString(), "");
+    EXPECT_EQ(m_redis.getValue("test:non_existent_key").asString(), "");
 }
 
 TEST_F(RedisConnectTests, setOverwrites)
 {
-    const string key = "overwrite_key_different";
+    const string key = "test:overwrite_key_different";
     m_redis.setValue(key, "value1");
     EXPECT_EQ(m_redis.getValue(key).asString(), "value1");
 
@@ -196,7 +235,7 @@ TEST_F(RedisConnectTests, performanceSetSingleThread)
     watch.start();
     for (auto i = 0; i < iterations; ++i)
     {
-        auto key = format("key_{}", i);
+        auto key = format("test:key_{}", i);
         m_redis.setValue(key, sessionJson);
     }
     watch.stop();
@@ -212,7 +251,7 @@ TEST_F(RedisConnectTests, performanceMSetSingleThread)
     RedisConnect::KeysAndValues keysAndValues;
     for (auto i = 0; i < iterations; ++i)
     {
-        auto key = format("key_{}", i);
+        auto key = format("test:key_{}", i);
         keysAndValues[key] = sessionJson;
     }
 
@@ -240,7 +279,7 @@ TEST_F(RedisConnectTests, performanceMultipleThreads)
 
                                  for (auto i = 0; i < iterations; ++i)
                                  {
-                                     auto key = format("session_{}_{}", threadIndex, i);
+                                     auto key = format("test:session_{}_{}", threadIndex, i);
                                      threadRedis.setValue(key, sessionJson);
                                  }
 
@@ -286,7 +325,7 @@ TEST_F(RedisConnectTests, performanceMultipleThreadsPG)
                                  transaction.begin();
                                  for (auto i = 0; i < iterations; ++i)
                                  {
-                                     const auto key = format("session_{}_{}", threadIndex, i);
+                                     const auto key = format("test:session_{}_{}", threadIndex, i);
                                      insert.param(0) = key;
                                      insert.param(1) = sessionJson;
                                      insert.exec();
@@ -308,16 +347,16 @@ TEST_F(RedisConnectTests, performanceMultipleThreadsPG)
 
 TEST_F(RedisConnectTests, mget)
 {
-    m_redis.setValue("mget-key1", 12345);
-    m_redis.setValue("mget-key2", 1234);
+    m_redis.setValue("test:mget-key1", 12345);
+    m_redis.setValue("test:mget-key2", 1234);
 
-    auto keysAndValues = m_redis.getValues({"mget-key1", "mget-key2"});
+    auto keysAndValues = m_redis.getValues({"test:mget-key1", "test:mget-key2"});
 
     // Expect two keys matched
     ASSERT_EQ(2, keysAndValues.size());
 
-    EXPECT_EQ(12345, keysAndValues["mget-key1"].asInteger());
-    EXPECT_EQ(1234, keysAndValues["mget-key2"].asInteger());
+    EXPECT_EQ(12345, keysAndValues["test:mget-key1"].asInteger());
+    EXPECT_EQ(1234, keysAndValues["test:mget-key2"].asInteger());
 }
 
 TEST_F(RedisConnectTests, mgetPerformance)
@@ -328,7 +367,7 @@ TEST_F(RedisConnectTests, mgetPerformance)
     vector<string> keys;
     for (auto i = 0; i < iterations; ++i)
     {
-        keys.push_back(format("mget-perf-key{}", i));
+        keys.push_back(format("test:mget-perf-key{}", i));
     }
 
     for (auto i = 0; i < iterations; ++i)
@@ -348,10 +387,10 @@ TEST_F(RedisConnectTests, scan)
 {
     ASSERT_TRUE(m_redis.isConnected());
 
-    m_redis.setValue("scan-key1", 12345);
-    m_redis.setValue("scan-key2", 1234);
+    m_redis.setValue("test:scan-key1", 12345);
+    m_redis.setValue("test:scan-key2", 1234);
 
-    auto    foundKeys = m_redis.scan("scan-key*", 2);
+    auto    foundKeys = m_redis.scan("test:scan-key*", 2);
     Strings keys;
     keys.reserve(keys.size());
     for (const auto& key: foundKeys)
@@ -363,8 +402,8 @@ TEST_F(RedisConnectTests, scan)
     // Expect two keys matched
     ASSERT_EQ(2, keys.size());
 
-    EXPECT_NE(-1, keys.indexOf("scan-key1"));
-    EXPECT_NE(-1, keys.indexOf("scan-key2"));
+    EXPECT_NE(-1, keys.indexOf("test:scan-key1"));
+    EXPECT_NE(-1, keys.indexOf("test:scan-key2"));
 }
 
 TEST_F(RedisConnectTests, getPerformance)
@@ -376,7 +415,7 @@ TEST_F(RedisConnectTests, getPerformance)
     SynchronizedQueue<string> keysQueue;
     for (auto i = 0; i < iterations; ++i)
     {
-        keys.push_back(format("s:client{}@node-{}", i, i % 10));
+        keys.push_back(format("test:s:client{}@node-{}", i, i % 10));
         keysQueue.push_back(keys.back());
     }
 
@@ -430,7 +469,7 @@ TEST_F(RedisConnectTests, hgetPerformance)
     vector<string> hashes;
     for (auto i = 0; i < hashCount; ++i)
     {
-        hashes.push_back(format("n:node-{}", i));
+        hashes.push_back(format("test:n:node-{}", i));
     }
 
     vector<string>            keys;
@@ -438,7 +477,7 @@ TEST_F(RedisConnectTests, hgetPerformance)
     for (auto i = 0; i < iterations; ++i)
     {
         const auto& hash = hashes[i % hashCount];
-        const auto  key = format("s:client{}", i);
+        const auto  key = format("test:s:client{}", i);
         m_redis.setHashValue(hash, key, i);
         keysQueue.push_back(key);
     }
@@ -489,7 +528,7 @@ TEST_F(RedisConnectTests, scanAndMgetPerformance)
     vector<string> keys;
     for (auto i = 0; i < iterations; ++i)
     {
-        keys.push_back(format("scan-perf-key{}", i));
+        keys.push_back(format("test:scan-perf-key{}", i));
     }
 
     for (auto i = 0; i < iterations; ++i)
@@ -499,7 +538,7 @@ TEST_F(RedisConnectTests, scanAndMgetPerformance)
 
     Stopwatch watch;
     watch.start();
-    const auto keysFound = m_redis.scan("scan-perf-key*", iterations);
+    const auto keysFound = m_redis.scan("test:scan-perf-key*", iterations);
     const auto keysAndValues = m_redis.getValues(keys);
     watch.stop();
 
@@ -511,10 +550,10 @@ TEST_F(RedisConnectTests, scanAndMgetPerformance)
 
 TEST_F(RedisConnectTests, remove)
 {
-    m_redis.setValue("remove-key1", 12345);
-    m_redis.setValue("remove-key2", 1234);
+    m_redis.setValue("test:remove-key1", 12345);
+    m_redis.setValue("test:remove-key2", 1234);
 
-    const auto removeCount = m_redis.deleteKeys({"remove-key1", "remove-key2", "remove-key3"});
+    const auto removeCount = m_redis.deleteKeys({"test:remove-key1", "test:remove-key2", "test:remove-key3"});
 
     // Expect two keys removed
     ASSERT_EQ(2, removeCount);
@@ -522,7 +561,7 @@ TEST_F(RedisConnectTests, remove)
 
 TEST_F(RedisConnectTests, hgetSetSingleKey)
 {
-    const string hash = "test_hash";
+    const string hash = "test:hash";
     const string key = "test";
     Variant      value(3.45678);
 
@@ -535,7 +574,7 @@ TEST_F(RedisConnectTests, hgetSetSingleKey)
 
 TEST_F(RedisConnectTests, hset)
 {
-    const string                      hash = "test_hash";
+    const string                      hash = "test:hash";
     const RedisConnect::KeysAndValues testValues = {
         {"field1", "value1"},
         {"field2", 12345},
@@ -546,7 +585,7 @@ TEST_F(RedisConnectTests, hset)
 
 TEST_F(RedisConnectTests, hkeys)
 {
-    const string                      hash = "test_hash_keys";
+    const string                      hash = "test:hash_keys";
     const RedisConnect::KeysAndValues testValues = {
         {"field1", "value1"},
         {"field2", "value2"},
@@ -571,7 +610,7 @@ TEST_F(RedisConnectTests, hkeys)
 
 TEST_F(RedisConnectTests, hmget)
 {
-    const string                      hash = "test_hash_mget";
+    const string                      hash = "test:hash_mget";
     const RedisConnect::KeysAndValues testValues = {
         {"field1", "value1"},
         {"field2", 12345},
@@ -590,7 +629,7 @@ TEST_F(RedisConnectTests, hmget)
 
 TEST_F(RedisConnectTests, hmgetNonExistentField)
 {
-    const string                      hash = "test_hash_missing";
+    const string                      hash = "test:hash_missing";
     const RedisConnect::KeysAndValues testValues = {
         {"field1", "value1"},
         {"field2", "value2"}};
@@ -607,7 +646,7 @@ TEST_F(RedisConnectTests, hmgetNonExistentField)
 
 TEST_F(RedisConnectTests, hgetall)
 {
-    const string                      hash = "test_hash_hgetall";
+    const string                      hash = "test:hash_hgetall";
     const RedisConnect::KeysAndValues testValues = {
         {"field1", "value1"},
         {"field2", 12345},
@@ -628,7 +667,7 @@ TEST_F(RedisConnectTests, hgetall)
 
 TEST_F(RedisConnectTests, hgetallEmpty)
 {
-    const string hash = "test_hash_hgetall_empty";
+    const string hash = "test:hash_hgetall_empty";
 
     (void) m_redis.deleteKeys({hash});
 
@@ -638,7 +677,7 @@ TEST_F(RedisConnectTests, hgetallEmpty)
 
 TEST_F(RedisConnectTests, hdel)
 {
-    const string                      hash = "test_hash_hdel";
+    const string                      hash = "test:hash_hdel";
     const RedisConnect::KeysAndValues testValues = {
         {"field1", "value1"},
         {"field2", "value2"},
@@ -663,7 +702,7 @@ TEST_F(RedisConnectTests, hdel)
 
 TEST_F(RedisConnectTests, hdelNonExistentField)
 {
-    const string                      hash = "test_hash_hdel_missing";
+    const string                      hash = "test:hash_hdel_missing";
     const RedisConnect::KeysAndValues testValues = {
         {"field1", "value1"},
         {"field2", "value2"}};
@@ -682,7 +721,7 @@ TEST_F(RedisConnectTests, hdelNonExistentField)
 
 TEST_F(RedisConnectTests, hdelNonExistentHash)
 {
-    const string hash = "test_hash_hdel_no_hash";
+    const string hash = "test:hash_hdel_no_hash";
 
     (void) m_redis.deleteKeys({hash});
 
@@ -691,7 +730,7 @@ TEST_F(RedisConnectTests, hdelNonExistentHash)
 
 TEST_F(RedisConnectTests, hdelAllFields)
 {
-    const string                      hash = "test_hash_hdel_all";
+    const string                      hash = "test:hash_hdel_all";
     const RedisConnect::KeysAndValues testValues = {
         {"field1", "value1"},
         {"field2", "value2"}};
@@ -707,7 +746,7 @@ TEST_F(RedisConnectTests, hdelAllFields)
 
 TEST_F(RedisConnectTests, setAddAndMembers)
 {
-    const string key = "set_test_add_members";
+    const string key = "test:set_test_add_members";
     (void) m_redis.deleteKeys({key});
 
     const size_t added = m_redis.addSetMembers(key, {"alpha", "beta", "gamma"});
@@ -726,7 +765,7 @@ TEST_F(RedisConnectTests, setAddAndMembers)
 
 TEST_F(RedisConnectTests, setAddDuplicates)
 {
-    const string key = "set_test_add_duplicates";
+    const string key = "test:set_test_add_duplicates";
     (void) m_redis.deleteKeys({key});
 
     EXPECT_EQ(3u, m_redis.addSetMembers(key, {"a", "b", "c"}));
@@ -741,12 +780,12 @@ TEST_F(RedisConnectTests, setAddDuplicates)
 
 TEST_F(RedisConnectTests, setAddEmptyMembers)
 {
-    EXPECT_EQ(0u, m_redis.addSetMembers("set_test_empty_add", {}));
+    EXPECT_EQ(0u, m_redis.addSetMembers("test:set_test_empty_add", {}));
 }
 
 TEST_F(RedisConnectTests, setIsMember)
 {
-    const string key = "set_test_ismember";
+    const string key = "test:set_test_ismember";
     (void) m_redis.deleteKeys({key});
 
     m_redis.addSetMembers(key, {"apple", "banana"});
@@ -754,14 +793,14 @@ TEST_F(RedisConnectTests, setIsMember)
     EXPECT_TRUE(m_redis.isSetMember(key, "apple"));
     EXPECT_TRUE(m_redis.isSetMember(key, "banana"));
     EXPECT_FALSE(m_redis.isSetMember(key, "cherry"));
-    EXPECT_FALSE(m_redis.isSetMember(key, "nonexistent_set_key"));
+    EXPECT_FALSE(m_redis.isSetMember(key, "test:nonexistent_set_key"));
 
     (void) m_redis.deleteKeys({key});
 }
 
 TEST_F(RedisConnectTests, setRemove)
 {
-    const string key = "set_test_remove";
+    const string key = "test:set_test_remove";
     (void) m_redis.deleteKeys({key});
 
     m_redis.addSetMembers(key, {"x", "y", "z"});
@@ -778,7 +817,7 @@ TEST_F(RedisConnectTests, setRemove)
 
 TEST_F(RedisConnectTests, setRemoveNonExistentMember)
 {
-    const string key = "set_test_remove_missing";
+    const string key = "test:set_test_remove_missing";
     (void) m_redis.deleteKeys({key});
 
     m_redis.addSetMembers(key, {"p", "q"});
@@ -796,12 +835,12 @@ TEST_F(RedisConnectTests, setRemoveNonExistentMember)
 
 TEST_F(RedisConnectTests, setRemoveEmptyMembers)
 {
-    EXPECT_EQ(0u, m_redis.deleteSetMembers("set_test_empty_remove", {}));
+    EXPECT_EQ(0u, m_redis.deleteSetMembers("test:set_test_empty_remove", {}));
 }
 
 TEST_F(RedisConnectTests, setMembersOnEmptySet)
 {
-    const string key = "set_test_members_empty";
+    const string key = "test:set_test_members_empty";
     (void) m_redis.deleteKeys({key});
 
     const auto members = m_redis.getSetMembers(key);
@@ -827,7 +866,7 @@ TEST_F(RedisConnectTests, hsetPerformance)
 
                                  for (size_t hashIndex = 0; hashIndex < maxHashes; ++hashIndex)
                                  {
-                                     auto hashName = format("hash_{}_{}", threadNumber, hashIndex);
+                                     auto hashName = format("test:hash_{}_{}", threadNumber, hashIndex);
                                      for (size_t keyIndex = 0; keyIndex < maxKeysPerHash; ++keyIndex)
                                      {
                                          const RedisConnect::KeysAndValues testValues = {
@@ -870,7 +909,7 @@ TEST_F(RedisConnectTests, hsetGroupPerformance)
 
                                  for (size_t hashIndex = 0; hashIndex < maxHashes; ++hashIndex)
                                  {
-                                     auto                        hashName = format("hash_{}_{}", threadNumber, hashIndex);
+                                     auto                        hashName = format("test:hash_{}_{}", threadNumber, hashIndex);
                                      RedisConnect::KeysAndValues testValues;
                                      for (size_t keyIndex = 0; keyIndex < maxKeysPerHash; ++keyIndex)
                                      {
@@ -905,7 +944,7 @@ TEST_F(RedisConnectTests, nodesPerformance)
 
     for (size_t hashIndex = 0; hashIndex < maxHashes; ++hashIndex)
     {
-        auto                        hashName = format("hash_mget_{}", hashIndex);
+        auto                        hashName = format("test:hash_mget_{}", hashIndex);
         RedisConnect::KeysAndValues testValues;
         for (size_t keyIndex = 0; keyIndex < maxKeysPerHash; ++keyIndex)
         {
@@ -919,7 +958,7 @@ TEST_F(RedisConnectTests, nodesPerformance)
 
     for (size_t hashIndex = 0; hashIndex < maxHashes; ++hashIndex)
     {
-        auto hashName = format("hash_mget_{}", hashIndex);
+        auto hashName = format("test:hash_mget_{}", hashIndex);
         auto hashKeys = m_redis.getHashKeys(hashName);
         auto values = m_redis.getHashValues(hashName, hashKeys);
     }
@@ -934,8 +973,8 @@ TEST_F(RedisConnectTests, nodesPerformance)
 
 TEST_F(RedisConnectTests, rename)
 {
-    const string oldKey = "rename_test_old";
-    const string newKey = "rename_test_new";
+    const string oldKey = "test:rename_test_old";
+    const string newKey = "test:rename_test_new";
     const string value = "test_value";
 
     // Set initial value
@@ -955,8 +994,8 @@ TEST_F(RedisConnectTests, rename)
 
 TEST_F(RedisConnectTests, renameOverwrite)
 {
-    const string oldKey = "rename_overwrite_old";
-    const string newKey = "rename_overwrite_new";
+    const string oldKey = "test:rename_overwrite_old";
+    const string newKey = "test:rename_overwrite_new";
     const string value1 = "value1";
     const string value2 = "value2";
 
@@ -977,13 +1016,13 @@ TEST_F(RedisConnectTests, renameOverwrite)
 TEST_F(RedisConnectTests, renameNonExistentKey)
 {
     // Try to rename a non-existent key
-    EXPECT_THROW(m_redis.renameKey("nonexistent_key_12345", "new_key_12345"), RedisConnectException);
+    EXPECT_THROW(m_redis.renameKey("test:nonexistent_key_12345", "test:new_key_12345"), RedisConnectException);
 }
 
 TEST_F(RedisConnectTests, renameNX)
 {
-    const string oldKey = "renamenx_test_old";
-    const string newKey = "renamenx_test_new";
+    const string oldKey = "test:renamenx_test_old";
+    const string newKey = "test:renamenx_test_new";
     const string value = "test_value";
 
     // Clean up any previous test data
@@ -1005,8 +1044,8 @@ TEST_F(RedisConnectTests, renameNX)
 
 TEST_F(RedisConnectTests, renameNXExistingKey)
 {
-    const string oldKey = "renamenx_existing_old";
-    const string newKey = "renamenx_existing_new";
+    const string oldKey = "test:renamenx_existing_old";
+    const string newKey = "test:renamenx_existing_new";
     const string value1 = "value1";
     const string value2 = "value2";
 
@@ -1029,24 +1068,24 @@ TEST_F(RedisConnectTests, renameNXExistingKey)
 
 TEST_F(RedisConnectTests, renameHash)
 {
-    const string oldKey = "hash_old";
-    const string newKey = "hash_new";
+    const string oldKey = "test:hash_old";
+    const string newKey = "test:hash_new";
     const string value = "test_value";
 
     // Set initial value
-    m_redis.setHashValues(oldKey, {{"akey", 1234}});
-    auto keysAndValues = m_redis.getHashValues(oldKey, {"akey"});
-    EXPECT_EQ(1234, keysAndValues["akey"].asInteger());
+    m_redis.setHashValues(oldKey, {{"test:akey", 1234}});
+    auto keysAndValues = m_redis.getHashValues(oldKey, {"test:akey"});
+    EXPECT_EQ(1234, keysAndValues["test:akey"].asInteger());
 
     // Rename the key
     EXPECT_NO_THROW(m_redis.renameKey(oldKey, newKey));
 
     // Verify old key doesn't exist and new key has the value
-    keysAndValues = m_redis.getHashValues(oldKey, {"akey"});
-    EXPECT_EQ(0, keysAndValues["akey"].asInteger());
+    keysAndValues = m_redis.getHashValues(oldKey, {"test:akey"});
+    EXPECT_EQ(0, keysAndValues["test:akey"].asInteger());
 
-    keysAndValues = m_redis.getHashValues(newKey, {"akey"});
-    EXPECT_EQ(1234, keysAndValues["akey"].asInteger());
+    keysAndValues = m_redis.getHashValues(newKey, {"test:akey"});
+    EXPECT_EQ(1234, keysAndValues["test:akey"].asInteger());
 
     // Clean up
     (void) m_redis.deleteKeys({newKey});
@@ -1054,8 +1093,8 @@ TEST_F(RedisConnectTests, renameHash)
 
 TEST_F(RedisConnectTests, transactionBasic)
 {
-    const string key1 = "txn_key1";
-    const string key2 = "txn_key2";
+    const string key1 = "test:txn_key1";
+    const string key2 = "test:txn_key2";
     const string value1 = "value1";
     const string value2 = "value2";
 
@@ -1085,7 +1124,7 @@ TEST_F(RedisConnectTests, transactionBasic)
 
 TEST_F(RedisConnectTests, transactionRollback)
 {
-    const string key = "txn_rollback_key";
+    const string key = "test:txn_rollback_key";
     const string initialValue = "initial";
     const string newValue = "new";
 
@@ -1111,9 +1150,9 @@ TEST_F(RedisConnectTests, transactionRollback)
 
 TEST_F(RedisConnectTests, transactionMultipleOperations)
 {
-    const string key1 = "txn_multi_key1";
-    const string key2 = "txn_multi_key2";
-    const string key3 = "txn_multi_incr";
+    const string key1 = "test:txn_multi_key1";
+    const string key2 = "test:txn_multi_key2";
+    const string key3 = "test:txn_multi_incr";
 
     // Clean up any previous test data
     (void) m_redis.deleteKeys({key1, key2, key3});
@@ -1142,7 +1181,7 @@ TEST_F(RedisConnectTests, transactionMultipleOperations)
 
 TEST_F(RedisConnectTests, transactionWithHash)
 {
-    const string hashKey = "txn_hash";
+    const string hashKey = "test:txn_hash";
 
     // Clean up any previous test data
     (void) m_redis.deleteKeys({hashKey});
@@ -1181,7 +1220,7 @@ TEST_F(RedisConnectTests, transactionRollbackWithoutBegin)
 
 TEST_F(RedisConnectTests, asyncGetValue)
 {
-    const string  key = "async_get_key";
+    const string  key = "test:async_get_key";
     const Variant value = "async_value";
     m_redis.setValue(key, value);
 
@@ -1199,7 +1238,7 @@ TEST_F(RedisConnectTests, asyncGetValue)
 
 TEST_F(RedisConnectTests, asyncSetValueCompletion)
 {
-    const string key = "async_set_key";
+    const string key = "test:async_set_key";
 
     promise<void> donePromise;
     auto          doneFuture = donePromise.get_future();
@@ -1217,7 +1256,7 @@ TEST_F(RedisConnectTests, asyncSetValueCompletion)
 
 TEST_F(RedisConnectTests, asyncIncrementKey)
 {
-    const string key = "async_incr_key";
+    const string key = "test:async_incr_key";
     (void) m_redis.deleteKeys({key});
     m_redis.setValue(key, static_cast<int64_t>(41L));
 
@@ -1238,7 +1277,7 @@ TEST_F(RedisConnectTests, asyncIncrementKey)
 TEST_F(RedisConnectTests, asyncOperationsAreOrdered)
 {
     // Queued operations run sequentially on the worker thread in submission order.
-    const string key = "async_order_key";
+    const string key = "test:async_order_key";
     (void) m_redis.deleteKeys({key});
 
     m_redis.setValueAsync(key, Variant("first"));
@@ -1259,7 +1298,7 @@ TEST_F(RedisConnectTests, asyncOperationsAreOrdered)
 
 TEST_F(RedisConnectTests, asyncGetHashValues)
 {
-    const string                      hash = "async_hash";
+    const string                      hash = "test:async_hash";
     const RedisConnect::KeysAndValues testValues = {
         {"field1", "value1"},
         {"field2", 12345}};
@@ -1291,7 +1330,7 @@ TEST_F(RedisConnectTests, asyncWaitForCompletion)
 
     for (auto i = 0; i < count; ++i)
     {
-        const auto key = format("async_wait_key_{}", i);
+        const auto key = format("test:async_wait_key_{}", i);
         m_redis.setValueAsync(key, Variant(i), [&completed]
                               {
                                   ++completed;
@@ -1306,7 +1345,7 @@ TEST_F(RedisConnectTests, asyncWaitForCompletion)
     vector<string> keys;
     for (auto i = 0; i < count; ++i)
     {
-        keys.push_back(format("async_wait_key_{}", i));
+        keys.push_back(format("test:async_wait_key_{}", i));
     }
     (void) m_redis.deleteKeys(keys);
 }
@@ -1325,7 +1364,7 @@ TEST_F(RedisConnectTests, asyncWaitForCompletionTimeout)
     auto          releaseFuture = releasePromise.get_future();
 
     // A first operation that blocks the worker until released, so the queue cannot drain.
-    m_redis.setValueAsync("async_timeout_key", Variant("v"), [&startedPromise, &releaseFuture]
+    m_redis.setValueAsync("test:async_timeout_key", Variant("v"), [&startedPromise, &releaseFuture]
                           {
                               startedPromise.set_value();
                               releaseFuture.wait();
@@ -1340,14 +1379,14 @@ TEST_F(RedisConnectTests, asyncWaitForCompletionTimeout)
     releasePromise.set_value();
     EXPECT_TRUE(m_redis.waitForAsyncCompletion(5s));
 
-    (void) m_redis.deleteKeys({"async_timeout_key"});
+    (void) m_redis.deleteKeys({"test:async_timeout_key"});
 }
 
 TEST_F(RedisConnectTests, asyncErrorHandlerInvokedOnPipelinedFailure)
 {
     // INCR on a key holding a non-integer fails with a Redis error reply. The pipelined operation's
     // result callback must not fire; the failure must reach the error handler instead.
-    const string key = "async_error_pipelined";
+    const string key = "test:async_error_pipelined";
     m_redis.setValue(key, Variant("not_a_number"));
 
     promise<string> errorPromise;
@@ -1376,8 +1415,8 @@ TEST_F(RedisConnectTests, asyncErrorHandlerInvokedOnSelfContainedFailure)
 {
     // SREM against a key holding a string fails with WRONGTYPE. deleteSetMembersAsync is a
     // self-contained operation, so this exercises the other failure path.
-    const string key = "async_error_self_contained";
-    m_redis.setValue(key, Variant("a_string_not_a_set"));
+    const string key = "test:async_error_self_contained";
+    m_redis.setValue(key, Variant("test:a_string_not_a_set"));
 
     promise<string> errorPromise;
     auto            errorFuture = errorPromise.get_future();
@@ -1404,7 +1443,7 @@ TEST_F(RedisConnectTests, asyncErrorHandlerInvokedOnSelfContainedFailure)
 TEST_F(RedisConnectTests, asyncErrorHandlerNotInvokedOnSuccess)
 {
     // A successful operation must deliver its result and never invoke the error handler.
-    const string key = "async_error_none";
+    const string key = "test:async_error_none";
     (void) m_redis.deleteKeys({key});
     m_redis.setValue(key, static_cast<int64_t>(41L));
 
@@ -1440,11 +1479,11 @@ TEST_F(RedisConnectTests, threadSafety)
     vector<string> keysToDelete;
     for (auto threadIndex = 0; threadIndex < threadCount; ++threadIndex)
     {
-        keysToDelete.push_back(format("threadsafe_incr_{}", threadIndex));
-        keysToDelete.push_back(format("threadsafe_hash_{}", threadIndex));
+        keysToDelete.push_back(format("test:threadsafe_incr_{}", threadIndex));
+        keysToDelete.push_back(format("test:threadsafe_hash_{}", threadIndex));
         for (auto i = 0; i < operationsPerThread; ++i)
         {
-            keysToDelete.push_back(format("threadsafe_key_{}_{}", threadIndex, i));
+            keysToDelete.push_back(format("test:threadsafe_key_{}_{}", threadIndex, i));
         }
     }
     (void) m_redis.deleteKeys(keysToDelete);
@@ -1456,7 +1495,7 @@ TEST_F(RedisConnectTests, threadSafety)
                              {
                                  for (auto i = 0; i < operationsPerThread; ++i)
                                  {
-                                     const auto key = format("threadsafe_key_{}_{}", threadIndex, i);
+                                     const auto key = format("test:threadsafe_key_{}_{}", threadIndex, i);
                                      const auto value = format("value_{}_{}", threadIndex, i);
 
                                      // Test set/get operations
@@ -1465,11 +1504,11 @@ TEST_F(RedisConnectTests, threadSafety)
                                      EXPECT_EQ(value, retrieved);
 
                                      // Test incr operation
-                                     const auto incrKey = format("threadsafe_incr_{}", threadIndex);
+                                     const auto incrKey = format("test:threadsafe_incr_{}", threadIndex);
                                      (void) m_redis.incrementKey(incrKey);
 
                                      // Test hash operations
-                                     const auto                        hashKey = format("threadsafe_hash_{}", threadIndex);
+                                     const auto                        hashKey = format("test:threadsafe_hash_{}", threadIndex);
                                      const RedisConnect::KeysAndValues hashValues = {{format("field_{}", i), Variant(value)}};
                                      m_redis.setHashValues(hashKey, hashValues);
                                      const auto keys = m_redis.getHashKeys(hashKey);
@@ -1486,7 +1525,7 @@ TEST_F(RedisConnectTests, threadSafety)
     // Verify incr results
     for (auto threadIndex = 0; threadIndex < threadCount; ++threadIndex)
     {
-        const auto incrKey = format("threadsafe_incr_{}", threadIndex);
+        const auto incrKey = format("test:threadsafe_incr_{}", threadIndex);
         const auto value = m_redis.getValue(incrKey).asInt64();
         EXPECT_EQ(operationsPerThread, value);
     }
@@ -1522,10 +1561,10 @@ TEST_F(RedisConnectTests, valueSetGetPerformanceAsync)
                 auto value = 0;
                 while (!sourceValues.empty() && sourceValues.pop_front(value, 10ms))
                 {
-                    threadRedis.setValueAsync(to_string(value), Variant(value),
+                    threadRedis.setValueAsync("test:" + to_string(value), Variant(value),
                                               [&threadRedis, value, &valuesMutex, &valuesSet]
                                               {
-                                                  threadRedis.getValueAsync(to_string(value), [value, &valuesMutex, &valuesSet](const Variant& outputValue)
+                                                  threadRedis.getValueAsync("test:" + to_string(value), [value, &valuesMutex, &valuesSet](const Variant& outputValue)
                                                                             {
                                                                                 if (outputValue.asInteger() == value)
                                                                                 {
@@ -1582,7 +1621,7 @@ TEST_F(RedisConnectTests, infoFollowedByConfigGet)
     EXPECT_FALSE(directory[1].asString().empty());
 
     // And an ordinary command after both still behaves, so nothing was left in the stream.
-    const string  key = "info_then_config_key";
+    const string  key = "test:info_then_config_key";
     const Variant value = "still_in_step";
     EXPECT_NO_THROW(m_redis.setValue(key, value));
     EXPECT_EQ(value.asString(), m_redis.getValue(key).asString());

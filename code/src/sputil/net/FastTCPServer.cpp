@@ -131,7 +131,13 @@ bool FastTcpServerListener::acceptConnection(const chrono::milliseconds& timeout
     }
     catch (const Exception& e)
     {
-        m_server.log(LogPriority::Error, e.what());
+        // stop() shuts the listener down to unblock this poll, which surfaces here as
+        // "Connection closed". That is the expected way the thread wakes up on shutdown,
+        // not a failure worth logging.
+        if (!terminated())
+        {
+            m_server.log(LogPriority::Error, e.what());
+        }
     }
     return false;
 }

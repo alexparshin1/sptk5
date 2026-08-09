@@ -101,7 +101,9 @@ bool TCPSocket::accept(SocketType& clientSocketFD, sockaddr_storage& clientInfo,
     setBlockingModeUnlocked(false);
 
     clientInfoLength = sizeof(clientInfo);
-    clientSocketFD = ::accept(fd(), bit_cast<sockaddr*>(&clientInfo), &clientInfoLength);
+    // getSocketFdUnlocked(), not fd(): the exclusive lock is already held here, and fd() is
+    // free to start taking the lock itself - it protects a descriptor that close() invalidates.
+    clientSocketFD = ::accept(getSocketFdUnlocked(), bit_cast<sockaddr*>(&clientInfo), &clientInfoLength);
     if (clientSocketFD != INVALID_SOCKET)
     {
         return true;

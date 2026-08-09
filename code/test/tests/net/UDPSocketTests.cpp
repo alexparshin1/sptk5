@@ -24,6 +24,8 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
+#include "test/TestData.h"
+
 #include <gtest/gtest.h>
 #include <sptk5/cutils>
 #include <sptk5/net/UDPSocket.h>
@@ -31,7 +33,15 @@
 using namespace std;
 using namespace sptk;
 
-static constexpr uint16_t testPort = 3000;
+/// @brief Port of this file's echo server, taken from the kernel on first use.
+/// @remarks See TestData::freePort() for why a hard-coded number is not reliable here.
+/// Probed as UDP: TCP and UDP port spaces are separate.
+static uint16_t testPort()
+{
+    static const uint16_t port = TestData::freePort(SOCK_DGRAM);
+    return port;
+}
+
 static constexpr uint16_t bufferSize = 2048;
 static constexpr auto     readTimeout = chrono::milliseconds(200);
 
@@ -45,7 +55,7 @@ public:
     UDPEchoServer()
         : Thread("UDP server")
     {
-        socket.bind(nullptr, testPort);
+        socket.bind(nullptr, testPort());
     }
 
     /**
@@ -99,7 +109,7 @@ TEST(UDPSocketTests,minimal)
     echoServer.run();
 
     sockaddr_in serverAddr {};
-    Host        serverHost("127.0.0.1", testPort);
+    Host        serverHost("127.0.0.1", testPort());
     serverHost.getAddress(serverAddr);
 
     Strings rows("Hello, World!\n"

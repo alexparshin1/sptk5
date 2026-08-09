@@ -246,8 +246,12 @@ TEST(OrderedMapTests,eraseByIteratorAndEndBounds)
 
 TEST(OrderedMapTests,comparePerformance)
 {
+    // 200K entries already separate OrderedMap from std::map by a wide margin; the remaining
+    // 800K only added seconds to the suite without changing the ranking.
+    constexpr auto entryCount = 200000;
+
     map<string, int, less<>> testData;
-    for (auto i = 0; i < 1000000; ++i)
+    for (auto i = 0; i < entryCount; ++i)
     {
         auto key = format("key{}", i);
         testData.try_emplace(key, i);

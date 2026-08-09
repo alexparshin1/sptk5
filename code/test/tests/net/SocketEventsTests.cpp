@@ -24,6 +24,8 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
+#include "test/TestData.h"
+
 #include "FastEchoServer.h"
 #include "sptk5/Stopwatch.h"
 
@@ -38,7 +40,13 @@ using namespace chrono;
 
 namespace {
 
-constexpr uint16_t testEchoServerPort = 5001;
+/// @brief Port of this file's echo server, taken from the kernel on first use.
+/// @remarks See TestData::freePort() for why a hard-coded number is not reliable here.
+uint16_t testEchoServerPort()
+{
+    static const uint16_t port = TestData::freePort();
+    return port;
+}
 
 /**
  * @brief Test SocketEvents communication with echo server using selected trigger mode
@@ -92,16 +100,19 @@ void testSocketEvents(const SocketPoolTriggerMode triggerMode)
         socketEvents->add(socket, socket, true);
     };
 
-    socketEvents = make_shared<SocketEvents<Socket>>("Test Pool", eventsCallback, 1s, triggerMode);
+    // The timeout is only how often the poll loop re-checks terminate(); events still wake it
+    // immediately. At 1s, stop() waited out a full poll cycle and each of these tests spent a
+    // second in teardown alone.
+    socketEvents = make_shared<SocketEvents<Socket>>("Test Pool", eventsCallback, 100ms, triggerMode);
 
     Buffer buffer;
 
     try
     {
-        FastEchoServer testEchoServer(testEchoServerPort);
+        FastEchoServer testEchoServer(testEchoServerPort());
 
         auto socket = make_shared<TCPSocket>();
-        socket->open(Host("localhost", testEchoServerPort));
+        socket->open(Host("localhost", testEchoServerPort()));
         socketEvents->add(socket, socket);
 
         try
@@ -162,7 +173,7 @@ TEST(SocketEventsTests, minimalOneShot)
 
 TEST(SocketEventsTests, performance)
 {
-    FastEchoServer testEchoServer(testEchoServerPort);
+    FastEchoServer testEchoServer(testEchoServerPort());
 
     SocketEvents<Socket> socketEvents(
         "test events",
@@ -180,7 +191,7 @@ TEST(SocketEventsTests, performance)
         sockets.push_back(make_shared<TCPSocket>());
     }
 
-    const Host testServerHost("localhost", testEchoServerPort);
+    const Host testServerHost("localhost", testEchoServerPort());
     for (const auto& socket: sockets)
     {
         ASSERT_NO_THROW(socket->open(testServerHost, Socket::OpenMode::CONNECT, true, 100ms));

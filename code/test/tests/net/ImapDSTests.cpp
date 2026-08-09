@@ -24,6 +24,8 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
+#include "test/TestData.h"
+
 #include "TestImapServer.h"
 #include <gtest/gtest.h>
 #include <sptk5/net/ImapDS.h>
@@ -31,12 +33,45 @@
 using namespace std;
 using namespace sptk;
 
-constexpr auto testImapDSOpenPort = 12360;
-constexpr auto testImapDSFetchBodyPort = 12361;
-constexpr auto testImapDSMessageIDPort = 12362;
-constexpr auto testImapDSCallbackPort = 12363;
-constexpr auto testImapDSBadLoginPort = 12364;
-constexpr auto testImapDSEmptyFolderPort = 12365;
+/// @brief Ports of this file's test IMAP servers, taken from the kernel on first use.
+///
+/// Each test gets its own so that a server still winding down cannot block the next one.
+/// See TestData::freePort() for why hard-coded numbers are not reliable here.
+uint16_t testImapDSOpenPort()
+{
+    static const uint16_t port = TestData::freePort();
+    return port;
+}
+
+uint16_t testImapDSFetchBodyPort()
+{
+    static const uint16_t port = TestData::freePort();
+    return port;
+}
+
+uint16_t testImapDSMessageIDPort()
+{
+    static const uint16_t port = TestData::freePort();
+    return port;
+}
+
+uint16_t testImapDSCallbackPort()
+{
+    static const uint16_t port = TestData::freePort();
+    return port;
+}
+
+uint16_t testImapDSBadLoginPort()
+{
+    static const uint16_t port = TestData::freePort();
+    return port;
+}
+
+uint16_t testImapDSEmptyFolderPort()
+{
+    static const uint16_t port = TestData::freePort();
+    return port;
+}
 
 namespace {
 
@@ -57,10 +92,10 @@ namespace sptk {
 
 TEST(ImapDSTests, open_fetch_headers)
 {
-    TestImapServer testImapServer(testImapDSOpenPort);
+    TestImapServer testImapServer(testImapDSOpenPort());
 
     ImapDS imapDS;
-    imapDS.host({"localhost", testImapDSOpenPort});
+    imapDS.host({"localhost", testImapDSOpenPort()});
     imapDS.user("user");
     imapDS.password("password");
     imapDS.folder("INBOX");
@@ -87,10 +122,10 @@ TEST(ImapDSTests, open_fetch_headers)
 
 TEST(ImapDSTests, open_fetch_body)
 {
-    TestImapServer testImapServer(testImapDSFetchBodyPort);
+    TestImapServer testImapServer(testImapDSFetchBodyPort());
 
     ImapDS imapDS;
-    imapDS.host({"localhost", testImapDSFetchBodyPort});
+    imapDS.host({"localhost", testImapDSFetchBodyPort()});
     imapDS.user("user");
     imapDS.password("password");
     imapDS.folder("INBOX");
@@ -106,10 +141,10 @@ TEST(ImapDSTests, open_fetch_body)
 
 TEST(ImapDSTests, open_specific_message_id)
 {
-    TestImapServer testImapServer(testImapDSMessageIDPort);
+    TestImapServer testImapServer(testImapDSMessageIDPort());
 
     ImapDS imapDS;
-    imapDS.host({"localhost", testImapDSMessageIDPort});
+    imapDS.host({"localhost", testImapDSMessageIDPort()});
     imapDS.user("user");
     imapDS.password("password");
     imapDS.folder("INBOX");
@@ -136,10 +171,10 @@ TEST(ImapDSTests, open_specific_message_id)
 
 TEST(ImapDSTests, callback_functionality)
 {
-    TestImapServer testImapServer(testImapDSCallbackPort);
+    TestImapServer testImapServer(testImapDSCallbackPort());
 
     ImapDS imapDS;
-    imapDS.host({"localhost", testImapDSCallbackPort});
+    imapDS.host({"localhost", testImapDSCallbackPort()});
     imapDS.user("user");
     imapDS.password("password");
     imapDS.folder("INBOX");
@@ -165,10 +200,10 @@ TEST(ImapDSTests, callback_functionality)
 
 TEST(ImapDSTests, bad_login)
 {
-    TestImapServer testImapServer(testImapDSBadLoginPort);
+    TestImapServer testImapServer(testImapDSBadLoginPort());
 
     ImapDS imapDS;
-    imapDS.host({"localhost", testImapDSBadLoginPort});
+    imapDS.host({"localhost", testImapDSBadLoginPort()});
     imapDS.user("user");
     imapDS.password("wrongpassword");
     imapDS.folder("INBOX");
@@ -214,10 +249,10 @@ TEST(ImapDSTests, getters_setters)
 
 TEST(ImapDSTests, iteration_through_messages)
 {
-    TestImapServer testImapServer(testImapDSEmptyFolderPort);
+    TestImapServer testImapServer(testImapDSEmptyFolderPort());
 
     ImapDS imapDS;
-    imapDS.host({"localhost", testImapDSEmptyFolderPort});
+    imapDS.host({"localhost", testImapDSEmptyFolderPort()});
     imapDS.user("user");
     imapDS.password("password");
     imapDS.folder("INBOX");

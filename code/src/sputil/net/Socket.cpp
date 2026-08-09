@@ -70,9 +70,10 @@ Socket::~Socket()
 
 size_t Socket::read(Buffer& buffer, const size_t size, sockaddr* from)
 {
+    // Allocate before locking - it touches the buffer, not the socket.
     buffer.reserve(size);
-    const ReadLock lock(m_mutex);
-    const auto bytes = readUnlocked(buffer.data(), size, from);
+    const WriteLock lock(m_mutex);
+    const auto      bytes = readUnlocked(buffer.data(), size, from);
     buffer.bytes(bytes);
 
     return bytes;
@@ -80,9 +81,10 @@ size_t Socket::read(Buffer& buffer, const size_t size, sockaddr* from)
 
 size_t Socket::read(String& buffer, const size_t size, sockaddr* from)
 {
+    // Allocate before locking - it touches the buffer, not the socket.
     buffer.resize(size);
-    const ReadLock lock(m_mutex);
-    const auto bytes = readUnlocked(bit_cast<uint8_t*>(buffer.data()), size, from);
+    const WriteLock lock(m_mutex);
+    const auto      bytes = readUnlocked(bit_cast<uint8_t*>(buffer.data()), size, from);
     buffer.resize(bytes);
 
     return bytes;
