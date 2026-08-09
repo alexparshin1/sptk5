@@ -66,7 +66,12 @@ RequestInfo WSStaticHttpProtocol::process()
         requestInfo.response.content().loadFromFile(filePath);
 
         const Buffer output = requestInfo.response.output(contentEncodings);
-        socket().write("HTTP/1.1 200 OK\n");
+
+        // Header lines end with a carriage return and a newline, which is what HTTP says they end
+        // with, and what the rest of this server sends. Browsers and curl accept a bare newline
+        // as well - so this went unnoticed - but anything reading the response by the book finds
+        // no end to the headers and waits for the rest of a message that has already arrived.
+        socket().write("HTTP/1.1 200 OK\r\n");
         String contentType = "text/html";
         if (fullPath.ends_with(".css"))
         {
@@ -76,12 +81,12 @@ RequestInfo WSStaticHttpProtocol::process()
         {
             contentType = "text/javascript";
         }
-        socket().write("Content-Type: " + contentType + "; charset=utf-8\n");
+        socket().write("Content-Type: " + contentType + "; charset=utf-8\r\n");
         if (!requestInfo.response.contentEncoding().empty())
         {
-            socket().write("Content-Encoding: " + requestInfo.response.contentEncoding() + "\n");
+            socket().write("Content-Encoding: " + requestInfo.response.contentEncoding() + "\r\n");
         }
-        socket().write("Content-Length: " + to_string(output.size()) + "\n\n");
+        socket().write("Content-Length: " + to_string(output.size()) + "\r\n\r\n");
         socket().write(output);
     }
     catch (const Exception&)
@@ -91,13 +96,13 @@ RequestInfo WSStaticHttpProtocol::process()
             " was not found.</body></html>\n");
         const Buffer output = requestInfo.response.output(contentEncodings);
         requestInfo.response.content() = text;
-        socket().write("HTTP/1.1 404 Not Found\n");
-        socket().write("Content-Type: text/html; charset=utf-8\n");
+        socket().write("HTTP/1.1 404 Not Found\r\n");
+        socket().write("Content-Type: text/html; charset=utf-8\r\n");
         if (!requestInfo.response.contentEncoding().empty())
         {
-            socket().write("Content-Encoding: " + requestInfo.response.contentEncoding() + "\n");
+            socket().write("Content-Encoding: " + requestInfo.response.contentEncoding() + "\r\n");
         }
-        socket().write("Content-length: " + to_string(text.length()) + "\n\n");
+        socket().write("Content-Length: " + to_string(text.length()) + "\r\n\r\n");
         socket().write(text);
     }
     return requestInfo;
