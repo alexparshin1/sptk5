@@ -93,6 +93,20 @@ export default class XMQ_tests_environment extends React.Component
                     file descriptor limit. Mosquitto's defaults for the two queue limits throttle
                     delivery at high publisher counts, and its default leaves Nagle's algorithm enabled.
                 </li>
+                <li>
+                    <b>FlashMQ</b> runs with <span style={mono}>tcp_nodelay true</span>,
+                    <span style={mono}> thread_count 16</span> (one worker per vCPU, which is also what
+                    its auto-detection chooses on this host), and
+                    <span style={mono}> log_level warning</span> with subscription and publish logging
+                    off &mdash; at the lower levels it logs every connection and every publish, which at
+                    these rates measures the log rather than the broker. Its
+                    <span style={mono}> max_qos_msg_pending_per_client</span> and
+                    <span style={mono}> max_qos_bytes_pending_per_client</span> are raised from their
+                    512-message and 64&nbsp;kB defaults to 65535 and 256&nbsp;MB: at the defaults QoS 1
+                    traffic is dropped when a subscriber falls behind, which would be recorded as
+                    throughput the broker never delivered. This is the same reasoning behind the
+                    unbounded queues given to Mosquitto.
+                </li>
             </ul>
 
             <h4>Kernel settings</h4>

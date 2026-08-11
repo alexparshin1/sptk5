@@ -1,5 +1,5 @@
 import React from "react";
-import logo from "../images/logo.png";
+import logo from "../images/xmq_logo_wide.svg";
 import linotex from "../images/linotex_white_1.png";
 import advancedInstaller from "../images/AdvancedInstallerLogo.png";
 import LoginDialog from "../components/LoginDialog";
@@ -41,7 +41,7 @@ export default class Header extends React.Component
                     </td>
                 </tr>
                 <tr>
-                    <td align="left" colSpan={2}><img src={logo} alt=""/></td>
+                    <td align="left" colSpan={2}><img src={logo} width="300" height="72" alt="XMQ"/></td>
                     <td align="right">
                         <img src={linotex} width="205" height="59" alt=""/>
                     </td>

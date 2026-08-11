@@ -19,6 +19,39 @@ Interval        Count    Latency       Rate/s
 Average      89971693      215us        49984
 
 
+Server:   FlashMQ
+Version:  1.26.2
+QOS:      1
+Rate:     1 msg/s per publisher
+CPU Load: 232% mean / 232% peak
+Max RAM:  485 Mb
+Interval        Count    Latency       Rate/s
+─────────────────────────────────────────────
+0ms           8999990      197us        49999
+180000ms      9000000      198us        50000
+360000ms      8999997      198us        49999
+540000ms      9000002      198us        50000
+720000ms      9000001      198us        50000
+900000ms      8999999      198us        49999
+1080000ms     9000002      198us        50000
+1260000ms     8999999      198us        49999
+1440000ms     9000002      198us        50000
+1620000ms     8975537      198us        49864
+─────────────────────────────────────────────
+Average      89975529      198us        49986
+
+  server CPU   mean 232%, peak 232%    (of 1600%)
+  server RSS   485 Mb peak
+  MemAvailable floor 38.1 Gb
+  client CPU   mean 298%, peak 887%    (of 1600% - not the bottleneck)
+
+  100000 connections, full rate for 30 minutes at 198us. Nine of the ten intervals
+  read 198us and the tenth 197us: the flattest result in this suite from any broker.
+
+  Config: log_level warning, thread_count 16, max_qos_msg_pending_per_client 65535,
+  max_qos_bytes_pending_per_client 268435456, tcp_nodelay true.
+
+
 Server:   XMQ
 QOS:      1
 Rate:     2 msg/s per publisher

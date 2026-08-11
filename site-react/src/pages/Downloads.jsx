@@ -86,7 +86,7 @@ export default class Downloads extends React.Component
         let directory = this.directoryIndex[this.state.osVersion];
         let files = [];
         if (directory) {
-            for (let file of directory.files) {
+            for (let file of directory.files.sort()) {
                 let isFileRequiresForXMQ = this.isRequiredForXMQ(file.file);
                 files.push(<tr key={file.file + "-info"}>
                     <td key={file.file + "-name"} className="FileInfo">
@@ -96,7 +96,6 @@ export default class Downloads extends React.Component
                     </td>
                     <td key={file.file + "-date"} className="FileInfo">{file.fdate}</td>
                     <td key={file.file + "-size"} className="FileInfo">{file.fsize}</td>
-                    <td key={file.file + "-required"} className="FileInfo">{isFileRequiresForXMQ ? "Yes" : "No"}</td>
                 </tr>);
             }
         }
@@ -120,7 +119,6 @@ export default class Downloads extends React.Component
                         <th style={{width: 300}}>File</th>
                         <th style={{width: 150}}>Date</th>
                         <th style={{width: 100}}>Size</th>
-                        <th style={{width: 150}}>Required for XMQ</th>
                     </tr>
                     </thead>
                     <tbody>

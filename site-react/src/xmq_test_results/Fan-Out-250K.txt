@@ -114,6 +114,46 @@ Average      31381388 87086966us       104604
   than 250k/s - the load generator had nothing like the work the other two gave it.
 
 
+Server:   FlashMQ
+Version:  1.26.2
+CPU Load: 384% mean / 477% peak
+Max RAM:  29 Mb
+Interval        Count    Latency       Rate/s
+─────────────────────────────────────────────
+0ms           7499974     2104us       249999
+30000ms       7499992     2122us       249999
+60000ms       7499990     2131us       249999
+90000ms       7500004     2131us       250000
+120000ms      7500040     2128us       250001
+150000ms      7499972     2125us       249999
+180000ms      7499986     2123us       249999
+210000ms      7500028     2129us       250000
+240000ms      7499983     2137us       249999
+270000ms      7498328     2131us       249944
+─────────────────────────────────────────────
+Average      74998297     2126us       249994
+
+  server CPU   mean 384%, peak 477%   (of 1600%)
+  server RSS   29 Mb peak
+  MemAvailable floor 38.9 Gb
+  client CPU   not sampled for this run
+
+  Full rate at 2.13ms, flatter than anything else here: 2.10-2.14ms across all ten
+  intervals, a 33us spread. The lowest latency of the four brokers in this scenario,
+  and 29Mb of RSS to do it.
+
+  Config: log_level warning, thread_count 16, max_qos_msg_pending_per_client 65535,
+  max_qos_bytes_pending_per_client 268435456, tcp_nodelay true. The pending-queue
+  limits were raised from their 512-message/64kB defaults, which would otherwise drop
+  QoS 1 traffic when a subscriber falls behind - the same reasoning as the unbounded
+  queues Mosquitto was given here.
+
+  Client CPU was not sampled during this run. It is not needed to read the result:
+  the broker delivered the full offered rate, so the load generator kept up by
+  construction. It is recorded for the other brokers because there it is what
+  distinguishes a broker ceiling from a generator ceiling.
+
+
 NOTES
   The client was never the bottleneck: xmq_scn peaked at 442% of 1600% available
   (~28% of the client box) during the heaviest run. Both 250k/s results are broker

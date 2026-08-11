@@ -123,6 +123,46 @@ Average      89967834   379429us        49982
   Also beats its own published figure for this scenario (41000/s at 12476ms).
 
 
+Server:   FlashMQ
+Version:  1.26.2
+CPU Load: 201% mean / 213% peak
+Max RAM:  242 Mb
+Interval        Count    Latency       Rate/s
+─────────────────────────────────────────────
+0ms           8999988      199us        49999
+180000ms      9000000      200us        50000
+360000ms      8999996      201us        49999
+540000ms      9000003      200us        50000
+720000ms      9000002      208us        50000
+900000ms      9000000      201us        50000
+1080000ms     9000001      200us        50000
+1260000ms     8999997      200us        49999
+1440000ms     9000001      200us        50000
+1620000ms     8999823      200us        49999
+─────────────────────────────────────────────
+Average      89999811      201us        49999
+
+  server CPU   mean 201%, peak 213%    (of 1600%)
+  server RSS   242 Mb peak
+  MemAvailable floor 38.5 Gb
+  client CPU   mean 282%, peak 452%    (of 1600% - not the bottleneck)
+
+  Held the full rate for 30 minutes at 201us, with a 9us spread across the ten
+  intervals (199-208us). The lowest latency of the four brokers here, on an eighth
+  of the machine.
+
+  Config: log_level warning, thread_count 16, max_qos_msg_pending_per_client 65535,
+  max_qos_bytes_pending_per_client 268435456, tcp_nodelay true. The pending-queue
+  limits were raised from their 512-message/64kB defaults, which would otherwise drop
+  QoS 1 traffic when a subscriber falls behind - the same reasoning as the unbounded
+  queues Mosquitto was given here.
+
+  Worth putting beside the other three: XMQ 217us on a third of its 800% allowance,
+  FlashMQ 201us on an eighth of 1600%, Mosquitto the full rate on one core but at
+  379ms mean latency and 31.4 Gb of RSS, EMQX short of the offered rate entirely.
+  This scenario separates the four more sharply than any other in the suite.
+
+
 NOTES
   TcpExtListenOverflows: 2527 across the whole suite. Mosquitto 2.0.22 hardcodes
   listen(sock, 100) and cannot absorb 50500 clients arriving at the connect rate;

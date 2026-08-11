@@ -11,9 +11,10 @@ export const SERVER_COLORS = {
     Mosquitto: "#2ca02c",
     EMQX: "#d62728",
     NanoMQ: "#ff7f0e",
+    FlashMQ: "#9467bd",
 };
 
-const KNOWN_BROKERS = /^(XMQ|EMQX|Mosquitto|NanoMQ)$/;
+const KNOWN_BROKERS = /^(XMQ|EMQX|Mosquitto|NanoMQ|FlashMQ)$/;
 
 // "Server:" also appears in the preamble describing the host, so only lines naming a
 // known broker start a result block; anything else closes the current one.
