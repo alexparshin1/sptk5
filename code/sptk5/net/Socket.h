@@ -34,6 +34,7 @@
 
 #include <atomic>
 #include <cstdint>
+#include <mutex>
 
 namespace sptk {
 template<typename T>
@@ -58,10 +59,18 @@ concept is_socket_readable = std::is_integral_v<T> || std::is_floating_point_v<T
  * @par Thread safety
  * Every public method takes m_mutex, which guards the socket's mutable state - the descriptor,
  * the host, and the cached blocking mode. Methods that only observe that state take a shared
- * lock; anything that changes it, performs I/O, or (in the TLS subclass) advances the SSL
- * session takes the exclusive one. In particular read(), write() and socketBytes() are
- * exclusive: their SSLSocket implementations mutate the SSL session, which OpenSSL does not
- * allow two threads to touch at once, so they must not overlap even in opposite directions.
+ * lock; anything that changes it, or (in the TLS subclass) advances the SSL session, takes the
+ * exclusive one. socketBytes() is exclusive for that reason.
+ *
+ * I/O is locked by direction rather than by the socket. read() and write() take m_mutex shared -
+ * enough to keep open()/close() from moving the descriptor while a syscall is in flight - and
+ * then one mutex per direction, so two readers or two writers wait for each other but a reader
+ * and a writer do not. The kernel keeps the two directions of a socket independent, so there is
+ * nothing for them to race over.
+ *
+ * That last part does not hold once TLS is in the way: both directions drive a single SSL
+ * session. SSLSocket therefore answers false to fullDuplexIO(), and its read() and write() fall
+ * back to taking m_mutex exclusively, as everything did before.
  *
  * The protected *Unlocked() family is the same set of operations with no locking; it exists so
  * that these methods can call one another without re-entering the lock. ReadWriteMutex is not
@@ -279,7 +288,16 @@ public:
      */
     size_t read(uint8_t* buffer, const size_t size, sockaddr* from = nullptr)
     {
-        const WriteLock lock(m_mutex);
+        if (!fullDuplexIO())
+        {
+            const WriteLock lock(m_mutex);
+            return readUnlocked(buffer, size, from);
+        }
+        // Shared on the state, exclusive on this direction: another reader waits, a writer does
+        // not. The shared lock is still what keeps open()/close() from pulling the descriptor
+        // out from under the recv().
+        const ReadLock        stateLock(m_mutex);
+        const std::lock_guard directionLock(m_readMutex);
         return readUnlocked(buffer, size, from);
     }
 
@@ -309,7 +327,13 @@ public:
         requires is_socket_readable<T>
     size_t read(T& value, sockaddr* from = nullptr)
     {
-        const WriteLock lock(m_mutex);
+        if (!fullDuplexIO())
+        {
+            const WriteLock lock(m_mutex);
+            return readUnlocked(reinterpret_cast<uint8_t*>(&value), sizeof(T), from);
+        }
+        const ReadLock        stateLock(m_mutex);
+        const std::lock_guard directionLock(m_readMutex);
         return readUnlocked(reinterpret_cast<uint8_t*>(&value), sizeof(T), from);
     }
 
@@ -324,7 +348,15 @@ public:
      */
     size_t write(const uint8_t* buffer, const size_t size, const sockaddr* peer = nullptr)
     {
-        const WriteLock lock(m_mutex);
+        if (!fullDuplexIO())
+        {
+            const WriteLock lock(m_mutex);
+            return writeUnlocked(buffer, size, peer);
+        }
+        // See read(): writers serialise against each other so that two partial sends cannot
+        // interleave in the stream, but a reader on the same socket runs unimpeded.
+        const ReadLock        stateLock(m_mutex);
+        const std::lock_guard directionLock(m_writeMutex);
         return writeUnlocked(buffer, size, peer);
     }
 
@@ -444,6 +476,19 @@ protected:
     }
 
     /**
+     * @brief Tells whether a read and a write may run at the same time on this socket.
+     *
+     * True for anything that talks to the descriptor directly: the kernel keeps the two
+     * directions independent, so a send() and a recv() on the same socket do not interfere.
+     * SSLSocket overrides this to false - its recvUnlocked()/sendUnlocked() both advance one
+     * SSL session, which OpenSSL does not allow two threads to touch at once.
+     */
+    [[nodiscard]] virtual bool fullDuplexIO() const noexcept
+    {
+        return true;
+    }
+
+    /**
      * @brief Get socket domain type.
      */
     [[nodiscard]] int32_t domain() const
@@ -468,7 +513,9 @@ protected:
     }
 
 private:
-    mutable ReadWriteMutex m_mutex;        ///< Mutex that protects host data.
+    mutable ReadWriteMutex m_mutex;         ///< Mutex that protects host data.
+    mutable std::mutex     m_readMutex;     ///< Serialises readers when I/O is full duplex.
+    mutable std::mutex     m_writeMutex;    ///< Serialises writers when I/O is full duplex.
     std::atomic<uint64_t>  m_poolToken {0}; ///< Reactor registration token, 0 when not registered.
 };
 

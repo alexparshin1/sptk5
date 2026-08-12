@@ -87,6 +87,18 @@ public:
 
 protected:
     /**
+     * @brief Reads and writes share the SSL session here, so they may not overlap.
+     *
+     * Both directions run through one SSL object, and OpenSSL requires that only one thread
+     * touches it at a time. So this socket keeps the original scheme: every I/O call takes
+     * the socket mutex exclusively.
+     */
+    [[nodiscard]] bool fullDuplexIO() const noexcept override
+    {
+        return false;
+    }
+
+    /**
      * @brief Initialize SSL context and socket structures.
      */
     void initContextAndSocket();
