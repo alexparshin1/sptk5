@@ -42,7 +42,16 @@ for dname in /home/alexeyp/Docker/Dockerfile.debian-forky
 do
     name=$(echo $dname | sed -re 's/^.*Dockerfile.//')
     echo "$(date +%H:%M:%S) Building $name"
-    docker run --rm -v /build:/build -it builder-$name /build/scripts/build-package-cmake.sh $TESTS SPTK XMQ > logs/build-$name.log
+    # Docker's default seccomp profile denies io_uring_setup/enter/register, so a containerised
+    # build cannot exercise io_uring at all. Applied only when the profile is actually present:
+    # this script is checked out along with the version being built, and older versions carry no
+    # profile - naming a file that is not there makes the daemon refuse to start the container.
+    SECCOMP=""
+    if [ -f /build/scripts/seccomp-io-uring.json ]; then
+        SECCOMP="--security-opt seccomp=/build/scripts/seccomp-io-uring.json"
+    fi
+
+    docker run --rm -v /build:/build $SECCOMP -it builder-$name /build/scripts/build-package-cmake.sh $TESTS SPTK XMQ > logs/build-$name.log
     echo BUILD RC=$?
 done
 
