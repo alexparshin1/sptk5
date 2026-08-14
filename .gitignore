@@ -11,3 +11,5 @@
 /code/lib
 /code/w64
 /code/bin
+docker/opt/
+docker/oracle.install/

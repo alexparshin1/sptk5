@@ -1,0 +1,39 @@
+FROM ubuntu:25.04
+
+LABEL maintainer="Alexey Parshin alexeyp@gmail.com"
+
+ENV TZ=Australia/Melbourne
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
+RUN apt -y update
+RUN apt -y full-upgrade
+
+RUN apt -y install apt-utils gcc g++ cmake git
+RUN apt -y install mc libpcre2-dev unixodbc unixodbc-dev postgresql libpq-dev mariadb-server libmariadb-dev sqlite3 libsqlite3-dev
+RUN apt -y install libfltk1.3 libfltk1.3-dev aspell libaspell-dev rsync make libxext-dev
+RUN apt -y install build-essential devscripts debhelper
+RUN apt -y install libpng-dev libjpeg-dev libssl-dev zip libbrotli-dev
+RUN apt -y install libgtest-dev
+RUN apt -y install mosquitto mosquitto-clients
+RUN apt -y install nodejs npm
+
+COPY oracle.install/etc /etc
+COPY oracle.install/usr /usr
+COPY oracle.oci.install/usr /usr
+RUN  ldconfig
+
+RUN apt -y install freetds-bin tdsodbc libaio-dev
+RUN ln -sf /usr/lib/x86_64-linux-gnu/libaio.so /usr/lib/x86_64-linux-gnu/libaio.so.1
+COPY ubuntu/freetds.conf /etc/freetds/
+COPY ubuntu/odbc*.ini /etc/
+
+RUN useradd -m alexeyp
+COPY etc/xmq /etc/xmq
+COPY etc/mosquitto /etc/mosquitto
+RUN mkdir -p /var/log/xmq
+RUN chmod 777 /var/log/xmq
+
+# io_uring support for the batched socket writer; optional at build time.
+RUN apt -y install liburing-dev
+
+VOLUME /build

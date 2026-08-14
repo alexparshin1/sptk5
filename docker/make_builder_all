@@ -1,0 +1,8 @@
+#!/bin/bash
+
+for file in Dockerfile.*
+do
+    name=$( echo "$file" | sed -re "s/Dockerfile\.//" )
+    echo Building: $name
+    ./make_builder $name 2>&1 > logs/$name.log
+done

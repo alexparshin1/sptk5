@@ -1,0 +1,43 @@
+FROM oraclelinux:10
+
+LABEL maintainer="Alexey Parshin alexeyp@gmail.com"
+
+ENV TZ=Australia/Melbourne
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
+RUN yum -y update
+
+RUN yum -y install gcc gcc-c++ cmake git make 
+RUN yum -y install mc pcre2 pcre2-devel unixODBC postgresql-server postgresql-devel mariadb  sqlite sqlite-devel
+RUN yum -y install rpm-build rsync brotli-devel
+
+RUN dnf install -y mariadb-connector-c-devel
+
+RUN mkdir /tmp/gtest
+COPY oraclelinux/* /tmp/gtest
+RUN rpm -i /tmp/gtest/*.rpm
+
+COPY oracle.install/etc /etc
+COPY oracle.install/usr /usr
+COPY oracle.oci.install/usr /usr
+RUN  ldconfig
+
+RUN dnf -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-10.noarch.rpm
+RUN dnf -y install mosquitto procps
+RUN dnf -y install nodejs
+RUN dnf -y install fltk fltk-devel libXext-devel
+
+RUN yum -y install freetds libnsl libaio
+COPY freetds.conf /etc/
+COPY odbc*.ini /etc/
+
+RUN useradd -m alexeyp
+COPY etc/xmq /etc/xmq
+COPY etc/mosquitto /etc/mosquitto
+RUN mkdir -p /var/log/xmq
+RUN chmod 777 /var/log/xmq
+
+# io_uring support for the batched socket writer; optional at build time.
+RUN dnf -y install --enablerepo=ol10_codeready_builder liburing-devel
+
+VOLUME /build
