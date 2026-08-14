@@ -1,0 +1,3 @@
+name=$(echo $1 | sed -rE 's/Dockerfile.//')
+echo "docker run --rm -v /build:/build -it builder-$name /bin/bash"
+docker run --rm -v /build:/build -it builder-$name /bin/bash
