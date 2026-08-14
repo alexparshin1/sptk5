@@ -1,0 +1,3 @@
+name=$(echo $1 | sed -rE 's/Dockerfile.//')
+#docker build --no-cache -t "builder-$name" -f Dockerfile.$name .
+docker build -t "builder-$name" -f Dockerfile.$name .
