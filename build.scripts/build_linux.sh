@@ -51,7 +51,10 @@ do
         SECCOMP="--security-opt seccomp=/build/scripts/seccomp-io-uring.json"
     fi
 
-    docker run --rm -v /build:/build $SECCOMP -it builder-$name /build/scripts/build-package-cmake.sh $TESTS SPTK XMQ > logs/build-$name.log
+    # No -t: allocating a TTY makes the run fail outright whenever stdin is not a terminal
+    # ("cannot attach stdin to a TTY-enabled container"), which is every detached or scripted
+    # invocation. A batch build has no use for one.
+    docker run --rm -v /build:/build $SECCOMP -i builder-$name /build/scripts/build-package-cmake.sh $TESTS SPTK XMQ > logs/build-$name.log
     echo BUILD RC=$?
 done
 
