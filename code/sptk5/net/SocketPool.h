@@ -33,7 +33,6 @@
 #include <sptk5/Buffer.h>
 #include <sptk5/Exception.h>
 #include <sptk5/net/Socket.h>
-#include <sptk5/threads/Thread.h>
 
 #include <atomic>
 #include <cstdint>
