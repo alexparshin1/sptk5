@@ -18,7 +18,7 @@
 const fs = require("node:fs");
 const path = require("node:path");
 const http = require("node:http");
-const puppeteer = require("puppeteer-core");
+const puppeteer = require("puppeteer");
 
 const ROOT = path.resolve(__dirname, "..");
 const BUILD_DIR = path.join(ROOT, "build");
@@ -48,26 +48,19 @@ const MIME_TYPES = {
     ".map": "application/json"
 };
 
-function findChromium()
+// puppeteer downloads its own Chromium when installed, so the build does not depend
+// on a browser being present on the machine. CHROME_PATH overrides that for anyone
+// who would rather reuse a system install than keep a second copy.
+function browserOptions()
 {
+    const options = {
+        headless: true,
+        args: ["--no-sandbox", "--disable-setuid-sandbox", "--disable-dev-shm-usage"]
+    };
     if (process.env.CHROME_PATH) {
-        return process.env.CHROME_PATH;
+        options.executablePath = process.env.CHROME_PATH;
     }
-    const candidates = [
-        "/usr/bin/chromium",
-        "/usr/bin/chromium-browser",
-        "/usr/bin/google-chrome",
-        "/usr/bin/google-chrome-stable",
-        "/snap/bin/chromium"
-    ];
-    for (const candidate of candidates) {
-        if (fs.existsSync(candidate)) {
-            return candidate;
-        }
-    }
-    throw new Error(
-        "No Chromium/Chrome binary found. Install one (apt install chromium) " +
-        "or point CHROME_PATH at it.");
+    return options;
 }
 
 function readRoutes()
@@ -132,11 +125,7 @@ async function main()
     const server = await startServer(shellHtml);
     const base = "http://127.0.0.1:" + server.address().port;
 
-    const browser = await puppeteer.launch({
-        executablePath: findChromium(),
-        headless: true,
-        args: ["--no-sandbox", "--disable-setuid-sandbox", "--disable-dev-shm-usage"]
-    });
+    const browser = await puppeteer.launch(browserOptions());
 
     // Collected first and written afterwards, so a half-finished run cannot leave
     // the build directory with a mix of old and new pages.
