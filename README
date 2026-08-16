@@ -2,16 +2,30 @@
 Welcome to SPTK version 5.
 ---------------------------------------------------------------------------
 
-This is the root directory of SPTK. It contains CMake project 
+SPTK (Simply Powerful Toolkit) is a cross-platform C++20 class library
+providing networking, threading, database access, XML/JSON documents,
+web services and an optional FLTK-based GUI layer.
+
+It is the library behind XMQ, a fast and free MQTT server for Linux and
+Windows supporting MQTT 3.1, 3.1.1 and 5.0, QoS 0/1/2, TLS, message
+persistence and MQTT bridging:
+
+    https://xmq.sptk.net
+
+That site also publishes an open MQTT test suite and the MQTT performance
+test results comparing XMQ with other MQTT servers.
+
+This is the root directory of SPTK. It contains CMake project
 files that allow building for several systems, supported by CMake.
 
 The example applications are in ./examples. They are built only if
 examples flag is requested during CMake project configuration.
 
-If you experience any problem building or using SPTK, please 
+If you experience any problem building or using SPTK, please
 let me know at alexeyp@gmail.com.
 
-The new and old versions of SPTK can be downloaded from http://www.sptk.net.
+The new and old versions of SPTK, and the XMQ binary packages, can be
+downloaded from https://xmq.sptk.net/downloads.
 
 ---------------------------------------------------------------------------
 How to build SPTK
