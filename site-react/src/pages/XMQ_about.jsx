@@ -79,6 +79,11 @@ export default class XMQ_about extends React.Component
                     <td>0.9.6</td>
                 </tr>
                 <tr>
+                    <td>1,000,000 clients</td>
+                    <td>Implemented</td>
+                    <td>0.9.13</td>
+                </tr>
+                <tr>
                     <td>MQTT protocol (3/4/5)</td>
                     <td>Implemented</td>
                     <td>0.9.5</td>
