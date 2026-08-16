@@ -5,28 +5,102 @@
     <link rel="icon" href="%PUBLIC_URL%/favicon.ico"/>
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
     <meta name="theme-color" content="#000000"/>
+
+    <title>XMQ — Fast Free MQTT Server for Linux and Windows</title>
     <meta
             name="description"
-            content="Web site created using create-react-app"
+            content="XMQ is a fast, free MQTT server for Linux and Windows. MQTT 3.1, 3.1.1 and 5.0, QoS 0/1/2, TLS, message persistence, MQTT bridge, and 200,000+ concurrent clients. Includes an open MQTT test suite and published MQTT performance tests."
     />
+    <meta
+            name="keywords"
+            content="XMQ, fast MQTT server, free MQTT server, MQTT bridge, Linux MQTT server, Windows MQTT server, MQTT test suite, MQTT performance tests, MQTT broker, MQTT 5.0, C++ MQTT server, SPTK"
+    />
+    <meta name="author" content="Alexey Parshin"/>
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1"/>
+    <link rel="canonical" href="https://www.sptk.net/"/>
+
+    <meta property="og:type" content="website"/>
+    <meta property="og:site_name" content="XMQ"/>
+    <meta property="og:url" content="https://www.sptk.net/"/>
+    <meta property="og:title" content="XMQ — Fast Free MQTT Server for Linux and Windows"/>
+    <meta property="og:description"
+          content="A fast, free MQTT server for Linux and Windows: MQTT 3.1/3.1.1/5.0, QoS 0/1/2, TLS, persistence, MQTT bridge, 200,000+ clients, with an open MQTT test suite and performance tests."/>
+    <meta property="og:image" content="https://www.sptk.net/logo512.png"/>
+
+    <meta name="twitter:card" content="summary_large_image"/>
+    <meta name="twitter:title" content="XMQ — Fast Free MQTT Server for Linux and Windows"/>
+    <meta name="twitter:description"
+          content="A fast, free MQTT server for Linux and Windows, with an open MQTT test suite and published MQTT performance tests."/>
+    <meta name="twitter:image" content="https://www.sptk.net/logo512.png"/>
+
     <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png"/>
     <!--
       manifest.json provides metadata used when your web app is installed on a
       user's mobile device or desktop. See https://developers.google.com/web/fundamentals/web-app-manifest/
     -->
     <link rel="manifest" href="%PUBLIC_URL%/manifest.json"/>
-    <!--
-      Notice the use of %PUBLIC_URL% in the tags above.
-      It will be replaced with the URL of the `public` folder during the build.
-      Only files inside the `public` folder can be referenced from the HTML.
 
-      Unlike "/favicon.ico" or "favicon.ico", "%PUBLIC_URL%/favicon.ico" will
-      work correctly both with client-side routing and a non-root public URL.
-      Learn how to configure a non-root public URL by running `npm run build`.
-    -->
-    <title>XMQ and SPTK Development</title>
+    <script type="application/ld+json">
+        {
+            "@context": "https://schema.org",
+            "@graph": [
+                {
+                    "@type": "WebSite",
+                    "@id": "https://www.sptk.net/#website",
+                    "url": "https://www.sptk.net/",
+                    "name": "XMQ",
+                    "description": "Fast, free MQTT server for Linux and Windows"
+                },
+                {
+                    "@type": "SoftwareApplication",
+                    "@id": "https://www.sptk.net/#xmq",
+                    "name": "XMQ",
+                    "alternateName": "XMQ MQTT Server",
+                    "applicationCategory": "ServerApplication",
+                    "applicationSubCategory": "MQTT server",
+                    "operatingSystem": "Linux, Microsoft Windows",
+                    "url": "https://www.sptk.net/",
+                    "downloadUrl": "https://www.sptk.net/downloads",
+                    "description": "XMQ is a fast, free MQTT server written in C++. It supports MQTT 3.1, 3.1.1 and 5.0, QoS 0/1/2, TLS encryption, message persistence with several database backends, MQTT bridging between nodes, and over 200,000 concurrent clients.",
+                    "featureList": [
+                        "MQTT 3.1, 3.1.1 and 5.0",
+                        "QoS 0, QoS 1, QoS 2",
+                        "TLS/SSL encryption",
+                        "Message persistence",
+                        "MQTT bridge between nodes",
+                        "200,000+ concurrent clients",
+                        "Linux (.deb and .rpm) and Windows packages"
+                    ],
+                    "offers": {
+                        "@type": "Offer",
+                        "price": "0",
+                        "priceCurrency": "USD"
+                    },
+                    "license": "https://opensource.org/license/gpl-2-0",
+                    "author": {
+                        "@type": "Person",
+                        "name": "Alexey Parshin"
+                    }
+                },
+                {
+                    "@type": "SoftwareSourceCode",
+                    "@id": "https://www.sptk.net/#sptk",
+                    "name": "SPTK",
+                    "alternateName": "Simply Powerful Toolkit",
+                    "programmingLanguage": "C++",
+                    "operatingSystem": "Linux, Microsoft Windows, BSD",
+                    "url": "https://www.sptk.net/sptk_about",
+                    "description": "SPTK (Simply Powerful Toolkit) is the cross-platform C++20 class library that XMQ is built with.",
+                    "license": "https://opensource.org/license/gpl-2-0"
+                }
+            ]
+        }
+    </script>
 </head>
 <body>
+<!-- No product description here on purpose: scripts/prerender.js writes the real
+     page content into #root below, so this block must not add a second, identical
+     heading to all 17 pages. -->
 <noscript>You need to enable JavaScript to run this app.</noscript>
 <div id="root"></div>
 <!--

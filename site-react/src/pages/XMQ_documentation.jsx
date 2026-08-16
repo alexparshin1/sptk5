@@ -1,4 +1,5 @@
 import React from "react";
+import Seo from "../components/Seo";
 import "../css/Documentation.css";
 import UserManualScreen from "./UserManualScreen";
 
@@ -15,6 +16,10 @@ export default class XMQ_documentation extends React.Component
     render()
     {
         return <div key="xmq-documentation" className="XMQ" style={{textAlign: "left", padding: 8}}>
+            <Seo title="XMQ MQTT Server Documentation"
+                 description="User manual for the XMQ MQTT server: installation on Linux and Windows, configuration, MQTT bridge setup, security and administration."
+                 path="/xmq_documentation"/>
+            <h1>XMQ MQTT Server Documentation</h1>
             <UserManualScreen/>
         </div>;
     }

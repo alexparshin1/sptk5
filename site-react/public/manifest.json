@@ -1,6 +1,7 @@
 {
-  "short_name": "XMQ and SPTK",
-  "name": "XMQ and SPTK Development",
+  "short_name": "XMQ",
+  "name": "XMQ — Fast Free MQTT Server",
+  "description": "XMQ is a fast, free MQTT server for Linux and Windows, built with the SPTK C++ class library.",
   "icons": [
     {
       "src": "favicon.ico",

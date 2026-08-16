@@ -1,4 +1,5 @@
 import React from "react";
+import Seo from "../components/Seo";
 import "../css/Documentation.css";
 import test100kUrl from "../xmq_test_results/100K-connections.txt";
 import test500kUrl from "../xmq_test_results/500K-connections.txt";
@@ -257,6 +258,11 @@ export default class XMQ_tests_connections extends React.Component
     {
         const {test100k, test500k, error} = this.state;
         return <div key="tests-connections" className="XMQ" style={{textAlign: "left", padding: 8}}>
+            <Seo title="MQTT Performance Tests — Concurrent Connections"
+                 description="MQTT performance tests of concurrent client connections: XMQ holds 100,000 and 500,000 simultaneous MQTT connections, measured against other MQTT servers."
+                 keywords="MQTT performance tests, fast MQTT server, MQTT benchmark, XMQ"
+                 path="/xmq_tests_connections"/>
+            <h1>MQTT Performance Tests: Concurrent Connections</h1>
             <h3>Connections</h3>
             <p>
                 Connection tests measure how many client connections a broker can accept and how

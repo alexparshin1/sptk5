@@ -1,4 +1,5 @@
 import React from "react";
+import Seo from "../components/Seo";
 import "../css/Screenshots.css"
 
 import cscroll from "../screenshots/cscroll.png";
@@ -18,6 +19,10 @@ export default class SPTK_screenshots extends React.Component
     render()
     {
         return <div style={{align: "left", background: "#ddd"}}>
+            <Seo title="SPTK GUI Screenshots"
+                 description="Screenshots of the FLTK-based GUI widgets provided by the SPTK cross-platform C++ class library."
+                 path="/sptk_screenshots"/>
+            <h1>SPTK GUI Screenshots</h1>
             <table className="screenshot-table" style={{width: "100%"}}>
                 <thead>
                 <tr>

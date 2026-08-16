@@ -1,4 +1,5 @@
 import React from "react";
+import Seo from "../components/Seo";
 import "../css/Screenshots.css"
 
 import theme_blue from "../screenshots/theme_blue.png";
@@ -15,6 +16,10 @@ export default class SPTK_themes extends React.Component
     render()
     {
         return <div style={{align: "left", background: "#ddd"}}>
+            <Seo title="SPTK GUI Themes"
+                 description="Themes available for the FLTK-based GUI widgets provided by the SPTK cross-platform C++ class library."
+                 path="/sptk_themes"/>
+            <h1>SPTK GUI Themes</h1>
             <div style={{textAlign: "left", padding: 8}}>
                 Several examples of the SPTK themes. They are made as copies of the popular themes, developed by
                 some other people.

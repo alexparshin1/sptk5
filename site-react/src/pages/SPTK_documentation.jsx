@@ -1,4 +1,5 @@
 import React from "react";
+import Seo from "../components/Seo";
 import "../css/Documentation.css";
 
 export default class SPTK_documentation extends React.Component
@@ -10,6 +11,10 @@ export default class SPTK_documentation extends React.Component
     render()
     {
         return <div className="Documentation">
+            <Seo title="SPTK Documentation"
+                 description="Documentation for SPTK, the cross-platform C++20 class library used to build the XMQ MQTT server."
+                 path="/sptk_documentation"/>
+            <h1>SPTK Documentation</h1>
             <p>Currently, the following documentation is available:</p>
             <table className="DocumentationItem">
                 <tbody>

@@ -53,11 +53,11 @@ export default class Header extends React.Component
                 <tr className="Credits">
                     <td>Credits:</td>
                     <td>
-                        The SPTK web site is provided by
+                        The XMQ web site is provided by
                         Linotex.
                     </td>
                     <td colSpan="2">
-                        The SPTK Windows installer is created with Advanced
+                        The XMQ and SPTK Windows installers are created with Advanced
                         Installer free Open-Source license.
                     </td>
                 </tr>

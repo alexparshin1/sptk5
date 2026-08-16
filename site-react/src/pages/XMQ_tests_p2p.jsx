@@ -1,4 +1,5 @@
 import React, {useState} from "react";
+import Seo from "../components/Seo";
 import "../css/Documentation.css";
 import p2pUrl from "../xmq_test_results/50K-Point-To-Point.txt";
 
@@ -313,6 +314,11 @@ export default class XMQ_tests_p2p extends React.Component
         const {groups, error} = this.state;
 
         return <div key="tests-p2p" className="XMQ" style={{textAlign: "left", padding: 8}}>
+            <Seo title="MQTT Performance Tests — Point-to-Point"
+                 description="Point-to-point MQTT performance tests with 50,000 client pairs: end-to-end latency and throughput of the XMQ MQTT server compared with other MQTT servers."
+                 keywords="MQTT performance tests, fast MQTT server, MQTT benchmark, XMQ"
+                 path="/xmq_tests_p2p"/>
+            <h1>MQTT Performance Tests: Point-to-Point</h1>
             <h3>Point-to-point</h3>
 
             <p>

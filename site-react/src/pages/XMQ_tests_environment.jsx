@@ -1,4 +1,5 @@
 import React from "react";
+import Seo from "../components/Seo";
 import {Link} from "react-router-dom";
 import "../css/Documentation.css";
 
@@ -12,6 +13,11 @@ export default class XMQ_tests_environment extends React.Component
         const table = {borderCollapse: "collapse", margin: "8px 0 16px 0"};
 
         return <div key="tests-environment" className="XMQ" style={{textAlign: "left", padding: 8}}>
+            <Seo title="MQTT Performance Tests — Test Environment"
+                 description="The hardware, network and software environment used for the XMQ MQTT performance tests, so that the published MQTT benchmark results can be reproduced."
+                 keywords="MQTT performance tests, MQTT test suite, MQTT benchmark, XMQ"
+                 path="/xmq_tests_environment"/>
+            <h1>MQTT Performance Tests: Test Environment</h1>
             <h3>Test Environment</h3>
 
             <p>

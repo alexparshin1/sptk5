@@ -1,4 +1,5 @@
 import React from "react";
+import Seo from "../components/Seo";
 import {Link} from "react-router-dom";
 import "../css/Documentation.css";
 import {BrokerBenchmark, parseBrokerResult} from "../components/BrokerBenchmark";
@@ -22,6 +23,11 @@ export default class XMQ_tests_fanin extends React.Component
         const mono = {fontFamily: "monospace", fontSize: "0.92em"};
 
         return <div key="tests-fanin" className="XMQ" style={{textAlign: "left", padding: 8}}>
+            <Seo title="MQTT Performance Tests — Fan-In"
+                 description="Fan-in MQTT performance tests with 50,000 publishers: throughput and latency of the XMQ MQTT server compared with other MQTT servers."
+                 keywords="MQTT performance tests, fast MQTT server, MQTT benchmark, XMQ"
+                 path="/xmq_tests_fanin"/>
+            <h1>MQTT Performance Tests: Fan-In</h1>
             <h3>Fan-in</h3>
 
             <p>

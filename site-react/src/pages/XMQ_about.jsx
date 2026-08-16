@@ -1,4 +1,5 @@
 import React from "react";
+import Seo from "../components/Seo";
 import "../css/Documentation.css";
 import {Link} from "react-router-dom";
 
@@ -7,30 +8,40 @@ export default class XMQ_about extends React.Component
     render()
     {
         return <div className="XMQ" style={{textAlign: "left", padding: 8}}>
+            <Seo title="About XMQ — Fast Free MQTT Server for Linux and Windows"
+                 description="XMQ is a fast, free MQTT server written in C++. It supports MQTT 3.1, 3.1.1 and 5.0, QoS 0/1/2, TLS encryption, message persistence and MQTT bridging, on Linux and Windows."
+                 keywords="XMQ, fast MQTT server, free MQTT server, MQTT bridge, Linux MQTT server, Windows MQTT server"
+                 path="/xmq_about"/>
+            <h1>XMQ MQTT Server</h1>
+
             <h3>Project Goals</h3>
             <p>
-                XMQ is a project aiming to create a fast and powerful MQTT server.
+                XMQ is a project aiming to create a fast and powerful MQTT server, free to use
+                under the GPL/LGPL License Agreement v2.0.
                 It supports persistent and non-persistent modes with several database backends.
-                The supported MQTT protocol versions are 3.1, 3.11, and 5.0.
-                It doesn't support clustering in the current version.
+                The supported MQTT protocol versions are 3.1, 3.1.1, and 5.0, with QoS levels
+                0, 1 and 2, and TLS encryption.
+                Bridging to other MQTT servers is supported; clustering is still in progress.
             </p>
 
             <h3>Implementation</h3>
             <p>
-                XMQ server is written in C++ and uses SPTK class library for cross-platform
-                functionality.
-                It is accompanied by the test utilities that allow implementing various test scenarious.
-                The <Link to="/xmq_mqtt_test_suite">test utilities</Link> are using standard MQTT protocols that allows comparing
-                XMQ with
-                other MQTT server.
+                XMQ server is written in C++ and uses the <Link to="/sptk_about">SPTK class
+                library</Link> for cross-platform functionality — sockets and TLS, thread pools,
+                database access and logging.
+                It is accompanied by the test utilities that allow implementing various test scenarios.
+                The <Link to="/xmq_mqtt_test_suite">MQTT test suite</Link> uses standard MQTT
+                protocols, which allows comparing XMQ with other MQTT servers; the
+                resulting <Link to="/xmq_tests_environment">MQTT performance tests</Link> are
+                published on this site and can be reproduced.
             </p>
 
             <h3>Supported Operating Systems</h3>
             <p>
-                The server supports Linux (.deb and .rpm flavours) and MS Windows (installer isn't yet
-                available).
+                As a Linux MQTT server, XMQ ships in .deb and .rpm flavours.
+                As a Windows MQTT server it is supported, though the installer isn't yet available.
                 BSD port is in the works, but the ETA is not available.
-                The binary files are available on Download page, along with SPTK downloads.
+                The binary packages are available on the <Link to="/downloads">Downloads</Link> page.
             </p>
 
             <h3>The project progress</h3>

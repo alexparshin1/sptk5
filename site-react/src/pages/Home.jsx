@@ -1,6 +1,7 @@
 import React from "react";
 import ControlAPI from "../ControlAPI";
 import {Link} from "react-router-dom";
+import Seo from "../components/Seo";
 
 export default class Home extends React.Component
 {
@@ -35,20 +36,54 @@ export default class Home extends React.Component
         }
 
         return <div key="home-page" className="Page">
+            <Seo title="XMQ — Fast Free MQTT Server for Linux and Windows"
+                 description="XMQ is a fast, free MQTT server for Linux and Windows. MQTT 3.1, 3.1.1 and 5.0, QoS 0/1/2, TLS, message persistence, MQTT bridge and 200,000+ concurrent clients, with an open MQTT test suite and published MQTT performance tests."
+                 keywords="XMQ, fast MQTT server, free MQTT server, MQTT bridge, Linux MQTT server, Windows MQTT server, MQTT test suite, MQTT performance tests"
+                 path="/"/>
+
+            <h1>XMQ — a fast, free MQTT server for Linux and Windows</h1>
             <p>
-                This website contains two main products:
-                <ul>
-                    <li><Link to="/xmq">XMQ</Link> cross-platform MQTT server.</li>
-                    <li>SPTK class library that is used for cross-platform development.</li>
-                </ul>
-                Both, <Link to="/xmq">XMQ</Link> and SPTK, use GPL/LGPL License Agreement v2.0 that can be found <a
-                href="https://opensource.org/license/gpl-2-0">here.</a>
-                SPTK is available in source code and binary packages from <Link to="/download">Download</Link> page.
-                XMQ is only available as binary packages.
+                <Link to="/xmq_about">XMQ</Link> is a cross-platform MQTT server written in C++.
+                It implements MQTT protocol versions 3.1, 3.1.1 and 5.0 with QoS levels 0, 1 and 2,
+                TLS encryption, message persistence over several database backends, and
+                MQTT bridging between nodes. A single instance serves more than 200,000
+                concurrent clients.
             </p>
+            <ul>
+                <li>
+                    Runs as a <b>Linux MQTT server</b> (.deb and .rpm packages) and as a
+                    <b> Windows MQTT server</b>.
+                </li>
+                <li>
+                    Acts as an <b>MQTT bridge</b>, forwarding messages between XMQ nodes and
+                    other MQTT servers.
+                </li>
+                <li>
+                    Ships with an open <Link to="/xmq_mqtt_test_suite">MQTT test suite</Link> built
+                    on standard MQTT protocols, so the
+                    published <Link to="/xmq_tests_environment">MQTT performance tests</Link> can be
+                    reproduced and compared against other MQTT servers.
+                </li>
+            </ul>
             <p>
-                Below is the history of development for the last 12 months, a kind of changelog and new version
-                announcements.
+                XMQ is <b>free</b>, released under the GPL/LGPL License Agreement v2.0 that can be
+                found <a href="https://opensource.org/license/gpl-2-0">here</a>, and is distributed as
+                binary packages from the <Link to="/downloads">Downloads</Link> page.
+            </p>
+
+            <h2>Built with SPTK</h2>
+            <p>
+                XMQ is built on top of <Link to="/sptk_about">SPTK</Link> (Simply Powerful Toolkit),
+                the cross-platform C++20 class library developed alongside it. SPTK provides the
+                networking, threading, database and XML/JSON layers that XMQ runs on, and is
+                available separately in source code and binary packages from
+                the <Link to="/downloads">Downloads</Link> page.
+            </p>
+
+            <h2>Release history</h2>
+            <p>
+                Below is the history of development for the last 12 months, a kind of changelog and
+                new version announcements.
             </p>
             {history}
         </div>;

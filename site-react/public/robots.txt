@@ -1,3 +1,7 @@
 # https://www.robotstxt.org/robotstxt.html
 User-agent: *
-Disallow:
+Disallow: /admin_change_password
+Disallow: /admin_add_news
+Allow: /
+
+Sitemap: https://www.sptk.net/sitemap.xml

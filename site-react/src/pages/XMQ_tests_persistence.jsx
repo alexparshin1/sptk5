@@ -1,4 +1,5 @@
 import React, {useState} from "react";
+import Seo from "../components/Seo";
 import "../css/Documentation.css";
 import persistenceUrl from "../xmq_test_results/Persistence.txt";
 
@@ -255,6 +256,11 @@ export default class XMQ_tests_persistence extends React.Component
         const best = stable.length > 0 ? stable[stable.length - 1] : null;
 
         return <div key="tests-persistence" className="XMQ" style={{textAlign: "left", padding: 8}}>
+            <Seo title="MQTT Performance Tests — Message Persistence"
+                 description="MQTT performance tests of persistent message delivery in XMQ: throughput and latency with database-backed message persistence enabled."
+                 keywords="MQTT performance tests, MQTT persistence, fast MQTT server, XMQ"
+                 path="/xmq_tests_persistence"/>
+            <h1>MQTT Performance Tests: Message Persistence</h1>
             <h3>Persistence</h3>
 
             <p>

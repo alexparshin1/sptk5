@@ -62,16 +62,8 @@ class App extends Component
     {
         let accordionMenu = [
             {
-                title: "SPTK", items: [
-                    {title: "Home", link: "/"},
-                    {title: "About", link: "/sptk_about"},
-                    {title: "Screenshots", link: "/sptk_screenshots"},
-                    {title: "Themes", link: "/sptk_themes"},
-                    {title: "Documentation", link: "/sptk_documentation"},
-                ]
-            },
-            {
                 title: "XMQ", items: [
+                    {title: "Home", link: "/"},
                     {title: "About", link: "/xmq_about"},
                     {title: "Tests", items: [
                         {title: "Test Environment", link: "/xmq_tests_environment"},
@@ -84,6 +76,14 @@ class App extends Component
                     ]},
                     {title: "Configuration", link: "/xmq_configuration"},
                     {title: "Documentation", link: "/xmq_documentation"},
+                ]
+            },
+            {
+                title: "SPTK", items: [
+                    {title: "About", link: "/sptk_about"},
+                    {title: "Screenshots", link: "/sptk_screenshots"},
+                    {title: "Themes", link: "/sptk_themes"},
+                    {title: "Documentation", link: "/sptk_documentation"},
                 ]
             },
             {
@@ -110,7 +110,10 @@ class App extends Component
                 <div className='content'>
                     <Header/>
                     <BrowserRouter>
-                        <table style={{width: "100%", height: window.outerHeight - 100}}>
+                        {/* Sized in CSS units rather than from window.outerHeight: the
+                            pre-rendered markup must not depend on the window it was
+                            rendered in, or hydration would find a different height. */}
+                        <table style={{width: "100%", minHeight: "calc(100vh - 100px)"}}>
                             <tbody>
                             <tr style={{height: "1.5em"}}>
                                 <td></td>

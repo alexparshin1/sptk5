@@ -9,7 +9,6 @@ export default class Footer extends React.Component
 
     render()
     {
-        var gaJsHost = (("https:" === document.location.protocol) ? "https://ssl." : "http://www.") + "google-analytics.com/ga.js";
         return <div className="Footer">
 
             <div id="bottom">
@@ -18,11 +17,6 @@ export default class Footer extends React.Component
                 href="mailto:perlovka at gmail.com">Michael Perlov</a>.
             </div>
 
-            <script type='text/javascript' src={gaJsHost}></script>
-            <script type="text/javascript">
-                var pageTracker = _gat._getTracker("UA-5656238-1");
-                pageTracker._trackPageview();
-            </script>
         </div>;
     }
 }

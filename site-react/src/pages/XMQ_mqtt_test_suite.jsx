@@ -1,4 +1,5 @@
 import React from "react";
+import Seo from "../components/Seo";
 import "../css/Documentation.css";
 
 export default class XMQ_mqtt_test_suite extends React.Component
@@ -6,6 +7,11 @@ export default class XMQ_mqtt_test_suite extends React.Component
     render()
     {
         return <div key="mqtt-test-suite-menu" className="XMQ" style={{textAlign: "left", padding: 8}}>
+            <Seo title="MQTT Test Suite — Benchmark Any MQTT Server"
+                 description="An open MQTT test suite built on standard MQTT protocols, used to run reproducible MQTT performance tests against XMQ and other MQTT servers."
+                 keywords="MQTT test suite, MQTT performance tests, MQTT benchmark, XMQ"
+                 path="/xmq_mqtt_test_suite"/>
+            <h1>MQTT Test Suite</h1>
             <p>
                 XMQ is distributed with a set of command-line utilities used to load-test and
                 functionally test MQTT brokers, XMQ included. They implement MQTT protocol

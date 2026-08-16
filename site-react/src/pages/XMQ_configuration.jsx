@@ -1,4 +1,5 @@
 import React from "react";
+import Seo from "../components/Seo";
 import "../css/Documentation.css";
 import XMQ_interface from "../images/XMQ-interface.png";
 
@@ -7,6 +8,11 @@ export default class XMQ_configuration extends React.Component
     render()
     {
         return <div key="configuration-menu" className="XMQ" style={{textAlign: "left", padding: 8}}>
+            <Seo title="XMQ MQTT Server Configuration"
+                 description="How to configure the XMQ MQTT server: listeners, TLS, message persistence backends, MQTT bridge links and the administration interface."
+                 keywords="XMQ configuration, MQTT bridge, Linux MQTT server, Windows MQTT server"
+                 path="/xmq_configuration"/>
+            <h1>XMQ MQTT Server Configuration</h1>
             <p>
                 XMQ has configuration interface running on port 18883, as soon as XMQ server is started.
                 Open the interface in the browser as http://xmq_host:18883, and provide an administrative
