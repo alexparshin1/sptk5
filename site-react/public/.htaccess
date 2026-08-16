@@ -1,6 +1,15 @@
 <IfModule mod_rewrite.c>
   RewriteEngine On
   RewriteBase /
+
+  # One host, one set of URLs: sptk.net and www.sptk.net share a vhost and used to
+  # both answer 200, so every page existed twice for search engines. The canonical
+  # tags and the sitemap all name www, so send the bare domain there permanently.
+  # Must stay ahead of the rules below, or a route would be rewritten before the
+  # host is corrected.
+  RewriteCond %{HTTP_HOST} !^www\. [NC]
+  RewriteRule ^(.*)$ https://www.%{HTTP_HOST}/$1 [R=301,L]
+
   RewriteRule ^index\.html$ - [L]
 
   # Serve the pre-rendered page for a route, e.g. /xmq_about -> /xmq_about.html.
