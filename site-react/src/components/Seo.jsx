@@ -1,6 +1,9 @@
 import {useEffect} from "react";
 
-const SITE_URL = "https://www.sptk.net";
+// The canonical host for the whole site. XMQ is the product the site leads with,
+// so its address is the one search engines are pointed at; www.sptk.net still
+// serves the same pages, but names this host as canonical.
+const SITE_URL = "https://xmq.sptk.net";
 
 // Creates the tag if it isn't in index.html yet, then sets its content
 function setMeta(selector, attribute, name, content)

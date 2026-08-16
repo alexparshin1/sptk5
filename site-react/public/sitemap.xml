@@ -1,87 +1,87 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
-        <loc>https://www.sptk.net/</loc>
+        <loc>https://xmq.sptk.net/</loc>
         <changefreq>weekly</changefreq>
         <priority>1.0</priority>
     </url>
     <url>
-        <loc>https://www.sptk.net/xmq_about</loc>
+        <loc>https://xmq.sptk.net/xmq_about</loc>
         <changefreq>weekly</changefreq>
         <priority>0.9</priority>
     </url>
     <url>
-        <loc>https://www.sptk.net/xmq_documentation</loc>
+        <loc>https://xmq.sptk.net/xmq_documentation</loc>
         <changefreq>weekly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
-        <loc>https://www.sptk.net/xmq_configuration</loc>
+        <loc>https://xmq.sptk.net/xmq_configuration</loc>
         <changefreq>weekly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
-        <loc>https://www.sptk.net/xmq_mqtt_test_suite</loc>
+        <loc>https://xmq.sptk.net/xmq_mqtt_test_suite</loc>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
-        <loc>https://www.sptk.net/xmq_tests_environment</loc>
+        <loc>https://xmq.sptk.net/xmq_tests_environment</loc>
         <changefreq>monthly</changefreq>
         <priority>0.7</priority>
     </url>
     <url>
-        <loc>https://www.sptk.net/xmq_tests_connections</loc>
+        <loc>https://xmq.sptk.net/xmq_tests_connections</loc>
         <changefreq>monthly</changefreq>
         <priority>0.7</priority>
     </url>
     <url>
-        <loc>https://www.sptk.net/xmq_tests_fanin</loc>
+        <loc>https://xmq.sptk.net/xmq_tests_fanin</loc>
         <changefreq>monthly</changefreq>
         <priority>0.7</priority>
     </url>
     <url>
-        <loc>https://www.sptk.net/xmq_tests_fanout</loc>
+        <loc>https://xmq.sptk.net/xmq_tests_fanout</loc>
         <changefreq>monthly</changefreq>
         <priority>0.7</priority>
     </url>
     <url>
-        <loc>https://www.sptk.net/xmq_tests_p2p</loc>
+        <loc>https://xmq.sptk.net/xmq_tests_p2p</loc>
         <changefreq>monthly</changefreq>
         <priority>0.7</priority>
     </url>
     <url>
-        <loc>https://www.sptk.net/xmq_tests_persistence</loc>
+        <loc>https://xmq.sptk.net/xmq_tests_persistence</loc>
         <changefreq>monthly</changefreq>
         <priority>0.7</priority>
     </url>
     <url>
-        <loc>https://www.sptk.net/downloads</loc>
+        <loc>https://xmq.sptk.net/downloads</loc>
         <changefreq>weekly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
-        <loc>https://www.sptk.net/support</loc>
+        <loc>https://xmq.sptk.net/support</loc>
         <changefreq>monthly</changefreq>
         <priority>0.6</priority>
     </url>
     <url>
-        <loc>https://www.sptk.net/sptk_about</loc>
+        <loc>https://xmq.sptk.net/sptk_about</loc>
         <changefreq>monthly</changefreq>
         <priority>0.6</priority>
     </url>
     <url>
-        <loc>https://www.sptk.net/sptk_documentation</loc>
+        <loc>https://xmq.sptk.net/sptk_documentation</loc>
         <changefreq>monthly</changefreq>
         <priority>0.5</priority>
     </url>
     <url>
-        <loc>https://www.sptk.net/sptk_screenshots</loc>
+        <loc>https://xmq.sptk.net/sptk_screenshots</loc>
         <changefreq>monthly</changefreq>
         <priority>0.4</priority>
     </url>
     <url>
-        <loc>https://www.sptk.net/sptk_themes</loc>
+        <loc>https://xmq.sptk.net/sptk_themes</loc>
         <changefreq>monthly</changefreq>
         <priority>0.4</priority>
     </url>
