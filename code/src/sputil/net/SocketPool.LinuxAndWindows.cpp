@@ -24,6 +24,8 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
+#include "IoUringBackend.h"
+
 #include <sptk5/Printer.h>
 #include <sptk5/SystemException.h>
 #include <sptk5/net/SocketPool.h>
@@ -34,19 +36,50 @@
 #include <sys/epoll.h>
 #endif
 
+#include <cstdlib>
+
 using SocketEvent = epoll_event;
 
 using namespace std;
 using namespace sptk;
 
+namespace {
+
+/**
+ * @brief Whether this pool should try io_uring instead of epoll.
+ *
+ * Opt-in through SPTK_SOCKET_POOL=uring while the two are being compared; epoll stays the default
+ * until io_uring is shown to be better on the workload that matters. Asking for it is only a
+ * request - the backend still declines on an old kernel or under a seccomp profile that blocks it.
+ */
+bool ioUringRequested()
+{
+    const char* const setting = std::getenv("SPTK_SOCKET_POOL");
+    return setting != nullptr && String(setting).toLowerCase() == "uring";
+}
+
+} // namespace
+
 void SocketPool::open()
 {
     const scoped_lock lock(m_mutex);
 
-    if (m_pool != INVALID_EPOLL)
+    if (m_pool != INVALID_EPOLL || m_uring)
     {
         return;
     }
+
+#ifdef HAVE_IO_URING
+    if (ioUringRequested() && m_triggerMode != SocketPoolTriggerMode::EdgeTriggered)
+    {
+        m_uring = IoUringBackend::create(static_cast<size_t>(m_maxEvents),
+                                         m_triggerMode == SocketPoolTriggerMode::LevelTriggered);
+        if (m_uring)
+        {
+            return;
+        }
+    }
+#endif
 
     m_pool = epoll_create1(0);
 
@@ -59,6 +92,8 @@ void SocketPool::open()
 void SocketPool::close()
 {
     const scoped_lock lock(m_mutex);
+
+    m_uring.reset();
 
     if (m_pool != INVALID_EPOLL)
     {
@@ -73,6 +108,17 @@ void SocketPool::close()
 
 void SocketPool::addSocket(const SocketType socketFd, const uint64_t token, const bool rearmOneShot) const
 {
+#ifdef HAVE_IO_URING
+    if (m_uring)
+    {
+        // A one-shot poll is consumed by its completion, so re-arming is the same submission as
+        // the first one - there is no io_uring counterpart to EPOLL_CTL_MOD here.
+        (void) rearmOneShot;
+        m_uring->arm(socketFd, token, m_triggerMode == SocketPoolTriggerMode::OneShot);
+        return;
+    }
+#endif
+
     SocketEvent event {.events = EPOLLIN | EPOLLHUP | EPOLLRDHUP | EPOLLERR, .data = {.u64 = token}};
     switch (m_triggerMode)
     {
@@ -109,14 +155,34 @@ void SocketPool::addSocket(const SocketType socketFd, const uint64_t token, cons
 
 void SocketPool::removeSocket(const SocketType socketFd) const
 {
-    if (socketFd != INVALID_SOCKET)
+    if (socketFd == INVALID_SOCKET)
     {
-        epoll_ctl(m_pool, EPOLL_CTL_DEL, socketFd, nullptr);
+        return;
     }
+
+#ifdef HAVE_IO_URING
+    if (m_uring)
+    {
+        m_uring->disarm(socketFd);
+        return;
+    }
+#endif
+
+    epoll_ctl(m_pool, EPOLL_CTL_DEL, socketFd, nullptr);
 }
 
 bool SocketPool::waitForEvents(const chrono::milliseconds& timeout)
 {
+#ifdef HAVE_IO_URING
+    if (m_uring)
+    {
+        return m_uring->wait(timeout, [this](const uint64_t token, const SocketEventType eventType)
+                             {
+                                 onEvent(token, eventType);
+                             });
+    }
+#endif
+
     m_eventsBuffer.reserve(sizeof(epoll_event) * m_maxEvents);
     auto* events = reinterpret_cast<epoll_event*>(m_eventsBuffer.data());
 

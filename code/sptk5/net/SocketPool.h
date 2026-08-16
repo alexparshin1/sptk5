@@ -53,6 +53,10 @@ namespace sptk {
  * @{
  */
 
+/// io_uring event mechanism, defined privately inside the library. Only a pointer to it appears
+/// here, so liburing.h is never needed to build against SPTK.
+class IoUringBackend;
+
 /**
  * @brief Socket event types.
  */
@@ -187,6 +191,12 @@ private:
 #else
     SocketType m_pool {INVALID_SOCKET};
 #endif // _WIN32
+
+    /// io_uring event mechanism, used instead of epoll when it is compiled in, requested, and
+    /// actually available at runtime. Null means the epoll path below is in use - which is the
+    /// default, and the only possibility on Windows, BSD, an old kernel, or a container whose
+    /// seccomp profile denies io_uring.
+    std::unique_ptr<IoUringBackend> m_uring;
 
     mutable std::mutex    m_mutex;               ///< Mutex for thread-safe operations.
     int                   m_maxEvents;           ///< Maximum number of socket events per poll.
