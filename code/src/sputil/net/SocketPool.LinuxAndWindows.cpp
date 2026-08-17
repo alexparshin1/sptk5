@@ -70,14 +70,20 @@ void SocketPool::open()
     }
 
 #ifdef HAVE_IO_URING
-    if (ioUringRequested() && m_triggerMode != SocketPoolTriggerMode::EdgeTriggered)
+    if (ioUringRequested())
     {
-        m_uring = IoUringBackend::create(static_cast<size_t>(m_maxEvents),
-                                         m_triggerMode == SocketPoolTriggerMode::LevelTriggered);
+        // All three trigger modes are supported, edge-triggered most naturally of all: XMQ's
+        // server runs edge-triggered precisely to avoid a per-event re-arm, and that is what a
+        // multishot poll does without being asked.
+        m_uring = IoUringBackend::create(static_cast<size_t>(m_maxEvents), m_triggerMode);
         if (m_uring)
         {
+            COUT("SocketPool: io_uring" << endl);
             return;
         }
+        // Asked for and not available: say so rather than fall back silently, or a benchmark
+        // comparing the two mechanisms will quietly compare epoll with epoll.
+        CERR("SocketPool: io_uring requested but unavailable, using epoll" << endl);
     }
 #endif
 

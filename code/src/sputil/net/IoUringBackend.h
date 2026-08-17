@@ -47,6 +47,7 @@
 
 #include <sptk5/sptk-config.h>
 
+#include <algorithm>
 #include <chrono>
 #include <cstdint>
 #include <functional>
@@ -82,10 +83,20 @@ public:
      * may forbid it, and a container's seccomp profile commonly denies io_uring_setup outright
      * (Docker's default profile does). The caller falls back to epoll.
      */
-    static std::unique_ptr<IoUringBackend> create(size_t maxEvents, bool levelTriggered)
+    static std::unique_ptr<IoUringBackend> create(size_t maxEvents, SocketPoolTriggerMode triggerMode)
     {
         auto backend = std::unique_ptr<IoUringBackend>(new IoUringBackend);
-        backend->m_levelTriggered = levelTriggered;
+
+        // Multishot poll reports fresh wakeups and nothing else, which *is* edge-triggered
+        // behaviour - so the mode epoll implements with EPOLLET is the one io_uring gives for
+        // free, with no submission per event. The other two modes are built from single-shot
+        // polls: level-triggered re-arms itself after every event (a fresh poll re-checks
+        // readiness, which is what the caller is entitled to expect), one-shot leaves re-arming
+        // to the caller, as EPOLLONESHOT does.
+        backend->m_multishot = triggerMode == SocketPoolTriggerMode::EdgeTriggered;
+        backend->m_levelTriggered = triggerMode == SocketPoolTriggerMode::LevelTriggered;
+        backend->m_oneShot = triggerMode == SocketPoolTriggerMode::OneShot;
+
         if (!backend->initialize(maxEvents))
         {
             return nullptr;
@@ -95,6 +106,14 @@ public:
 
     ~IoUringBackend()
     {
+        // One line, because the interesting question is not the totals but their ratio to the
+        // event count: a multishot poll that keeps ending is the difference between "armed once"
+        // and "re-submitted per event", and that is what decides whether this is worth having.
+        CERR("SocketPool io_uring: " << m_events << " events, " << m_multishotEnded
+                                     << " multishot terminations, " << m_rearms << " re-arms, "
+                                     << m_submissions << " submissions, " << m_wakeups << " wakeups, "
+                                     << m_overflows << " CQ overflows" << std::endl);
+
         if (m_wakeFd >= 0)
         {
             ::close(m_wakeFd);
@@ -168,6 +187,11 @@ public:
             return false;
         }
 
+        if (io_uring_cq_has_overflow(&m_ring))
+        {
+            ++m_overflows;
+        }
+
         unsigned      head = 0;
         unsigned      completionCount = 0;
         io_uring_cqe* completion = nullptr;
@@ -178,7 +202,40 @@ public:
         }
         io_uring_cq_advance(&m_ring, completionCount);
 
+        reportStatistics();
+
         return true;
+    }
+
+    /**
+     * @brief Print the counters every 30 s while there is traffic.
+     *
+     * Not at shutdown: the pool that actually carries the load does not unwind on SIGTERM, so its
+     * destructor never runs and the only counters that ever printed were the idle pools' zeroes.
+     */
+    void reportStatistics()
+    {
+        if (m_events == 0)
+        {
+            return;
+        }
+
+        const auto now = std::chrono::steady_clock::now();
+        if (m_lastReport == std::chrono::steady_clock::time_point {})
+        {
+            m_lastReport = now;
+            return;
+        }
+        if (now - m_lastReport < std::chrono::seconds(30))
+        {
+            return;
+        }
+        m_lastReport = now;
+
+        CERR("SocketPool io_uring: " << m_events << " events, " << m_multishotEnded
+                                     << " multishot terminations, " << m_rearms << " re-arms, "
+                                     << m_submissions << " submissions, " << m_wakeups << " wakeups, "
+                                     << m_overflows << " CQ overflows" << std::endl);
     }
 
 private:
@@ -205,11 +262,15 @@ private:
 
     bool initialize(const size_t maxEvents)
     {
-        // A multishot poll can complete many times per submission, so the completion queue needs
-        // to be able to run ahead of the submission queue by a wide margin.
+        // The completion queue has to be big, and this is not a detail: when it fills, the kernel
+        // ends the multishot polls that cannot post into it, and every one of those has to be
+        // submitted again. Measured with cq_entries = maxEvents * 4 under Fan-Out at 250K msg/s:
+        // 552 155 overflows, and 64 016 040 of 115 264 257 completions - 55% - terminated their
+        // poll and forced a re-arm. The whole point of multishot is to avoid exactly that, so the
+        // queue is sized for a burst rather than for the batch.
         io_uring_params parameters {};
         parameters.flags = IORING_SETUP_CQSIZE;
-        parameters.cq_entries = static_cast<unsigned>(maxEvents * 4);
+        parameters.cq_entries = std::max(static_cast<unsigned>(maxEvents * 4), 65536U);
 
         if (io_uring_queue_init_params(static_cast<unsigned>(maxEvents), &m_ring, &parameters) < 0)
         {
@@ -243,6 +304,7 @@ private:
             m_pending.push_back(request);
         }
 
+        ++m_wakeups;
         constexpr uint64_t one = 1;
         [[maybe_unused]] const auto written = ::write(m_wakeFd, &one, sizeof(one));
     }
@@ -279,11 +341,17 @@ private:
                 }
             }
 
+            ++m_submissions;
             if (request.m_operation == Operation::Arm)
             {
-                // Single-shot in both modes: level-triggered semantics come from rearm() rather
-                // than from a multishot poll, which reports only fresh wakeups.
-                io_uring_prep_poll_add(submission, request.m_socketFd, PollMask);
+                if (m_multishot)
+                {
+                    io_uring_prep_poll_multishot(submission, request.m_socketFd, PollMask);
+                }
+                else
+                {
+                    io_uring_prep_poll_add(submission, request.m_socketFd, PollMask);
+                }
                 io_uring_sqe_set_data64(submission, request.m_token);
             }
             else
@@ -322,19 +390,36 @@ private:
                                          .m_hangup = (pollMask & (POLLHUP | POLLRDHUP)) != 0,
                                          .m_error = (pollMask & POLLERR) != 0};
 
-        // Re-arm before the handler runs: it may remove the socket, and a re-arm afterwards would
-        // resurrect a registration the caller has just dropped.
-        if (m_levelTriggered && !eventType.m_hangup && !eventType.m_error)
+        // A multishot poll stays armed as long as it says so; anything else has just consumed its
+        // registration. Decide before the handler runs: it may remove the socket, and re-arming
+        // afterwards would resurrect a registration the caller has just dropped.
+        const bool stillArmed = m_multishot && (completion.flags & IORING_CQE_F_MORE) != 0;
+
+        ++m_events;
+        if (m_multishot && !stillArmed)
         {
-            rearm(token);
+            ++m_multishotEnded;
         }
-        else
+
+        if (!stillArmed)
         {
-            // Nothing will watch this registration again, so drop it. epoll gets this for free -
-            // the kernel forgets a descriptor when it is closed - but here the bookkeeping is ours,
-            // and a handler is entitled to just close the socket on hangup and never call
-            // removeSocket(). Without this the maps grow for the life of the process.
-            forget(token);
+            // Both continuous modes have to be put back: level-triggered by design, and
+            // edge-triggered because a multishot poll can end on its own - the kernel clears
+            // F_MORE when the completion queue runs out of room, among other reasons - and a
+            // registration dropped there would silently stop delivering for the rest of the
+            // socket's life. Only OneShot leaves re-arming to the caller.
+            if (!m_oneShot && !eventType.m_hangup && !eventType.m_error)
+            {
+                rearm(token);
+            }
+            else
+            {
+                // Nothing will watch this registration again, so drop it. epoll gets this for
+                // free - the kernel forgets a descriptor when it is closed - but here the
+                // bookkeeping is ours, and a handler is entitled to close the socket on hangup and
+                // never call removeSocket(). Without this the maps grow for the life of the process.
+                forget(token);
+            }
         }
 
         eventHandler(token, eventType);
@@ -384,6 +469,7 @@ private:
             }
             socketFd = armed->second;
         }
+        ++m_rearms;
         m_rearm.push_back(Request {.m_operation = Operation::Arm, .m_socketFd = socketFd, .m_token = token, .m_oneShot = false});
     }
 
@@ -399,6 +485,18 @@ private:
     std::unordered_map<uint64_t, SocketType> m_armedDescriptors; ///< The same registrations, by token, for rearm().
     std::vector<Request>                     m_rearm;            ///< Re-arms raised by the loop thread itself.
     bool                                     m_levelTriggered {true}; ///< Re-arm after every event.
+    bool                                     m_multishot {false};     ///< Poll stays armed by itself (edge mode).
+    bool                                     m_oneShot {false};       ///< Caller re-arms; we never do.
+
+    // Diagnostics, printed once at shutdown. Only the event loop thread touches them, except
+    // m_wakeups, and being off by a few there does not matter.
+    uint64_t m_events {0};            ///< Completions handed to the caller.
+    uint64_t m_multishotEnded {0};    ///< Multishot polls that stopped on their own (F_MORE clear).
+    uint64_t m_rearms {0};            ///< Polls we had to submit again.
+    uint64_t m_submissions {0};       ///< Poll/cancel submissions made.
+    uint64_t m_wakeups {0};           ///< eventfd pokes from other threads.
+    uint64_t m_overflows {0};         ///< Loop iterations that found the completion queue overflowed.
+    std::chrono::steady_clock::time_point m_lastReport {}; ///< When the counters were last printed.
 };
 
 } // namespace sptk
