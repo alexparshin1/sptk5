@@ -37,16 +37,16 @@ export default class Home extends React.Component
 
         return <div key="home-page" className="Page">
             <Seo title="XMQ — Fast Free MQTT Server for Linux and Windows"
-                 description="XMQ is a fast, free MQTT server for Linux and Windows. MQTT 3.1, 3.1.1 and 5.0, QoS 0/1/2, TLS, message persistence, MQTT bridge and 200,000+ concurrent clients, with an open MQTT test suite and published MQTT performance tests."
+                 description="XMQ is a fast, free MQTT server for Linux and Windows. MQTT 3.1, 3.1.1, and 5.0, QoS 0/1/2, TLS, message persistence, MQTT bridge and up to 1 million concurrent clients, with an open MQTT test suite and published MQTT performance tests."
                  keywords="XMQ, fast MQTT server, free MQTT server, MQTT bridge, Linux MQTT server, Windows MQTT server, MQTT test suite, MQTT performance tests"
                  path="/"/>
 
             <h1>XMQ — a fast, free MQTT server for Linux and Windows</h1>
             <p>
                 <Link to="/xmq_about">XMQ</Link> is a cross-platform MQTT server written in C++.
-                It implements MQTT protocol versions 3.1, 3.1.1 and 5.0 with QoS levels 0, 1 and 2,
-                TLS encryption, message persistence over several database backends, and
-                MQTT bridging between nodes. A single instance serves more than 200,000
+                It implements MQTT protocol versions 3.1, 3.1.1, and 5.0 with QoS levels 0, 1, and 2,
+                TLS encryption, message persistence over database backend, and
+                MQTT bridging between nodes. A single instance serves up to 1 million
                 concurrent clients.
             </p>
             <ul>
