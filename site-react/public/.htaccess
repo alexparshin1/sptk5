@@ -2,17 +2,24 @@
   RewriteEngine On
   RewriteBase /
 
-  # The bare sptk.net is redirected to www at the vhost level (sptk.conf and
-  # sptk-le-ssl.conf on theater), not here. Rules in .htaccess run again after each
-  # internal rewrite, so a redirect placed here would fire on the second pass and
-  # send visitors to /xmq_about.html — an address no canonical tag points at.
+  # The bare sptk.net and www.sptk.net are redirected to xmq.sptk.net at the vhost
+  # level (deploy/apache/), not here. Rules in .htaccess are re-evaluated after each
+  # internal rewrite, so a host redirect placed here fires on a second pass — once
+  # /xmq_about has already become /xmq_about.html — and lands visitors on an address
+  # no canonical tag points at.
 
   # Left for the server to handle: certbot renews the certificate through
-  # /.well-known/acme-challenge/, and the SPA fallback below would answer those
-  # probes with index.html instead of letting them 404 or resolve normally.
+  # /.well-known/acme-challenge/.
   RewriteRule ^\.well-known/ - [L]
 
-  RewriteRule ^index\.html$ - [L]
+  # Each route exists twice on disk: /xmq_about is served from xmq_about.html. Google
+  # reported the pairs as duplicates, so the .html address redirects to the canonical
+  # extensionless one. THE_REQUEST holds the URL as it arrived, so the internal
+  # rewrite below does not trigger this rule and loop.
+  RewriteCond %{THE_REQUEST} \s/index\.html[\s?] [NC]
+  RewriteRule ^ / [R=301,L]
+  RewriteCond %{THE_REQUEST} \s/([^\s?]+)\.html[\s?] [NC]
+  RewriteRule ^ /%1 [R=301,L]
 
   # Serve the pre-rendered page for a route, e.g. /xmq_about -> /xmq_about.html.
   # Rewritten rather than redirected, so the URL stays the one the canonical tag
@@ -21,9 +28,12 @@
   RewriteCond %{REQUEST_FILENAME}.html -f
   RewriteRule ^(.+)$ $1.html [L]
 
-  # Anything else that isn't a real file falls back to the SPA shell.
-  RewriteCond %{REQUEST_FILENAME} !-f
-  RewriteCond %{REQUEST_FILENAME} !-d
-  RewriteCond %{REQUEST_FILENAME} !-l
-  RewriteRule . /index.html [L]
+  # The admin pages are the only routes without a pre-rendered file — they are behind
+  # a login and deliberately kept out of the sitemap — so they still need the shell.
+  RewriteRule ^(admin_change_password|admin_add_news)/?$ /index.html [L]
+
+  # Everything else is genuinely missing and must say so. There is no catch-all
+  # fallback any more: it used to answer every unknown path with a copy of the home
+  # page under HTTP 200, which Google indexed as duplicates of the home page.
+  ErrorDocument 404 /404.html
 </IfModule>
