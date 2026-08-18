@@ -100,8 +100,8 @@ export default class XMQ_about extends React.Component
                 </tr>
                 <tr>
                     <td>Windows installer</td>
-                    <td>Scheduled</td>
-                    <td>(0.9.8)</td>
+                    <td>Implemented</td>
+                    <td>0.9.13</td>
                 </tr>
                 <tr>
                     <td>SSL encryption</td>
@@ -127,6 +127,11 @@ export default class XMQ_about extends React.Component
                     <td>Clustering</td>
                     <td>In progress</td>
                     <td>(0.9.12)</td>
+                </tr>
+                <tr>
+                    <td>MQTT Load Test Suite</td>
+                    <td>Implemented</td>
+                    <td>0.9.13</td>
                 </tr>
                 </tbody>
             </table>
