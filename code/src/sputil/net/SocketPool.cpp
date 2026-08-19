@@ -26,10 +26,6 @@
 
 #include <sptk5/net/SocketPool.h>
 
-// Needed here rather than only in the platform file: ~SocketPool destroys the unique_ptr, and that
-// requires the complete type. The header defines a placeholder where io_uring does not exist.
-#include "IoUringBackend.h"
-
 using namespace std;
 using namespace sptk;
 
@@ -47,5 +43,5 @@ SocketPool::~SocketPool()
 
 bool SocketPool::active() const
 {
-    return m_pool != INVALID_EPOLL || m_uring != nullptr;
+    return m_pool != INVALID_EPOLL;
 }

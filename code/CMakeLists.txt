@@ -283,28 +283,6 @@ IF (USE_EPOLL)
 ENDIF (USE_EPOLL)
 
 
-# io_uring, an alternative to epoll for the socket pool.  Linux only, and optional even there:
-# without it the epoll implementation is used, which is also what runs when the kernel is too old
-# or a container's seccomp profile denies io_uring.
-SET(URING_FLAG "0")
-SET(URING_DEFINE "// io_uring is not used")
-IF (CMAKE_SYSTEM_NAME STREQUAL "Linux")
-    FIND_PATH(URING_INCLUDE_DIR liburing.h)
-    FIND_LIBRARY(URING_LIBRARY NAMES uring)
-    IF (URING_INCLUDE_DIR AND URING_LIBRARY)
-        MESSAGE("io_uring support:   compile")
-        SET(URING_FLAG "1")
-        INCLUDE_DIRECTORIES(${URING_INCLUDE_DIR})
-        LINK_LIBRARIES(${URING_LIBRARY})
-        SET(URING_DEFINE "#define HAVE_IO_URING")
-    ELSE ()
-        MESSAGE("io_uring support:   liburing not found, don't compile")
-    ENDIF ()
-ELSE ()
-    MESSAGE("io_uring support:   not applicable on ${CMAKE_SYSTEM_NAME}")
-ENDIF ()
-
-
 SET(ORACLE_FLAG "0")
 SET(ORACLE_DEFINE "// Oracle SQL is not used")
 IF (USE_ORACLE)
