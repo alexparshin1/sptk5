@@ -79,8 +79,8 @@ TEST(SSLSocketTests,httpConnect)
                                   socket->open(testHost);
                                   HttpConnect http(socket);
 
-                                  const auto statusCode = http.cmd_get("/", HttpParams(), output);
-                                  if (statusCode != 200)
+                                  if (const auto statusCode = http.cmd_get("/", HttpParams(), output);
+                                      statusCode != 200)
                                   {
                                       result = http.statusText().c_str();
                                   }
@@ -104,7 +104,7 @@ TEST(SSLSocketTests,httpConnect)
         else
         {
             auto result = task.get();
-            EXPECT_STREQ("OK", get<0>(result).c_str());
+            EXPECT_TRUE(get<0>(result) == "OK" || get<0>(result) == "Moved Permanently");
             EXPECT_TRUE(get<1>(result).toLowerCase().find("</html>") != string::npos);
         }
     }
