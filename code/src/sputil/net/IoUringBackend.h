@@ -56,6 +56,7 @@
 #include <unordered_map>
 #include <vector>
 
+#include <sptk5/Strings.h>
 #include <sptk5/net/SocketPool.h>
 
 #ifdef HAVE_IO_URING
@@ -112,7 +113,8 @@ public:
         CERR("SocketPool io_uring: " << m_events << " events, " << m_multishotEnded
                                      << " multishot terminations, " << m_rearms << " re-arms, "
                                      << m_submissions << " submissions, " << m_wakeups << " wakeups, "
-                                     << m_overflows << " CQ overflows" << std::endl);
+                                     << m_overflows << " CQ overflows, " << m_peeks
+                                     << " syscall-free rounds" << std::endl);
 
         if (m_wakeFd >= 0)
         {
@@ -175,7 +177,22 @@ public:
      */
     bool wait(const std::chrono::milliseconds& timeout, const EventHandler& eventHandler)
     {
+        if (!prepareLoopThread())
+        {
+            return false;
+        }
+
         submitPending();
+
+        // With completions already posted and nothing waiting to be submitted, there is nothing to
+        // ask the kernel for: the ring is shared memory and can simply be read. This is the one
+        // thing epoll cannot do at all - under load it removes the syscall from the loop entirely.
+        if (m_options.m_peekFirst && io_uring_sq_ready(&m_ring) == 0 && io_uring_cq_ready(&m_ring) > 0)
+        {
+            ++m_peeks;
+            drainCompletions(eventHandler);
+            return true;
+        }
 
         __kernel_timespec waitTime {.tv_sec = timeout.count() / 1000,
                                     .tv_nsec = (timeout.count() % 1000) * 1000000};
@@ -192,6 +209,16 @@ public:
             ++m_overflows;
         }
 
+        drainCompletions(eventHandler);
+
+        reportStatistics();
+
+        return true;
+    }
+
+    /// Hand every posted completion to the caller and give the ring its slots back.
+    void drainCompletions(const EventHandler& eventHandler)
+    {
         unsigned      head = 0;
         unsigned      completionCount = 0;
         io_uring_cqe* completion = nullptr;
@@ -201,10 +228,6 @@ public:
             handleCompletion(*completion, eventHandler);
         }
         io_uring_cq_advance(&m_ring, completionCount);
-
-        reportStatistics();
-
-        return true;
     }
 
     /**
@@ -235,7 +258,8 @@ public:
         CERR("SocketPool io_uring: " << m_events << " events, " << m_multishotEnded
                                      << " multishot terminations, " << m_rearms << " re-arms, "
                                      << m_submissions << " submissions, " << m_wakeups << " wakeups, "
-                                     << m_overflows << " CQ overflows" << std::endl);
+                                     << m_overflows << " CQ overflows, " << m_peeks
+                                     << " syscall-free rounds" << std::endl);
     }
 
 private:
@@ -260,6 +284,57 @@ private:
 
     IoUringBackend() = default;
 
+    /**
+     * @brief Ring setup choices that are being compared against epoll.
+     *
+     * Selected through SPTK_URING_OPTIONS (comma separated) so that one binary can measure every
+     * combination interleaved - rebuilding between arms of an A/B is how a build difference gets
+     * mistaken for a measurement.  Empty means the plain ring.
+     */
+    struct Options
+    {
+        bool     m_deferTaskrun {false};   ///< SINGLE_ISSUER + DEFER_TASKRUN: completion work only in io_uring_enter().
+        bool     m_registerRingFd {false}; ///< Skip the ring's file lookup on every enter.
+        bool     m_peekFirst {false};      ///< Take completions already posted without entering the kernel at all.
+        unsigned m_napiBusyPollUs {0};     ///< Kernel-side busy poll of the receive queue, microseconds.
+    };
+
+    static Options parseOptions()
+    {
+        Options     options;
+        const char* setting = std::getenv("SPTK_URING_OPTIONS");
+        if (setting == nullptr)
+        {
+            return options;
+        }
+
+        const Strings selected(String(setting).toLowerCase(), ",");
+        for (const auto& option: selected)
+        {
+            if (option == "defer")
+            {
+                options.m_deferTaskrun = true;
+            }
+            else if (option == "regfd")
+            {
+                options.m_registerRingFd = true;
+            }
+            else if (option == "peek")
+            {
+                options.m_peekFirst = true;
+            }
+            else if (option.starts_with("napi"))
+            {
+                // napi, or napi:<microseconds>
+                const auto separator = option.find(':');
+                options.m_napiBusyPollUs =
+                    separator == String::npos ? 50 : static_cast<unsigned>(string2int(option.substr(separator + 1)));
+            }
+        }
+        return options;
+    }
+
+
     bool initialize(const size_t maxEvents)
     {
         // The completion queue has to be big, and this is not a detail: when it fills, the kernel
@@ -272,6 +347,17 @@ private:
         parameters.flags = IORING_SETUP_CQSIZE;
         parameters.cq_entries = std::max(static_cast<unsigned>(maxEvents * 4), 65536U);
 
+        if (m_options.m_deferTaskrun)
+        {
+            // DEFER_TASKRUN moves completion work out of arbitrary kernel-exit points and into
+            // io_uring_enter(), which is where this loop always is. It demands SINGLE_ISSUER, and
+            // that pins the ring to one task - either the one that created it or, with R_DISABLED,
+            // the one that enables it. The pool is constructed by whoever owns it and only ever
+            // waited on by the event loop thread, so the ring is created disabled here and enabled
+            // from the loop thread in prepareLoopThread().
+            parameters.flags |= IORING_SETUP_SINGLE_ISSUER | IORING_SETUP_DEFER_TASKRUN | IORING_SETUP_R_DISABLED;
+        }
+
         if (io_uring_queue_init_params(static_cast<unsigned>(maxEvents), &m_ring, &parameters) < 0)
         {
             return false;
@@ -282,6 +368,41 @@ private:
         if (m_wakeFd < 0)
         {
             return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * @brief Finish setting up the ring on the thread that will own it. Called from wait().
+     *
+     * Everything here has to happen on the event loop thread: enabling the ring is what registers
+     * the single issuer, and a registered ring descriptor is per task, so registering it anywhere
+     * else would make every io_uring_enter() from the loop fail.
+     */
+    bool prepareLoopThread()
+    {
+        if (m_loopThreadReady)
+        {
+            return true;
+        }
+        m_loopThreadReady = true;
+
+        if (m_options.m_deferTaskrun && io_uring_enable_rings(&m_ring) < 0)
+        {
+            return false;
+        }
+
+        // Both of these are optimisations, not requirements: an older kernel refuses them and the
+        // ring keeps working, so a failure is not worth giving up the pool for.
+        if (m_options.m_registerRingFd)
+        {
+            io_uring_register_ring_fd(&m_ring);
+        }
+        if (m_options.m_napiBusyPollUs > 0)
+        {
+            io_uring_napi napi {.busy_poll_to = m_options.m_napiBusyPollUs, .prefer_busy_poll = 1, .pad = {}, .resv = 0};
+            io_uring_register_napi(&m_ring, &napi);
         }
 
         // The wakeup channel is itself watched by the ring, so a thread that arms a socket while
@@ -476,8 +597,10 @@ private:
     /// Matches the epoll mask in SocketPool: readable, peer hangup, and error.
     static constexpr uint32_t PollMask = POLLIN | POLLRDHUP | POLLERR | POLLHUP;
 
+    const Options        m_options {parseOptions()};
     io_uring             m_ring {};
     bool                 m_ringReady {false};
+    bool                 m_loopThreadReady {false}; ///< Loop-thread setup done (see prepareLoopThread()).
     int                  m_wakeFd {-1};
     std::mutex           m_pendingMutex;    ///< Protects m_pending and m_armedTokens; never held while waiting.
     std::vector<Request> m_pending;         ///< Arm/disarm requests from threads other than the loop.
@@ -496,6 +619,7 @@ private:
     uint64_t m_submissions {0};       ///< Poll/cancel submissions made.
     uint64_t m_wakeups {0};           ///< eventfd pokes from other threads.
     uint64_t m_overflows {0};         ///< Loop iterations that found the completion queue overflowed.
+    uint64_t m_peeks {0};             ///< Loop iterations served from the ring without a syscall.
     std::chrono::steady_clock::time_point m_lastReport {}; ///< When the counters were last printed.
 };
 
