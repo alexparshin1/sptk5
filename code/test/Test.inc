@@ -1,0 +1,14 @@
+# The following list of files is generated automatically.
+# Please don't edit it, or your changes may be overwritten.
+
+SET (Test_files
+  /tmp/sptk_wsparser_repo_wsdl_1786190440610350_191474373809004366/CTestServiceBase.cpp /tmp/sptk_wsparser_repo_wsdl_1786190440610350_191474373809004366/CTestServiceBase.h
+  /tmp/sptk_wsparser_repo_wsdl_1786190440610350_191474373809004366/CTestWSDL.cpp /tmp/sptk_wsparser_repo_wsdl_1786190440610350_191474373809004366/CTestWSDL.h
+  /tmp/sptk_wsparser_repo_wsdl_1786190440610350_191474373809004366/CAccountBalance.cpp /tmp/sptk_wsparser_repo_wsdl_1786190440610350_191474373809004366/CAccountBalance.h
+  /tmp/sptk_wsparser_repo_wsdl_1786190440610350_191474373809004366/CAccountBalanceResponse.cpp /tmp/sptk_wsparser_repo_wsdl_1786190440610350_191474373809004366/CAccountBalanceResponse.h
+  /tmp/sptk_wsparser_repo_wsdl_1786190440610350_191474373809004366/CHello.cpp /tmp/sptk_wsparser_repo_wsdl_1786190440610350_191474373809004366/CHello.h
+  /tmp/sptk_wsparser_repo_wsdl_1786190440610350_191474373809004366/CHelloResponse.cpp /tmp/sptk_wsparser_repo_wsdl_1786190440610350_191474373809004366/CHelloResponse.h
+  /tmp/sptk_wsparser_repo_wsdl_1786190440610350_191474373809004366/CLogin.cpp /tmp/sptk_wsparser_repo_wsdl_1786190440610350_191474373809004366/CLogin.h
+  /tmp/sptk_wsparser_repo_wsdl_1786190440610350_191474373809004366/CLoginResponse.cpp /tmp/sptk_wsparser_repo_wsdl_1786190440610350_191474373809004366/CLoginResponse.h
+  /tmp/sptk_wsparser_repo_wsdl_1786190440610350_191474373809004366/CProjectInfo.cpp /tmp/sptk_wsparser_repo_wsdl_1786190440610350_191474373809004366/CProjectInfo.h
+)
