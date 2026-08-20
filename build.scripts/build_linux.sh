@@ -54,7 +54,10 @@ do
     # No -t: allocating a TTY makes the run fail outright whenever stdin is not a terminal
     # ("cannot attach stdin to a TTY-enabled container"), which is every detached or scripted
     # invocation. A batch build has no use for one.
-    docker run --rm -v /build:/build $SECCOMP -i builder-$name /build/scripts/build-package-cmake.sh $TESTS SPTK XMQ > logs/build-$name.log
+    # 2>&1 with it: without it only stdout went to the log and every tool's stderr - npm's
+    # deprecation warnings above all - came out on the console, on top of the one line this loop
+    # means to print per image.
+    docker run --rm -v /build:/build $SECCOMP -i builder-$name /build/scripts/build-package-cmake.sh $TESTS SPTK XMQ > logs/build-$name.log 2>&1
     echo BUILD RC=$?
 done
 

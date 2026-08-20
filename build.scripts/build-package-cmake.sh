@@ -94,7 +94,12 @@ sh ./distclean.sh
 ulimit -n 16384
 cmake . $BUILD_OPTIONS -DCMAKE_BUILD_TYPE=Release || exit 1
 
-make -j8 install && make -j6 package 2>&1 > /build/logs/${lcPACKAGE}_build.$OS_TYPE.log  || exit 1
+# Both steps into the log, and stderr with them. Two things were wrong here: only the packaging
+# step was redirected, so everything "make install" built - the React interface among it - reported
+# to the console; and "2>&1 > file" is the wrong way round, duplicating stderr to the console
+# *before* sending stdout to the file, which is why every warning any tool produced ended up on
+# screen. A packaging run should show its own progress and nothing else.
+{ make -j8 install && make -j6 package ; } > /build/logs/${lcPACKAGE}_build.$OS_TYPE.log 2>&1 || exit 1
 
 echo ──────────────────────────────────────────────────────────────────
 BUILD_OUTPUT_DIR=/build/output/$PACKAGE-$VERSION
