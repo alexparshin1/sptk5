@@ -115,4 +115,9 @@ set(CPACK_COMPONENT_GUI_DESCRIPTION "SPTK GUI library")
 set(CPACK_COMPONENT_UNIT_TESTS_DESCRIPTION "SPTK unit_tests")
 
 
+# Strip at packaging time, not at link time. The -s flag lives in CMAKE_CXX_FLAGS_RELEASE only,
+# so a package built in any other configuration ships full debug info: that is how a .deb grew
+# from 8 MB to 122 MB without anyone touching the packaging.
+SET(CPACK_STRIP_FILES TRUE)
+
 INCLUDE(CPack)
