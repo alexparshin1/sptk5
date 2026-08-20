@@ -92,7 +92,9 @@ fi
 
 sh ./distclean.sh
 ulimit -n 16384
-cmake . $BUILD_OPTIONS -DCMAKE_BUILD_TYPE=Debug && make -j8 install && make -j6 package || exit 1
+cmake . $BUILD_OPTIONS -DCMAKE_BUILD_TYPE=Release || exit 1
+
+make -j8 install && make -j6 package 2>&1 > /build/logs/${lcPACKAGE}_build.$OS_TYPE.log  || exit 1
 
 echo ──────────────────────────────────────────────────────────────────
 BUILD_OUTPUT_DIR=/build/output/$PACKAGE-$VERSION
