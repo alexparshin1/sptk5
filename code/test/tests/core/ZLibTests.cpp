@@ -39,6 +39,9 @@
 #include <sptk5/ZLib.h>
 
 #include <gtest/gtest.h>
+
+#include <algorithm>
+#include <cstring>
 #include <sptk5/Base64.h>
 #include <sptk5/Stopwatch.h>
 #include <sptk5/cutils>
@@ -103,9 +106,21 @@ TEST(ZLibTests, performance)
     {
         GTEST_SKIP() << "Test file not found: " << testFile;
     }
+    // Repeated to reach the test size, rather than the buffer simply being told it is that big.
+    // bytes() reallocates but does not initialise, so asking a 474 KB file for a megabyte fed the
+    // compressor half a megabyte of whatever had last been in that memory - different on every
+    // operating system, every allocator and every run. On some of them it was incompressible
+    // enough for the round trip to fail outright, and the test could not be believed anywhere.
     constexpr auto testDataSize = 1024 * 1024;
-    data.loadFromFile(testFile);
-    data.bytes(testDataSize);
+    Buffer         fileContent;
+    fileContent.loadFromFile(testFile);
+    ASSERT_FALSE(fileContent.empty()) << "Test file is empty: " << testFile;
+
+    while (data.bytes() < testDataSize)
+    {
+        const auto stillNeeded = testDataSize - data.bytes();
+        data.append(fileContent.data(), std::min(stillNeeded, fileContent.bytes()));
+    }
 
     Stopwatch stopWatch;
     stopWatch.start();
@@ -126,7 +141,10 @@ TEST(ZLibTests, performance)
                          << stopWatch.seconds() << " seconds (" << decompressed.bytes() / stopWatch.seconds() / bytesInMB
                          << " Mb/s)" << endl);
 
-    EXPECT_STREQ(data.c_str(), decompressed.c_str());
+    // Compared as bytes, not as C strings: this is a binary, and STREQ stops at the first NUL -
+    // which in an ELF file is within the first few bytes, so it was checking almost nothing.
+    ASSERT_EQ(data.bytes(), decompressed.bytes());
+    EXPECT_EQ(0, memcmp(data.data(), decompressed.data(), data.bytes()));
 }
 
 } // namespace sptk
