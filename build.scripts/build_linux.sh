@@ -61,7 +61,11 @@ do
     # loopback with nothing listening on it - so the socket and TLS tests failed to resolve the
     # name and were reported as broken sockets. host-gateway points it at the host, where the web
     # server they mean to reach actually is.
-    docker run --rm -v /build:/build $SECCOMP \
+    # Named, because without --name Docker invents one - loving_neumann, priceless_cori - and a
+    # container left running after a build that moved on is then a stranger nobody recognises.
+    # Two of those were found today, each holding a hung test suite and an hour of memory.
+    docker rm -f xmq-build-$name > /dev/null 2>&1
+    docker run --rm --name xmq-build-$name -v /build:/build $SECCOMP \
                --add-host test_http_host:host-gateway \
                -i builder-$name /build/scripts/build-package-cmake.sh $TESTS SPTK XMQ > logs/build-$name.log 2>&1
     echo BUILD RC=$?
