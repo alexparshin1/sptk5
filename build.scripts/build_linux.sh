@@ -57,7 +57,13 @@ do
     # 2>&1 with it: without it only stdout went to the log and every tool's stderr - npm's
     # deprecation warnings above all - came out on the console, on top of the one line this loop
     # means to print per image.
-    docker run --rm -v /build:/build $SECCOMP -i builder-$name /build/scripts/build-package-cmake.sh $TESTS SPTK XMQ > logs/build-$name.log 2>&1
+    # test_http_host is 127.0.0.1 on this machine, which inside a container is the container's own
+    # loopback with nothing listening on it - so the socket and TLS tests failed to resolve the
+    # name and were reported as broken sockets. host-gateway points it at the host, where the web
+    # server they mean to reach actually is.
+    docker run --rm -v /build:/build $SECCOMP \
+               --add-host test_http_host:host-gateway \
+               -i builder-$name /build/scripts/build-package-cmake.sh $TESTS SPTK XMQ > logs/build-$name.log 2>&1
     echo BUILD RC=$?
 done
 
