@@ -99,6 +99,11 @@ cmake . $BUILD_OPTIONS -DCMAKE_BUILD_TYPE=Release || exit 1
 # to the console; and "2>&1 > file" is the wrong way round, duplicating stderr to the console
 # *before* sending stdout to the file, which is why every warning any tool produced ended up on
 # screen. A packaging run should show its own progress and nothing else.
+# Named from $PACKAGE here, where it is known. It used to be assigned further down, inside the
+# loop that renames the produced package files - so the build log above it was written to
+# "_build.<os>.log" with the name missing, and SPTK's and XMQ's overwrote one another.
+lcPACKAGE=$(echo "$PACKAGE" | tr '[:upper:]' '[:lower:]')
+
 { make -j8 install && make -j6 package ; } > /build/logs/${lcPACKAGE}_build.$OS_TYPE.log 2>&1 || exit 1
 
 echo ──────────────────────────────────────────────────────────────────
@@ -145,7 +150,10 @@ if [ $RUN_TESTS = "true" ]; then
     cp /usr/share/zoneinfo/Australia/Melbourne /etc/localtime
 
     ulimit -n 32768
-    cd $CWD/test && ${lcPACKAGE}_unit_tests --gtest_filter=-*Scenario* 2>&1 > /build/logs/${lcPACKAGE}_unit_tests.$OS_TYPE.log
+    # "> file 2>&1", not "2>&1 > file": the second form sends stderr to wherever stdout points at
+    # the time, which is the console, and only then redirects stdout. Every test's error output was
+    # going to the screen while the log recorded only the quiet half.
+    cd $CWD/test && ${lcPACKAGE}_unit_tests --gtest_filter=-*Scenario* > /build/logs/${lcPACKAGE}_unit_tests.$OS_TYPE.log 2>&1
     RC=$?
 
     if [ $RC != 0 ]; then
