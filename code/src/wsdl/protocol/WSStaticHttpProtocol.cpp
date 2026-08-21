@@ -50,15 +50,71 @@ WSStaticHttpProtocol::WSStaticHttpProtocol(const shared_ptr<TCPSocket>& socket, 
 {
 }
 
+namespace {
+
+/// @brief Tells whether a resolved path is the directory itself or something under it.
+///
+/// Compared component by component rather than as text, so that a directory whose name merely
+/// starts with the root's - '/var/www-old' against '/var/www' - is not taken for a part of it.
+///
+/// @param root         Resolved directory.
+/// @param candidate    Resolved path to test.
+/// @returns True when the candidate is contained in the root.
+bool isUnder(const filesystem::path& root, const filesystem::path& candidate)
+{
+    auto rootPart = root.begin();
+    auto candidatePart = candidate.begin();
+    for (; rootPart != root.end(); ++rootPart, ++candidatePart)
+    {
+        if (candidatePart == candidate.end() || *candidatePart != *rootPart)
+        {
+            return false;
+        }
+    }
+    return true;
+}
+
+} // namespace
+
+filesystem::path WSStaticHttpProtocol::resolveFile(const String& staticFilesDirectory, const String& path)
+{
+    error_code error;
+
+    const auto root = weakly_canonical(filesystem::path(staticFilesDirectory.c_str()), error).lexically_normal();
+    if (error || root.empty())
+    {
+        return {};
+    }
+
+    // Appended, not joined with a separator: a request path begins with one, and joining an
+    // absolute path to the root would replace the root instead of extending it.
+    auto requested = String(path).trim();
+    while (requested.starts_with("/"))
+    {
+        requested = requested.substr(1);
+    }
+
+    const auto candidate = weakly_canonical(root / filesystem::path(requested.c_str()), error).lexically_normal();
+    if (error)
+    {
+        return {};
+    }
+
+    if (!isUnder(root, candidate))
+    {
+        return {};
+    }
+
+    return candidate;
+}
+
 RequestInfo WSStaticHttpProtocol::process()
 {
     static const RegularExpression matchImageFiles(R"(\.(png|gif|jpg|jpeg|pcx)$)", "i");
 
     RequestInfo requestInfo("HTTP GET");
 
-    const String fullPath(m_staticFilesDirectory + m_url.path());
-
-    requestInfo.request.input(Buffer(fullPath), "");
+    requestInfo.request.input(Buffer(m_url.path()), "");
 
     Strings contentEncodings;
     if (!matchImageFiles.matches(m_url.path()))
@@ -67,11 +123,17 @@ RequestInfo WSStaticHttpProtocol::process()
     }
     try
     {
-        filesystem::path filePath(fullPath.c_str());
+        auto filePath = resolveFile(m_staticFilesDirectory, m_url.path());
+        if (filePath.empty())
+        {
+            // The request leads outside the directory the files are served from. Nothing more is
+            // owed than that it is not here - whether such a file exists is not the caller's business.
+            throw Exception("Resource not found");
+        }
         if (!exists(filePath))
         {
             // If the file not found, redirect to index.html.
-            filePath = m_staticFilesDirectory + "index.html";
+            filePath = resolveFile(m_staticFilesDirectory, "index.html");
         }
 
         requestInfo.response.content().loadFromFile(filePath);
@@ -84,11 +146,11 @@ RequestInfo WSStaticHttpProtocol::process()
         // no end to the headers and waits for the rest of a message that has already arrived.
         socket().write("HTTP/1.1 200 OK\r\n");
         String contentType = "text/html";
-        if (fullPath.ends_with(".css"))
+        if (m_url.path().ends_with(".css"))
         {
             contentType = "text/css";
         }
-        else if (fullPath.ends_with(".js"))
+        else if (m_url.path().ends_with(".js"))
         {
             contentType = "text/javascript";
         }
@@ -102,19 +164,23 @@ RequestInfo WSStaticHttpProtocol::process()
     }
     catch (const Exception&)
     {
-        const String text(
-            "<html><head><title>Not Found</title></head><body>Resource " + m_staticFilesDirectory + m_url.path() +
-            " was not found.</body></html>\n");
-        const Buffer output = requestInfo.response.output(contentEncodings);
+        // The requested path is not repeated back. It told the caller where the server keeps its
+        // files, and it went into the page unescaped, which is a way to put markup there.
+        const String text("<html><head><title>Not Found</title></head><body>The requested resource was not found.</body></html>\n");
         requestInfo.response.content() = text;
+
+        // Encoded once the content is in place, and the encoded form is what goes out. The headers
+        // below describe this buffer; they used to describe one produced before there was content,
+        // so a 404 could announce an encoding that its body did not have.
+        const Buffer output = requestInfo.response.output(contentEncodings);
         socket().write("HTTP/1.1 404 Not Found\r\n");
         socket().write("Content-Type: text/html; charset=utf-8\r\n");
         if (!requestInfo.response.contentEncoding().empty())
         {
             socket().write("Content-Encoding: " + requestInfo.response.contentEncoding() + "\r\n");
         }
-        socket().write("Content-Length: " + to_string(text.length()) + "\r\n\r\n");
-        socket().write(text);
+        socket().write("Content-Length: " + to_string(output.size()) + "\r\n\r\n");
+        socket().write(output);
     }
     return requestInfo;
 }
