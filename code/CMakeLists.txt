@@ -463,7 +463,7 @@ ENDIF (USE_PCRE)
 
 
 SET(ZLIB_FLAG "0")
-FIND_PACKAGE(ZLIB QUIET)
+FIND_PACKAGE(ZLIB)
 SET(ZLIB_DEFINE "// ZLib is not used")
 IF (ZLIB_FOUND)
     MESSAGE("ZLIB support:       compile")
