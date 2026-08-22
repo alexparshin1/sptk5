@@ -4,6 +4,7 @@ import "../css/Documentation.css";
 import ComboBox from "../components/ComboBox";
 import ControlAPI from "../ControlAPI";
 import "../css/Downloads.css"
+import "./UserManual.css";
 
 export default class Downloads extends React.Component
 {
@@ -101,16 +102,16 @@ export default class Downloads extends React.Component
         }
         return <div className="Downloads">
             <Seo title="Downloads — XMQ MQTT Server and SPTK Library"
-                 description="Download the free XMQ MQTT server for Linux (.deb and .rpm) and Windows, and the SPTK C++ class library in source code and binary packages."
-                 keywords="download MQTT server, free MQTT server, Linux MQTT server, Windows MQTT server, XMQ, SPTK"
+                 description="Download the free XMQ MQTT server for Linux (.deb and .rpm), Windows, and as a Docker image, and the SPTK C++ class library in source code and binary packages."
+                 keywords="download MQTT server, free MQTT server, MQTT Docker image, MQTT server Docker, Linux MQTT server, Windows MQTT server, XMQ, SPTK"
                  path="/downloads"/>
             <div style={{textAlign: "left", padding: 16}}>
                 <h1>Download the XMQ MQTT server</h1>
                 <p>
                     The free XMQ MQTT server is distributed as binary packages for Linux
-                    (.deb and .rpm) and Windows. The same release directories hold the SPTK
-                    class library that XMQ is built with, available in both source code and
-                    binary packages.
+                    (.deb and .rpm) and Windows, and as a <a href="#docker">Docker image</a>. The
+                    same release directories hold the SPTK class library that XMQ is built with,
+                    available in both source code and binary packages.
                 </p>
             </div>
             <div>
@@ -138,6 +139,45 @@ export default class Downloads extends React.Component
                     {files}
                     </tbody>
                 </table>
+            </div>
+            <div id="docker" style={{textAlign: "left", padding: 16}}>
+                <h2>Run it in Docker</h2>
+                <p>
+                    The same release is published as a Docker image,{" "}
+                    <a href="https://hub.docker.com/r/alexeyparshin/xmq">alexeyparshin/xmq</a>. The
+                    image installs the .deb from this page rather than building from source, so a
+                    container holds exactly the binaries listed above. Tags are the version number
+                    and <code>latest</code>; the image is amd64, 36 MB to download.
+                </p>
+                <pre className="userManualCode">{`docker run --rm -p 1883:1883 alexeyparshin/xmq`}</pre>
+                <p>
+                    The broker takes clients with no credentials out of the box, so nothing has to
+                    be configured before the first publish:
+                </p>
+                <pre className="userManualCode">{`mosquitto_pub -h localhost -t test/hello -m 'first message'`}</pre>
+                <p>
+                    That default suits trying the broker out and nothing else. Add{" "}
+                    <code>-e XMQ_ALLOW_ANONYMOUS=false</code> before the container is reachable
+                    from a network you do not control, and create accounts in the configuration
+                    interface on <code>https://localhost:18883</code> — published with{" "}
+                    <code>-p 18883:18883</code>, first sign-in <b>admin / admin</b>, to be changed
+                    at once. MQTT over TLS is on 8883, with a self-signed certificate the container
+                    generates on first start.
+                </p>
+                <p>
+                    The configuration, the accounts and the certificate live in{" "}
+                    <code>/etc/xmq</code>. Mount it, or every restart is a fresh install:
+                </p>
+                <pre className="userManualCode">{`docker run -d -p 1883:1883 -p 8883:8883 -p 18883:18883 -v xmq-config:/etc/xmq --ulimit nofile=1048576:1048576 alexeyparshin/xmq`}</pre>
+                <p>
+                    The descriptor limit belongs there too: Docker gives a container 1024 open
+                    files, which caps the broker at about a thousand connections. Sessions, queued
+                    messages and retained messages are kept in Redis when{" "}
+                    <code>XMQ_PERSISTENCE=true</code> is set; the <code>docker-compose.yml</code>{" "}
+                    in the source tree starts both containers and wires them together. The full
+                    list of settings is on the{" "}
+                    <a href="https://hub.docker.com/r/alexeyparshin/xmq">image page</a>.
+                </p>
             </div>
         </div>;
     }
