@@ -168,8 +168,11 @@ void ZLib::decompress(Buffer& dest, const Buffer& src, const bool append)
                     (void) inflateEnd(&strm);
                     throw Exception("Compressed data error.");
                 case Z_BUF_ERROR:
-                    (void) inflateEnd(&strm);
-                    throw Exception("Output buffer is insufficient.");
+                    // Not a real error: inflate() returns this whenever avail_in reaches 0 in the
+                    // same call that leaves avail_out unfilled - "no progress possible without more
+                    // input". avail_out is untouched, so the outer loop's already-out-of-input check
+                    // (above) still catches a truly corrupt/truncated stream.
+                    break;
                 case Z_NEED_DICT:
                 case Z_DATA_ERROR:
                 case Z_MEM_ERROR:

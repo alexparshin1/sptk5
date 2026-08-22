@@ -45,6 +45,7 @@
 #ifndef _WIN32
 
 #include <netinet/in.h>
+#include <sys/socket.h>
 
 #else
 #include <WS2tcpip.h>
