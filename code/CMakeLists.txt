@@ -113,6 +113,26 @@ INCLUDE(${CMAKE_ROOT}/Modules/CheckFunctionExists.cmake)
 
 INCLUDE(cmake/OSType.cmake)
 
+# On BSD, multiple GCC versions can be installed side by side, each registering its own
+# libstdc++.so.6 with the system's ldconfig. The search order there is alphabetical over
+# /usr/local/lib/*, which does not necessarily favor the version this project is actually
+# built with, so a binary can end up loading a libstdc++ too old for the GLIBCXX symbols it
+# needs. Pin the RPATH to the compiler's own libstdc++ directory to avoid depending on that
+# system-wide search order.
+IF (BSD AND CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    EXECUTE_PROCESS(
+            COMMAND ${CMAKE_CXX_COMPILER} -print-file-name=libstdc++.so
+            OUTPUT_VARIABLE GCC_LIBSTDCXX_PATH
+            OUTPUT_STRIP_TRAILING_WHITESPACE)
+    GET_FILENAME_COMPONENT(GCC_LIBSTDCXX_DIR "${GCC_LIBSTDCXX_PATH}" DIRECTORY)
+    GET_FILENAME_COMPONENT(GCC_LIBSTDCXX_DIR "${GCC_LIBSTDCXX_DIR}" REALPATH)
+    IF (GCC_LIBSTDCXX_DIR AND EXISTS "${GCC_LIBSTDCXX_DIR}")
+        MESSAGE("GCC libstdc++ dir:  ${GCC_LIBSTDCXX_DIR}")
+        SET(CMAKE_BUILD_RPATH "${GCC_LIBSTDCXX_DIR}")
+        SET(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_RPATH}:${GCC_LIBSTDCXX_DIR}")
+    ENDIF ()
+ENDIF ()
+
 INCLUDE(CheckTypeSize)
 CHECK_TYPE_SIZE("void*" SIZEOF_VOID_P BUILTIN_TYPES_ONLY)
 SET(BITNESS 32)
