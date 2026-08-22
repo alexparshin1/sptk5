@@ -161,8 +161,12 @@
 
 #ifndef _WIN32
 #include <netinet/tcp.h>
-#include <sys/syscall.h>
 #include <unistd.h>
+#if defined(__linux__)
+#include <sys/syscall.h>
+#elif defined(__FreeBSD__)
+#include <pthread_np.h>
+#endif
 #endif
 
 using namespace std;
@@ -369,8 +373,10 @@ size_t threadCpuTicks(const long tid)
 
 long currentThreadId()
 {
-#ifndef _WIN32
+#if defined(__linux__)
     return static_cast<long>(syscall(SYS_gettid));
+#elif defined(__FreeBSD__)
+    return static_cast<long>(pthread_getthreadid_np());
 #else
     return 0;
 #endif
