@@ -38,7 +38,6 @@
 #pragma once
 
 #include <mutex>
-#include <shared_mutex>
 #include <sptk5/net/HttpParams.h>
 
 #include <utility>
@@ -105,7 +104,7 @@ public:
      */
     [[nodiscard]] String driverName() const
     {
-        const std::shared_lock lock(m_mutex);
+        const std::lock_guard lock(m_mutex);
         return m_driverName;
     }
 
@@ -114,7 +113,7 @@ public:
      */
     [[nodiscard]] String hostName() const
     {
-        const std::shared_lock lock(m_mutex);
+        const std::lock_guard lock(m_mutex);
         return m_hostName;
     }
 
@@ -123,7 +122,7 @@ public:
      */
     [[nodiscard]] String userName() const
     {
-        const std::shared_lock lock(m_mutex);
+        const std::lock_guard lock(m_mutex);
         return m_userName;
     }
 
@@ -132,7 +131,7 @@ public:
      */
     [[nodiscard]] String password() const
     {
-        const std::shared_lock lock(m_mutex);
+        const std::lock_guard lock(m_mutex);
         return m_password;
     }
 
@@ -141,7 +140,7 @@ public:
      */
     [[nodiscard]] String databaseName() const
     {
-        const std::shared_lock lock(m_mutex);
+        const std::lock_guard lock(m_mutex);
         return m_databaseName;
     }
 
@@ -150,7 +149,7 @@ public:
      */
     [[nodiscard]] String schema() const
     {
-        const std::shared_lock lock(m_mutex);
+        const std::lock_guard lock(m_mutex);
         return m_schema;
     }
 
@@ -159,7 +158,7 @@ public:
      */
     [[nodiscard]] uint16_t portNumber() const
     {
-        const std::shared_lock lock(m_mutex);
+        const std::lock_guard lock(m_mutex);
         return m_portNumber;
     }
 
@@ -202,7 +201,7 @@ protected:
     void parse();
 
 private:
-    mutable std::shared_mutex m_mutex;            ///< Mutex for thread-safe access.
+    mutable std::mutex        m_mutex;            ///< Mutex for thread-safe access.
     String                    m_connectionString; ///< Database connection string.
     String                    m_hostName;         ///< Database server host name.
     uint16_t                  m_portNumber {0};   ///< Database server port number.
