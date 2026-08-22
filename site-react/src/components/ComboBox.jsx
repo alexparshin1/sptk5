@@ -10,7 +10,11 @@ export default class ComboBox extends React.Component
         {
             items.push(<option key={this.props.name + "-" + item.value} value={item.value}>{item.text}</option>);
         }
-        return <select style={{padding: 4, borderRadius: 4}} onChange={(e) => this.props.onChange(e.target.value)}>
+        // The list of options changes with the other combo box, so the selection is kept in
+        // the caller's state rather than left to the browser
+        const selection = this.props.value === undefined ? {} : {value: this.props.value};
+        return <select style={{padding: 4, borderRadius: 4}} {...selection}
+                       onChange={(e) => this.props.onChange(e.target.value)}>
             {items}
         </select>;
     }

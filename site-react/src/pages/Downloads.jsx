@@ -3,13 +3,14 @@ import Seo from "../components/Seo";
 import "../css/Documentation.css";
 import ComboBox from "../components/ComboBox";
 import ControlAPI from "../ControlAPI";
+import {buildXmqReleases, sptkVersionNumber, xmqFileVersion} from "../downloadsCatalog";
 import "../css/Downloads.css"
 import "./UserManual.css";
 
 export default class Downloads extends React.Component
 {
     state = {
-        sptkVersion: "",
+        xmqVersion: "",
         osVersion: ""
     };
 
@@ -17,89 +18,77 @@ export default class Downloads extends React.Component
     {
         super();
 
-        this.sptkVersions = [];
-        this.sptkVersionIndex = {};
-        this.directories = [];
-        this.directoryIndex = {};
+        this.xmqVersions = [];
+        this.releaseIndex = {};
     }
 
     async componentDidMount()
     {
         this.downloads = await ControlAPI.getRequest("site_downloads.php");
-        if (this.downloads) {
-            this.makeSptkVersionList();
-            const sptkVersion = this.sptkVersions[0].value;
-            const firstDirectory = this.makeOsVersionList(sptkVersion);
-            this.setState({sptkVersion: sptkVersion, osVersion: firstDirectory.os_dir});
-        }
-    }
-
-    makeSptkVersionList()
-    {
-        this.sptkVersions = [];
-        this.sptkVersionIndex = {};
-        for (let version of this.downloads) {
-            this.sptkVersions.push({value: version.sptk_version, text: version.sptk_version});
-            this.sptkVersionIndex[version.sptk_version] = version;
-        }
-    }
-
-    makeOsVersionList(sptkVersionNumber)
-    {
-        let sptkVersion = this.sptkVersionIndex[sptkVersionNumber];
-
-        this.directories = [];
-        this.directoryIndex = {};
-        for (let directory of sptkVersion.directories) {
-            let item = {value: directory.directory.os_dir, text: directory.directory.title};
-            this.directories.push(item);
-            this.directoryIndex[directory.directory.os_dir] = directory;
-        }
-
-        return sptkVersion.directories[0].directory;
-    }
-
-    selectSptkVersion(sptkVersion)
-    {
-        if (sptkVersion !== this.state.sptkVersion) {
-            let firstDirectory = this.makeOsVersionList(sptkVersion);
-            this.setState({sptkVersion: sptkVersion, osVersion: firstDirectory.os_dir});
-        }
-    }
-
-    isRequiredForXMQ(fileName)
-    {
-        const requeredForXMQ = [
-            "sptk-core",
-            "xmq-server"
-        ];
-
-        for (let required of requeredForXMQ) {
-            if (fileName.indexOf(required) === 0) {
-                return true;
+        if (this.downloads && this.downloads.length > 0) {
+            const catalog = buildXmqReleases(this.downloads);
+            this.xmqVersions = catalog.xmqVersions;
+            this.releaseIndex = catalog.releaseIndex;
+            if (this.xmqVersions.length > 0) {
+                const xmqVersion = this.xmqVersions[0].value;
+                this.setState({xmqVersion: xmqVersion, osVersion: this.releaseIndex[xmqVersion].osList[0].value});
             }
         }
+    }
 
-        return false;
+    selectXmqVersion(xmqVersion)
+    {
+        if (xmqVersion !== this.state.xmqVersion) {
+            const release = this.releaseIndex[xmqVersion];
+            // The same operating system is kept selected when the new version is built for it
+            const osVersion = release.osIndex[this.state.osVersion] ? this.state.osVersion : release.osList[0].value;
+            this.setState({xmqVersion: xmqVersion, osVersion: osVersion});
+        }
+    }
+
+    fileTable(files, entry)
+    {
+        return <table>
+            <thead>
+            <tr>
+                <th style={{width: 300}}>File</th>
+                <th style={{width: 150}}>Date</th>
+                <th style={{width: 100}}>Size</th>
+            </tr>
+            </thead>
+            <tbody>
+            {files.map((file) => <tr key={file.file + "-info"}>
+                <td key={file.file + "-name"} className="FileInfo">
+                    <a href={"download/" + entry.sptkVersion + "/" + this.state.osVersion + "/" + file.file}>
+                        {file.file}
+                    </a>
+                </td>
+                <td key={file.file + "-date"} className="FileInfo">{file.fdate}</td>
+                <td key={file.file + "-size"} className="FileInfo">{file.fsize}</td>
+            </tr>)}
+            </tbody>
+        </table>;
     }
 
     render()
     {
-        let directory = this.directoryIndex[this.state.osVersion];
-        let files = [];
-        if (directory) {
-            for (let file of directory.files.sort()) {
-                files.push(<tr key={file.file + "-info"}>
-                    <td key={file.file + "-name"} className="FileInfo">
-                        <a href={"download/" + this.state.sptkVersion + "/" + directory.directory.os_dir + "/" + file.file}>
-                            {file.file}
-                        </a>
-                    </td>
-                    <td key={file.file + "-date"} className="FileInfo">{file.fdate}</td>
-                    <td key={file.file + "-size"} className="FileInfo">{file.fsize}</td>
-                </tr>);
+        const release = this.releaseIndex[this.state.xmqVersion];
+        const entry = release ? release.osIndex[this.state.osVersion] : null;
+
+        const xmqFiles = [];
+        const sptkFiles = [];
+        if (entry) {
+            for (const file of [...entry.files].sort((left, right) => left.file.localeCompare(right.file))) {
+                const fileVersion = xmqFileVersion(file.file);
+                if (fileVersion === null) {
+                    sptkFiles.push(file);
+                } else if (fileVersion === this.state.xmqVersion) {
+                    // Older XMQ packages left in the same directory are not shown
+                    xmqFiles.push(file);
+                }
             }
         }
+
         return <div className="Downloads">
             <Seo title="Downloads — XMQ MQTT Server and SPTK Library"
                  description="Download the free XMQ MQTT server for Linux (.deb and .rpm), Windows, and as a Docker image, and the SPTK C++ class library in source code and binary packages."
@@ -109,36 +98,35 @@ export default class Downloads extends React.Component
                 <h1>Download the XMQ MQTT server</h1>
                 <p>
                     The free XMQ MQTT server is distributed as binary packages for Linux
-                    (.deb and .rpm) and Windows, and as a <a href="#docker">Docker image</a>. The
-                    same release directories hold the SPTK class library that XMQ is built with,
-                    available in both source code and binary packages.
+                    (.deb and .rpm) and Windows, and as a <a href="#docker">Docker image</a>. Pick
+                    the XMQ version and the operating system; each release also lists the SPTK
+                    class library it was built with, in source code and binary packages.
                 </p>
             </div>
             <div>
-                <label style={{padding: 16}}>Release version:</label>
-                <ComboBox name="sptk_versions" style={{padding: 16}} items={this.sptkVersions}
-                          onChange={(sptkVersion) =>
-                              this.selectSptkVersion(sptkVersion)
+                <label style={{padding: 16}}>XMQ version:</label>
+                <ComboBox name="xmq_versions" style={{padding: 16}} items={this.xmqVersions}
+                          value={this.state.xmqVersion}
+                          onChange={(xmqVersion) =>
+                              this.selectXmqVersion(xmqVersion)
                           }></ComboBox>
 
                 <label style={{padding: 16}}>Operating System:</label>
-                <ComboBox name="os_versions" style={{padding: 16}} items={this.directories}
+                <ComboBox name="os_versions" style={{padding: 16}} items={release ? release.osList : []}
+                          value={this.state.osVersion}
                           onChange={(osVersion) => this.setState({osVersion: osVersion})}></ComboBox>
 
             </div>
             <div style={{textAlign: "left", padding: 16}}>
-                <table>
-                    <thead>
-                    <tr>
-                        <th style={{width: 300}}>File</th>
-                        <th style={{width: 150}}>Date</th>
-                        <th style={{width: 100}}>Size</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {files}
-                    </tbody>
-                </table>
+                {xmqFiles.length > 0
+                    ? this.fileTable(xmqFiles, entry)
+                    : <p className="DownloadsNote">There is no XMQ package for this selection.</p>}
+                {sptkFiles.length > 0 && entry &&
+                    <p className="DownloadsNote">
+                        The SPTK {sptkVersionNumber(entry.sptkVersion)} packages below were used to
+                        build XMQ {this.state.xmqVersion}, and are not needed for the XMQ download.
+                    </p>}
+                {sptkFiles.length > 0 && this.fileTable(sptkFiles, entry)}
             </div>
             <div id="docker" style={{textAlign: "left", padding: 16}}>
                 <h2>Run it in Docker</h2>

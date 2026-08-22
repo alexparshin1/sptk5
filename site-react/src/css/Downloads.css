@@ -6,3 +6,10 @@
     padding-top: 4px;
     padding-right: 8px;
 }
+
+.DownloadsNote {
+    max-width: 640px;
+    margin: 20px 0 6px;
+    font-style: italic;
+    opacity: 0.8;
+}
