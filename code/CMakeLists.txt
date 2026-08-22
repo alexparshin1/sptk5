@@ -50,7 +50,22 @@ FUNCTION(SET_SPTK_TARGET_PROPERTIES target)
     SET_TARGET_PROPERTIES(${target} PROPERTIES
             SOVERSION ${SOVERSION}
             VERSION ${PROJECT_VERSION})
-    SET_TARGET_PROPERTIES(${target} PROPERTIES INSTALL_RPATH "")
+    # Where an installed library looks for the SPTK libraries it needs: beside itself, whatever
+    # directory that turns out to be. It cannot be left empty, and it must not be CMAKE_INSTALL_RPATH
+    # either - that is set below to this build tree's lib/, which would bake a path from the build
+    # machine into every shipped library.
+    #
+    # Empty was not harmless. A library's own search path is not inherited from whatever loaded it,
+    # so with nothing here libspwsdl5 found libspdb5 through the loader cache instead of beside
+    # itself: an application shipping SPTK alongside it, in its own directory, still loaded whatever
+    # libspdb5 happened to be installed on the machine. It is also what dlopen uses when spdb5 goes
+    # looking for a database driver by name, so without it the drivers are only ever found in the
+    # system directories.
+    IF (APPLE)
+        SET_TARGET_PROPERTIES(${target} PROPERTIES INSTALL_RPATH "@loader_path")
+    ELSEIF (UNIX)
+        SET_TARGET_PROPERTIES(${target} PROPERTIES INSTALL_RPATH "$ORIGIN")
+    ENDIF ()
 ENDFUNCTION()
 
 SET(CMAKE_EXPORT_COMPILE_COMMANDS ON)
