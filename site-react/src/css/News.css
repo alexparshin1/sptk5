@@ -1,0 +1,71 @@
+/*
+ * News items on the Home page.
+ *
+ * The text of an item comes from the database as HTML, so it gets no styling of its own -
+ * these rules are all it has. They are scoped to the container rather than to the classes
+ * the text happens to use, so an item written without any class still looks like the rest:
+ * site_host_news_list.php rewrites <ul> to <ul class="news">, and older items carry nothing
+ * at all.
+ */
+.news {
+    line-height: 1.5;
+}
+
+.news p {
+    margin-top: 0;
+    margin-bottom: 10px;
+}
+
+.news ul {
+    margin-top: 0;
+    margin-bottom: 10px;
+    padding-left: 22px;
+}
+
+.news li {
+    margin-bottom: 4px;
+}
+
+.news h3,
+.news h4 {
+    margin-top: 18px;
+    margin-bottom: 6px;
+    font-size: 1.05em;
+}
+
+.news code {
+    background-color: whitesmoke;
+    border-radius: 3px;
+    padding: 1px 4px;
+    font-size: 0.92em;
+}
+
+/* Long command lines scroll inside the block instead of widening the page. */
+.news pre {
+    background-color: whitesmoke;
+    border: 1px solid gainsboro;
+    border-radius: 6px;
+    padding: 10px 12px;
+    overflow-x: auto;
+    font-size: 0.9em;
+    margin-top: 0;
+    margin-bottom: 12px;
+}
+
+.news table {
+    border-collapse: collapse;
+    margin-bottom: 12px;
+    width: 100%;
+}
+
+.news th,
+.news td {
+    border: 1px solid gainsboro;
+    padding: 5px 8px;
+    text-align: left;
+    vertical-align: top;
+}
+
+.news th {
+    background-color: aliceblue;
+}

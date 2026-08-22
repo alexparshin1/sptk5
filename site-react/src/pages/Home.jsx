@@ -2,6 +2,7 @@ import React from "react";
 import ControlAPI from "../ControlAPI";
 import {Link} from "react-router-dom";
 import Seo from "../components/Seo";
+import "../css/News.css";
 
 export default class Home extends React.Component
 {
@@ -23,7 +24,7 @@ export default class Home extends React.Component
         return <div key={item.version + item.version_date}>
             <hr/>
             <h3>{item.version_date}: {item.version}</h3>
-            <div dangerouslySetInnerHTML={{__html: item.news}}/>
+            <div className="news" dangerouslySetInnerHTML={{__html: item.news}}/>
         </div>;
     }
 
