@@ -532,7 +532,9 @@ TEST(OracleConnectionTests,blob)
 #endif
 
 //───────────────────────────────── MS SQL ─────────────────────────────────────────────
-#ifdef HAVE_ODBC
+// Gated separately from HAVE_ODBC: ODBC support alone doesn't imply a live MSSQL DSN is
+// configured (dsn_mssql) - USE_MSSQL_TESTS must be explicitly opted into via CMake.
+#if defined(HAVE_ODBC) && defined(HAVE_MSSQL_TESTS)
 
 TEST(MSSQLConnectionTests,connect)
 {

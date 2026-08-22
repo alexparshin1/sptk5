@@ -35,21 +35,43 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include "sptk5/net/SocketPool.h"
-#include "sptk5/SystemException.h"
-#include <errno.h>
-#include <iostream>
-#include <signal.h>
-#include <string.h>
+#include <sptk5/Printer.h>
+#include <sptk5/SystemException.h>
+#include <sptk5/net/SocketPool.h>
+
+#include <cerrno>
+#include <ctime>
 #include <sys/event.h>
 #include <unistd.h>
+
+using SocketEvent = struct kevent;
 
 using namespace std;
 using namespace sptk;
 
+namespace {
+
+/**
+ * @brief Pack a registration token into kqueue's opaque per-event udata pointer.
+ */
+void* tokenToUData(const uint64_t token)
+{
+    return reinterpret_cast<void*>(static_cast<uintptr_t>(token));
+}
+
+/**
+ * @brief Unpack a registration token previously stored via tokenToUData().
+ */
+uint64_t tokenFromUData(void* udata)
+{
+    return static_cast<uint64_t>(reinterpret_cast<uintptr_t>(udata));
+}
+
+} // namespace
+
 void SocketPool::open()
 {
-    const scoped_lock lock(*this);
+    const scoped_lock lock(m_mutex);
 
     if (m_pool != INVALID_SOCKET)
     {
@@ -60,98 +82,129 @@ void SocketPool::open()
 
     if (m_pool == INVALID_SOCKET)
     {
-        new SystemException("Can't create kqueue");
+        throw SystemException("Can't create kqueue");
     }
 }
 
 void SocketPool::close()
 {
-    scoped_lock lock(*this);
+    const scoped_lock lock(m_mutex);
 
-    if (m_pool == INVALID_SOCKET)
+    if (m_pool != INVALID_SOCKET)
+    {
+        ::close(m_pool);
+        m_pool = INVALID_SOCKET;
+    }
+}
+
+void SocketPool::addSocket(const SocketType socketFd, const uint64_t token, const bool rearmOneShot) const
+{
+    // kqueue has no separate "modify" opcode: EV_ADD both registers a new filter and
+    // re-arms a OneShot filter the kernel already auto-deleted after it fired, so
+    // rearmOneShot needs no special handling here (unlike epoll's EPOLL_CTL_MOD).
+    (void) rearmOneShot;
+
+    auto eventFlags = static_cast<unsigned short>(EV_ADD | EV_ENABLE);
+    switch (m_triggerMode)
+    {
+        using enum SocketPoolTriggerMode;
+        case EdgeTriggered:
+            eventFlags |= EV_CLEAR;
+            break;
+        case OneShot:
+            eventFlags |= EV_ONESHOT;
+            break;
+        case LevelTriggered:
+            break;
+    }
+
+    SocketEvent event {};
+    EV_SET(&event, socketFd, EVFILT_READ, eventFlags, 0, 0, tokenToUData(token));
+
+    if (kevent(m_pool, &event, 1, nullptr, 0, nullptr) == -1)
+    {
+        processError(errno, "add socket to SocketEvents");
+    }
+}
+
+void SocketPool::removeSocket(const SocketType socketFd) const
+{
+    if (socketFd == INVALID_SOCKET)
     {
         return;
     }
 
-    ::shutdown(m_pool, SHUT_RDWR);
+    SocketEvent event {};
+    EV_SET(&event, socketFd, EVFILT_READ, EV_DELETE, 0, 0, nullptr);
 
-    m_pool = INVALID_SOCKET;
+    // Ignore errors: a OneShot filter is auto-removed by the kernel once it fires, so
+    // deleting it again (ENOENT) is expected, not a failure - mirrors epoll_ctl(DEL)
+    // being best-effort in the Linux/Windows implementation.
+    kevent(m_pool, &event, 1, nullptr, 0, nullptr);
 }
 
-void SocketPool::add(Socket& socket, const uint8_t* userData)
+bool SocketPool::waitForEvents(const chrono::milliseconds& timeout)
 {
-    const scoped_lock lock(*this);
+    m_eventsBuffer.reserve(sizeof(SocketEvent) * m_maxEvents);
+    auto* events = reinterpret_cast<SocketEvent*>(m_eventsBuffer.data());
 
-    struct kevent event {};
-    auto          eventFlags = EV_ADD | EV_ENABLE;
-    switch (m_triggerMode)
+    const auto seconds = chrono::duration_cast<chrono::seconds>(timeout);
+    const auto nanoseconds = chrono::duration_cast<chrono::nanoseconds>(timeout - seconds);
+    const struct timespec ts
     {
-        case SocketPoolTriggerMode::EdgeTriggered:
-            eventFlags |= EV_CLEAR;
-            break;
-        case SocketPoolTriggerMode::OneShot:
-            eventFlags |= EV_ONESHOT;
-            break;
-        case SocketPoolTriggerMode::LevelTriggered:
-            break;
-    }
-    EV_SET(&event, socket.fd(), EVFILT_READ, eventFlags, 0, 0, bit_cast<void*>(userData));
+        .tv_sec = static_cast<time_t>(seconds.count()),
+        .tv_nsec = static_cast<long>(nanoseconds.count()),
+    };
 
-    int rc = kevent(m_pool, &event, 1, NULL, 0, NULL);
-    if (rc == -1)
-    {
-        if (m_pool == INVALID_SOCKET)
-        {
-            throw SystemException("SocketPool is not open");
-        }
-
-        throw SystemException("Can't add socket to kqueue");
-    }
-}
-
-void SocketPool::remove(const Socket& socket)
-{
-    const scoped_lock lock(*this);
-
-    struct kevent event {};
-    EV_SET(&event, socket.fd(), 0, EV_DELETE, 0, 0, 0);
-
-    if (int rc = kevent(m_pool, &event, 1, NULL, 0, NULL);
-        rc == -1)
-    {
-        throw SystemException("Can't remove socket from kqueue");
-    }
-}
-
-bool SocketPool::waitForEvents(const chrono::milliseconds& timeoutMS)
-{
-    const scoped_lock lock(*this);
-
-    static const struct timespec timeout = {time_t(timeoutMS.count() / 1000),
-                                            long((timeoutMS.count() % 1000) * 1000000)};
-
-    std::array<struct kevent, maxEvents> events {};
-    int                                  eventCount = kevent(m_pool, NULL, 0, events.data(), maxEvents, &timeout);
+    const auto eventCount = kevent(m_pool, nullptr, 0, events, m_maxEvents, &ts);
     if (eventCount < 0)
     {
-        if (m_pool == INVALID_SOCKET)
-        {
-            return false;
-        }
-        return true;
+        return m_pool != INVALID_SOCKET;
     }
+    m_eventsBuffer.bytes(sizeof(SocketEvent) * eventCount);
 
-    for (int i = 0; i < eventCount; i++)
-    {
-        auto& event = events[i];
-
-        SocketEventType eventType {};
-        eventType.m_data = event.data > 0;
-        eventType.m_hangup = event.flags & EV_EOF;
-        eventType.m_error = event.flags & EV_ERROR;
-
-        m_eventsCallback(bit_cast<const uint8_t*>(event.udata), eventType);
-    }
+    dispatchEvents(m_eventsBuffer);
 
     return true;
+}
+
+void SocketPool::dispatchEvents(Buffer& eventsBuffer)
+{
+    auto*      events = reinterpret_cast<SocketEvent*>(eventsBuffer.data());
+    const auto eventCount = eventsBuffer.size() / sizeof(SocketEvent);
+    for (size_t i = 0; i < eventCount; ++i)
+    {
+        const auto& event = events[i];
+
+        const SocketEventType eventType {
+            .m_data = event.data > 0,
+            .m_hangup = (event.flags & EV_EOF) != 0,
+            .m_error = (event.flags & EV_ERROR) != 0,
+        };
+
+        onEvent(tokenFromUData(event.udata), eventType);
+    }
+}
+
+void SocketPool::processError(const int error, const String& operation) const
+{
+    switch (error)
+    {
+        case EBADF:
+            if (m_pool == INVALID_SOCKET)
+            {
+                throw SystemException("SocketPool is not open");
+            }
+            throw SystemException("Socket is closed");
+
+        case EINVAL:
+            throw SystemException("Invalid event");
+
+        case ENOENT:
+            // Socket is not currently registered - benign for a re-arm race.
+            break;
+
+        default:
+            throw SystemException("Can't " + operation);
+    }
 }
