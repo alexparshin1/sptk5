@@ -8,8 +8,12 @@ set(CPACK_PACKAGE_VERSION_PATCH ${VERSION_PATCH})
 set(CPACK_PACKAGE_INSTALL_DIRECTORY "packages")
 set(CPACK_PACKAGE_HOMEPAGE_URL "https://www.sptk.net")
 
-SET(CMAKE_INSTALL_RPATH ${CMAKE_INSTALL_PREFIX}/lib)
-SET(CPACK_PACKAGING_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX})
+# RPM/DEB packages must target a real system prefix regardless of the local dev
+# CMAKE_INSTALL_PREFIX default (~/.local) - a packaged install prefix baked from a
+# builder's home directory would be nonsensical for anyone installing the package.
+SET(PACKAGE_INSTALL_PREFIX "/usr/local" CACHE PATH "Install prefix baked into RPM/DEB packages")
+SET(CMAKE_INSTALL_RPATH ${PACKAGE_INSTALL_PREFIX}/lib)
+SET(CPACK_PACKAGING_INSTALL_PREFIX ${PACKAGE_INSTALL_PREFIX})
 
 IF (OS_FLAVOUR STREQUAL "ol" OR OS_FLAVOUR STREQUAL "fedora" OR OS_FLAVOUR STREQUAL "redhat")
     SET(CPACK_GENERATOR "RPM")

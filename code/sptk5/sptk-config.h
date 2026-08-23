@@ -37,24 +37,24 @@
 
 #pragma once
 
-constexpr const char* VERSION = "5.6.9";
-constexpr const char* THEMES_PREFIX = "/usr/local";
+constexpr const char* VERSION = "5.6.8";
+constexpr const char* THEMES_PREFIX = "/home/alexeyp/.local";
 
-#define HAVE_FLTK
+// FLTK is not used
 #define HAVE_ODBC
 // MSSQL unit tests are not enabled
 #define HAVE_SQLITE3
 #define HAVE_POSTGRESQL
 
-#define HAVE_EPOLL
+// EPoll is not used
 
 #define HAVE_MYSQL
-#define HAVE_MARIADB
-#define MYSQL_HAS_MYBOOL
+// MariaDB is not used
+// MySQL doesn't define my_bool
 
 // Oracle SQL is not used
-#define HAVE_ORACLE_OCI
-#define HAVE_ASPELL
+
+// ASpell is not used
 // PCRE is not used
 #define HAVE_PCRE2
 #define HAVE_OPENSSL
@@ -64,6 +64,6 @@ constexpr const char* THEMES_PREFIX = "/usr/local";
 #define USE_NEW_ABI
 #define USE_GTEST
 
-constexpr const char* TEST_DIRECTORY = "/home/alexeyp/workspace/sptk5/code/test"; ///< Directory that contains data, used in unit tests
+constexpr const char* TEST_DIRECTORY = "/home/alexeyp/workspace/sptk5/code/test";    ///< Directory that contains data, used in unit tests
 
 #define BUILD_TEST_WS

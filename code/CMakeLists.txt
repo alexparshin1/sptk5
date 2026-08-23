@@ -240,6 +240,16 @@ IF (WIN32)
 ELSE (WIN32)
     #SET (LIBRARY_TYPE STATIC)
     SET(LIBRARY_TYPE SHARED)
+
+    # Default to a user-owned install prefix instead of CMake's built-in /usr/local.
+    # Installing to /usr/local normally requires root; on BSD, recursively chown'ing
+    # /usr/local to reclaim it strips setuid bits from pkg-installed binaries there
+    # (e.g. sudo) and can leave the system unable to escalate to root. Only applies
+    # when the user hasn't explicitly passed -DCMAKE_INSTALL_PREFIX. Packaging
+    # (packages/CMakeLists.txt) overrides this back to a real system prefix.
+    IF (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
+        SET(CMAKE_INSTALL_PREFIX "$ENV{HOME}/.local" CACHE PATH "Cmake prefix" FORCE)
+    ENDIF ()
 ENDIF (WIN32)
 MESSAGE("Library type:       " ${LIBRARY_TYPE})
 MESSAGE("Install prefix:     " ${CMAKE_INSTALL_PREFIX})
