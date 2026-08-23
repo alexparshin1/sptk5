@@ -91,6 +91,7 @@ OPTION(USE_ORACLE "Build Oracle support library" ON)
 OPTION(USE_POSTGRESQL "Build PostgreSQL support library" ON)
 OPTION(USE_SQLITE3 "Build SQLite3 support library" ON)
 OPTION(USE_GTEST "Build SPTK unit tests" ON)
+OPTION(USE_MSSQL_TESTS "Enable MSSQL-dependent unit tests (requires a live MSSQL DSN)" OFF)
 
 OPTION(USE_PCRE "Use PCRE library" ON)
 OPTION(USE_BROTLI "Use Brotli library" ON)
@@ -111,6 +112,26 @@ INCLUDE(${CMAKE_ROOT}/Modules/TestBigEndian.cmake)
 INCLUDE(${CMAKE_ROOT}/Modules/CheckFunctionExists.cmake)
 
 INCLUDE(cmake/OSType.cmake)
+
+# On BSD, multiple GCC versions can be installed side by side, each registering its own
+# libstdc++.so.6 with the system's ldconfig. The search order there is alphabetical over
+# /usr/local/lib/*, which does not necessarily favor the version this project is actually
+# built with, so a binary can end up loading a libstdc++ too old for the GLIBCXX symbols it
+# needs. Pin the RPATH to the compiler's own libstdc++ directory to avoid depending on that
+# system-wide search order.
+IF (BSD AND CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    EXECUTE_PROCESS(
+            COMMAND ${CMAKE_CXX_COMPILER} -print-file-name=libstdc++.so
+            OUTPUT_VARIABLE GCC_LIBSTDCXX_PATH
+            OUTPUT_STRIP_TRAILING_WHITESPACE)
+    GET_FILENAME_COMPONENT(GCC_LIBSTDCXX_DIR "${GCC_LIBSTDCXX_PATH}" DIRECTORY)
+    GET_FILENAME_COMPONENT(GCC_LIBSTDCXX_DIR "${GCC_LIBSTDCXX_DIR}" REALPATH)
+    IF (GCC_LIBSTDCXX_DIR AND EXISTS "${GCC_LIBSTDCXX_DIR}")
+        MESSAGE("GCC libstdc++ dir:  ${GCC_LIBSTDCXX_DIR}")
+        SET(CMAKE_BUILD_RPATH "${GCC_LIBSTDCXX_DIR}")
+        SET(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_RPATH}:${GCC_LIBSTDCXX_DIR}")
+    ENDIF ()
+ENDIF ()
 
 INCLUDE(CheckTypeSize)
 CHECK_TYPE_SIZE("void*" SIZEOF_VOID_P BUILTIN_TYPES_ONLY)
@@ -279,20 +300,16 @@ SET(EPOLL_FLAG "0")
 SET(EPOLL_DEFINE "// EPoll is not used")
 IF (USE_EPOLL)
     IF (WIN32)
-        MESSAGE("EPoll support:      compile")
         SET(EPOLL_FLAG "1")
         # Using built-in wepoll.cpp
         SET(EPOLL_DEFINE "#define HAVE_EPOLL")
     ELSE ()
         FIND_PACKAGE(EPoll QUIET)
         IF (EPOLL_FOUND)
-            MESSAGE("EPoll support:      compile")
             SET(EPOLL_FLAG "1")
             INCLUDE_DIRECTORIES(${EPOLL_INCLUDE_DIR})
             LINK_LIBRARIES(${EPOLL_LIBRARY})
             SET(EPOLL_DEFINE "#define HAVE_EPOLL")
-        ELSE (EPOLL_FOUND)
-            MESSAGE("EPoll support:      don't compile")
         ENDIF (EPOLL_FOUND)
     ENDIF ()
 ENDIF (USE_EPOLL)
@@ -481,7 +498,7 @@ ENDIF (USE_PCRE)
 
 
 SET(ZLIB_FLAG "0")
-FIND_PACKAGE(ZLIB QUIET)
+FIND_PACKAGE(ZLIB)
 SET(ZLIB_DEFINE "// ZLib is not used")
 IF (ZLIB_FOUND)
     MESSAGE("ZLIB support:       compile")
@@ -549,6 +566,14 @@ ELSE ()
     MESSAGE("GTest unit tests:   don't compile")
 ENDIF ()
 
+SET(MSSQL_TESTS_DEFINE "// MSSQL unit tests are not enabled")
+IF (USE_MSSQL_TESTS AND USE_ODBC)
+    MESSAGE("MSSQL unit tests:   compile")
+    SET(MSSQL_TESTS_DEFINE "#define HAVE_MSSQL_TESTS")
+ELSE ()
+    MESSAGE("MSSQL unit tests:   don't compile")
+ENDIF ()
+
 SET(BUILD_TEST_WS_DEFINE "// TestWebService is not built")
 IF (BUILD_TEST_WS)
     SET(BUILD_TEST_WS "1")
@@ -559,7 +584,16 @@ ENDIF ()
 
 INCLUDE_DIRECTORIES(${SPTK_SOURCE_DIR})
 
-IF (WIN32)
+# On BSD, the system/pkg googletest is normally built with the base Clang/libc++ toolchain,
+# which is ABI-incompatible with a GCC/libstdc++ build of this project (undefined references
+# at link time). Build googletest from the vendored source in that combination instead, same
+# as Windows (which has no system gtest to link against at all).
+SET(BUILD_VENDORED_GTEST OFF)
+IF (WIN32 OR (BSD AND CMAKE_CXX_COMPILER_ID STREQUAL "GNU"))
+    SET(BUILD_VENDORED_GTEST ON)
+ENDIF ()
+
+IF (USE_GTEST AND BUILD_VENDORED_GTEST)
     INCLUDE_DIRECTORIES(googletest/googletest/include)
 ENDIF ()
 
@@ -572,7 +606,7 @@ IF (SQLITE3_FLAG AND WIN32)
 ENDIF ()
 
 
-IF (USE_GTEST AND WIN32)
+IF (USE_GTEST AND BUILD_VENDORED_GTEST)
     SET(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
     ADD_SUBDIRECTORY(googletest)
     IF (WIN32)
