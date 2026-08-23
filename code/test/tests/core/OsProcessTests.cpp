@@ -50,7 +50,9 @@ TEST(OsProcessTests, execute)
 #ifdef _WIN32
     String command("cmd /?");
 #else
-    String command("ls --help");
+    // `ls --help` is GNU-only; BSD's ls doesn't support long options. List a directory
+    // that reliably has more than 10 entries on both GNU and BSD systems instead.
+    String command("ls -la /usr/bin");
 #endif
 
     stringstream str;

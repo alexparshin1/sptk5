@@ -99,7 +99,7 @@ DatabaseConnectionString::DatabaseConnectionString(const DatabaseConnectionStrin
         return;
     }
 
-    std::shared_lock lock1(cs.m_mutex, std::defer_lock);
+    std::unique_lock lock1(cs.m_mutex, std::defer_lock);
     std::unique_lock lock2(m_mutex, std::defer_lock);
     std::lock(lock1, lock2);
 
@@ -121,7 +121,7 @@ DatabaseConnectionString& DatabaseConnectionString::operator=(const DatabaseConn
         return *this;
     }
 
-    std::shared_lock lock1(cs.m_mutex, std::defer_lock);
+    std::unique_lock lock1(cs.m_mutex, std::defer_lock);
     std::unique_lock lock2(m_mutex, std::defer_lock);
     std::lock(lock1, lock2);
 
@@ -140,7 +140,7 @@ DatabaseConnectionString& DatabaseConnectionString::operator=(const DatabaseConn
 
 String DatabaseConnectionString::toString(const bool includePassword) const
 {
-    const shared_lock lock(m_mutex);
+    const lock_guard lock(m_mutex);
 
     stringstream result;
 
@@ -194,7 +194,7 @@ String DatabaseConnectionString::toString(const bool includePassword) const
 
 String DatabaseConnectionString::parameter(const String& name) const
 {
-    const shared_lock lock(m_mutex);
+    const lock_guard lock(m_mutex);
 
     const auto itor = m_parameters.find(name);
     if (itor == m_parameters.end())
@@ -206,6 +206,6 @@ String DatabaseConnectionString::parameter(const String& name) const
 
 bool DatabaseConnectionString::empty() const
 {
-    const shared_lock lock(m_mutex);
+    const lock_guard lock(m_mutex);
     return m_hostName.empty() && m_databaseName.empty() && m_schema.empty();
 }
