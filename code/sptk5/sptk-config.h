@@ -37,7 +37,7 @@
 
 #pragma once
 
-constexpr const char* VERSION = "5.6.7";
+constexpr const char* VERSION = "5.6.8";
 constexpr const char* THEMES_PREFIX = "/usr/local";
 
 #define HAVE_FLTK
