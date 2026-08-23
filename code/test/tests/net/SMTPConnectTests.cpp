@@ -42,14 +42,13 @@
 
 using namespace std;
 using namespace sptk;
+
 namespace sptk {
 
-TEST(SmtpConnectTests,minimal)
+TEST(SmtpConnectTests, DISABLED_minimal)
 {
-    GTEST_SKIP();
-
     // Use your hostname and port here.
-    const Host smtpServer("smtp_host:25");
+    const Host   smtpServer("smtp_host:25");
     const String username("smtpuser");
     const String password("secret");
 
