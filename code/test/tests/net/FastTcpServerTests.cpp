@@ -46,10 +46,12 @@
 #include <iomanip>
 #include <sptk5/threads/Semaphore.h>
 #include <unordered_map>
+#include <atomic>
 #include <vector>
 
 #ifndef _WIN32
 #include <netinet/tcp.h>
+#include <sys/resource.h>
 #endif
 
 using namespace std;
@@ -364,11 +366,24 @@ TEST(FastTcpServerTests, acceptRate)
     constexpr size_t   connectorThreads = 8;
     constexpr uint16_t listenerThreads = 4;
 
+#ifndef _WIN32
+    // 1000 concurrent connections need roughly 2x that many descriptors (client + accepted
+    // server side), which exceeds a common default soft RLIMIT_NOFILE of 1024. Raising the
+    // soft limit to the hard limit needs no privilege, so do it rather than let the run fail
+    // on environment configuration instead of an actual server defect.
+    if (rlimit fileLimit {}; getrlimit(RLIMIT_NOFILE, &fileLimit) == 0 && fileLimit.rlim_cur < fileLimit.rlim_max)
+    {
+        fileLimit.rlim_cur = fileLimit.rlim_max;
+        setrlimit(RLIMIT_NOFILE, &fileLimit);
+    }
+#endif
+
     EchoServer server("FastTcpServer AcceptRate", 100, 100);
     server.addListener(ServerConnection::Type::TCP, Host("127.0.0.1", testPort()), listenerThreads);
 
     // Each thread owns its own socket vector to avoid contention.
     vector<vector<unique_ptr<TCPSocket>>> clientsPerThread(connectorThreads);
+    atomic<size_t> connectFailures {0};
 
     // Resolve the server address once; reused for every connect so the measurement
     // is not skewed by per-connection name resolution (Host() calls getaddrinfo()).
@@ -383,16 +398,26 @@ TEST(FastTcpServerTests, acceptRate)
         for (size_t t = 0; t < connectorThreads; ++t)
         {
             connectors.emplace_back(
-                [t, &clientsPerThread, &serverHost]
+                [t, &clientsPerThread, &serverHost, &connectFailures]
                 {
                     constexpr auto share = connectionCount / connectorThreads;
                     auto&          myClients = clientsPerThread[t];
                     myClients.reserve(share);
                     for (size_t i = 0; i < share; ++i)
                     {
-                        auto client = make_unique<TCPSocket>();
-                        client->open(serverHost);
-                        myClients.push_back(std::move(client));
+                        // An uncaught exception here would escape a jthread's top-level function
+                        // and call std::terminate(), aborting the whole test binary (and every
+                        // test after it) instead of just failing this one. Record it and move on.
+                        try
+                        {
+                            auto client = make_unique<TCPSocket>();
+                            client->open(serverHost);
+                            myClients.push_back(std::move(client));
+                        }
+                        catch (const Exception&)
+                        {
+                            ++connectFailures;
+                        }
                     }
                 });
         }
@@ -415,6 +440,8 @@ TEST(FastTcpServerTests, acceptRate)
         }
     }
     server.stop();
+
+    EXPECT_EQ(0U, connectFailures.load()) << "One or more connect attempts failed; see stderr for exception details";
 }
 
 /**

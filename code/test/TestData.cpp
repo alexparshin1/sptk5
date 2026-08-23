@@ -60,7 +60,19 @@ std::filesystem::path TestData::DataDirectory()
     }
     return "test_data";
 #else
-    return "/usr/local/share/sptk5/test_data";
+    // Tests are normally run straight from the build tree (see CLAUDE.md: `./test/sptk_unit_tests`
+    // from the repo root, or from inside test/), not from an install prefix - so prefer the source
+    // tree copy over the installed one, which may not exist at all, or exist at any prefix.
+    for (const std::filesystem::path& candidate: {std::filesystem::path("test/test_data"),
+                                                  std::filesystem::path("test_data"),
+                                                  std::filesystem::path("/usr/local/share/sptk5/test_data")})
+    {
+        if (std::filesystem::exists(candidate))
+        {
+            return candidate;
+        }
+    }
+    return "test/test_data";
 #endif
 }
 

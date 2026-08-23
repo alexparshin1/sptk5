@@ -279,13 +279,15 @@ static void request_listener_test(const Strings& methodNames, DataFormat dataFor
     static shared_ptr<TestListener> tcpTestListener;
     static shared_ptr<TestListener> sslTestListener;
 
-    if (!tcpTestListener)
+    // Created independently and lazily per flag: if creating one throws (e.g. missing SSL test
+    // keys), the other must not be left permanently unset by a shared init guard - that left
+    // sslTestListener null forever after tcpTestListener alone had already succeeded, and a later
+    // encrypted call crashed dereferencing it instead of retrying or failing gracefully.
+    auto& testListener = encrypted ? sslTestListener : tcpTestListener;
+    if (!testListener)
     {
-        tcpTestListener = createTestListener(false);
-        sslTestListener = createTestListener(true);
+        testListener = createTestListener(encrypted);
     }
-
-    auto testListener = encrypted ? sslTestListener : tcpTestListener;
 
     try
     {

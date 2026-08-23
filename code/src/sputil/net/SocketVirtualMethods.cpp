@@ -197,7 +197,14 @@ void SocketVirtualMethods::openAddressUnlocked(const sockaddr_in& addr, const Op
             }
             else
             {
-                result = connect(m_socketFd, bit_cast<const sockaddr*>(&addr), sizeof(sockaddr_in));
+                // A blocking connect() can be interrupted by a signal (EINTR) well before any
+                // real connection failure - observed under FastTcpServerTests.acceptRate, where
+                // 8 threads opening 1000 connections concurrently hit this often enough to abort
+                // the test with an uncaught exception. Retry rather than treating it as a failure.
+                do
+                {
+                    result = connect(m_socketFd, bit_cast<const sockaddr*>(&addr), sizeof(sockaddr_in));
+                } while (result == -1 && getSocketError() == EINTR);
             }
             break;
 
