@@ -45,7 +45,8 @@ function validDirectories(sptkVersion)
 }
 
 // Directories that never hold an XMQ package - the source code archives - belong to SPTK
-// alone, and are listed with every XMQ version built from that SPTK release
+// alone. They are not an operating system to choose, and are listed with every XMQ version
+// built from that SPTK release.
 function operatingSystemsWithXmq(downloads)
 {
     const operatingSystems = new Set();
@@ -103,12 +104,15 @@ export function buildXmqReleases(downloads)
             for (const xmqVersion of fileVersions) {
                 if (!releaseIndex[xmqVersion]) {
                     // The newest SPTK version holding this XMQ version is the one it is shown with
-                    releaseIndex[xmqVersion] = {sptkVersion: sptkVersion.sptk_version, osIndex: {}, osList: []};
+                    releaseIndex[xmqVersion] = {
+                        sptkVersion: sptkVersion.sptk_version, osIndex: {}, osList: [], sourceEntries: []
+                    };
                 }
                 const release = releaseIndex[xmqVersion];
                 if (!release.osIndex[osDir]) {
                     release.osIndex[osDir] = {
                         sptkVersion: sptkVersion.sptk_version,
+                        osDir: osDir,
                         title: entry.directory.title,
                         files: entry.files
                     };
@@ -121,12 +125,14 @@ export function buildXmqReleases(downloads)
         const primaryVersion = sptkVersionIndex[release.sptkVersion];
         for (const entry of validDirectories(primaryVersion)) {
             const osDir = entry.directory.os_dir;
-            if (!osWithXmq.has(osDir) && !release.osIndex[osDir]) {
-                release.osIndex[osDir] = {
+            if (!osWithXmq.has(osDir)) {
+                // The source code of the SPTK release, offered whatever the operating system
+                release.sourceEntries.push({
                     sptkVersion: release.sptkVersion,
+                    osDir: osDir,
                     title: entry.directory.title,
                     files: entry.files
-                };
+                });
             }
         }
         release.osList = makeOsList(release, primaryVersion);

@@ -7,6 +7,11 @@ import {buildXmqReleases, sptkVersionNumber, xmqFileVersion} from "../downloadsC
 import "../css/Downloads.css"
 import "./UserManual.css";
 
+function sortedFiles(files)
+{
+    return [...files].sort((left, right) => left.file.localeCompare(right.file));
+}
+
 export default class Downloads extends React.Component
 {
     state = {
@@ -46,9 +51,12 @@ export default class Downloads extends React.Component
         }
     }
 
-    fileTable(files, entry)
+    // The key is only for the source code tables, which are rendered from a list. Giving
+    // one to the tables that always sit in the same place makes React add a new table on
+    // every change of the selection instead of replacing the one that is there.
+    fileTable(files, entry, key)
     {
-        return <table>
+        return <table key={key}>
             <thead>
             <tr>
                 <th style={{width: 300}}>File</th>
@@ -59,7 +67,7 @@ export default class Downloads extends React.Component
             <tbody>
             {files.map((file) => <tr key={file.file + "-info"}>
                 <td key={file.file + "-name"} className="FileInfo">
-                    <a href={"download/" + entry.sptkVersion + "/" + this.state.osVersion + "/" + file.file}>
+                    <a href={"download/" + entry.sptkVersion + "/" + entry.osDir + "/" + file.file}>
                         {file.file}
                     </a>
                 </td>
@@ -78,7 +86,7 @@ export default class Downloads extends React.Component
         const xmqFiles = [];
         const sptkFiles = [];
         if (entry) {
-            for (const file of [...entry.files].sort((left, right) => left.file.localeCompare(right.file))) {
+            for (const file of sortedFiles(entry.files)) {
                 const fileVersion = xmqFileVersion(file.file);
                 if (fileVersion === null) {
                     sptkFiles.push(file);
@@ -127,6 +135,14 @@ export default class Downloads extends React.Component
                         build XMQ {this.state.xmqVersion}, and are not needed for the XMQ download.
                     </p>}
                 {sptkFiles.length > 0 && this.fileTable(sptkFiles, entry)}
+                {release && release.sourceEntries.length > 0 &&
+                    <p className="DownloadsNote">
+                        The source code of SPTK {sptkVersionNumber(release.sptkVersion)}, the same
+                        for every operating system, and not needed for the XMQ download either.
+                    </p>}
+                {release && release.sourceEntries.map((sourceEntry) =>
+                    this.fileTable(sortedFiles(sourceEntry.files), sourceEntry,
+                                   sourceEntry.sptkVersion + "-" + sourceEntry.osDir))}
             </div>
             <div id="docker" style={{textAlign: "left", padding: 16}}>
                 <h2>Run it in Docker</h2>
