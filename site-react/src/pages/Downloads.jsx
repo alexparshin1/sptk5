@@ -177,10 +177,10 @@ export default class Downloads extends React.Component
                     The descriptor limit belongs there too: Docker gives a container 1024 open
                     files, which caps the broker at about a thousand connections. Sessions, queued
                     messages and retained messages are kept in Redis when{" "}
-                    <code>XMQ_PERSISTENCE=true</code> is set; the <code>docker-compose.yml</code>{" "}
-                    in the source tree starts both containers and wires them together. The full
-                    list of settings is on the{" "}
-                    <a href="https://hub.docker.com/r/alexeyparshin/xmq">image page</a>.
+                    <code>XMQ_PERSISTENCE=true</code> is set; the{" "}
+                    <a href="https://hub.docker.com/r/alexeyparshin/xmq">image page</a> carries a
+                    compose file that starts the broker and Redis together, along with the full
+                    list of settings.
                 </p>
             </div>
         </div>;
