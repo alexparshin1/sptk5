@@ -38,6 +38,7 @@
 #include <gtest/gtest.h>
 
 #include <sptk5/Exception.h>
+#include <sptk5/sptk-config.h>
 #include <sptk5/wsdl/WSParser.h>
 
 #include <chrono>
@@ -116,6 +117,15 @@ private:
 
 filesystem::path locateTestWsdlFile()
 {
+    // TEST_DIRECTORY is the absolute source test directory baked in at configure time, so it
+    // resolves regardless of the current work dir - the binary may be run from an install
+    // prefix (an installed bin directory) that contains no test data at all.
+    if (auto p = filesystem::path(TEST_DIRECTORY) / "wsdl/Test.wsdl";
+        filesystem::exists(p))
+    {
+        return p;
+    }
+
     // Look for test/wsdl/Test.wsdl relative to the current work dir (build dir / repo root variability).
     const vector candidates = {
         filesystem::path("test/wsdl/Test.wsdl"),

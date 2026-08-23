@@ -307,17 +307,41 @@ void DateTimeFormat::init()
     localtime_r(&now, &localTime);
 #endif
 
-    const int is_dst = localTime.tm_isdst > 0 ? 1 : 0;
+    int is_dst = localTime.tm_isdst > 0 ? 1 : 0;
 
 #ifdef _WIN32
-    long tzSeconds = 0;
-    _get_timezone(&tzSeconds); // Seconds west of UTC for local standard time (UTC = local + tzSeconds)
-    long dstBias = 0;
-    if (is_dst != 0)
+    minutes offsetMinutes {};
+
+    // The Windows CRT only understands TZ in the "TZN[+|-]hh[:mm[:ss]][DZN]" form. An IANA zone
+    // name - as exported by Cygwin, e.g. TZ=Australia/Sydney - is silently misparsed and yields
+    // a wrong offset, so resolve those through the C++20 time zone database instead.
+    if (const char* tzName = getenv("TZ");
+        tzName != nullptr && strchr(tzName, '/') != nullptr)
     {
-        _get_dstbias(&dstBias); // DST offset, typically -3600
+        const time_zone* zone = nullptr;
+        try
+        {
+            zone = locate_zone(tzName);
+        }
+        catch (const std::exception&)
+        {
+            zone = current_zone();
+        }
+        const auto info = zone->get_info(system_clock::now());
+        offsetMinutes = duration_cast<minutes>(info.offset);
+        is_dst = info.save != minutes(0) ? 1 : 0;
     }
-    const auto offsetMinutes = duration_cast<minutes>(seconds(-tzSeconds - dstBias));
+    else
+    {
+        long tzSeconds = 0;
+        _get_timezone(&tzSeconds); // Seconds west of UTC for local standard time (UTC = local + tzSeconds)
+        long dstBias = 0;
+        if (is_dst != 0)
+        {
+            _get_dstbias(&dstBias); // DST offset, typically -3600
+        }
+        offsetMinutes = duration_cast<minutes>(seconds(-tzSeconds - dstBias));
+    }
 #else
     // tm_gmtoff is seconds east of UTC (local = UTC + tm_gmtoff)
     const auto offsetMinutes = duration_cast<minutes>(seconds(localTime.tm_gmtoff));
@@ -372,14 +396,17 @@ void decodeTime(const DateTime::time_point& timePoint, short& hour, short& minut
 
 void encodeDate(DateTime::time_point& timePoint, const short year, const short month, const short day)
 {
-    tm time = {};
-    time.tm_year = year - lastCenturyYear;
-    time.tm_mon = month - 1;
-    time.tm_mday = day;
-    time.tm_isdst = TimeZone::isDaylightSavingsTime();
+    // Converts a local wall-clock date to an instant using the SPTK timezone offset, so that
+    // encoding stays consistent with decodeDate()/decodeTime(), which apply that same offset.
+    // mktime() was used here before, but it resolves the offset through the C runtime, which
+    // disagrees with TimeZone::offset() whenever the CRT cannot parse the TZ environment
+    // variable - an IANA zone name on Windows, say - leaving encode and decode an hour or
+    // more apart.
+    const auto date = chrono::year_month_day(chrono::year(year),
+                                             chrono::month(static_cast<unsigned>(month)),
+                                             chrono::day(static_cast<unsigned>(day)));
 
-    const auto aTime = mktime(&time);
-    timePoint = DateTime::clock::from_time_t(aTime);
+    timePoint = DateTime::time_point(chrono::sys_days(date)) - TimeZone::offset();
 }
 
 short splitDateString(const char* dateString, short* datePart, char& actualDateSeparator)

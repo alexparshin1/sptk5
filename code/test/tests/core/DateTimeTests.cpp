@@ -143,7 +143,7 @@ TEST(DateTimeTests,formatDate)
 
     const auto t = static_cast<time_t>(dateTime);
     tm         tt {};
-    localtime_r(&t, &tt);
+    gmtime_r(&t, &tt); // Compared against dateString(PF_GMT) below, so format in UTC.
 
     array<char, maxDateTimeStringLength> buffer {};
     strftime(buffer.data(), sizeof(buffer) - 1, "%x", &tt);
@@ -195,12 +195,12 @@ TEST(DateTimeTests,formatDateTime2)
     tzOffsetStr.fill('0');
     if (tzOffsetMinutes > 0)
     {
-        tzOffsetStr << "+" << tzOffsetMinutes / minutesInHour << ":" << setw(2) << tzOffsetMinutes % minutesInHour;
+        tzOffsetStr << "+" << setw(2) << tzOffsetMinutes / minutesInHour << ":" << setw(2) << tzOffsetMinutes % minutesInHour;
     }
     else if (tzOffsetMinutes < 0)
     {
         tzOffsetMinutes = -tzOffsetMinutes;
-        tzOffsetStr << "-" << tzOffsetMinutes / minutesInHour << ":" << setw(2) << tzOffsetMinutes % minutesInHour;
+        tzOffsetStr << "-" << setw(2) << tzOffsetMinutes / minutesInHour << ":" << setw(2) << tzOffsetMinutes % minutesInHour;
     }
     else
     {
@@ -210,9 +210,13 @@ TEST(DateTimeTests,formatDateTime2)
     const String   tzOffset(tzOffsetStr.str());
     const DateTime dateTime(("2020-10-10 00:00:00" + tzOffset).c_str());
 
-    const auto t = static_cast<time_t>(dateTime);
+    // Shift by the SPTK timezone offset and format as UTC, mirroring how the library decodes a
+    // local date (see decodeDate()). localtime_r() would instead resolve the zone through the C
+    // runtime, which disagrees with TimeZone::offset() when the CRT cannot parse the TZ
+    // environment variable - an IANA zone name on Windows, say.
+    const auto t = static_cast<time_t>(dateTime) + duration_cast<seconds>(TimeZone::offset()).count();
     tm         tt {};
-    localtime_r(&t, &tt);
+    gmtime_r(&t, &tt);
 
     array<char, maxDateTimeStringLength> buffer {};
     strftime(buffer.data(), sizeof(buffer) - 1, "%x", &tt);

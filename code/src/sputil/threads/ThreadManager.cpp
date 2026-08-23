@@ -102,8 +102,12 @@ void ThreadManager::stop()
 {
     terminateRunningThreads();
     joinTerminatedThreads(milliseconds(0));
-    m_terminatedThreads.wakeup();
+
+    // Set the terminated flag before waking the queue: the wakeup token is consumed by the
+    // monitoring thread, and if it observes the wakeup while the flag is still unset, it
+    // re-enters joinTerminatedThreads() and blocks for another full timeout.
     terminate();
+    m_terminatedThreads.wakeup();
     join();
 }
 

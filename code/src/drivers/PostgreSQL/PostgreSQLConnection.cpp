@@ -47,7 +47,27 @@ using namespace sptk;
 
 namespace sptk {
 constexpr auto hoursPerDay = 24;
-const DateTime g_epochDate(2000, 1, 1);
+
+/// Local midnight of 2000-01-01. PostgreSQL DATE and TIMESTAMP (without time zone) are naive
+/// wall-clock values, so they are anchored here and read back as that wall clock, locally.
+/// Built on first use rather than at namespace scope: converting a local date needs the timezone
+/// offset resolved by sputil5's static initialisation, which is not ordered against the static
+/// initialisation of this driver.
+const DateTime& localEpochDate()
+{
+    static const DateTime epochDate(2000, 1, 1);
+    return epochDate;
+}
+
+/// The instant 2000-01-01T00:00:00Z. TIMESTAMPTZ is transmitted as microseconds since that
+/// absolute instant, so it must be anchored independently of the client and the server session
+/// time zone - anchoring it locally shifts every value by the difference between the two.
+const DateTime& utcEpochDate()
+{
+    static const DateTime epochDate(DateTime::time_point(
+        std::chrono::sys_days(std::chrono::year(2000) / std::chrono::January / 1)));
+    return epochDate;
+}
 
 class PostgreSQLStatement
 {
@@ -267,7 +287,7 @@ void PostgreSQLConnection::_openDatabase(const String& newConnectionString)
             }
         }
         m_sessionTimezoneOffset = getTimezoneOffset();
-        m_epochDate = g_epochDate + m_sessionTimezoneOffset;
+        m_epochDate = localEpochDate() + m_sessionTimezoneOffset;
     }
 }
 
@@ -872,7 +892,7 @@ MoneyData readNumericToScaledInteger(const char* numeric)
     return moneyData;
 }
 
-void decodeArray(char* data, DatabaseField* field, const PostgreSQLConnection::TimestampFormat timestampFormat, const DateTime& epochDate)
+void decodeArray(char* data, DatabaseField* field, const PostgreSQLConnection::TimestampFormat timestampFormat)
 {
     struct PGArrayHeader
     {
@@ -949,12 +969,16 @@ void decodeArray(char* data, DatabaseField* field, const PostgreSQLConnection::T
                     break;
 
                 case DATE:
-                    output << readDate(data, epochDate).dateString();
+                    output << readDate(data, localEpochDate()).dateString();
                     break;
 
                 case TIMESTAMPTZ:
+                    output << readTimestamp(data, timestampFormat == PostgreSQLConnection::TimestampFormat::INT64, utcEpochDate())
+                                  .isoDateTimeString(DateTime::PrintAccuracy::MILLISECONDS);
+                    break;
+
                 case TIMESTAMP:
-                    output << readTimestamp(data, timestampFormat == PostgreSQLConnection::TimestampFormat::INT64, epochDate)
+                    output << readTimestamp(data, timestampFormat == PostgreSQLConnection::TimestampFormat::INT64, localEpochDate())
                                   .isoDateTimeString(DateTime::PrintAccuracy::MILLISECONDS);
                     break;
 
@@ -1075,14 +1099,14 @@ void PostgreSQLConnection::queryFetch(Query* query)
                     break;
 
                 case DATE:
-                    field->setDateTime(readDate(data, m_epochDate));
+                    field->setDateTime(readDate(data, localEpochDate()));
                     break;
 
                 case TIMESTAMPTZ:
-                    field->setDateTime(readTimestamp(data, integerTimestamps, m_epochDate));
+                    field->setDateTime(readTimestamp(data, integerTimestamps, utcEpochDate()));
                     break;
                 case TIMESTAMP:
-                    field->setDateTime(readTimestamp(data, integerTimestamps, g_epochDate));
+                    field->setDateTime(readTimestamp(data, integerTimestamps, localEpochDate()));
                     break;
 
                 case CHAR_ARRAY:
@@ -1096,7 +1120,7 @@ void PostgreSQLConnection::queryFetch(Query* query)
                 case FLOAT8_ARRAY:
                 case TIMESTAMP_ARRAY:
                 case TIMESTAMPTZ_ARRAY:
-                    decodeArray(data, field, m_timestampsFormat, m_epochDate);
+                    decodeArray(data, field, m_timestampsFormat);
                     break;
 
                 default:

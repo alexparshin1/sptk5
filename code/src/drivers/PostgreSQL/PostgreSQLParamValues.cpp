@@ -42,6 +42,17 @@
 using namespace std;
 using namespace sptk;
 
+namespace {
+/// The instant 2000-01-01T00:00:00Z - the epoch PostgreSQL counts DATE values from. Mirrors the
+/// accessor of the same name in PostgreSQLConnection.cpp.
+const DateTime& utcEpochDate()
+{
+    static const DateTime epochDate(DateTime::time_point(
+        std::chrono::sys_days(std::chrono::year(2000) / std::chrono::January / 1)));
+    return epochDate;
+}
+} // namespace
+
 void PostgreSQLParamValues::setParameters(const QueryParameterList& params)
 {
     params.enumerate(m_params);
@@ -149,7 +160,11 @@ void PostgreSQLParamValues::setParameterValue(const unsigned paramIndex, const S
                 break;
 
             case VariantDataType::VAR_DATE:
-                days = chrono::duration_cast<chrono::hours>(param->get<DateTime>() - m_epochDate).count() / hoursInDay;
+                // A date-only Variant (DateTime::date()) holds UTC midnight of the calendar date,
+                // so the whole-day count has to be taken from the UTC epoch. Measuring it from the
+                // local epoch mixes the two bases and loses a day wherever the local offset is
+                // negative, storing the previous date.
+                days = chrono::duration_cast<chrono::hours>(param->get<DateTime>() - utcEpochDate()).count() / hoursInDay;
                 if (m_int64timestamps)
                 {
                     int64_t dt = days * secondsPerDay * microsecondsInSecond;
