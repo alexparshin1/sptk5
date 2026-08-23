@@ -62,9 +62,23 @@ FUNCTION(SET_SPTK_TARGET_PROPERTIES target)
     # looking for a database driver by name, so without it the drivers are only ever found in the
     # system directories.
     IF (APPLE)
-        SET_TARGET_PROPERTIES(${target} PROPERTIES INSTALL_RPATH "@loader_path")
+        SET(SPTK_TARGET_RPATH "@loader_path")
     ELSEIF (UNIX)
-        SET_TARGET_PROPERTIES(${target} PROPERTIES INSTALL_RPATH "$ORIGIN")
+        SET(SPTK_TARGET_RPATH "$ORIGIN")
+    ENDIF ()
+
+    # Keep the compiler's own libstdc++ directory on the RPATH too - see the BSD/GCC note further
+    # down, which pins it in CMAKE_INSTALL_RPATH. Setting INSTALL_RPATH on a target *replaces*
+    # CMAKE_INSTALL_RPATH rather than adding to it, so without this the pinned directory is
+    # silently dropped from everything installed, and the loader falls back to the system-wide
+    # search order - picking up whichever libstdc++ sorts first, which may be too old for the
+    # GLIBCXX symbols this build needs.
+    IF (SPTK_TARGET_RPATH AND GCC_LIBSTDCXX_DIR)
+        SET(SPTK_TARGET_RPATH "${SPTK_TARGET_RPATH};${GCC_LIBSTDCXX_DIR}")
+    ENDIF ()
+
+    IF (SPTK_TARGET_RPATH)
+        SET_TARGET_PROPERTIES(${target} PROPERTIES INSTALL_RPATH "${SPTK_TARGET_RPATH}")
     ENDIF ()
 ENDFUNCTION()
 
@@ -201,6 +215,16 @@ ELSE ()
     ENDIF ()
 
     ADD_DEFINITIONS(-DOPENSSL_SUPPRESS_DEPRECATED)
+
+    # Keep inline functions out of the dynamic symbol tables.
+    #
+    # Without this, each shared library exports its own weak copy of inline definitions such as
+    # std::mutex::lock(). The first library loaded then interposes that symbol for every other
+    # one, so a lock can be taken by one library's copy while the matching unlock is inlined into
+    # another. On FreeBSD the two copies disagree about libstdc++'s __gthread_active() flag -
+    # the interposing copy locks for real, the inlined unlock compiles to nothing - and the mutex
+    # is left held. The next acquisition then fails with EDEADLK ("Resource deadlock avoided").
+    ADD_DEFINITIONS(-fvisibility-inlines-hidden)
 
     IF (CMAKE_BUILD_TYPE STREQUAL "Debug")
         #ADD_DEFINITIONS(-O1 -msse4.2)

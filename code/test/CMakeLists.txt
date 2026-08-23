@@ -6,6 +6,14 @@ IF (GTEST_FLAG)
 
     TARGET_LINK_LIBRARIES(sptk_unit_tests spdb5 spwsdl5 sputil5 gtest)
 
+    # Where the data files below actually land for THIS build. TestData looks in the source tree
+    # first, so running from the build tree is unaffected; this is what lets the installed binary
+    # find them when the prefix is not /usr/local.
+    IF (NOT WIN32)
+        TARGET_COMPILE_DEFINITIONS(sptk_unit_tests
+                PRIVATE SPTK_INSTALLED_DATA_DIR="${CMAKE_INSTALL_PREFIX}/share/sptk5")
+    ENDIF ()
+
     # On Windows with MSVC, add googletest as a Visual Studio NuGet package.
     #if (WIN32 AND MSVC)
     #    set(gtest_nuget "Google.Test;1.8.3")
