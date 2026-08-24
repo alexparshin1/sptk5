@@ -303,7 +303,6 @@
     <ROW File="Printer.h" Component_="ArchiveFile.h" FileName="Printer.h" Attributes="0" SourcePath="code\sptk5\Printer.h" SelfReg="false"/>
     <ROW File="ReadBuffer.h" Component_="ArchiveFile.h" FileName="READBU~1.H|ReadBuffer.h" Attributes="0" SourcePath="code\sptk5\ReadBuffer.h" SelfReg="false"/>
     <ROW File="RegularExpression.h" Component_="ArchiveFile.h" FileName="REGULA~1.H|RegularExpression.h" Attributes="0" SourcePath="code\sptk5\RegularExpression.h" SelfReg="false"/>
-    <ROW File="sptkconfig.h" Component_="ArchiveFile.h" FileName="SPTK-C~1.H|sptk-config.h" Attributes="0" SourcePath="code\sptk5\sptk-config.h" SelfReg="false"/>
     <ROW File="sptkconfig.h.cmake" Component_="ArchiveFile.h" FileName="SPTK-C~1.CMA|sptk-config.h.cmake" Attributes="0" SourcePath="code\sptk5\sptk-config.h.cmake" SelfReg="false"/>
     <ROW File="sptkconfig.h.win" Component_="ArchiveFile.h" FileName="SPTK-C~1.WIN|sptk-config.h.win" Attributes="0" SourcePath="code\sptk5\sptk-config.h.win" SelfReg="false"/>
     <ROW File="sptk.h" Component_="ArchiveFile.h" FileName="sptk.h" Attributes="0" SourcePath="code\sptk5\sptk.h" SelfReg="false"/>
