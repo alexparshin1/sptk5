@@ -168,6 +168,19 @@ IF (WIN32)
     LINK_LIBRARIES(wsock32 ole32 uuid comctl32 ws2_32 winhttp crypt32 secur32 shlwapi bcrypt)
 ELSE ()
     IF (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+        # std::jthread and <stop_token> are still behind libc++'s experimental gate in LLVM 19,
+        # and Thread - the base of every thread in this library - is built on both. Without this
+        # the whole library fails to compile against libc++, which on FreeBSD is what the base
+        # compiler uses. Both a compile and a link option: it selects the declarations and it
+        # brings in libc++experimental.
+        #
+        # Note that it puts an ABI tag naming the libc++ version (abi:se190107 for 19.1.7) on
+        # those symbols, so everything in the process has to be built the same way, and a libc++
+        # upgrade is an ABI break for them. That is the price of the flag; the alternative is to
+        # stop using the two types.
+        ADD_COMPILE_OPTIONS(-fexperimental-library)
+        ADD_LINK_OPTIONS(-fexperimental-library)
+
         ADD_DEFINITIONS(
                 -fPIC
                 -Wall -pedantic
@@ -635,6 +648,21 @@ ENDIF ()
 
 IF (USE_GTEST AND BUILD_VENDORED_GTEST)
     INCLUDE_DIRECTORIES(googletest/googletest/include)
+    # A CMake target, so the link resolves by itself.
+    SET(SPTK_GTEST_LIBRARY gtest)
+ELSEIF (USE_GTEST)
+    # The system googletest, located and linked by its full path rather than as a bare -lgtest.
+    # FreeBSD's base toolchain does not search /usr/local/lib, where the package installs it, so
+    # the bare name fails to resolve there - on Linux the same line happens to work.
+    FIND_PATH(SPTK_GTEST_INCLUDE_DIR gtest/gtest.h HINTS /usr/local/include /usr/include)
+    FIND_LIBRARY(SPTK_GTEST_LIBRARY NAMES gtest HINTS /usr/local/lib /usr/lib /usr/lib64)
+    IF (SPTK_GTEST_INCLUDE_DIR)
+        INCLUDE_DIRECTORIES(${SPTK_GTEST_INCLUDE_DIR})
+    ENDIF ()
+    IF (NOT SPTK_GTEST_LIBRARY)
+        MESSAGE(FATAL_ERROR "USE_GTEST is on but no googletest library was found. "
+                            "Install one, or turn USE_GTEST off.")
+    ENDIF ()
 ENDIF ()
 
 # Into the build tree, not back into the sources. What it holds depends on the installation prefix

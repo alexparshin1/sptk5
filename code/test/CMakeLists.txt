@@ -4,7 +4,7 @@ IF (GTEST_FLAG)
     ADD_EXECUTABLE(sptk_unit_tests ${TEST_SOURCE_FILES})
     SET_SPTK_TARGET_PROPERTIES(sptk_unit_tests)
 
-    TARGET_LINK_LIBRARIES(sptk_unit_tests spdb5 spwsdl5 sputil5 gtest)
+    TARGET_LINK_LIBRARIES(sptk_unit_tests spdb5 spwsdl5 sputil5 ${SPTK_GTEST_LIBRARY})
 
     # Where the data files below actually land for THIS build. TestData looks in the source tree
     # first, so running from the build tree is unaffected; this is what lets the installed binary
