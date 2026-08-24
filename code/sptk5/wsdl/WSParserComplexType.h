@@ -43,6 +43,11 @@
 #include <set>
 #include <sptk5/wsdl/WSBasicTypes.h>
 #include <sptk5/xdoc/Document.h>
+#include <sstream> // Included directly, not for this file alone: libstdc++ happens to
+                   // reach <sstream> through other standard headers and libc++ does not,
+                   // so without it this translation unit fails to compile on FreeBSD and
+                   // anywhere else libc++ is the standard library. Do not remove it as
+                   // redundant - it is only redundant on one implementation.
 
 namespace sptk {
 /**

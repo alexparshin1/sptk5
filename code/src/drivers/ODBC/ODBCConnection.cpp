@@ -43,6 +43,11 @@
 #include <sptk5/db/ODBCConnection.h>
 #include <sql.h>
 #include <string>
+#include <sstream> // Included directly, not for this file alone: libstdc++ happens to
+                   // reach <sstream> through other standard headers and libc++ does not,
+                   // so without it this translation unit fails to compile on FreeBSD and
+                   // anywhere else libc++ is the standard library. Do not remove it as
+                   // redundant - it is only redundant on one implementation.
 
 constexpr size_t MaxBufferSize = 1024;
 constexpr size_t MaxErrorLen = 1024;

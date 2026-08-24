@@ -40,6 +40,11 @@
 #include <FL/fl_draw.H>
 #include <cmath>
 #include <sptk5/gui/CThemeScrollBar.h>
+#include <sstream> // Included directly, not for this file alone: libstdc++ happens to
+                   // reach <sstream> through other standard headers and libc++ does not,
+                   // so without it this translation unit fails to compile on FreeBSD and
+                   // anywhere else libc++ is the standard library. Do not remove it as
+                   // redundant - it is only redundant on one implementation.
 
 using namespace std;
 using namespace sptk;
