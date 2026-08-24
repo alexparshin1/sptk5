@@ -73,7 +73,12 @@ String fileStamp(const filesystem::path& file)
         return "-";
     }
 
-    return to_string(size) + ":" + to_string(written.time_since_epoch().count());
+    // The count is narrowed deliberately. libc++ gives file_time_type a 128-bit representation,
+    // wide enough to hold any timespec, and std::to_string has no overload that takes one - so the
+    // call is ambiguous there while it compiles on libstdc++, whose representation is 64 bits.
+    // Nanoseconds in an int64 still span some 292 years either side of the epoch, which is more
+    // than a cache stamp needs.
+    return to_string(size) + ":" + to_string(static_cast<int64_t>(written.time_since_epoch().count()));
 }
 } // namespace
 

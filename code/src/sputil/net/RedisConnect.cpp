@@ -41,6 +41,7 @@
 #include "sptk5/Printer.h"
 
 #ifndef _WIN32
+#include <cstdlib>
 #include <netinet/tcp.h>
 #endif
 
@@ -750,8 +751,15 @@ void RedisConnect::readResponse(std::vector<Variant>& results, Variant* cursor)
             results.emplace_back(payload == "t");
             return;
         case ',': { // Double (RESP3)
-            double value;
-            std::from_chars(payload.data(), payload.data() + payload.size(), value);
+            // strtod rather than std::from_chars: libc++ has no floating-point from_chars and
+            // deletes the overload outright, so that call does not compile against it - the
+            // integral ones above are fine. The accepted format is the same, and nothing here
+            // changes the global locale, so the decimal point is the same too.
+            //
+            // Initialised, unlike before: from_chars leaves its output untouched when the text
+            // does not parse, and the value was read either way.
+            const std::string text(payload);
+            const double      value = std::strtod(text.c_str(), nullptr);
             results.emplace_back(value);
             return;
         }

@@ -214,7 +214,9 @@ TEST(DateTimeTests,formatDateTime2)
     // local date (see decodeDate()). localtime_r() would instead resolve the zone through the C
     // runtime, which disagrees with TimeZone::offset() when the CRT cannot parse the TZ
     // environment variable - an IANA zone name on Windows, say.
-    const auto t = static_cast<time_t>(dateTime) + duration_cast<seconds>(TimeZone::offset()).count();
+    // Spelled out rather than left to auto: seconds::rep is wider than time_t on FreeBSD, so the
+    // sum deduced a long long there and gmtime_r had nothing to bind to.
+    const time_t t = static_cast<time_t>(dateTime) + duration_cast<seconds>(TimeZone::offset()).count();
     tm         tt {};
     gmtime_r(&t, &tt);
 
