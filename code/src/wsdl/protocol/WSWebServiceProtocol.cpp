@@ -38,6 +38,7 @@
 #include <sptk5/wsdl/protocol/WSWebServiceProtocol.h>
 
 #include <utility>
+#include <sstream> // libc++
 
 using namespace std;
 using namespace sptk;

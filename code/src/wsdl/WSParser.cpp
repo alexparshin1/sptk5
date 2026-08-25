@@ -43,6 +43,7 @@
 
 #include <fstream>
 #include <ranges>
+#include <sstream> // libc++
 
 using namespace std;
 using namespace sptk;

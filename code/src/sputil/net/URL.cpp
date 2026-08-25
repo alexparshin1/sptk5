@@ -40,6 +40,7 @@
 #include <sptk5/net/URL.h>
 
 #include <format>
+#include <sstream> // libc++
 
 using namespace std;
 using namespace sptk;

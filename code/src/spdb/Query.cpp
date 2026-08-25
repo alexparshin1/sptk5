@@ -40,6 +40,7 @@
 #include <sptk5/cutils>
 #include <sptk5/db/PoolDatabaseConnection.h>
 #include <sptk5/db/Query.h>
+#include <sstream> // libc++
 
 using namespace std;
 using namespace sptk;

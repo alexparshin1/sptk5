@@ -2,3 +2,7 @@
 # googletest/googletest/cmake/*.pc.in). They bake in whatever CMAKE_INSTALL_PREFIX the last
 # person to configure used - including their home directory - so they must not be committed.
 googletest/googletest/generated/*.pc
+# Generated into the build tree by the top-level CMakeLists.txt. Its contents follow the
+# installation prefix and the optional libraries found on the build host, so it must not be
+# committed. Listed here as well because an in-source build writes it right back to this path.
+sptk5/sptk-config.h

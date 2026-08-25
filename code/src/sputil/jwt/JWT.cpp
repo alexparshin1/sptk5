@@ -41,6 +41,7 @@
 
 #include <sptk5/Base64.h>
 #include <sptk5/JWT.h>
+#include <sstream> // libc++
 
 using namespace std;
 using namespace sptk;

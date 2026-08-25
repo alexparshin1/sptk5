@@ -41,6 +41,7 @@
 
 #ifdef _WIN32
 #include <events.w32/event_provider.h>
+#include <sstream> // libc++
 #endif
 
 using namespace std;

@@ -2,8 +2,8 @@
 # Please don't edit it, or your changes may be overwritten.
 
 SET (Foo_files
-  C:\Users\alexe\AppData\Local\Temp\sptk_wsparser_msg_vs_element_1787476365319075_17307028144114785622\out/CFooServiceBase.cpp C:\Users\alexe\AppData\Local\Temp\sptk_wsparser_msg_vs_element_1787476365319075_17307028144114785622\out/CFooServiceBase.h
-  C:\Users\alexe\AppData\Local\Temp\sptk_wsparser_msg_vs_element_1787476365319075_17307028144114785622\out/CFooWSDL.cpp C:\Users\alexe\AppData\Local\Temp\sptk_wsparser_msg_vs_element_1787476365319075_17307028144114785622\out/CFooWSDL.h
-  C:\Users\alexe\AppData\Local\Temp\sptk_wsparser_msg_vs_element_1787476365319075_17307028144114785622\out/CFoo.cpp C:\Users\alexe\AppData\Local\Temp\sptk_wsparser_msg_vs_element_1787476365319075_17307028144114785622\out/CFoo.h
-  C:\Users\alexe\AppData\Local\Temp\sptk_wsparser_msg_vs_element_1787476365319075_17307028144114785622\out/CFooResponse.cpp C:\Users\alexe\AppData\Local\Temp\sptk_wsparser_msg_vs_element_1787476365319075_17307028144114785622\out/CFooResponse.h
+  /tmp/sptk_wsparser_msg_vs_element_1787552797235318_13307376981771878626/out/CFooServiceBase.cpp /tmp/sptk_wsparser_msg_vs_element_1787552797235318_13307376981771878626/out/CFooServiceBase.h
+  /tmp/sptk_wsparser_msg_vs_element_1787552797235318_13307376981771878626/out/CFooWSDL.cpp /tmp/sptk_wsparser_msg_vs_element_1787552797235318_13307376981771878626/out/CFooWSDL.h
+  /tmp/sptk_wsparser_msg_vs_element_1787552797235318_13307376981771878626/out/CFoo.cpp /tmp/sptk_wsparser_msg_vs_element_1787552797235318_13307376981771878626/out/CFoo.h
+  /tmp/sptk_wsparser_msg_vs_element_1787552797235318_13307376981771878626/out/CFooResponse.cpp /tmp/sptk_wsparser_msg_vs_element_1787552797235318_13307376981771878626/out/CFooResponse.h
 )

@@ -37,6 +37,7 @@
 
 #include <ctime>
 #include <sptk5/cutils>
+#include <sstream> // libc++
 
 using namespace std;
 using namespace chrono;

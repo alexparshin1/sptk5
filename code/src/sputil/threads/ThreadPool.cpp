@@ -37,6 +37,7 @@
 
 #include <sptk5/threads/ThreadPool.h>
 #include <sptk5/threads/WorkerThread.h>
+#include <sstream> // libc++
 
 using namespace std;
 using namespace sptk;

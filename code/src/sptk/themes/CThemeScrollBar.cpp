@@ -40,6 +40,7 @@
 #include <FL/fl_draw.H>
 #include <cmath>
 #include <sptk5/gui/CThemeScrollBar.h>
+#include <sstream> // libc++
 
 using namespace std;
 using namespace sptk;

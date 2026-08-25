@@ -37,6 +37,7 @@
 
 #include "sptk5/net/SSLKeys.h"
 #include <sptk5/Buffer.h>
+#include <sstream> // libc++
 
 using namespace std;
 using namespace sptk;

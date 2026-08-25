@@ -43,6 +43,7 @@
 #include <sptk5/cutils>
 #include <sptk5/db/DatabaseField.h>
 #include <sptk5/db/SQLite3Connection.h>
+#include <sstream> // libc++
 
 namespace sptk {
 class SQLite3Field

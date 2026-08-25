@@ -44,6 +44,7 @@
 #include <sptk5/db/PoolDatabaseConnection.h>
 #include <sptk5/db/Query.h>
 #include <sptk5/gui/CMessageDialog.h>
+#include <sstream> // libc++
 
 using namespace std;
 using namespace sptk;

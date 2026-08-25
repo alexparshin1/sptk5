@@ -39,6 +39,7 @@
 
 #include "sptk5/wsdl/WSConnection.h"
 #include <sptk5/net/FastTCPServer.h>
+#include <sstream> // libc++
 
 using namespace std;
 using namespace sptk;

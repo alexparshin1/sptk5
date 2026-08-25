@@ -44,6 +44,7 @@
 #include <ranges>
 #include <sptk5/wsdl/WSTypeTranslator.h>
 #include <utility>
+#include <sstream> // libc++
 
 using namespace std;
 using namespace sptk;

@@ -43,6 +43,7 @@
 #include <set>
 #include <sptk5/wsdl/WSBasicTypes.h>
 #include <sptk5/xdoc/Document.h>
+#include <sstream> // libc++
 
 namespace sptk {
 /**

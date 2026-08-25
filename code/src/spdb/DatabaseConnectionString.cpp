@@ -41,6 +41,7 @@
 
 #include <mutex>
 #include <sptk5/net/URL.h>
+#include <sstream> // libc++
 
 using namespace std;
 using namespace sptk;

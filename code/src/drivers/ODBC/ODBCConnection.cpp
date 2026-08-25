@@ -43,6 +43,7 @@
 #include <sptk5/db/ODBCConnection.h>
 #include <sql.h>
 #include <string>
+#include <sstream> // libc++
 
 constexpr size_t MaxBufferSize = 1024;
 constexpr size_t MaxErrorLen = 1024;

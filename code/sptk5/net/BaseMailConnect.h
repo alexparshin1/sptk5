@@ -41,6 +41,7 @@
 #include <sptk5/net/MailMessageBody.h>
 
 #include <string>
+#include <sstream> // libc++
 
 namespace sptk {
 /**

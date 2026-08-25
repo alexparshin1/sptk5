@@ -48,6 +48,7 @@
 #include <fcntl.h>
 #include <fstream>
 #include <thread>
+#include <sstream> // libc++
 
 using namespace std;
 

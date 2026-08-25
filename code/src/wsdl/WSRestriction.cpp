@@ -38,6 +38,7 @@
 #include <sptk5/wsdl/WSRestriction.h>
 
 #include <utility>
+#include <sstream> // libc++
 
 using namespace std;
 using namespace sptk;

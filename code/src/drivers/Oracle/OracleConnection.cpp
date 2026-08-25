@@ -38,6 +38,7 @@
 #include <sptk5/cutils>
 #include <sptk5/db/BulkQuery.h>
 #include <sptk5/db/OracleConnection.h>
+#include <sstream> // libc++
 
 using namespace std;
 using namespace sptk;

@@ -38,6 +38,7 @@
 
 #include <iomanip>
 #include <sptk5/Field.h>
+#include <sstream> // libc++
 
 using namespace std;
 using namespace sptk;

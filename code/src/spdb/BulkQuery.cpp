@@ -11,6 +11,7 @@
 #include "sptk5/db/BulkQuery.h"
 
 #include "sptk5/Printer.h"
+#include <sstream> // libc++
 
 using namespace std;
 using namespace sptk;

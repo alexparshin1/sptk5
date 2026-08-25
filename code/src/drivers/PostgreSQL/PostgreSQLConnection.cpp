@@ -41,6 +41,7 @@
 #include "sptk5/db/BulkQuery.h"
 #include <sptk5/cutils>
 #include <sptk5/db/DatabaseField.h>
+#include <sstream> // libc++
 
 using namespace std;
 using namespace sptk;

@@ -38,6 +38,7 @@
 
 #include <sptk5/Printer.h>
 #include <sptk5/xdoc/Document.h>
+#include <sstream> // libc++
 
 using namespace std;
 using namespace sptk;

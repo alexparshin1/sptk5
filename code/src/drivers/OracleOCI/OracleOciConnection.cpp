@@ -41,6 +41,7 @@
 #include <sptk5/db/BulkQuery.h>
 #include <sptk5/db/OracleOciConnection.h>
 #include <sptk5/db/OracleOciStatement.h>
+#include <sstream> // libc++
 
 using namespace std;
 using namespace sptk;
