@@ -55,8 +55,14 @@ namespace sptk {
 /**
  * Base class for various log engines.
  *
- * This class is abstract. Derived classes have to implement
- * at least saveMessage() method.
+ * This class is abstract. Derived classes have to implement at least saveMessage(), and each
+ * one must stop the save-message thread from its own destructor - terminate() or shutdown().
+ *
+ * Leaving that to ~LogEngine() is too late. A base destructor runs after the derived one, so
+ * by then the vtable has reverted to this class and the still-running thread calls the pure
+ * virtual saveMessage() above: __cxa_pure_virtual, then abort. It is the same hazard that
+ * keeps the thread out of the constructor (see startSaveMessageThread), at the other end of
+ * the object lifetime.
  */
 class SP_EXPORT LogEngine
 {

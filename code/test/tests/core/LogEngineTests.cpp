@@ -52,6 +52,15 @@ public:
         storage.clear();
     }
 
+    // The base destructor is too late to stop the save-message thread: by the time it runs,
+    // this derived object is gone and saveMessage() below has reverted to the pure virtual
+    // LogEngine::saveMessage(), which the thread then calls - __cxa_pure_virtual, abort.
+    // Every LogEngine subclass has to stop the thread itself; the library engines all do.
+    ~TestLogEngine() override
+    {
+        terminate();
+    }
+
     bool saveMessage(const Logger::Message& message) override
     {
         const scoped_lock lock(m_mutex);
