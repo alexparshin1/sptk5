@@ -65,12 +65,13 @@ endif()
 config_compiler_and_linker() # from ${gtest_dir}/cmake/internal_utils.cmake
 
 # Adds Google Mock's and Google Test's header directories to the search path.
+# Get Google Test's include dirs from the target, gtest_SOURCE_DIR is broken
+# when using fetch-content with the name "GTest".
+get_target_property(gtest_include_dirs gtest INCLUDE_DIRECTORIES)
 set(gmock_build_include_dirs
   "${gmock_SOURCE_DIR}/include"
   "${gmock_SOURCE_DIR}"
-  "${gtest_SOURCE_DIR}/include"
-  # This directory is needed to build directly from Google Test sources.
-  "${gtest_SOURCE_DIR}")
+  "${gtest_include_dirs}")
 include_directories(${gmock_build_include_dirs})
 
 ########################################################################
@@ -104,10 +105,10 @@ endif()
 string(REPLACE ";" "$<SEMICOLON>" dirs "${gmock_build_include_dirs}")
 target_include_directories(gmock SYSTEM INTERFACE
   "$<BUILD_INTERFACE:${dirs}>"
-  "$<INSTALL_INTERFACE:$<INSTALL_PREFIX>/${CMAKE_INSTALL_INCLUDEDIR}>")
+  "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>")
 target_include_directories(gmock_main SYSTEM INTERFACE
   "$<BUILD_INTERFACE:${dirs}>"
-  "$<INSTALL_INTERFACE:$<INSTALL_PREFIX>/${CMAKE_INSTALL_INCLUDEDIR}>")
+  "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>")
 
 ########################################################################
 #

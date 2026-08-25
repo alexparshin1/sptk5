@@ -1,22 +1,44 @@
 """Load dependencies needed to use the googletest library as a 3rd-party consumer."""
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+load("//:fake_fuchsia_sdk.bzl", "fake_fuchsia_sdk")
 
 def googletest_deps():
     """Loads common dependencies needed to use the googletest library."""
 
-    if not native.existing_rule("com_googlesource_code_re2"):
+    if not native.existing_rule("re2"):
         http_archive(
-            name = "com_googlesource_code_re2",  # 2023-03-17T11:36:51Z
-            sha256 = "cb8b5312a65f2598954545a76e8bce913f35fbb3a21a5c88797a4448e9f9b9d9",
-            strip_prefix = "re2-578843a516fd1da7084ae46209a75f3613b6065e",
-            urls = ["https://github.com/google/re2/archive/578843a516fd1da7084ae46209a75f3613b6065e.zip"],
+            name = "re2",
+            sha256 = "87f6029d2f6de8aa023654240a03ada90e876ce9a4676e258dd01ea4c26ffd67",
+            strip_prefix = "re2-2025-11-05",
+            urls = ["https://github.com/google/re2/releases/download/2025-11-05/re2-2025-11-05.tar.gz"],
         )
 
-    if not native.existing_rule("com_google_absl"):
+    if not native.existing_rule("abseil-cpp"):
         http_archive(
-            name = "com_google_absl",  # 2023-09-13T14:58:42Z
-            sha256 = "7766815ef6293dc7bca58fef59a96d7d3230874412dcd36dafb0e313ed1356f2",
-            strip_prefix = "abseil-cpp-9e1789ffea47fdeb3133aa42aa9592f3673fb6ed",
-            urls = ["https://github.com/abseil/abseil-cpp/archive/9e1789ffea47fdeb3133aa42aa9592f3673fb6ed.zip"],
+            name = "abseil-cpp",
+            sha256 = "4c124408da902be896a2f368042729655709db5e3004ec99f57e3e14439bc1b2",
+            strip_prefix = "abseil-cpp-20260107.0",
+            urls = ["https://github.com/abseil/abseil-cpp/releases/download/20260107.0/abseil-cpp-20260107.0.tar.gz"],
+        )
+
+    if not native.existing_rule("bazel_features"):
+        http_archive(
+            name = "bazel_features",
+            sha256 = "9390b391a68d3b24aef7966bce8556d28003fe3f022a5008efc7807e8acaaf1a",
+            strip_prefix = "bazel_features-1.36.0",
+            url = "https://github.com/bazel-contrib/bazel_features/releases/download/v1.36.0/bazel_features-v1.36.0.tar.gz",
+        )
+
+    if not native.existing_rule("rules_cc"):
+        http_archive(
+            name = "rules_cc",
+            sha256 = "207ea073dd20a705f9e8bc5ac02f5203e9621fc672774bb1a0935aefab7aebfa",
+            strip_prefix = "rules_cc-0.2.8",
+            url = "https://github.com/bazelbuild/rules_cc/releases/download/0.2.8/rules_cc-0.2.8.tar.gz",
+        )
+
+    if not native.existing_rule("fuchsia_sdk"):
+        fake_fuchsia_sdk(
+            name = "fuchsia_sdk",
         )
