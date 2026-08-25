@@ -409,7 +409,9 @@ SocketType SocketVirtualMethods::detachUnlocked()
     return socketFd;
 }
 
-#ifndef _WIN32
+// Guarded exactly as its only caller in bindUnlocked() is: IP_BIND_ADDRESS_NO_PORT is Linux-only,
+// and without it this helper is dead code that -Wall reports as an unused function on FreeBSD.
+#if !defined(_WIN32) && defined(IP_BIND_ADDRESS_NO_PORT)
 namespace {
 
 // IP_LOCAL_PORT_RANGE arrived in Linux 6.3. Define it when the build host's headers are
