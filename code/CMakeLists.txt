@@ -82,6 +82,29 @@ FUNCTION(SET_SPTK_TARGET_PROPERTIES target)
     ENDIF ()
 ENDFUNCTION()
 
+# The same, for an installed executable rather than a library. Executables land in bin/ and
+# load the SPTK libraries from the sibling lib/, so $ORIGIN alone is not enough.
+#
+# These used to set INSTALL_RPATH to the empty string, to keep CMAKE_INSTALL_RPATH - which is
+# this build tree lib/ - out of a shipped binary. That worked, but it also dropped the pinned
+# GCC libstdc++ directory, leaving the installed binary with no RPATH at all: libstdc++.so.6
+# then resolved through ldconfig alphabetical order and picked gcc14 - too old for the
+# GLIBCXX_3.4.34 symbols a g++15 build needs. Name the two directories that are wanted
+# instead of clearing the property.
+FUNCTION(SET_SPTK_EXECUTABLE_RPATH target)
+    IF (APPLE)
+        SET(rpath "@loader_path/../lib")
+    ELSEIF (UNIX)
+        SET(rpath "$ORIGIN/../lib")
+    ENDIF ()
+    IF (rpath AND GCC_LIBSTDCXX_DIR)
+        SET(rpath "${rpath};${GCC_LIBSTDCXX_DIR}")
+    ENDIF ()
+    IF (rpath)
+        SET_TARGET_PROPERTIES(${target} PROPERTIES INSTALL_RPATH "${rpath}")
+    ENDIF ()
+ENDFUNCTION()
+
 SET(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # Place compiled libraries and examples into ./bin/
