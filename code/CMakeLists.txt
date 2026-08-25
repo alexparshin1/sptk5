@@ -637,12 +637,17 @@ ENDIF ()
 
 INCLUDE_DIRECTORIES(${SPTK_SOURCE_DIR})
 
-# On BSD, the system/pkg googletest is normally built with the base Clang/libc++ toolchain,
-# which is ABI-incompatible with a GCC/libstdc++ build of this project (undefined references
-# at link time). Build googletest from the vendored source in that combination instead, same
-# as Windows (which has no system gtest to link against at all).
+# Build googletest from the vendored source on BSD and Windows, whichever compiler is in use.
+#
+# It started as a GCC-only workaround: the system/pkg googletest is built with the base
+# Clang/libc++ toolchain, which is ABI-incompatible with a GCC/libstdc++ build of this
+# project (undefined references at link time), and Windows has no system gtest at all.
+# The Clang build was left on the package - which meant the two BSD builds tested against
+# two different googletest versions, and the vendored copy could be updated without the
+# Clang build ever seeing it. Using the vendored source in both keeps one version across
+# every build, and removes the dependency on the package being installed.
 SET(BUILD_VENDORED_GTEST OFF)
-IF (WIN32 OR (BSD AND CMAKE_CXX_COMPILER_ID STREQUAL "GNU"))
+IF (WIN32 OR BSD)
     SET(BUILD_VENDORED_GTEST ON)
 ENDIF ()
 
