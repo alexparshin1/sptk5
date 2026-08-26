@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<DOCUMENT Type="Advanced Installer" CreateVersion="13.0" version="23.3" Modules="professional" RootPath="." Language="en" Id="{D95E6C6D-A15A-4DBF-ACF9-FD9559D0BEE2}">
+<DOCUMENT Type="Advanced Installer" CreateVersion="13.0" version="23.9" Modules="professional" RootPath="." Language="en" Id="{D95E6C6D-A15A-4DBF-ACF9-FD9559D0BEE2}">
   <COMPONENT cid="caphyon.advinst.msicomp.MsiPropsComponent">
     <ROW Property="AI_BITMAP_DISPLAY_MODE" Value="0"/>
     <ROW Property="ALLUSERS" Value="1"/>
@@ -8,10 +8,10 @@
     <ROW Property="ARPURLINFOABOUT" Value="http://www.sptk.net"/>
     <ROW Property="Manufacturer" Value="Alexey Parshin"/>
     <ROW Property="MsiLogging" MultiBuildValue="DefaultBuild:vp"/>
-    <ROW Property="ProductCode" Value="1033:{D0EE5BE1-277E-4D01-BA70-2DDB7F332020} " Type="16"/>
+    <ROW Property="ProductCode" Value="1033:{7E0647B4-E7C5-4865-849B-3F55ABECCBF1} " Type="16"/>
     <ROW Property="ProductLanguage" Value="1033"/>
     <ROW Property="ProductName" Value="SPTK"/>
-    <ROW Property="ProductVersion" Value="5.6.7" Options="32"/>
+    <ROW Property="ProductVersion" Value="5.6.8" Options="32"/>
     <ROW Property="SecureCustomProperties" Value="OLDPRODUCTS;AI_NEWERPRODUCTFOUND"/>
     <ROW Property="UpgradeCode" Value="{7DE1367E-A155-4C2D-8B6A-922D34EF53C7}"/>
     <ROW Property="WindowsType9X" MultiBuildValue="DefaultBuild:Windows 9x/ME" ValueLocId="-"/>
@@ -37,14 +37,11 @@
     <ROW Directory="bin_2_Dir" Directory_Parent="sptk5_2_Dir" DefaultDir="bin"/>
     <ROW Directory="bin_Dir" Directory_Parent="SPTK_Dir" DefaultDir="bin"/>
     <ROW Directory="cmake_Dir" Directory_Parent="lib_Dir" DefaultDir="cmake"/>
-    <ROW Directory="custom_1_Dir" Directory_Parent="internal_1_Dir" DefaultDir="custom"/>
     <ROW Directory="custom_Dir" Directory_Parent="internal_Dir" DefaultDir="custom"/>
     <ROW Directory="db_Dir" Directory_Parent="sptk5_Dir" DefaultDir="db"/>
-    <ROW Directory="gmock_Dir" Directory_Parent="include_Dir" DefaultDir="gmock"/>
     <ROW Directory="gtest_Dir" Directory_Parent="include_Dir" DefaultDir="gtest"/>
     <ROW Directory="include_Dir" Directory_Parent="SPTK_Dir" DefaultDir="include"/>
-    <ROW Directory="internal_1_Dir" Directory_Parent="gtest_Dir" DefaultDir="internal"/>
-    <ROW Directory="internal_Dir" Directory_Parent="gmock_Dir" DefaultDir="internal"/>
+    <ROW Directory="internal_Dir" Directory_Parent="gtest_Dir" DefaultDir="internal"/>
     <ROW Directory="lib_Dir" Directory_Parent="SPTK_Dir" DefaultDir="lib"/>
     <ROW Directory="net_Dir" Directory_Parent="sptk5_Dir" DefaultDir="net"/>
     <ROW Directory="pkgconfig_Dir" Directory_Parent="lib_Dir" DefaultDir="PKGCON~1|pkgconfig"/>
@@ -62,24 +59,24 @@
   <COMPONENT cid="caphyon.advinst.msicomp.MsiCompsComponent">
     <ROW Component="APPDIR" ComponentId="{DE2848A1-946F-4613-A935-268E0FCBC91A}" Directory_="APPDIR" Attributes="0"/>
     <ROW Component="Application" ComponentId="{5AA5A3F5-A95D-43C5-9040-CD9FDBD45C17}" Directory_="APPDIR" Attributes="260" KeyPath="Application"/>
-    <ROW Component="ArchiveFile.h" ComponentId="{961383A9-0CCA-4C63-84C1-E682CC79944C}" Directory_="sptk5_Dir" Attributes="0" KeyPath="ArchiveFile.h" Type="0"/>
-    <ROW Component="Attributes.h" ComponentId="{D75D4787-9BD4-4361-96AA-B456BAA9A9C2}" Directory_="xdoc_Dir" Attributes="0" KeyPath="Attributes.h" Type="0"/>
-    <ROW Component="AutoDatabaseConnection.h" ComponentId="{5B41D878-C7DE-45BD-90AA-CA828A3201C5}" Directory_="db_Dir" Attributes="0" KeyPath="AutoDatabaseConnection.h" Type="0"/>
-    <ROW Component="BaseMailConnect.h" ComponentId="{84EE1A2F-972B-4842-9948-8D7DD3B41B3E}" Directory_="net_Dir" Attributes="0" KeyPath="BaseMailConnect.h" Type="0"/>
-    <ROW Component="BaseWebServiceProtocol.h" ComponentId="{0898AAA6-233A-472C-9105-53B0B9E9D737}" Directory_="protocol_Dir" Attributes="0" KeyPath="BaseWebServiceProtocol.h" Type="0"/>
-    <ROW Component="CancellationToken.h" ComponentId="{DEF30703-D474-4281-B71F-FA26BA5FCEBA}" Directory_="threads_Dir" Attributes="0" KeyPath="CancellationToken.h" Type="0"/>
+    <ROW Component="ArchiveFile.h" ComponentId="{D92CEC34-D2F8-4D28-BAD6-463AB7A3003E}" Directory_="sptk5_Dir" Attributes="0" KeyPath="ArchiveFile.h" Type="0"/>
+    <ROW Component="Attributes.h" ComponentId="{F6B1091A-F0AF-4183-ABA6-FF97BCF664BC}" Directory_="xdoc_Dir" Attributes="0" KeyPath="Attributes.h" Type="0"/>
+    <ROW Component="AutoDatabaseConnection.h" ComponentId="{9625187A-228E-4280-B7FE-A5B55AA70229}" Directory_="db_Dir" Attributes="0" KeyPath="AutoDatabaseConnection.h" Type="0"/>
+    <ROW Component="BaseMailConnect.h" ComponentId="{5D10A29D-631E-4C1B-8459-E9526C639278}" Directory_="net_Dir" Attributes="0" KeyPath="BaseMailConnect.h" Type="0"/>
+    <ROW Component="BaseWebServiceProtocol.h" ComponentId="{ADF911BF-F45F-4BD3-93AF-7D8491D53255}" Directory_="protocol_Dir" Attributes="0" KeyPath="BaseWebServiceProtocol.h" Type="0"/>
+    <ROW Component="CancellationToken.h" ComponentId="{B36ECD83-0EB0-4C47-B006-F0456C071A2E}" Directory_="threads_Dir" Attributes="0" KeyPath="CancellationToken.h" Type="0"/>
     <ROW Component="CategoryCount" ComponentId="{BCAFF568-6B0E-4089-8707-2663C170E4CE}" Directory_="APPDIR" Attributes="260" KeyPath="CategoryCount"/>
     <ROW Component="CategoryMessageFile" ComponentId="{609E634C-812E-4920-8EE1-F8F16184B8BF}" Directory_="APPDIR" Attributes="260" KeyPath="CategoryMessageFile"/>
     <ROW Component="EventLog" ComponentId="{72558A19-B26C-43EE-B8CF-73F9C318D46F}" Directory_="APPDIR" Attributes="260" KeyPath="EventLog"/>
     <ROW Component="EventMessageFile" ComponentId="{5D57D2E4-3290-47F9-91CD-F3DDB4B499D6}" Directory_="APPDIR" Attributes="260" KeyPath="EventMessageFile"/>
-    <ROW Component="GTestConfig.cmake" ComponentId="{CE6EDED1-D280-41E6-896D-FD00406C9E1E}" Directory_="GTest_Dir" Attributes="0" KeyPath="GTestConfig.cmake" Type="0"/>
+    <ROW Component="GTestConfig.cmake" ComponentId="{4EC152F1-4676-40F1-8BAD-149230BF715E}" Directory_="GTest_Dir" Attributes="0" KeyPath="GTestConfig.cmake" Type="0"/>
     <ROW Component="New_Key" ComponentId="{1AC045D3-FD6C-473C-AA41-48D4F69D95AF}" Directory_="APPDIR" Attributes="260" KeyPath="New_Key"/>
-    <ROW Component="OpenApiGenerator.h" ComponentId="{E191A9E3-2550-44C6-ABA2-1B7F98986C41}" Directory_="wsdl_Dir" Attributes="0" KeyPath="OpenApiGenerator.h" Type="0"/>
+    <ROW Component="OpenApiGenerator.h" ComponentId="{9D867139-F083-4F3C-A13A-BBF74432D7D5}" Directory_="wsdl_Dir" Attributes="0" KeyPath="OpenApiGenerator.h" Type="0"/>
     <ROW Component="ParameterMessageFile" ComponentId="{A00B10D6-392E-4AFF-95A2-FA3FA635DC4B}" Directory_="APPDIR" Attributes="260" KeyPath="ParameterMessageFile"/>
     <ROW Component="ProductInformation" ComponentId="{9F3242C3-7926-48D4-88F7-F62CF2DBAFD5}" Directory_="APPDIR" Attributes="4" KeyPath="Version"/>
     <ROW Component="SYSTEM" ComponentId="{018D2633-AEB0-4B3E-9AC6-C847985E397A}" Directory_="APPDIR" Attributes="260" KeyPath="SYSTEM"/>
     <ROW Component="Services" ComponentId="{5139979C-7948-4BC9-96F1-0F0F087D6922}" Directory_="APPDIR" Attributes="260" KeyPath="Services"/>
-    <ROW Component="TestRunner.h" ComponentId="{D6AFB6F9-9435-4F24-8772-E4FC74268C29}" Directory_="test_Dir" Attributes="0" KeyPath="TestRunner.h" Type="0"/>
+    <ROW Component="TestRunner.h" ComponentId="{EC7F50E2-6CA9-4601-BE7B-381EA7150C77}" Directory_="test_Dir" Attributes="0" KeyPath="TestRunner.h" Type="0"/>
     <ROW Component="TypesSupported" ComponentId="{6D325452-8F71-49EF-BA3E-071E6365A994}" Directory_="APPDIR" Attributes="260" KeyPath="TypesSupported"/>
     <ROW Component="command_line.exe" ComponentId="{335BE3A0-72CA-43F8-B559-C944136A29D8}" Directory_="bin_1_Dir" Attributes="256"/>
     <ROW Component="datetime.exe" ComponentId="{682BCB15-17A6-4BCE-B899-ACA2A42456AA}" Directory_="bin_1_Dir" Attributes="256"/>
@@ -88,25 +85,20 @@
     <ROW Component="eventlog_test.exe" ComponentId="{BA2F3B72-33D9-4B4C-9EDD-D8BF32383351}" Directory_="bin_1_Dir" Attributes="256" KeyPath="eventlog_test.exe"/>
     <ROW Component="exceptions.exe" ComponentId="{13C30DDF-B4A2-4192-8C9E-B78ADAFE410D}" Directory_="bin_1_Dir" Attributes="256"/>
     <ROW Component="gmock.dll" ComponentId="{45364F3A-4FC4-4D24-98E5-B43EE6085AF1}" Directory_="bin_Dir" Attributes="256" KeyPath="gmock.dll"/>
-    <ROW Component="gmock.lib" ComponentId="{12534D2A-0CC2-4D27-8F4A-C88CCB20B903}" Directory_="lib_Dir" Attributes="0" KeyPath="gmock.lib" Type="0"/>
-    <ROW Component="gmock.pc" ComponentId="{D70DEED1-17B8-4733-B757-CBB15013B503}" Directory_="pkgconfig_Dir" Attributes="0" KeyPath="gmock.pc" Type="0"/>
-    <ROW Component="gmock.pdb" ComponentId="{923CEA83-5A66-430E-8A24-5B96DAA15F73}" Directory_="lib_Dir" Attributes="0" KeyPath="gmock.pdb" Type="4"/>
+    <ROW Component="gmock.lib" ComponentId="{AB8F6D59-A2C7-469D-A51A-6A9199B870F2}" Directory_="lib_Dir" Attributes="0" KeyPath="gmock.lib" Type="0"/>
+    <ROW Component="gmock.pc" ComponentId="{1B22E88C-6268-4C15-9908-A316FB4BFB3A}" Directory_="pkgconfig_Dir" Attributes="0" KeyPath="gmock.pc" Type="0"/>
     <ROW Component="gmock_main.dll" ComponentId="{DDD819DC-930C-44A2-951A-895E6616AF43}" Directory_="bin_Dir" Attributes="256" KeyPath="gmock_main.dll"/>
-    <ROW Component="gmockactions.h" ComponentId="{43D4A39A-2C6B-4B2E-A7FB-86DC2631E35B}" Directory_="gmock_Dir" Attributes="0" KeyPath="gmockactions.h" Type="0"/>
-    <ROW Component="gmockgeneratedactions.h" ComponentId="{D3F14CD6-0DCA-4173-B561-B24FC0FB03DD}" Directory_="custom_Dir" Attributes="0" KeyPath="gmockgeneratedactions.h" Type="0"/>
-    <ROW Component="gmockinternalutils.h" ComponentId="{2B273F46-F64C-4EE5-A139-733D415D63FC}" Directory_="internal_Dir" Attributes="0" KeyPath="gmockinternalutils.h" Type="0"/>
     <ROW Component="gtest.dll" ComponentId="{8E85600F-6DC7-46FA-B67F-D6D62E17DF85}" Directory_="bin_Dir" Attributes="256" KeyPath="gtest.dll"/>
     <ROW Component="gtest_main.dll" ComponentId="{AC18F241-18DC-4415-BC17-67C4FBA4D47D}" Directory_="bin_Dir" Attributes="256" KeyPath="gtest_main.dll"/>
-    <ROW Component="gtestassertionresult.h" ComponentId="{33F59CDD-77E0-4430-8D59-1C2A07785AA4}" Directory_="gtest_Dir" Attributes="0" KeyPath="gtestassertionresult.h" Type="0"/>
-    <ROW Component="gtestdeathtestinternal.h" ComponentId="{2B0BB347-DAB4-408C-9F62-31210B17DF30}" Directory_="internal_1_Dir" Attributes="0" KeyPath="gtestdeathtestinternal.h" Type="0"/>
-    <ROW Component="gtestport.h" ComponentId="{4D361E92-E056-4D8E-9858-D25503D12A94}" Directory_="custom_1_Dir" Attributes="0" KeyPath="gtestport.h" Type="0"/>
+    <ROW Component="gtestassertionresult.h" ComponentId="{EB73476C-22F9-4C32-9CB0-426EAF85DCA9}" Directory_="gtest_Dir" Attributes="0" KeyPath="gtestassertionresult.h" Type="0"/>
+    <ROW Component="gtestdeathtestinternal.h" ComponentId="{A8157BAA-12FF-4238-B707-79F6D2384CC0}" Directory_="internal_Dir" Attributes="0" KeyPath="gtestdeathtestinternal.h" Type="0"/>
+    <ROW Component="gtestport.h" ComponentId="{EB2186D3-1BA5-4EC9-B5BA-5039510FFDCC}" Directory_="custom_Dir" Attributes="0" KeyPath="gtestport.h" Type="0"/>
     <ROW Component="logfile_test.exe" ComponentId="{6FB21073-13D4-49A8-AA2E-91A057791B15}" Directory_="bin_1_Dir" Attributes="256"/>
     <ROW Component="odbc_test.exe" ComponentId="{8DC5D433-1CE5-4EE1-9C06-0469625F5D01}" Directory_="bin_1_Dir" Attributes="256"/>
-    <ROW Component="odbc_test.exe_1" ComponentId="{047A69C7-4B31-4105-92EA-7E3DC5FBD285}" Directory_="bin_2_Dir" Attributes="256" KeyPath="odbc_test.exe"/>
+    <ROW Component="odbc_test.exe_1" ComponentId="{A514D3E5-9CD5-4553-BADF-AD2D0C81DA36}" Directory_="bin_2_Dir" Attributes="256" KeyPath="odbc_test.exe"/>
     <ROW Component="regexp.exe" ComponentId="{342D01C0-1D97-4DC0-8E7B-94BB1202969D}" Directory_="bin_1_Dir" Attributes="256"/>
     <ROW Component="registry.exe" ComponentId="{10C38119-09DE-4AC7-8E79-2B49660322F5}" Directory_="bin_1_Dir" Attributes="256"/>
     <ROW Component="semaphore.exe" ComponentId="{14C1121C-D1D5-4888-943E-D17D6B9311B1}" Directory_="bin_1_Dir" Attributes="256"/>
-    <ROW Component="semaphore.exe_1" ComponentId="{CA1D61D2-73AC-4FD3-AF0A-3F1A248DB386}" Directory_="bin_2_Dir" Attributes="256" KeyPath="semaphore.exe"/>
     <ROW Component="spdb5.dll" ComponentId="{F924F367-98D6-470A-A70B-14EEEEF56BEB}" Directory_="bin_Dir" Attributes="256" KeyPath="spdb5.dll"/>
     <ROW Component="spdb5_mysql.dll" ComponentId="{D6DC1761-C508-4B52-8E83-C0A586A4D42E}" Directory_="bin_Dir" Attributes="256" KeyPath="spdb5_mysql.dll"/>
     <ROW Component="spdb5_odbc.dll" ComponentId="{672F8DE2-D142-4C47-AD9A-DA0E6D06AC78}" Directory_="bin_Dir" Attributes="256"/>
@@ -121,10 +113,8 @@
     <ROW Component="syslog_test.exe" ComponentId="{5211CE9A-3A3A-4010-A526-7E723277A2D3}" Directory_="bin_1_Dir" Attributes="256"/>
     <ROW Component="syslog_test.exe_1" ComponentId="{C0CC7F21-49E7-44CA-BC3A-2895A5992D32}" Directory_="bin_1_Dir" Attributes="256" KeyPath="syslog_test.exe"/>
     <ROW Component="thread_pool_test.exe" ComponentId="{C04E83D1-6E90-454D-A1E3-F8D65D5513F3}" Directory_="bin_1_Dir" Attributes="256"/>
-    <ROW Component="thread_pool_test.exe_1" ComponentId="{97E25179-B642-4C59-9470-A7508FAE1D18}" Directory_="bin_2_Dir" Attributes="256" KeyPath="thread_pool_test.exe"/>
     <ROW Component="thread_rwlock.exe" ComponentId="{F95E756D-2838-4B46-AF09-4678F4DA03AF}" Directory_="bin_1_Dir" Attributes="256"/>
     <ROW Component="thread_test.exe" ComponentId="{A4A15F30-12D1-4D0B-8416-03E867DAA87A}" Directory_="bin_1_Dir" Attributes="256"/>
-    <ROW Component="thread_test.exe_1" ComponentId="{E16F011C-B933-4FAC-8C4B-9EB3B4E97552}" Directory_="bin_2_Dir" Attributes="256" KeyPath="thread_test.exe"/>
     <ROW Component="unique_instance.exe" ComponentId="{C6800A98-68DD-4F08-A0C3-79DE3197102A}" Directory_="bin_1_Dir" Attributes="256"/>
     <ROW Component="wsdl2cxx.exe" ComponentId="{CC00EA0B-F64D-40ED-9D7D-528AFC8E2E6E}" Directory_="bin_Dir" Attributes="256"/>
     <ROW Component="wsdl2cxx.exe_1" ComponentId="{14178985-1F75-4A63-A423-8E97731DAC71}" Directory_="bin_Dir" Attributes="256" KeyPath="wsdl2cxx.exe"/>
@@ -146,22 +136,11 @@
     <ROW File="sputil5.dll" Component_="sputil5.dll" FileName="sputil5.dll" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\bin\sputil5.dll" SelfReg="false"/>
     <ROW File="spwsdl5.dll" Component_="spwsdl5.dll" FileName="spwsdl5.dll" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\bin\spwsdl5.dll" SelfReg="false"/>
     <ROW File="wsdl2cxx.exe" Component_="wsdl2cxx.exe_1" FileName="wsdl2cxx.exe" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\bin\wsdl2cxx.exe" SelfReg="false" DigSign="true"/>
-    <ROW File="gmockactions.h" Component_="gmockactions.h" FileName="GMOCK-~1.H|gmock-actions.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\gmock\gmock-actions.h" SelfReg="false"/>
-    <ROW File="gmockcardinalities.h" Component_="gmockactions.h" FileName="GMOCK-~2.H|gmock-cardinalities.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\gmock\gmock-cardinalities.h" SelfReg="false"/>
-    <ROW File="gmockfunctionmocker.h" Component_="gmockactions.h" FileName="GMOCK-~3.H|gmock-function-mocker.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\gmock\gmock-function-mocker.h" SelfReg="false"/>
-    <ROW File="gmockmatchers.h" Component_="gmockactions.h" FileName="GMOCK-~4.H|gmock-matchers.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\gmock\gmock-matchers.h" SelfReg="false"/>
-    <ROW File="gmockmoreactions.h" Component_="gmockactions.h" FileName="GMOCK-~5.H|gmock-more-actions.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\gmock\gmock-more-actions.h" SelfReg="false"/>
-    <ROW File="gmockmorematchers.h" Component_="gmockactions.h" FileName="GMOCK-~6.H|gmock-more-matchers.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\gmock\gmock-more-matchers.h" SelfReg="false"/>
-    <ROW File="gmocknicestrict.h" Component_="gmockactions.h" FileName="GMOCK-~7.H|gmock-nice-strict.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\gmock\gmock-nice-strict.h" SelfReg="false"/>
-    <ROW File="gmockspecbuilders.h" Component_="gmockactions.h" FileName="GMOCK-~8.H|gmock-spec-builders.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\gmock\gmock-spec-builders.h" SelfReg="false"/>
-    <ROW File="gmock.h" Component_="gmockactions.h" FileName="gmock.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\gmock\gmock.h" SelfReg="false"/>
-    <ROW File="gmockgeneratedactions.h" Component_="gmockgeneratedactions.h" FileName="GMOCK-~1.H|gmock-generated-actions.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\gmock\internal\custom\gmock-generated-actions.h" SelfReg="false"/>
-    <ROW File="gmockmatchers.h_1" Component_="gmockgeneratedactions.h" FileName="GMOCK-~2.H|gmock-matchers.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\gmock\internal\custom\gmock-matchers.h" SelfReg="false"/>
-    <ROW File="gmockport.h" Component_="gmockgeneratedactions.h" FileName="GMOCK-~3.H|gmock-port.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\gmock\internal\custom\gmock-port.h" SelfReg="false"/>
-    <ROW File="README.md" Component_="gmockgeneratedactions.h" FileName="README.md" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\gmock\internal\custom\README.md" SelfReg="false"/>
-    <ROW File="gmockinternalutils.h" Component_="gmockinternalutils.h" FileName="GMOCK-~1.H|gmock-internal-utils.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\gmock\internal\gmock-internal-utils.h" SelfReg="false"/>
-    <ROW File="gmockport.h_1" Component_="gmockinternalutils.h" FileName="GMOCK-~2.H|gmock-port.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\gmock\internal\gmock-port.h" SelfReg="false"/>
-    <ROW File="gmockpp.h" Component_="gmockinternalutils.h" FileName="gmock-pp.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\gmock\internal\gmock-pp.h" SelfReg="false"/>
+    <ROW File="eventlog_test.exe" Component_="eventlog_test.exe" FileName="EVENTL~1.EXE|eventlog_test.exe" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\share\sptk5\bin\eventlog_test.exe" SelfReg="false" DigSign="true"/>
+    <ROW File="sqlite3_test.exe" Component_="sqlite3_test.exe" FileName="SQLITE~1.EXE|sqlite3_test.exe" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\share\sptk5\bin\sqlite3_test.exe" SelfReg="false" DigSign="true"/>
+    <ROW File="syslog_test.exe" Component_="syslog_test.exe_1" FileName="SYSLOG~1.EXE|syslog_test.exe" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\share\sptk5\bin\syslog_test.exe" SelfReg="false" DigSign="true"/>
+    <ROW File="event_provider.rc" Component_="event_provider.rc" FileName="EVENT_~1.RC|event_provider.rc" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\share\sptk5\resources\event_provider.rc" SelfReg="false"/>
+    <ROW File="MSG00409.bin" Component_="event_provider.rc" FileName="MSG00409.bin" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\share\sptk5\resources\MSG00409.bin" SelfReg="false"/>
     <ROW File="gtestassertionresult.h" Component_="gtestassertionresult.h" FileName="GTEST-~1.H|gtest-assertion-result.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\gtest\gtest-assertion-result.h" SelfReg="false"/>
     <ROW File="gtestdeathtest.h" Component_="gtestassertionresult.h" FileName="GTEST-~2.H|gtest-death-test.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\gtest\gtest-death-test.h" SelfReg="false"/>
     <ROW File="gtestmatchers.h" Component_="gtestassertionresult.h" FileName="GTEST-~3.H|gtest-matchers.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\gtest\gtest-matchers.h" SelfReg="false"/>
@@ -177,7 +156,7 @@
     <ROW File="gtestport.h" Component_="gtestport.h" FileName="GTEST-~1.H|gtest-port.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\gtest\internal\custom\gtest-port.h" SelfReg="false"/>
     <ROW File="gtestprinters.h_1" Component_="gtestport.h" FileName="GTEST-~2.H|gtest-printers.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\gtest\internal\custom\gtest-printers.h" SelfReg="false"/>
     <ROW File="gtest.h_1" Component_="gtestport.h" FileName="gtest.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\gtest\internal\custom\gtest.h" SelfReg="false"/>
-    <ROW File="README.md_1" Component_="gtestport.h" FileName="README.md" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\gtest\internal\custom\README.md" SelfReg="false"/>
+    <ROW File="README.md" Component_="gtestport.h" FileName="README.md" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\gtest\internal\custom\README.md" SelfReg="false"/>
     <ROW File="gtestdeathtestinternal.h" Component_="gtestdeathtestinternal.h" FileName="GTEST-~1.H|gtest-death-test-internal.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\gtest\internal\gtest-death-test-internal.h" SelfReg="false"/>
     <ROW File="gtestfilepath.h" Component_="gtestdeathtestinternal.h" FileName="GTEST-~2.H|gtest-filepath.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\gtest\internal\gtest-filepath.h" SelfReg="false"/>
     <ROW File="gtestinternal.h" Component_="gtestdeathtestinternal.h" FileName="GTEST-~3.H|gtest-internal.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\gtest\internal\gtest-internal.h" SelfReg="false"/>
@@ -227,7 +206,6 @@
     <ROW File="PoolDatabaseConnection.h" Component_="AutoDatabaseConnection.h" FileName="POOLDA~1.H|PoolDatabaseConnection.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\sptk5\db\PoolDatabaseConnection.h" SelfReg="false"/>
     <ROW File="PostgreSQLConnection.h" Component_="AutoDatabaseConnection.h" FileName="POSTGR~1.H|PostgreSQLConnection.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\sptk5\db\PostgreSQLConnection.h" SelfReg="false"/>
     <ROW File="Query.h" Component_="AutoDatabaseConnection.h" FileName="Query.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\sptk5\db\Query.h" SelfReg="false"/>
-    <ROW File="QueryBuilder.h" Component_="AutoDatabaseConnection.h" FileName="QUERYB~1.H|QueryBuilder.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\sptk5\db\QueryBuilder.h" SelfReg="false"/>
     <ROW File="QueryParameter.h" Component_="AutoDatabaseConnection.h" FileName="QUERYP~1.H|QueryParameter.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\sptk5\db\QueryParameter.h" SelfReg="false"/>
     <ROW File="QueryParameterBinding.h" Component_="AutoDatabaseConnection.h" FileName="QUERYP~2.H|QueryParameterBinding.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\sptk5\db\QueryParameterBinding.h" SelfReg="false"/>
     <ROW File="QueryParameterList.h" Component_="AutoDatabaseConnection.h" FileName="QUERYP~3.H|QueryParameterList.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\sptk5\db\QueryParameterList.h" SelfReg="false"/>
@@ -267,22 +245,18 @@
     <ROW File="RedisCommand.h" Component_="BaseMailConnect.h" FileName="REDISC~1.H|RedisCommand.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\sptk5\net\RedisCommand.h" SelfReg="false"/>
     <ROW File="RedisConnect.h" Component_="BaseMailConnect.h" FileName="REDISC~2.H|RedisConnect.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\sptk5\net\RedisConnect.h" SelfReg="false"/>
     <ROW File="RequestInfo.h" Component_="BaseMailConnect.h" FileName="REQUES~1.H|RequestInfo.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\sptk5\net\RequestInfo.h" SelfReg="false"/>
-    <ROW File="RunableServerConnection.h" Component_="BaseMailConnect.h" FileName="RUNABL~1.H|RunableServerConnection.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\sptk5\net\RunableServerConnection.h" SelfReg="false"/>
     <ROW File="ServerConnection.h" Component_="BaseMailConnect.h" FileName="SERVER~1.H|ServerConnection.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\sptk5\net\ServerConnection.h" SelfReg="false"/>
     <ROW File="SmtpConnect.h" Component_="BaseMailConnect.h" FileName="SMTPCO~1.H|SmtpConnect.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\sptk5\net\SmtpConnect.h" SelfReg="false"/>
     <ROW File="Socket.h" Component_="BaseMailConnect.h" FileName="Socket.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\sptk5\net\Socket.h" SelfReg="false"/>
     <ROW File="SocketEvents.h" Component_="BaseMailConnect.h" FileName="SOCKET~1.H|SocketEvents.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\sptk5\net\SocketEvents.h" SelfReg="false"/>
-    <ROW File="SocketObjectPool.h" Component_="BaseMailConnect.h" FileName="SOCKET~2.H|SocketObjectPool.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\sptk5\net\SocketObjectPool.h" SelfReg="false"/>
-    <ROW File="SocketPool.h" Component_="BaseMailConnect.h" FileName="SOCKET~3.H|SocketPool.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\sptk5\net\SocketPool.h" SelfReg="false"/>
-    <ROW File="SocketReader.h" Component_="BaseMailConnect.h" FileName="SOCKET~4.H|SocketReader.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\sptk5\net\SocketReader.h" SelfReg="false"/>
-    <ROW File="SocketVirtualMethods.h" Component_="BaseMailConnect.h" FileName="SOCKET~5.H|SocketVirtualMethods.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\sptk5\net\SocketVirtualMethods.h" SelfReg="false"/>
+    <ROW File="SocketPool.h" Component_="BaseMailConnect.h" FileName="SOCKET~2.H|SocketPool.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\sptk5\net\SocketPool.h" SelfReg="false"/>
+    <ROW File="SocketReader.h" Component_="BaseMailConnect.h" FileName="SOCKET~3.H|SocketReader.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\sptk5\net\SocketReader.h" SelfReg="false"/>
+    <ROW File="SocketVirtualMethods.h" Component_="BaseMailConnect.h" FileName="SOCKET~4.H|SocketVirtualMethods.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\sptk5\net\SocketVirtualMethods.h" SelfReg="false"/>
     <ROW File="SSLContext.h" Component_="BaseMailConnect.h" FileName="SSLCON~1.H|SSLContext.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\sptk5\net\SSLContext.h" SelfReg="false"/>
     <ROW File="SSLKeys.h" Component_="BaseMailConnect.h" FileName="SSLKeys.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\sptk5\net\SSLKeys.h" SelfReg="false"/>
     <ROW File="SSLServerConnection.h" Component_="BaseMailConnect.h" FileName="SSLSER~1.H|SSLServerConnection.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\sptk5\net\SSLServerConnection.h" SelfReg="false"/>
     <ROW File="SSLSocket.h" Component_="BaseMailConnect.h" FileName="SSLSOC~1.H|SSLSocket.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\sptk5\net\SSLSocket.h" SelfReg="false"/>
-    <ROW File="TCPServer.h" Component_="BaseMailConnect.h" FileName="TCPSER~1.H|TCPServer.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\sptk5\net\TCPServer.h" SelfReg="false"/>
-    <ROW File="TCPServerConnection.h" Component_="BaseMailConnect.h" FileName="TCPSER~2.H|TCPServerConnection.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\sptk5\net\TCPServerConnection.h" SelfReg="false"/>
-    <ROW File="TCPServerListener.h" Component_="BaseMailConnect.h" FileName="TCPSER~3.H|TCPServerListener.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\sptk5\net\TCPServerListener.h" SelfReg="false"/>
+    <ROW File="TCPServerConnection.h" Component_="BaseMailConnect.h" FileName="TCPSER~1.H|TCPServerConnection.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\sptk5\net\TCPServerConnection.h" SelfReg="false"/>
     <ROW File="TCPSocket.h" Component_="BaseMailConnect.h" FileName="TCPSOC~1.H|TCPSocket.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\sptk5\net\TCPSocket.h" SelfReg="false"/>
     <ROW File="UDPSocket.h" Component_="BaseMailConnect.h" FileName="UDPSOC~1.H|UDPSocket.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\sptk5\net\UDPSocket.h" SelfReg="false"/>
     <ROW File="URL.h" Component_="BaseMailConnect.h" FileName="URL.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\sptk5\net\URL.h" SelfReg="false"/>
@@ -306,8 +280,6 @@
     <ROW File="CancellationToken.h" Component_="CancellationToken.h" FileName="CANCEL~1.H|CancellationToken.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\sptk5\threads\CancellationToken.h" SelfReg="false"/>
     <ROW File="Counter.h" Component_="CancellationToken.h" FileName="Counter.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\sptk5\threads\Counter.h" SelfReg="false"/>
     <ROW File="Flag.h" Component_="CancellationToken.h" FileName="Flag.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\sptk5\threads\Flag.h" SelfReg="false"/>
-    <ROW File="IntervalTimer.h" Component_="CancellationToken.h" FileName="INTERV~1.H|IntervalTimer.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\sptk5\threads\IntervalTimer.h" SelfReg="false"/>
-    <ROW File="Location.h" Component_="CancellationToken.h" FileName="Location.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\sptk5\threads\Location.h" SelfReg="false"/>
     <ROW File="ReadWriteLock.h" Component_="CancellationToken.h" FileName="READWR~1.H|ReadWriteLock.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\sptk5\threads\ReadWriteLock.h" SelfReg="false"/>
     <ROW File="ReadWriteMutex.h" Component_="CancellationToken.h" FileName="READWR~2.H|ReadWriteMutex.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\sptk5\threads\ReadWriteMutex.h" SelfReg="false"/>
     <ROW File="Runable.h" Component_="CancellationToken.h" FileName="Runable.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\sptk5\threads\Runable.h" SelfReg="false"/>
@@ -366,22 +338,12 @@
     <ROW File="ZLib.h" Component_="ArchiveFile.h" FileName="ZLib.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\sptk5\ZLib.h" SelfReg="false"/>
     <ROW File="GTestConfig.cmake" Component_="GTestConfig.cmake" FileName="GTESTC~1.CMA|GTestConfig.cmake" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\lib\cmake\GTest\GTestConfig.cmake" SelfReg="false"/>
     <ROW File="GTestConfigVersion.cmake" Component_="GTestConfig.cmake" FileName="GTESTC~2.CMA|GTestConfigVersion.cmake" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\lib\cmake\GTest\GTestConfigVersion.cmake" SelfReg="false"/>
-    <ROW File="GTestTargetsdebug.cmake" Component_="GTestConfig.cmake" FileName="GTESTT~1.CMA|GTestTargets-debug.cmake" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\lib\cmake\GTest\GTestTargets-debug.cmake" SelfReg="false"/>
-    <ROW File="GTestTargetsrelease.cmake" Component_="GTestConfig.cmake" FileName="GTESTT~2.CMA|GTestTargets-release.cmake" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\lib\cmake\GTest\GTestTargets-release.cmake" SelfReg="false"/>
-    <ROW File="GTestTargetsrelwithdebinfo.cmake" Component_="GTestConfig.cmake" FileName="GTESTT~3.CMA|GTestTargets-relwithdebinfo.cmake" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\lib\cmake\GTest\GTestTargets-relwithdebinfo.cmake" SelfReg="false"/>
-    <ROW File="GTestTargets.cmake" Component_="GTestConfig.cmake" FileName="GTESTT~4.CMA|GTestTargets.cmake" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\lib\cmake\GTest\GTestTargets.cmake" SelfReg="false"/>
+    <ROW File="GTestTargetsrelwithdebinfo.cmake" Component_="GTestConfig.cmake" FileName="GTESTT~1.CMA|GTestTargets-relwithdebinfo.cmake" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\lib\cmake\GTest\GTestTargets-relwithdebinfo.cmake" SelfReg="false"/>
+    <ROW File="GTestTargets.cmake" Component_="GTestConfig.cmake" FileName="GTESTT~2.CMA|GTestTargets.cmake" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\lib\cmake\GTest\GTestTargets.cmake" SelfReg="false"/>
     <ROW File="gmock.lib" Component_="gmock.lib" FileName="gmock.lib" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\lib\gmock.lib" SelfReg="false"/>
-    <ROW File="gmock.pdb" Component_="gmock.pdb" FileName="gmock.pdb" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\lib\gmock.pdb" SelfReg="false"/>
-    <ROW File="gmockpdb_debug_postfixNOTFOUND.pdb" Component_="gmock.pdb" FileName="GMOCKP~1.PDB|gmockpdb_debug_postfix-NOTFOUND.pdb" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\lib\gmockpdb_debug_postfix-NOTFOUND.pdb" SelfReg="false"/>
     <ROW File="gmock_main.lib" Component_="gmock.lib" FileName="GMOCK_~1.LIB|gmock_main.lib" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\lib\gmock_main.lib" SelfReg="false"/>
-    <ROW File="gmock_main.pdb" Component_="gmock.pdb" FileName="GMOCK_~1.PDB|gmock_main.pdb" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\lib\gmock_main.pdb" SelfReg="false"/>
-    <ROW File="gmock_mainpdb_debug_postfixNOTFOUND.pdb" Component_="gmock.pdb" FileName="GMOCK_~2.PDB|gmock_mainpdb_debug_postfix-NOTFOUND.pdb" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\lib\gmock_mainpdb_debug_postfix-NOTFOUND.pdb" SelfReg="false"/>
     <ROW File="gtest.lib" Component_="gmock.lib" FileName="gtest.lib" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\lib\gtest.lib" SelfReg="false"/>
-    <ROW File="gtest.pdb" Component_="gmock.pdb" FileName="gtest.pdb" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\lib\gtest.pdb" SelfReg="false"/>
-    <ROW File="gtestpdb_debug_postfixNOTFOUND.pdb" Component_="gmock.pdb" FileName="GTESTP~1.PDB|gtestpdb_debug_postfix-NOTFOUND.pdb" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\lib\gtestpdb_debug_postfix-NOTFOUND.pdb" SelfReg="false"/>
     <ROW File="gtest_main.lib" Component_="gmock.lib" FileName="GTEST_~1.LIB|gtest_main.lib" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\lib\gtest_main.lib" SelfReg="false"/>
-    <ROW File="gtest_main.pdb" Component_="gmock.pdb" FileName="GTEST_~1.PDB|gtest_main.pdb" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\lib\gtest_main.pdb" SelfReg="false"/>
-    <ROW File="gtest_mainpdb_debug_postfixNOTFOUND.pdb" Component_="gmock.pdb" FileName="GTEST_~2.PDB|gtest_mainpdb_debug_postfix-NOTFOUND.pdb" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\lib\gtest_mainpdb_debug_postfix-NOTFOUND.pdb" SelfReg="false"/>
     <ROW File="gmock.pc" Component_="gmock.pc" FileName="gmock.pc" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\lib\pkgconfig\gmock.pc" SelfReg="false"/>
     <ROW File="gmock_main.pc" Component_="gmock.pc" FileName="GMOCK_~1.PC|gmock_main.pc" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\lib\pkgconfig\gmock_main.pc" SelfReg="false"/>
     <ROW File="gtest.pc" Component_="gmock.pc" FileName="gtest.pc" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\lib\pkgconfig\gtest.pc" SelfReg="false"/>
@@ -393,19 +355,11 @@
     <ROW File="spdb5_sqlite3.lib" Component_="gmock.lib" FileName="SPDB5_~4.LIB|spdb5_sqlite3.lib" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\lib\spdb5_sqlite3.lib" SelfReg="false"/>
     <ROW File="spdb5_static.lib" Component_="gmock.lib" FileName="SPDB5_~5.LIB|spdb5_static.lib" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\lib\spdb5_static.lib" SelfReg="false"/>
     <ROW File="odbc_test.exe" Component_="odbc_test.exe_1" FileName="ODBC_T~1.EXE|odbc_test.exe" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\lib\sptk5\bin\odbc_test.exe" SelfReg="false" DigSign="true"/>
-    <ROW File="semaphore.exe" Component_="semaphore.exe_1" FileName="SEMAPH~1.EXE|semaphore.exe" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\lib\sptk5\bin\semaphore.exe" SelfReg="false" DigSign="true"/>
-    <ROW File="thread_pool_test.exe" Component_="thread_pool_test.exe_1" FileName="THREAD~1.EXE|thread_pool_test.exe" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\lib\sptk5\bin\thread_pool_test.exe" SelfReg="false" DigSign="true"/>
-    <ROW File="thread_test.exe" Component_="thread_test.exe_1" FileName="THREAD~2.EXE|thread_test.exe" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\lib\sptk5\bin\thread_test.exe" SelfReg="false" DigSign="true"/>
     <ROW File="sputil5.lib" Component_="gmock.lib" FileName="sputil5.lib" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\lib\sputil5.lib" SelfReg="false"/>
     <ROW File="sputil5_static.lib" Component_="gmock.lib" FileName="SPUTIL~1.LIB|sputil5_static.lib" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\lib\sputil5_static.lib" SelfReg="false"/>
     <ROW File="spwsdl5.lib" Component_="gmock.lib" FileName="spwsdl5.lib" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\lib\spwsdl5.lib" SelfReg="false"/>
     <ROW File="spwsdl5_static.lib" Component_="gmock.lib" FileName="SPWSDL~1.LIB|spwsdl5_static.lib" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\lib\spwsdl5_static.lib" SelfReg="false"/>
     <ROW File="sqlite3.lib" Component_="gmock.lib" FileName="sqlite3.lib" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\lib\sqlite3.lib" SelfReg="false"/>
-    <ROW File="eventlog_test.exe" Component_="eventlog_test.exe" FileName="EVENTL~1.EXE|eventlog_test.exe" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\share\sptk5\bin\eventlog_test.exe" SelfReg="false" DigSign="true"/>
-    <ROW File="sqlite3_test.exe" Component_="sqlite3_test.exe" FileName="SQLITE~1.EXE|sqlite3_test.exe" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\share\sptk5\bin\sqlite3_test.exe" SelfReg="false" DigSign="true"/>
-    <ROW File="syslog_test.exe" Component_="syslog_test.exe_1" FileName="SYSLOG~1.EXE|syslog_test.exe" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\share\sptk5\bin\syslog_test.exe" SelfReg="false" DigSign="true"/>
-    <ROW File="event_provider.rc" Component_="event_provider.rc" FileName="EVENT_~1.RC|event_provider.rc" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\share\sptk5\resources\event_provider.rc" SelfReg="false"/>
-    <ROW File="MSG00409.bin" Component_="event_provider.rc" FileName="MSG00409.bin" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\share\sptk5\resources\MSG00409.bin" SelfReg="false"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.BootstrapperUISequenceComponent">
     <ROW Action="AI_BACKUP_AI_SETUPEXEPATH" Sequence="249"/>
@@ -527,9 +481,14 @@
     <ROW Feature_="MainFeature" Component_="spwsdl5.dll"/>
     <ROW Feature_="MainFeature" Component_="APPDIR"/>
     <ROW Feature_="MainFeature" Component_="wsdl2cxx.exe_1"/>
-    <ROW Feature_="MainFeature" Component_="gmockactions.h"/>
-    <ROW Feature_="MainFeature" Component_="gmockgeneratedactions.h"/>
-    <ROW Feature_="MainFeature" Component_="gmockinternalutils.h"/>
+    <ROW Feature_="MainFeature" Component_="GTestConfig.cmake"/>
+    <ROW Feature_="MainFeature" Component_="gmock.lib"/>
+    <ROW Feature_="MainFeature" Component_="gmock.pc"/>
+    <ROW Feature_="MainFeature" Component_="odbc_test.exe_1"/>
+    <ROW Feature_="MainFeature" Component_="eventlog_test.exe"/>
+    <ROW Feature_="MainFeature" Component_="sqlite3_test.exe"/>
+    <ROW Feature_="MainFeature" Component_="syslog_test.exe_1"/>
+    <ROW Feature_="MainFeature" Component_="event_provider.rc"/>
     <ROW Feature_="MainFeature" Component_="gtestassertionresult.h"/>
     <ROW Feature_="MainFeature" Component_="gtestport.h"/>
     <ROW Feature_="MainFeature" Component_="gtestdeathtestinternal.h"/>
@@ -541,18 +500,6 @@
     <ROW Feature_="MainFeature" Component_="OpenApiGenerator.h"/>
     <ROW Feature_="MainFeature" Component_="BaseWebServiceProtocol.h"/>
     <ROW Feature_="MainFeature" Component_="Attributes.h"/>
-    <ROW Feature_="MainFeature" Component_="GTestConfig.cmake"/>
-    <ROW Feature_="MainFeature" Component_="gmock.lib"/>
-    <ROW Feature_="MainFeature" Component_="gmock.pdb"/>
-    <ROW Feature_="MainFeature" Component_="gmock.pc"/>
-    <ROW Feature_="MainFeature" Component_="odbc_test.exe_1"/>
-    <ROW Feature_="MainFeature" Component_="semaphore.exe_1"/>
-    <ROW Feature_="MainFeature" Component_="thread_pool_test.exe_1"/>
-    <ROW Feature_="MainFeature" Component_="thread_test.exe_1"/>
-    <ROW Feature_="MainFeature" Component_="eventlog_test.exe"/>
-    <ROW Feature_="MainFeature" Component_="sqlite3_test.exe"/>
-    <ROW Feature_="MainFeature" Component_="syslog_test.exe_1"/>
-    <ROW Feature_="MainFeature" Component_="event_provider.rc"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiInstExSeqComponent">
     <ROW Action="AI_DOWNGRADE" Condition="AI_NEWERPRODUCTFOUND AND (UILevel &lt;&gt; 5)" Sequence="210"/>
