@@ -550,6 +550,20 @@ void SocketVirtualMethods::listenUnlocked(const uint16_t portNumber, const bool 
     address.sin_addr.s_addr = htonl(INADDR_ANY);
     address.sin_port = htons(getHostUnlocked().port());
 
+    // The address the host names, and not every address on the machine. This used to bind
+    // INADDR_ANY whatever the host said, which made "listen on 127.0.0.1" mean "listen
+    // everywhere" - the one mistake in that direction that cannot be noticed by testing, because
+    // everything a wider binding was meant to exclude still works. A host that names no address
+    // of its own - "0.0.0.0", or one that resolved to nothing - still means every address, and
+    // still gets INADDR_ANY.
+    if (const auto& host = getHostUnlocked();
+        m_domain == AF_INET && host.family() == AF_INET)
+    {
+        sockaddr_in hostAddress = {};
+        host.getAddress(hostAddress);
+        address.sin_addr = hostAddress.sin_addr;
+    }
+
     openAddressUnlocked(address, OpenMode::BIND, chrono::milliseconds(0), reusePort, nullptr, backlog);
 }
 

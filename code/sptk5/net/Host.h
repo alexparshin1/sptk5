@@ -147,6 +147,15 @@ public:
     std::string toString(bool forceAddress = false) const;
 
     /**
+     * @brief Address family the host name resolved to.
+     * @return AF_INET, AF_INET6, or AF_UNSPEC when the host resolved to no address at all.
+     */
+    [[nodiscard]] int family() const
+    {
+        return any().sa_family;
+    }
+
+    /**
      * @brief Get the host address.
      */
     void getAddress(sockaddr_in& address) const

@@ -38,6 +38,8 @@
 #include <sptk5/SystemException.h>
 #include <sptk5/net/Socket.h>
 
+#include <bit>
+
 #include <gtest/gtest.h>
 
 using namespace sptk;
@@ -82,6 +84,56 @@ TEST(SocketTests,option)
     socket.setOption(SOL_SOCKET, SO_REUSEADDR, 1);
     socket.getOption(SOL_SOCKET, SO_REUSEADDR, value);
     EXPECT_TRUE(value != 0);
+}
+
+/**
+ * @brief The address a listening socket actually ended up bound to.
+ */
+namespace {
+sockaddr_in boundAddress(const Socket& socket)
+{
+    sockaddr_in address {};
+    auto        length = static_cast<socklen_t>(sizeof(address));
+    if (getsockname(socket.fd(), std::bit_cast<sockaddr*>(&address), &length) != 0)
+    {
+        throw SystemException("getsockname");
+    }
+    return address;
+}
+} // namespace
+
+TEST(SocketTests, listenBindsTheAddressItWasGiven)
+{
+    // "Listen on this address" is a boundary as often as it is a routing choice, and a listener
+    // that quietly binds every address instead cannot be caught by using it: everything the
+    // narrower binding was meant to exclude still works. Checked against the kernel rather than
+    // against what was asked for.
+    constexpr uint16_t testPort {31245};
+
+    Socket socket;
+    socket.host(Host("127.0.0.1", testPort));
+    socket.listen(0, true);
+
+    const auto address = boundAddress(socket);
+    EXPECT_EQ(AF_INET, address.sin_family);
+    EXPECT_EQ(htonl(INADDR_LOOPBACK), address.sin_addr.s_addr);
+    EXPECT_EQ(htons(testPort), address.sin_port);
+    socket.close();
+}
+
+TEST(SocketTests, listenBindsEveryAddressWhenNoneIsNamed)
+{
+    // The other half of the same rule: "0.0.0.0" means every address on the machine, and that is
+    // what nearly every server in this library asks for.
+    constexpr uint16_t testPort {31246};
+
+    Socket socket;
+    socket.host(Host("0.0.0.0", testPort));
+    socket.listen(0, true);
+
+    const auto address = boundAddress(socket);
+    EXPECT_EQ(htonl(INADDR_ANY), address.sin_addr.s_addr);
+    socket.close();
 }
 
 } // namespace sptk_test
