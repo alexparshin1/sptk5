@@ -36,6 +36,7 @@
 */
 
 #include <gtest/gtest.h>
+#include <sptk5/threads/JoiningThread.h>
 #include <sptk5/cutils>
 #include <sptk5/net/FastTCPServer.h>
 #include <sptk5/net/SSLSocket.h>
@@ -393,7 +394,7 @@ TEST(FastTcpServerTests, acceptRate)
     stopWatch.start();
 
     {
-        vector<jthread> connectors;
+        JoiningThreads connectors;
         connectors.reserve(connectorThreads);
         for (size_t t = 0; t < connectorThreads; ++t)
         {
@@ -405,7 +406,7 @@ TEST(FastTcpServerTests, acceptRate)
                     myClients.reserve(share);
                     for (size_t i = 0; i < share; ++i)
                     {
-                        // An uncaught exception here would escape a jthread's top-level function
+                        // An uncaught exception here would escape a JoiningThread's top-level function
                         // and call std::terminate(), aborting the whole test binary (and every
                         // test after it) instead of just failing this one. Record it and move on.
                         try
@@ -472,7 +473,7 @@ TEST(FastTcpServerTests, latency)
 
     atomic_size_t totalLatencyMcs = 0;
     {
-        vector<jthread> connectors;
+        JoiningThreads connectors;
         connectors.reserve(connectorThreads);
         for (size_t t = 0; t < connectorThreads; ++t)
         {

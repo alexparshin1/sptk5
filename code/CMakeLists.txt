@@ -662,12 +662,32 @@ INCLUDE_DIRECTORIES(${SPTK_SOURCE_DIR})
 # Clang build ever seeing it. Using the vendored source in both keeps one version across
 # every build, and removes the dependency on the package being installed.
 SET(BUILD_VENDORED_GTEST OFF)
-IF (WIN32 OR BSD)
+IF (WIN32)
+    # No system googletest at all.
     SET(BUILD_VENDORED_GTEST ON)
+ELSEIF (BSD)
+    SET(BUILD_VENDORED_GTEST ON)
+    # Except under Clang, where the package fits. What made the vendored copy necessary on BSD is
+    # that the package is built with the base Clang and libc++, so a GCC/libstdc++ build of this
+    # project cannot link it - undefined references, nothing more informative. A Clang build has no
+    # such problem, and using the package there means one library to build instead of two. The
+    # vendored copy stays as the fallback for a machine that has no googletest installed.
+    IF (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+        FIND_PATH(SPTK_SYSTEM_GTEST_INCLUDE_DIR gtest/gtest.h HINTS /usr/local/include /usr/include)
+        FIND_LIBRARY(SPTK_SYSTEM_GTEST_LIBRARY NAMES gtest HINTS /usr/local/lib /usr/lib)
+        IF (SPTK_SYSTEM_GTEST_INCLUDE_DIR AND SPTK_SYSTEM_GTEST_LIBRARY)
+            SET(BUILD_VENDORED_GTEST OFF)
+        ENDIF ()
+    ENDIF ()
 ENDIF ()
 
 IF (USE_GTEST AND BUILD_VENDORED_GTEST)
-    INCLUDE_DIRECTORIES(googletest/googletest/include)
+    # BEFORE, and it matters: every dependency found above - pcre2, zlib, brotli, openssl - lives in
+    # /usr/local/include on FreeBSD, so that directory is already on the list. Without BEFORE it
+    # comes first and the ports googletest shadows the vendored sources being compiled here. The
+    # two are different versions, and the mismatch surfaces as syntax errors inside googletest
+    # itself - a long way from anything that would point at the include order.
+    INCLUDE_DIRECTORIES(BEFORE googletest/googletest/include)
     # A CMake target, so the link resolves by itself.
     SET(SPTK_GTEST_LIBRARY gtest)
 ELSEIF (USE_GTEST)

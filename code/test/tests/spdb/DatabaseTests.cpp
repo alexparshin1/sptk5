@@ -36,6 +36,7 @@
 */
 
 #include <sptk5/Printer.h>
+#include <sptk5/threads/JoiningThread.h>
 #include <sptk5/cutils>
 #include <sptk5/db/DatabaseConnectionPool.h>
 #include <sptk5/db/DatabaseTests.h>
@@ -965,7 +966,7 @@ void DatabaseTests::testParallelBulkInsert(const DatabaseConnectionString& conne
     sw.start();
 
     constexpr auto  threadCount = 4;
-    vector<jthread> threads;
+    JoiningThreads threads;
 
     using IdVector = vector<int64_t>;
     vector<IdVector> allInsertedIds(threadCount);

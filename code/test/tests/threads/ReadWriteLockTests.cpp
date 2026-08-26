@@ -36,6 +36,7 @@
 */
 
 #include "sptk5/Printer.h"
+#include <sptk5/threads/JoiningThread.h>
 #include "sptk5/Stopwatch.h"
 #include "sptk5/threads/ReadWriteLock.h"
 
@@ -72,9 +73,9 @@ TEST(ReadWriteLockTests, sharedLockAllowsConcurrentReaders)
         --insideCount;
     };
 
-    jthread t1(reader);
-    jthread t2(reader);
-    jthread t3(reader);
+    JoiningThread t1(reader);
+    JoiningThread t2(reader);
+    JoiningThread t3(reader);
     t1.join();
     t2.join();
     t3.join();
@@ -103,8 +104,8 @@ TEST(ReadWriteLockTests, exclusiveLockBlocksOtherExclusive)
         --insideCount;
     };
 
-    jthread t1(writer);
-    jthread t2(writer);
+    JoiningThread t1(writer);
+    JoiningThread t2(writer);
     t1.join();
     t2.join();
 
@@ -118,7 +119,7 @@ TEST(ReadWriteLockTests, exclusiveLockBlocksShared)
 
     ReadWriteLock rwLock(rwMutex, ReadWriteLock::Mode::Writer);
 
-    jthread reader([&rwMutex, &sharedWhileExclusive]
+    JoiningThread reader([&rwMutex, &sharedWhileExclusive]
                    {
                        // Try shared with timeout - should fail while exclusive is held
                        try
@@ -164,7 +165,7 @@ TEST(ReadWriteLockTests, upgradeWaitsForOtherReaders)
     atomic         upgradeCompleted {false};
 
     // Thread 1: shared lock held for a while
-    jthread reader([&rwMutex, &readerInside]
+    JoiningThread reader([&rwMutex, &readerInside]
                    {
                        const ReadWriteLock readerLock(rwMutex, ReadWriteLock::Mode::Reader);
                        readerInside = true;
@@ -178,7 +179,7 @@ TEST(ReadWriteLockTests, upgradeWaitsForOtherReaders)
     }
 
     // Thread 2: acquire shared then upgrade - should block until reader releases
-    jthread upgrader([&rwMutex, &upgradeCompleted]
+    JoiningThread upgrader([&rwMutex, &upgradeCompleted]
                      {
                          const ReadWriteLock writerLock(rwMutex, ReadWriteLock::Mode::Reader);
                          writerLock.upgradeToWriteLock();
@@ -203,7 +204,7 @@ TEST(ReadWriteLockTests, tryLockSharedTimeout)
     ReadWriteLock  rwLock(rwMutex, ReadWriteLock::Mode::Writer);
 
     auto acquiredShared = false;
-    auto thread = jthread([&rwMutex, &acquiredShared]
+    auto thread = JoiningThread([&rwMutex, &acquiredShared]
                           {
                               try
                               {
@@ -232,7 +233,7 @@ TEST(ReadWriteLockTests, tryLockExclusiveTimeoutByExclusive)
     ReadWriteLock  lock(rwMutex, ReadWriteLock::Mode::Writer);
 
     auto acquiredWriter = false;
-    auto thread = jthread([&rwMutex, &acquiredWriter]
+    auto thread = JoiningThread([&rwMutex, &acquiredWriter]
                           {
                               try
                               {
@@ -257,7 +258,7 @@ TEST(ReadWriteLockTests, tryLockExclusiveTimeoutByShared)
     // Another thread acquires shared and tries to upgrade — should time out
     // because this thread still holds a shared lock
     bool result = false;
-    auto thread = jthread([&rwMutex, &result]
+    auto thread = JoiningThread([&rwMutex, &result]
                           {
                               ReadWriteLock lock2(rwMutex, ReadWriteLock::Mode::Reader);
                               result = lock2.upgradeToWriteLock(50ms);
@@ -272,7 +273,7 @@ TEST(ReadWriteLockTests, tryUpgradeTimeout)
     atomic         readerHolding {false};
 
     // Another thread holds shared lock for a long time
-    jthread reader([&readerHolding, &rwMutex]
+    JoiningThread reader([&readerHolding, &rwMutex]
                    {
                        ReadWriteLock rwLock(rwMutex, ReadWriteLock::Mode::Reader);
                        readerHolding = true;
@@ -310,13 +311,13 @@ TEST(ReadWriteLockTests, pendingWriterBlocksNewReaders)
     atomic         writerQueued {false};
     atomic         writerAcquired {false};
 
-    jthread writer;
+    JoiningThread writer;
     {
         // Hold a shared lock so a queued writer cannot acquire immediately
         const ReadWriteLock readerLock(rwMutex, ReadWriteLock::Mode::Reader);
 
         // Writer queues for exclusive access and blocks behind the reader above
-        writer = jthread([&rwMutex, &writerQueued, &writerAcquired]
+        writer = JoiningThread([&rwMutex, &writerQueued, &writerAcquired]
                          {
                              writerQueued = true;
                              const ReadWriteLock writerLock(rwMutex, ReadWriteLock::Mode::Writer);
@@ -358,7 +359,7 @@ TEST(ReadWriteLockTests, writerNotStarvedByContinuousReaders)
     atomic         readerThreadsRunning {0};
 
     // Steady stream of readers continuously acquiring/releasing shared locks
-    vector<jthread> readers;
+    JoiningThreads readers;
     readers.reserve(4);
     for (int i = 0; i < 4; ++i)
     {
@@ -428,7 +429,7 @@ TEST(ReadWriteLockTests, downgradeAllowsConcurrentReaders)
     writerLock.downgradeToReadLock();
 
     // Now a concurrent reader can join
-    jthread reader([&rwMutex, &readerJoined]
+    JoiningThread reader([&rwMutex, &readerJoined]
                    {
                        const ReadWriteLock readerLock(rwMutex, ReadWriteLock::Mode::Reader, 200ms);
                        readerJoined = true;
@@ -450,7 +451,7 @@ TEST(ReadWriteLockTests, mixedContentionStress)
     long long      protectedValue = 0;
     atomic<bool>   readInconsistency {false};
 
-    vector<jthread> threads;
+    JoiningThreads threads;
 
     auto enterWriteSection = [&]
     {
@@ -540,7 +541,7 @@ TEST(ReadWriteLockTests, mixedContentionStress)
 
     this_thread::sleep_for(1500ms);
     stop = true;
-    threads.clear(); // joins all jthreads
+    threads.clear(); // destroys each JoiningThread, and so joins them all
 
     EXPECT_FALSE(writerOverlap.load()) << "two writers were in the exclusive section at once";
     EXPECT_FALSE(readInconsistency.load()) << "a reader observed a half-finished write";
@@ -557,7 +558,7 @@ TEST(ReadWriteLockTests, performance)
     constexpr auto   iterationsPerThread = iterationCount / threadCount;
 
     // Shared lock upgrade to unique lock
-    vector<jthread> threads;
+    JoiningThreads threads;
     shared_mutex    shared_mu;
     Stopwatch       stopwatch;
     stopwatch.start();

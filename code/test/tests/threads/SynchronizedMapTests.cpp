@@ -36,6 +36,7 @@
 */
 
 #include "sptk5/threads/SynchronizedMap.h"
+#include <sptk5/threads/JoiningThread.h>
 
 
 #include <gtest/gtest.h>
@@ -56,7 +57,7 @@ TEST(SynchronizedMapTests, keysValues)
     SynchronizedMap<int, string> map;
 
     constexpr auto  maxNumbers = 1000;
-    vector<jthread> threads;
+    JoiningThreads threads;
     for (auto i = 0; i < maxNumbers; ++i)
     {
         threads.emplace_back([&map, i]()
@@ -159,7 +160,7 @@ TEST(SynchronizedMapTests, performance)
     Stopwatch sw;
     sw.start();
 
-    vector<jthread> threads;
+    JoiningThreads threads;
     for (auto th = 0; th < threadCount; ++th)
     {
         threads.emplace_back([&queue, &map]

@@ -35,6 +35,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 #include "sptk5/Printer.h"
+#include <sptk5/threads/JoiningThread.h>
 #include "sptk5/Stopwatch.h"
 #include "sptk5/db/DatabaseConnectionPool.h"
 #include "sptk5/db/Query.h"
@@ -280,7 +281,7 @@ TEST_F(RedisConnectTests, performanceMultipleThreads)
     Stopwatch watch;
     watch.start();
 
-    vector<jthread> threads;
+    JoiningThreads threads;
     for (auto threadIndex = 0; threadIndex < threadCount; ++threadIndex)
     {
         threads.emplace_back([threadIndex]
@@ -324,7 +325,7 @@ TEST_F(RedisConnectTests, performanceMultipleThreadsPG)
     Stopwatch watch;
     watch.start();
 
-    vector<jthread> threads;
+    JoiningThreads threads;
     for (auto threadIndex = 0; threadIndex < threadCount; ++threadIndex)
     {
         threads.emplace_back([threadIndex, &connectionPool]
@@ -439,7 +440,7 @@ TEST_F(RedisConnectTests, getPerformance)
     watch.start();
     atomic_size_t foundKeyCount = 0;
 
-    vector<jthread> threads;
+    JoiningThreads threads;
     for (auto thread = 0; thread < threadCount; ++thread)
     {
         threads.emplace_back([&keysQueue, &foundKeyCount]
@@ -497,7 +498,7 @@ TEST_F(RedisConnectTests, hgetPerformance)
     watch.start();
     atomic_size_t foundKeyCount = 0;
 
-    vector<jthread> threads;
+    JoiningThreads threads;
     for (auto thread = 0; thread < threadCount; ++thread)
     {
         threads.emplace_back([&hashes, &keysQueue, &foundKeyCount]
@@ -867,7 +868,7 @@ TEST_F(RedisConnectTests, hsetPerformance)
     Stopwatch stopwatch;
     stopwatch.start();
 
-    vector<jthread> threads;
+    JoiningThreads threads;
     for (size_t i = 0; i < maxThreads; i++)
     {
         threads.emplace_back([threadNumber = i]
@@ -910,7 +911,7 @@ TEST_F(RedisConnectTests, hsetGroupPerformance)
     Stopwatch stopwatch;
     stopwatch.start();
 
-    vector<jthread> threads;
+    JoiningThreads threads;
     for (size_t i = 0; i < maxThreads; i++)
     {
         threads.emplace_back([threadNumber = i]
@@ -1499,7 +1500,7 @@ TEST_F(RedisConnectTests, threadSafety)
     }
     (void) m_redis.deleteKeys(keysToDelete);
 
-    vector<jthread> threads;
+    JoiningThreads threads;
     for (auto threadIndex = 0; threadIndex < threadCount; ++threadIndex)
     {
         threads.emplace_back([this, threadIndex]
@@ -1556,7 +1557,7 @@ TEST_F(RedisConnectTests, valueSetGetPerformanceAsync)
         sourceValues.push_back(value);
     }
 
-    vector<jthread> threads;
+    JoiningThreads threads;
 
     Stopwatch stopwatch;
     stopwatch.start();
