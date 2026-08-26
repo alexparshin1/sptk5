@@ -222,14 +222,19 @@ sudo journalctl -u xmq_server -f`}</pre>
             </table>
 
             <p>
-                Once the server runs, the configuration interface is reachable on port 18883 by default:
-                <code>http://&lt;server&gt;:18883</code>. Sign in with an account from the Users page;
-                a fresh installation ships with <code>admin</code>.
+                Once the server runs, the configuration interface is reachable on port 18883 by
+                default. On a server that has just been installed it answers on that machine only,
+                at <code>https://localhost:18883</code>, and the <code>admin</code> account it
+                created has no password: sign in as <code>admin</code> leaving the password empty.
+                The <b>Initial Setup</b> page opens straight away, and the password set there is
+                what opens the interface to the rest of the network.
             </p>
 
             <div className="userManualNote">
-                Change the shipped passwords before putting the server on a network anyone else
-                can reach. The defaults are published in the template file, so they are not secret.
+                Nothing is shipped with a password. Until the administrator has one, the account
+                cannot be used over MQTT at all and the interface cannot be reached from another
+                machine &mdash; so the first sign-in has to be made from the server&apos;s own
+                console, or through a forwarded port.
             </div>
         </div>;
     }
@@ -344,10 +349,98 @@ sudo sysctl --system`}</pre>
                 when settings change and would overwrite your edit.
             </p>
             <p>
-                The XMQ configuration interface is available through the browser at http://xmq_host:18883.
-                The xmq_host here is the host name where XMQ server is running.
-                The default administrative user credentials are: The username is "admin" and the password is
-                also "admin". It's highly recommended to change the default password.
+                The XMQ configuration interface is available through the browser at{" "}
+                <code>https://xmq_host:18883</code>, where xmq_host is the host the XMQ server runs
+                on. It is administered through the <code>admin</code> account. A server that has
+                never been set up is the exception in two ways: it answers at{" "}
+                <code>https://localhost:18883</code> and nowhere else, and <code>admin</code> has
+                no password yet &mdash; sign in with the password field left empty, and set one on
+                the <b>Initial Setup</b> page that opens.
+            </p>
+
+            <h5>Starting from scratch</h5>
+
+            <p>
+                The <b>Initial Setup</b> page asks for the few settings a working server cannot be
+                without &mdash; an administrator password, a node name, the MQTT, MQTT+SSL, and
+                interface ports, and optionally a Redis address &mdash; and builds a configuration
+                around them. It is the quickest way to bring up a new installation, and the way
+                back to a known state when a configuration has been edited into a corner.
+            </p>
+
+            <p>
+                The <code>admin</code> account comes first on that page because it is what the
+                interface is administered through: setup creates the account if it is not there,
+                and gives it the password entered either way, so the configuration it produces
+                always comes with a way in. Since a session carries the password it signed in with,
+                changing it ends the current session &mdash; sign in again with the new password.
+            </p>
+
+            <p>
+                On a server being set up for the first time, that password does one more thing: it
+                is what moves the interface off the loopback address. Until it is set the interface
+                accepts connections from the server&apos;s own machine only, because an account
+                that anyone can sign in to without a password has no business being reachable from
+                a network. The account is refused everywhere else in the meantime &mdash; an MQTT
+                client offering <code>admin</code> and no password is not connected.
+            </p>
+
+            <p>
+                It is the one page that discards settings rather than changing them. Everything it
+                does not ask about is taken from <code>/etc/xmq/xmq_server.conf.template</code>, the
+                copy of the shipped configuration the installer leaves behind, so listeners,
+                bridges, limits, and logging settings all go back to their defaults. The template
+                itself is only read; the result is written to <code>xmq_server.conf</code>.
+            </p>
+
+            <p>
+                The accounts are reset with them: <code>xmq_users.conf</code> is rewritten with
+                <code>admin</code>, using the password entered on the page, and the internal
+                <code>cluster</code> account. MQTT clients that authenticate will need their
+                accounts adding again on the Users page. Installed certificate files are kept,
+                being files of their own rather than configuration.
+            </p>
+
+            <p>
+                Submitting restarts the MQTT server, which disconnects every client. Changing the
+                interface port takes effect at once too: the interface starts answering on the new
+                port before it stops answering on the old one, and the browser is sent there.
+                Connections already open are served to the end, so the reply announcing the move
+                still arrives. A port that cannot be taken &mdash; because something else holds it
+                &mdash; leaves the interface where it was, and the page says so instead of sending
+                the browser nowhere.
+            </p>
+
+            <p>
+                A missing configuration is not an error: the server writes a starting one from
+                <code>xmq_server.conf.template</code>, or from its own defaults if the template is
+                gone too, and comes up on the ports above. A missing <code>xmq_users.conf</code> is
+                written too, with an <code>admin</code> account that has no password and the
+                internal <code>cluster</code> account. No accounts are installed by the package:
+                a password shipped in a file is a password everyone who downloaded the package
+                knows.
+            </p>
+
+            <h5>When the interface will not start</h5>
+
+            <p>
+                The Initial Setup page needs the interface to be running, which is no help when the
+                configuration is what stops the server from starting: a port already taken, a
+                listener bound to an address this host does not have, or a file edited into
+                something that will not parse. The same reset is available from the command line,
+                where nothing needs to be running:
+            </p>
+
+            <pre className="userManualCode">{`sudo systemctl stop xmq
+sudo xmq_server --reset-configuration --console   # or start the service again afterwards`}</pre>
+
+            <p>
+                It replaces <code>xmq_server.conf</code> with the starting configuration and carries
+                on into a normal start. The file it replaced is kept beside it as
+                <code>xmq_server.conf.old</code>, since it is usually still worth reading. Accounts
+                are not touched &mdash; they are in their own file, and are not what stops a server
+                from starting &mdash; except that one for <code>admin</code> is created, without a
+                password, if there are no accounts at all.
             </p>
 
             <h5>Port numbers</h5>
@@ -399,8 +492,11 @@ sudo sysctl --system`}</pre>
             </p>
 
             <p>
-                The service port itself is set on the <b>Service</b> page. Changing it takes effect
-                after a restart, and the configuration interface then answers on the new port only.
+                The service port itself is set on the <b>Service</b> page, and changing it takes
+                effect at once: the interface starts answering on the new port before it stops
+                answering on the old one, and the page follows it there. Connections already open
+                are served to the end. If something else already holds the port, the interface
+                stays where it is and the page says so.
             </p>
 
             <h5>SSL certificates</h5>
