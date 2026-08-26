@@ -191,19 +191,11 @@ IF (WIN32)
     LINK_LIBRARIES(wsock32 ole32 uuid comctl32 ws2_32 winhttp crypt32 secur32 shlwapi bcrypt)
 ELSE ()
     IF (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-        # std::jthread and <stop_token> are still behind libc++'s experimental gate in LLVM 19,
-        # and Thread - the base of every thread in this library - is built on both. Without this
-        # the whole library fails to compile against libc++, which on FreeBSD is what the base
-        # compiler uses. Both a compile and a link option: it selects the declarations and it
-        # brings in libc++experimental.
-        #
-        # Note that it puts an ABI tag naming the libc++ version (abi:se190107 for 19.1.7) on
-        # those symbols, so everything in the process has to be built the same way, and a libc++
-        # upgrade is an ABI break for them. That is the price of the flag; the alternative is to
-        # stop using the two types.
-        ADD_COMPILE_OPTIONS(-fexperimental-library)
-        ADD_LINK_OPTIONS(-fexperimental-library)
-
+        # No -fexperimental-library any more. It was here for std::jthread and <stop_token>, which
+        # libc++ gates behind it in LLVM 19 and tags with the libc++ version (abi:se190107 for
+        # 19.1.7) - so everything in the process had to be built the same way and a libc++ upgrade
+        # was an ABI break. The alternative named here was to stop using the two types, and that is
+        # what happened: JoiningThread joins on destruction, and RedisConnect's worker takes a flag.
         ADD_DEFINITIONS(
                 -fPIC
                 -Wall -pedantic

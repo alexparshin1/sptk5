@@ -127,7 +127,7 @@ void OsProcess::start()
         throw Exception("Can't start process");
     }
 #endif
-    m_task = jthread([this]
+    m_task = JoiningThread([this]
                      {
                          readData();
                          return close();

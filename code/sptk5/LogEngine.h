@@ -38,6 +38,7 @@
 #pragma once
 
 #include <sptk5/LogPriority.h>
+#include <sptk5/threads/JoiningThread.h>
 #include <sptk5/Logger.h>
 #include <sptk5/threads/SynchronizedQueue.h>
 
@@ -255,7 +256,7 @@ private:
     /**
      * Thread that saves messages into the backend
      */
-    std::jthread m_saveMessageThread;
+    JoiningThread m_saveMessageThread;
 
     /**
      * Guards the one-time start of m_saveMessageThread

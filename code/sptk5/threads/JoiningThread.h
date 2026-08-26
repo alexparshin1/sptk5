@@ -37,125 +37,85 @@
 
 #pragma once
 
-#include <sptk5/String.h>
-#include <sptk5/threads/JoiningThread.h>
-
-#include <atomic>
-#include <csignal>
-#include <mutex>
 #include <thread>
+#include <type_traits>
+#include <utility>
+#include <vector>
 
 namespace sptk {
-/**
- * @addtogroup threads Thread Classes.
- * @{
- */
-
-class ThreadManager;
 
 /**
- * @brief Base thread object.
+ * @brief A std::thread that joins when it is destroyed.
  *
- * Should be used for deriving a user thread by overwriting threadFunction().
+ * It exists instead of std::jthread because on libc++ std::jthread needs -fexperimental-library,
+ * which stamps an ABI tag naming the libc++ version onto every symbol that touches it, so a libc++
+ * upgrade becomes an ABI break.
  */
-class SP_EXPORT Thread
+class JoiningThread final
 {
-    friend class ThreadManager;
-
 public:
-    /**
-     * @brief Thread ID type.
-     */
-    using Id = std::thread::id;
+    JoiningThread() = default;
 
     /**
-     * @brief Constructor.
-     * @param name              Name of the thread for future references.
-     * @param ignoreSignals     List of signals to ignore.
+     * @brief Start a thread, the same way std::thread is started.
+     *
+     * Constrained, or this would be a better match than the move constructor for a JoiningThread
+     * argument and quietly take over moves - the same trap std::thread guards against.
      */
-    explicit Thread(String name,
-#ifndef _WIN32
-                    std::vector<int> ignoreSignals = {SIGPIPE, SIGABRT});
-#else
-                    std::vector<int> ignoreSignals = {SIGABRT});
-#endif
-
-    /**
-     * @brief Destructor.
-     */
-    virtual ~Thread() = default;
-
-    /**
-     * @brief Starts the already created thread.
-     */
-    virtual void run();
-
-    /**
-     * @brief Check thread status.
-     * @return true if the thread is running.
-     */
-    bool running() const;
-
-    /**
-     * @brief Requests to terminate the thread.
-     */
-    virtual void terminate();
-
-    /**
-     * @brief Returns true if the thread is terminated.
-     */
-    virtual bool terminated();
-
-    /**
-     * @brief Waits until the thread joins.
-     */
-    virtual void join();
-
-    /**
-     * @brief Returns this thread OS id.
-     */
-    Id id() const;
-
-    /**
-     * @brief Returns the name of the thread.
-     */
-    const String& name() const
+    template<typename Function, typename... Arguments>
+        requires(!std::is_same_v<std::decay_t<Function>, JoiningThread>)
+    explicit JoiningThread(Function&& function, Arguments&&... arguments)
+        : m_thread(std::forward<Function>(function), std::forward<Arguments>(arguments)...)
     {
-        const std::scoped_lock lock(m_mutex);
-        return m_name;
     }
 
-protected:
-    /**
-     * @brief The thread function. Should be overwritten by the derived class.
-     */
-    virtual void threadFunction() = 0;
+    JoiningThread(const JoiningThread&) = delete;
+    JoiningThread& operator=(const JoiningThread&) = delete;
 
-    /**
-     * @brief This method is executed immediately after thread function exit.
-     */
-    virtual void onThreadExit()
+    JoiningThread(JoiningThread&&) noexcept = default;
+
+    JoiningThread& operator=(JoiningThread&& other) noexcept
     {
-        // Implement in derived class, if needed
+        // Join what is being replaced first: assigning over a running thread would otherwise
+        // terminate, which is what std::thread's move assignment does.
+        join();
+        m_thread = std::move(other.m_thread);
+        return *this;
     }
 
-    void setThreadManager(ThreadManager* threadManager);
+    ~JoiningThread()
+    {
+        join();
+    }
+
+    /**
+     * @brief Join the thread if it is running. Doing it twice is harmless.
+     */
+    void join()
+    {
+        if (m_thread.joinable())
+        {
+            m_thread.join();
+        }
+    }
+
+    [[nodiscard]] bool joinable() const
+    {
+        return m_thread.joinable();
+    }
+
+    [[nodiscard]] std::thread::id get_id() const noexcept
+    {
+        return m_thread.get_id();
+    }
 
 private:
-    mutable std::mutex            m_mutex;                   ///< Thread synchronization object.
-    String                        m_name;                    ///< Thread name.
-    std::shared_ptr<JoiningThread> m_thread;                 ///< Thread object.
-    ThreadManager*                m_threadManager {nullptr}; ///< Optional thread manager.
-    std::atomic_bool              m_terminated {false};      ///< Flag: Is the thread terminated?
-    std::vector<int>              m_ignoreSignals;           ///< List of signals that should be ignored in the thread.
+    std::thread m_thread;
 };
 
 /**
- * @brief Shared pointer to Thread.
+ * @brief A group of threads, all joined when the group goes out of scope.
  */
-using SThread = std::shared_ptr<Thread>;
+using JoiningThreads = std::vector<JoiningThread>;
 
-/**
- * @}
- */
 } // namespace sptk

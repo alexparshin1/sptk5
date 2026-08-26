@@ -92,7 +92,7 @@ void Thread::run()
 
     m_terminated = false;
 
-    m_thread = make_shared<jthread>(
+    m_thread = make_shared<JoiningThread>(
         [this]()
         {
             try

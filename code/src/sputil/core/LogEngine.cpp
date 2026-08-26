@@ -59,7 +59,7 @@ void LogEngine::startSaveMessageThread()
                            // Shutting down already - there would be nobody to drain the queue.
                            return;
                        }
-                       m_saveMessageThread = jthread([this]()
+                       m_saveMessageThread = JoiningThread([this]()
                                                      {
                                                          try
                                                          {

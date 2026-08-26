@@ -782,7 +782,7 @@ RedisConnect::~RedisConnect()
 {
     if (m_worker.joinable())
     {
-        m_worker.request_stop();
+        m_workerStop = true;
         m_taskQueue.wakeup();
         m_worker.join();
     }
@@ -792,10 +792,10 @@ void RedisConnect::startWorker()
 {
     call_once(m_workerStarted, [this]
               {
-                  m_worker = jthread([this](const stop_token& stopToken)
+                  m_worker = JoiningThread([this]
                                      {
                                          vector<AsyncTask> batch;
-                                         while (!stopToken.stop_requested())
+                                         while (!m_workerStop)
                                          {
                                              if (m_taskQueue.pop_front(batch, MaxPipelineBatch, 100ms))
                                              {

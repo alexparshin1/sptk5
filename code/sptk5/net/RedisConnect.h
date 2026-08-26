@@ -38,6 +38,7 @@
 #pragma once
 
 #include "URL.h"
+#include <sptk5/threads/JoiningThread.h>
 #include "sptk5/Variant.h"
 #include "sptk5/net/RedisCommand.h"
 #include "sptk5/net/SocketReader.h"
@@ -444,7 +445,8 @@ private:
     static constexpr size_t MaxPipelineBatch = 256;
 
     SynchronizedQueue<AsyncTask> m_taskQueue;         ///< Queue of pending asynchronous operations.
-    std::jthread                 m_worker;            ///< Worker thread executing queued operations.
+    JoiningThread                m_worker;            ///< Worker thread executing queued operations.
+    std::atomic_bool             m_workerStop {false}; ///< Tells the worker to finish; replaces the stop token.
     std::once_flag               m_workerStarted;     ///< Guards lazy worker thread startup.
     mutable std::mutex           m_asyncMutex;        ///< Guards the pending operation counter and error handler.
     std::condition_variable      m_asyncCondition;    ///< Signaled when a queued operation completes.

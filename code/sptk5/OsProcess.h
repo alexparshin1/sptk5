@@ -38,6 +38,7 @@
 #pragma once
 
 #include <sptk5/cutils>
+#include <sptk5/threads/JoiningThread.h>
 
 #include <functional>
 #include <future>
@@ -90,7 +91,7 @@ private:
     std::string                             m_command;            ///< Process command.
     std::function<void(const std::string&)> m_onData;             ///< Optional callback function called on process output.
     FileHandle                              m_stdout {};          ///< Process stdout.
-    std::jthread                            m_task;               ///< Process execution task.
+    JoiningThread                           m_task;               ///< Process execution task.
     std::atomic_bool                        m_terminated {false}; ///< Process terminate flag.
     int                                     m_pid {0};            ///< Process id.
     std::array<char, BufferSize>            m_buffer {};          ///< Process output read buffer.
