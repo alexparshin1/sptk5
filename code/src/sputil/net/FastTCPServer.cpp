@@ -43,12 +43,46 @@
 
 #ifndef _WIN32
 #include <netinet/tcp.h>
+#include <poll.h>
 #endif
 
 using namespace std;
 using namespace sptk;
 
 namespace {
+
+/**
+ * @brief How often the waiter looks at connections that have not spoken yet.
+ *
+ * Short, because it also caps how long a connection deferred while the waiter is already polling
+ * has to wait to be looked at. It costs 200 wake-ups a second while any connection is pending,
+ * and nothing at all when none is: the waiter sleeps on a condition variable then.
+ */
+constexpr int pendingPollMs = 5;
+
+/**
+ * @brief How long a connection may stay open without saying anything.
+ *
+ * Generous: a browser opens connections before it knows whether it will use them, and closing
+ * one it still means to use turns into a failed request.
+ */
+constexpr auto silentConnectionTimeout = std::chrono::seconds(60);
+
+/**
+ * @brief Whether the client has already sent something.
+ *
+ * Asked without waiting: the answer decides whether building the connection here would block.
+ */
+bool hasInput(const SocketType handle)
+{
+    pollfd descriptor {handle, POLLIN, 0};
+#ifdef _WIN32
+    const auto ready = WSAPoll(&descriptor, 1, 0);
+#else
+    const auto ready = ::poll(&descriptor, 1, 0);
+#endif
+    return ready > 0 && (descriptor.revents & POLLIN) != 0;
+}
 
 /**
  * @brief Hard-close a raw socket handle for a connection that is rejected or fails to initialize.
@@ -174,6 +208,8 @@ FastTCPServer::FastTCPServer(const std::string& serverName, std::shared_ptr<LogE
     {
         m_logger = std::make_shared<Logger>(*m_logEngine);
     }
+
+    m_pendingWaiter = JoiningThread([this] { waitForPendingConnections(); });
 }
 
 void FastTcpServerListener::threadFunction()
@@ -216,6 +252,75 @@ FastTCPServer::~FastTCPServer()
     FastTCPServer::stop();
 }
 
+void FastTCPServer::waitForPendingConnections()
+{
+    while (true)
+    {
+        vector<PendingConnection> waiting;
+        {
+            unique_lock lock(m_pendingMutex);
+            m_pendingArrived.wait_for(lock, chrono::milliseconds(pendingPollMs),
+                                      [this] { return m_pendingStopping || !m_pending.empty(); });
+            if (m_pendingStopping)
+            {
+                for (const auto& pending: m_pending)
+                {
+                    closeSocketHandle(pending.socket);
+                }
+                m_pending.clear();
+                return;
+            }
+            waiting.swap(m_pending);
+        }
+
+        if (waiting.empty())
+        {
+            continue;
+        }
+
+        vector<pollfd> descriptors;
+        descriptors.reserve(waiting.size());
+        for (const auto& pending: waiting)
+        {
+            descriptors.push_back(pollfd {pending.socket, POLLIN, 0});
+        }
+
+#ifdef _WIN32
+        (void) WSAPoll(descriptors.data(), static_cast<ULONG>(descriptors.size()), pendingPollMs);
+#else
+        (void) ::poll(descriptors.data(), descriptors.size(), pendingPollMs);
+#endif
+
+        const auto                now = chrono::steady_clock::now();
+        vector<PendingConnection> stillWaiting;
+        for (size_t index = 0; index < waiting.size(); ++index)
+        {
+            const auto& pending = waiting[index];
+            if (descriptors[index].revents != 0)
+            {
+                // Spoken, or gone: a connection the client closed polls readable and then reads
+                // nothing, and building it fails and closes it, which is the right end for it.
+                buildConnection(pending.type, pending.socket, pending.peer);
+            }
+            else if (pending.deadline <= now)
+            {
+                // Held open and never used, so that the list cannot grow without bound.
+                closeSocketHandle(pending.socket);
+            }
+            else
+            {
+                stillWaiting.push_back(pending);
+            }
+        }
+
+        if (!stillWaiting.empty())
+        {
+            const scoped_lock lock(m_pendingMutex);
+            m_pending.insert(m_pending.end(), stillWaiting.begin(), stillWaiting.end());
+        }
+    }
+}
+
 void FastTCPServer::start()
 {
     const scoped_lock lock(m_mutex);
@@ -230,6 +335,13 @@ void FastTCPServer::start()
 
 void FastTCPServer::stop()
 {
+    {
+        const scoped_lock lock(m_pendingMutex);
+        m_pendingStopping = true;
+    }
+    m_pendingArrived.notify_all();
+    m_pendingWaiter.join();
+
     {
         const scoped_lock lock(m_mutex);
         for (const auto& listeners: m_listeners | views::values)
@@ -358,6 +470,27 @@ void FastTCPServer::acceptIncoming(const ServerConnection::Type connectionType, 
         return;
     }
 
+    // Encrypted, and nothing sent yet: building it would run the TLS handshake on this thread,
+    // which is the listener's accept loop, and a client that says nothing would hold it there.
+    // Handed to the waiter instead. Unencrypted connections are built here as they always were -
+    // there is no handshake to block on, and this is the path that has to stay quick.
+    if (connectionType == ServerConnection::Type::SSL && !hasInput(connectionFD))
+    {
+        {
+            const scoped_lock lock(m_pendingMutex);
+            m_pending.push_back({connectionType, connectionFD, peer,
+                                 chrono::steady_clock::now() + silentConnectionTimeout});
+        }
+        m_pendingArrived.notify_one();
+        return;
+    }
+
+    buildConnection(connectionType, connectionFD, peer);
+}
+
+void FastTCPServer::buildConnection(const ServerConnection::Type connectionType, const SocketType connectionFD,
+                                    const sockaddr_in& peer)
+{
     shared_ptr<ServerConnection> connection;
     try
     {

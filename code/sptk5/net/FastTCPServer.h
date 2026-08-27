@@ -45,8 +45,11 @@
 #include <sptk5/net/ServerConnection.h>
 #include <sptk5/net/SocketEvents.h>
 #include <sptk5/threads/Flag.h>
+#include <sptk5/threads/JoiningThread.h>
 #include <sptk5/threads/Thread.h>
 
+#include <chrono>
+#include <condition_variable>
 #include <map>
 #include <mutex>
 #include <unordered_map>
@@ -377,6 +380,48 @@ private:
      * @brief Accept an incoming connection (called by the listener thread).
      */
     void acceptIncoming(ServerConnection::Type connectionType, SocketType connectionFD, const sockaddr_in& peer);
+
+    /**
+     * @brief A connection accepted but not yet built, because the client has not spoken.
+     */
+    struct PendingConnection
+    {
+        ServerConnection::Type                type;     ///< What the listener it arrived on serves.
+        SocketType                            socket;   ///< Accepted socket, nothing read from it.
+        sockaddr_in                           peer;     ///< Copied: the caller's pointer does not outlive the call.
+        std::chrono::steady_clock::time_point deadline; ///< When to give up on it and close it.
+    };
+
+    std::mutex                     m_pendingMutex;     ///< Guards the list below.
+    std::condition_variable        m_pendingArrived;   ///< Wakes the waiter when work appears.
+    std::vector<PendingConnection> m_pending;          ///< Accepted, waiting to say something.
+    bool                           m_pendingStopping {false}; ///< Set by stop().
+
+    /**
+     * @brief Build the connection and give it to the reactor.
+     *
+     * What acceptIncoming() used to do inline, and what the waiter thread does for a connection
+     * that kept it waiting.
+     */
+    void buildConnection(ServerConnection::Type connectionType, SocketType connectionFD, const sockaddr_in& peer);
+
+    /**
+     * @brief Wait for encrypted connections to say something, off the listener thread.
+     *
+     * Building an encrypted connection performs the TLS handshake in the calling thread. Done
+     * where the connection is accepted, that is the listener thread, and a client that connects
+     * and then says nothing holds it there - so one idle socket could stop a server accepting
+     * anything at all. Waiting happens here instead.
+     */
+    void waitForPendingConnections();
+
+    /**
+     * @brief The thread running waitForPendingConnections().
+     *
+     * Last, deliberately: members are destroyed in reverse order, so it is joined while the
+     * mutex, the condition variable and the list it works on still exist.
+     */
+    JoiningThread m_pendingWaiter;
 };
 
 /**
