@@ -12,6 +12,17 @@ function sortedFiles(files)
     return [...files].sort((left, right) => left.file.localeCompare(right.file));
 }
 
+/**
+ * Whether the listed files include the Windows installer.
+ *
+ * Decided by the file name rather than by which operating system is selected: the name is what
+ * the visitor is about to download, and it is the download that carries the warning.
+ */
+function hasWindowsInstaller(files)
+{
+    return files.some((file) => /\.(exe|msi)$/i.test(file.file));
+}
+
 export default class Downloads extends React.Component
 {
     state = {
@@ -129,6 +140,15 @@ export default class Downloads extends React.Component
                 {xmqFiles.length > 0
                     ? this.fileTable(xmqFiles, entry)
                     : <p className="DownloadsNote">There is no XMQ package for this selection.</p>}
+                {hasWindowsInstaller(xmqFiles) &&
+                    <p className="DownloadsNote">
+                        <b>The Windows installer is not signed yet.</b> It carries no code-signing
+                        certificate until XMQ 1.0, so Windows will say the publisher is unknown and
+                        hold it back rather than running it. To go ahead, choose <b>More info</b> in
+                        the SmartScreen window and then <b>Run anyway</b>. Nothing else about the
+                        installation is unusual, and the file is the one listed above, served from
+                        this site over HTTPS.
+                    </p>}
                 {sptkFiles.length > 0 && entry &&
                     <p className="DownloadsNote">
                         The SPTK {sptkVersionNumber(entry.sptkVersion)} packages below were used to
