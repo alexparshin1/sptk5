@@ -124,6 +124,11 @@ do
         lcPACKAGE="xmq"
     fi
     mv $fname $OUTPUT_DIR/$name
+    # The checksum of what people actually download, beside it, in the format "shasum -a 256 -c"
+    # reads. Written here and not where the package was built, because the file is renamed on the
+    # way - XMQ becomes xmq and "-Linux" is dropped - so a checksum made any earlier would name a
+    # file that never reaches the download area.
+    ( cd $OUTPUT_DIR && sha256sum $name > $name.sha256 ) || exit 1
 done
 
 sh ./distclean.sh
