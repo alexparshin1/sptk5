@@ -89,6 +89,25 @@ public:
      */
     void reset() override;
 
+    /**
+     * @brief Sets the current log aside and starts an empty one.
+     *
+     * The file is closed, renamed by appending a timestamp to its name - "xmq_server.log" becomes
+     * "xmq_server.log.20260828.1912" - and a new, empty file is opened under the original name.
+     * Nothing is deleted: what to do with the files set aside is for the caller to decide.
+     *
+     * Unlike reset(), which throws away the history, this keeps it. A long-running service writes
+     * to one name for ever, and without this nothing ever trims it.
+     *
+     * Safe to call while other threads are logging: the engine's own lock is held throughout, and
+     * a message that arrives during the call is written to whichever file is open when its turn
+     * comes. If the rename cannot be done, the original file is reopened and kept in use rather
+     * than logging stopping - losing the log is worse than not rotating it.
+     *
+     * @return the name the old log was given, or an empty path if there was nothing to set aside.
+     */
+    std::filesystem::path rotate();
+
 protected:
     void close() override; ///< Close the file stream.
 

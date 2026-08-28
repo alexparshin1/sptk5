@@ -38,6 +38,7 @@
 
 #include <sptk5/FileLogEngine.h>
 
+#include <sptk5/DateTime.h>
 #include <sptk5/Exception.h>
 #include <sptk5/Printer.h>
 
@@ -133,6 +134,85 @@ void FileLogEngine::reset()
     }
 
     LogEngine::reset();
+}
+
+// The name a log is set aside under: the original with ".YYYYMMDD.HHMM" appended, and a counter
+// after that if something is already there. Two rotations within the same minute are unusual but
+// entirely possible - a size-triggered rotation of a busy log, or simply a second call - and
+// quietly writing over the first one would throw away the very thing being kept.
+static filesystem::path archiveName(const filesystem::path& logFile)
+{
+    short year = 0;
+    short month = 0;
+    short day = 0;
+    short weekDay = 0;
+    short yearDay = 0;
+    short hour = 0;
+    short minute = 0;
+    short second = 0;
+    short millisecond = 0;
+
+    const auto now = DateTime::Now();
+    now.decodeDate(&year, &month, &day, &weekDay, &yearDay);
+    now.decodeTime(&hour, &minute, &second, &millisecond);
+
+    const auto stamp = format("{:04}{:02}{:02}.{:02}{:02}", year, month, day, hour, minute);
+
+    auto candidate = logFile;
+    candidate += "." + stamp;
+    for (unsigned attempt = 1; exists(candidate); ++attempt)
+    {
+        candidate = logFile;
+        candidate += format(".{}-{}", stamp, attempt);
+    }
+    return candidate;
+}
+
+filesystem::path FileLogEngine::rotate()
+{
+    const lock_guard lock(masterLock());
+
+    if (m_fileName.empty())
+    {
+        throw Exception("File name isn't defined");
+    }
+
+    if (m_fileStream.is_open())
+    {
+        m_fileStream.flush();
+        m_fileStream.close();
+    }
+
+    // Nothing written yet, so nothing to keep. The empty file that the constructor made is left
+    // alone rather than set aside, which would leave a directory of empty timestamped files behind
+    // a service that restarts often.
+    error_code errorCode;
+    if (!exists(m_fileName, errorCode) || file_size(m_fileName, errorCode) == 0)
+    {
+        m_fileStream.open(m_fileName.c_str(), ofstream::out | ofstream::app);
+        return {};
+    }
+
+    const auto archived = archiveName(m_fileName);
+    rename(m_fileName, archived, errorCode);
+
+    // Truncating: after a successful rename the name is free, and if the rename failed the file is
+    // still the live log and must be appended to, not emptied.
+    const auto mode = errorCode ? (ofstream::out | ofstream::app) : (ofstream::out | ofstream::trunc);
+    m_fileStream.open(m_fileName.c_str(), mode);
+    if (!m_fileStream.is_open())
+    {
+        throw Exception(format("Can't open log file '{}'", m_fileName.string()));
+    }
+
+    if (errorCode)
+    {
+        CERR(format("Can't rename log file '{}' to '{}': {}. The log was not rotated.",
+                          m_fileName.string(), archived.string(), errorCode.message()));
+        return {};
+    }
+
+    return archived;
 }
 
 void FileLogEngine::close()

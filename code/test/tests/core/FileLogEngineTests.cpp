@@ -88,6 +88,78 @@ TEST(FileLogEngineTests,testLogPriorities)
     testPriority(logEngine, LogPriority::Error, 2);
 }
 
+TEST(FileLogEngineTests, rotateKeepsTheOldLogAndStartsAnEmptyOne)
+{
+    FileLogEngine logEngine(logFileName);
+    logEngine.reset();
+    logMessages(logEngine);
+    logEngine.flush();
+
+    Strings before;
+    before.loadFromFile(logFileName);
+    ASSERT_FALSE(before.empty());
+
+    const auto archived = logEngine.rotate();
+
+    // The old log is kept, under a name derived from the original.
+    ASSERT_FALSE(archived.empty());
+    EXPECT_TRUE(filesystem::exists(archived));
+    EXPECT_TRUE(archived.string().starts_with(logFileName.string() + "."));
+    Strings kept;
+    kept.loadFromFile(archived);
+    EXPECT_EQ(before.size(), kept.size());
+
+    // And the log carries on under its own name, from empty.
+    ASSERT_TRUE(filesystem::exists(logFileName));
+    EXPECT_EQ(0U, filesystem::file_size(logFileName));
+
+    const auto logger = make_shared<Logger>(logEngine, "(Test application) ");
+    logger->info("After rotation");
+    this_thread::sleep_for(100ms);
+    logEngine.flush();
+
+    Strings after;
+    after.loadFromFile(logFileName);
+    EXPECT_EQ(1U, after.size());
+
+    filesystem::remove(archived);
+}
+
+TEST(FileLogEngineTests, rotateTwiceInTheSameMinuteKeepsBoth)
+{
+    FileLogEngine logEngine(logFileName);
+    logEngine.reset();
+
+    logMessages(logEngine);
+    logEngine.flush();
+    const auto first = logEngine.rotate();
+
+    logMessages(logEngine);
+    logEngine.flush();
+    const auto second = logEngine.rotate();
+
+    // The second rotation lands in the same minute as the first, and must not write over it.
+    ASSERT_FALSE(first.empty());
+    ASSERT_FALSE(second.empty());
+    EXPECT_NE(first, second);
+    EXPECT_TRUE(filesystem::exists(first));
+    EXPECT_TRUE(filesystem::exists(second));
+
+    filesystem::remove(first);
+    filesystem::remove(second);
+}
+
+TEST(FileLogEngineTests, rotateAnEmptyLogKeepsNothing)
+{
+    FileLogEngine logEngine(logFileName);
+    logEngine.reset();
+
+    // Nothing has been written, so there is nothing worth a timestamped name. A service that
+    // restarts often would otherwise leave a directory of empty files behind it.
+    EXPECT_TRUE(logEngine.rotate().empty());
+    EXPECT_TRUE(filesystem::exists(logFileName));
+}
+
 TEST(FileLogEngineTests,performance)
 {
     FileLogEngine logEngine(logFileName);
