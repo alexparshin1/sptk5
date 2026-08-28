@@ -73,5 +73,21 @@ done
 
 echo "$(date +%H:%M:%S) Building complete"
 
+# What failed, said once, at the end. Every suite already wrote a marker when it failed and nothing
+# ever read one - so a night in which XMQ's tests ran on no image at all passed for a clean run.
+# They were being invoked by name from /usr/local/bin, and XMQ had stopped installing its test
+# binary; the builds themselves were fine, which is exactly why nobody looked.
+failures=$(ls logs/*_failed.*.log 2>/dev/null)
+if [ -n "$failures" ]; then
+    echo
+    echo "TEST SUITES THAT FAILED:"
+    for marker in $failures; do
+        echo "  $(basename $marker .log | sed -re 's/_failed\./ on /') - see $(cat $marker)"
+    done
+    echo
+else
+    echo "All test suites passed."
+fi
+
 rsync -qav /build/output/$SPTK_DIR/* /var/www/html/sptk/download/$SPTK_DIR/
 rsync -qav /build/output/$XMQ_DIR/* /var/www/html/sptk/download/$SPTK_DIR/

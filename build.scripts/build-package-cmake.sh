@@ -131,10 +131,13 @@ do
     ( cd $OUTPUT_DIR && sha256sum $name > $name.sha256 ) || exit 1
 done
 
-sh ./distclean.sh
-
 echo ──────────────────────────────────────────────────────────────────
 
+# Before distclean, not after. The suite used to be run by bare name from /usr/local/bin, which
+# worked only because "make install" put it there - and XMQ stopped installing its test binary when
+# the packaging work took it out of the .deb and .rpm, where it had been dragging googletest into a
+# production package. Nothing said so: the suite simply never ran again, on any image, and the run
+# reported "xmq_unit_tests: command not found" into a log nobody reads when the build itself is fine.
 if [ $RUN_TESTS = "true" ]; then
 
     echo "┌──────────────────────────────────────────────────────────────────────────────┐"
@@ -158,17 +161,32 @@ if [ $RUN_TESTS = "true" ]; then
     # "> file 2>&1", not "2>&1 > file": the second form sends stderr to wherever stdout points at
     # the time, which is the console, and only then redirects stdout. Every test's error output was
     # going to the screen while the log recorded only the quiet half.
-    cd $CWD/test && ${lcPACKAGE}_unit_tests --gtest_filter=-*Scenario* > /build/logs/${lcPACKAGE}_unit_tests.$OS_TYPE.log 2>&1
+    # From the build tree by preference, falling back to whatever is on PATH. SPTK's binary carries
+    # its version in the name - sptk_unit_tests-5.6.9 - and XMQ's does not, so the name is looked for
+    # rather than assumed. An installed copy still answers for anyone who has one.
+    cd $CWD/test || exit 1
+    suite=$(ls -1 ${lcPACKAGE}_unit_tests ${lcPACKAGE}_unit_tests-* 2>/dev/null | head -1)
+    if [ -n "$suite" ]; then
+        suite="./$suite"
+    else
+        suite="${lcPACKAGE}_unit_tests"
+    fi
+    echo "Test suite: $suite"
+    $suite --gtest_filter=-*Scenario* > /build/logs/${lcPACKAGE}_unit_tests.$OS_TYPE.log 2>&1
     RC=$?
 
+    # The image is in the name. It used to be ${lcPACKAGE}_failed.log for every image in the run,
+    # so nine images left one marker between them and each overwrote the last - a failure on the
+    # first eight was erased by a pass on the ninth.
     if [ $RC != 0 ]; then
-        echo "/build/logs/${lcPACKAGE}_unit_tests.$OS_TYPE.log" > /build/logs/${lcPACKAGE}_failed.log
+        echo "/build/logs/${lcPACKAGE}_unit_tests.$OS_TYPE.log" > /build/logs/${lcPACKAGE}_failed.$OS_TYPE.log
     else
-        rm /build/logs/${lcPACKAGE}_failed.log
+        rm -f /build/logs/${lcPACKAGE}_failed.$OS_TYPE.log
     fi
 fi
 
 cd $CWD
+sh ./distclean.sh
 sh ./distclean.sh
 chown -R alexeyp SPTK* XMQ*
 
