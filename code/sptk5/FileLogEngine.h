@@ -106,7 +106,7 @@ public:
      *
      * @return the name the old log was given, or an empty path if there was nothing to set aside.
      */
-    std::filesystem::path rotate();
+    std::filesystem::path rotate() override;
 
 protected:
     void close() override; ///< Close the file stream.

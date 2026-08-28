@@ -44,6 +44,7 @@
 
 #include <mutex>
 #include <atomic>
+#include <filesystem>
 #include <set>
 #include <sptk5/threads/Thread.h>
 
@@ -108,6 +109,20 @@ public:
     virtual void reset()
     {
         m_messages.clear();
+    }
+
+    /**
+     * @brief Sets the current log aside and starts an empty one, where that means anything.
+     *
+     * Virtual and doing nothing here, so that a caller holding a LogEngine can ask for it without
+     * knowing which one it has. A log that is not a file the program owns - a stream given to it,
+     * or the system log - has nothing to set aside, and the system log is rotated by the system.
+     *
+     * @return the name the old log was given, or an empty path if nothing was set aside.
+     */
+    virtual std::filesystem::path rotate()
+    {
+        return {};
     }
 
     /**
