@@ -104,9 +104,26 @@ public:
      * comes. If the rename cannot be done, the original file is reopened and kept in use rather
      * than logging stopping - losing the log is worse than not rotating it.
      *
+     * @param keepArchives      How many previously rotated logs to keep, the one just made among
+     *                          them. Older ones are deleted, which is what stops a daily rotation
+     *                          filling the disk with a year of files. keepAllArchives keeps them
+     *                          all and deletes nothing.
      * @return the name the old log was given, or an empty path if there was nothing to set aside.
      */
-    std::filesystem::path rotate() override;
+    std::filesystem::path rotate(size_t keepArchives) override;
+
+private:
+    /**
+     * @brief Deletes all but the newest keepArchives logs this engine has set aside.
+     *
+     * Only files this engine could have made: the log's own name, a dot, and the timestamp that
+     * rotate() appends. Anything else in the directory is left alone - a log directory is not
+     * necessarily ours alone, and deleting by a looser rule is how a cleanup removes something
+     * nobody asked it to.
+     */
+    void removeOldArchives(size_t keepArchives) const;
+
+public:
 
 protected:
     void close() override; ///< Close the file stream.

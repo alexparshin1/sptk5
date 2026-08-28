@@ -99,7 +99,7 @@ TEST(FileLogEngineTests, rotateKeepsTheOldLogAndStartsAnEmptyOne)
     before.loadFromFile(logFileName);
     ASSERT_FALSE(before.empty());
 
-    const auto archived = logEngine.rotate();
+    const auto archived = logEngine.rotate(FileLogEngine::keepAllArchives);
 
     // The old log is kept, under a name derived from the original.
     ASSERT_FALSE(archived.empty());
@@ -132,11 +132,11 @@ TEST(FileLogEngineTests, rotateTwiceInTheSameMinuteKeepsBoth)
 
     logMessages(logEngine);
     logEngine.flush();
-    const auto first = logEngine.rotate();
+    const auto first = logEngine.rotate(FileLogEngine::keepAllArchives);
 
     logMessages(logEngine);
     logEngine.flush();
-    const auto second = logEngine.rotate();
+    const auto second = logEngine.rotate(FileLogEngine::keepAllArchives);
 
     // The second rotation lands in the same minute as the first, and must not write over it.
     ASSERT_FALSE(first.empty());
@@ -156,8 +156,58 @@ TEST(FileLogEngineTests, rotateAnEmptyLogKeepsNothing)
 
     // Nothing has been written, so there is nothing worth a timestamped name. A service that
     // restarts often would otherwise leave a directory of empty files behind it.
-    EXPECT_TRUE(logEngine.rotate().empty());
+    EXPECT_TRUE(logEngine.rotate(FileLogEngine::keepAllArchives).empty());
     EXPECT_TRUE(filesystem::exists(logFileName));
+}
+
+TEST(FileLogEngineTests, rotateKeepsOnlyTheNewestArchives)
+{
+    FileLogEngine logEngine(logFileName);
+    logEngine.reset();
+
+    // Five rotations, keeping two. They land in the same minute, so they differ only by the
+    // counter - which is also the case the sort has to get right.
+    std::vector<filesystem::path> archived;
+    for (int rotation = 0; rotation < 5; ++rotation)
+    {
+        logMessages(logEngine);
+        logEngine.flush();
+        const auto path = logEngine.rotate(2);
+        ASSERT_FALSE(path.empty());
+        archived.push_back(path);
+    }
+
+    // The two newest are there and the three older ones are gone.
+    EXPECT_FALSE(filesystem::exists(archived[0]));
+    EXPECT_FALSE(filesystem::exists(archived[1]));
+    EXPECT_FALSE(filesystem::exists(archived[2]));
+    EXPECT_TRUE(filesystem::exists(archived[3]));
+    EXPECT_TRUE(filesystem::exists(archived[4]));
+
+    for (const auto& path: archived)
+    {
+        filesystem::remove(path);
+    }
+}
+
+TEST(FileLogEngineTests, rotateLeavesOtherFilesAlone)
+{
+    FileLogEngine logEngine(logFileName);
+    logEngine.reset();
+
+    // A file in the same directory whose name begins the same way but is not one of ours. Deleting
+    // by a looser rule than the one rotate() writes is how a cleanup removes what nobody asked it to.
+    const auto stranger = filesystem::path(logFileName.string() + ".keep-me");
+    { std::ofstream(stranger) << "not an archive\n"; }
+
+    logMessages(logEngine);
+    logEngine.flush();
+    const auto archived = logEngine.rotate(0);
+
+    EXPECT_TRUE(filesystem::exists(stranger));
+    EXPECT_FALSE(filesystem::exists(archived));
+
+    filesystem::remove(stranger);
 }
 
 TEST(FileLogEngineTests,performance)

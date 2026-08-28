@@ -45,6 +45,7 @@
 #include <mutex>
 #include <atomic>
 #include <filesystem>
+#include <limits>
 #include <set>
 #include <sptk5/threads/Thread.h>
 
@@ -120,10 +121,16 @@ public:
      *
      * @return the name the old log was given, or an empty path if nothing was set aside.
      */
-    virtual std::filesystem::path rotate()
+    virtual std::filesystem::path rotate(size_t keepArchives)
     {
+        (void) keepArchives;
         return {};
     }
+
+    /**
+     * @brief Passed to rotate() to keep every log it has ever set aside.
+     */
+    static constexpr size_t keepAllArchives = std::numeric_limits<size_t>::max();
 
     /**
      * @brief Sets log options.
