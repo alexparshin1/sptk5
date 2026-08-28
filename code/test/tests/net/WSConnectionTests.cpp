@@ -97,11 +97,13 @@ TEST_F(WSConnectionTests, addsContentLengthForGetWhenMissing)
     const auto it = headers.find("Content-Length");
     ASSERT_NE(it, headers.end());
     EXPECT_EQ(it->second, "0");
-    // When Connection header absent, implementation returns true (not "close")
-    EXPECT_TRUE(closeConnection);
+    // No Connection header at all: HTTP/1.1 says the connection is persistent, so there is
+    // nothing to close. This used to expect true, which is how the caller came to close every
+    // connection a client wanted to keep.
+    EXPECT_FALSE(closeConnection);
 }
 
-TEST_F(WSConnectionTests, keepsConnectionWhenHeaderIsClose)
+TEST_F(WSConnectionTests, closesConnectionWhenHeaderIsClose)
 {
     // Arrange
     const std::unique_ptr<WSConnection> conn(makeConnection());
@@ -120,8 +122,9 @@ TEST_F(WSConnectionTests, keepsConnectionWhenHeaderIsClose)
     ASSERT_NE(itLen, headers.end());
     EXPECT_EQ(itLen->second, "123");
 
-    // Since Connection == "close", method returns false and does not erase the header
-    EXPECT_FALSE(closeConnection);
+    // The client asked for the connection to be closed, so that is what is reported. The header
+    // is left in place, since it is the reason.
+    EXPECT_TRUE(closeConnection);
     const auto itConn = headers.find("Connection");
     ASSERT_NE(itConn, headers.end());
     EXPECT_EQ(itConn->second.toLowerCase(), "close");
@@ -140,10 +143,20 @@ TEST_F(WSConnectionTests, erasesConnectionWhenNotClose)
     const bool closeConnection = WSConnection::reviewHeaders(requestType, headers);
 
     // Assert
-    // Implementation treats anything not equal to "close" as closeConnection == true and erases header
-    EXPECT_TRUE(closeConnection);
+    // "keep-alive" is a request to keep the connection, and the hop-by-hop header is consumed here.
+    EXPECT_FALSE(closeConnection);
     const auto itConn = headers.find("Connection");
     EXPECT_EQ(itConn, headers.end());
+}
+
+TEST_F(WSConnectionTests, closesConnectionWhateverTheCaseOfClose)
+{
+    const std::unique_ptr<WSConnection> conn(makeConnection());
+    HttpHeaders                         headers;
+    headers["Connection"] = "Close";
+
+    // Header values are case-insensitive, and this spelling used to take the other branch.
+    EXPECT_TRUE(WSConnection::reviewHeaders("POST", headers));
 }
 
 } // namespace sptk

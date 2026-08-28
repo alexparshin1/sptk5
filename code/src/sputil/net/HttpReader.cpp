@@ -366,10 +366,19 @@ void HttpReader::readStream()
         }
     }
 
-    itor = m_httpHeaders.find("Connection");
-    if (itor != m_httpHeaders.end() && itor->second == "close")
+    // Only when reading a response. On a request, "Connection: close" is the client saying it
+    // will send no more of them - the server still owes it an answer, and closing here threw that
+    // answer away: a POST carrying the header got no reply at all, while a GET, whose body is
+    // never read, was answered normally. Reading a response, the header means the peer is done
+    // with the connection and closing is right. Compared without regard to case, as HTTP defines
+    // it: "Connection: Close" used to take the other branch and behave differently.
+    if (m_readMode == ReadMode::RESPONSE)
     {
-        close();
+        itor = m_httpHeaders.find("Connection");
+        if (itor != m_httpHeaders.end() && itor->second.toLowerCase() == "close")
+        {
+            close();
+        }
     }
 
     if (m_statusCode >= httpErrorResponseCode && m_statusText.empty())

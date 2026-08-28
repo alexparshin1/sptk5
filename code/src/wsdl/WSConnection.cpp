@@ -278,9 +278,15 @@ bool WSConnection::reviewHeaders(const String& requestType, HttpHeaders& headers
 
     it = headers.find("Connection");
     const auto connectionHeader = it == headers.end() ? "" : it->second;
-    const bool closeConnection = connectionHeader.toLowerCase() != "close";
-    if (closeConnection)
+    // What the client asked for, and not its opposite. The test used to be "!=", so the value
+    // returned under the name closeConnection was true exactly when the client had asked to keep
+    // the connection - and the caller closed it. Every connection meant to be reused was dropped
+    // after one request. Keep-alive is real here: WSServerThread hands an idle connection back to
+    // the reactor and serves the next request on it.
+    const bool closeConnection = connectionHeader.toLowerCase() == "close";
+    if (!closeConnection)
     {
+        // Hop-by-hop, and this hop has dealt with it.
         headers.erase("Connection");
     }
 
