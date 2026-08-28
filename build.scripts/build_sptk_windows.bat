@@ -16,7 +16,7 @@ echo Remove old build64 directory
 rmdir /S /Q build
 REM 2>&1 >> build.log
 
-echo Create build64 directory
+echo Create build directory
 mkdir build 2>&1 >> build.log
 cd build
 if errorlevel 1 (
