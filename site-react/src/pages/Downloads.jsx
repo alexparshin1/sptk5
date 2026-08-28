@@ -13,6 +13,18 @@ function sortedFiles(files)
 }
 
 /**
+ * The first checksum file among those listed, or null when there is none.
+ *
+ * Returned rather than a yes-or-no, because the note that follows shows the command to run and
+ * that command has to name a file that is actually on the page.
+ */
+function checksumFile(files)
+{
+    const found = files.find((file) => /\.sha256$/i.test(file.file));
+    return found ? found.file : null;
+}
+
+/**
  * Whether the listed files include the Windows installer.
  *
  * Decided by the file name rather than by which operating system is selected: the name is what
@@ -110,16 +122,17 @@ export default class Downloads extends React.Component
 
         return <div className="Downloads">
             <Seo title="Downloads — XMQ MQTT Server and SPTK Library"
-                 description="Download the free XMQ MQTT server for Linux (.deb and .rpm), Windows, and as a Docker image, and the SPTK C++ class library in source code and binary packages."
-                 keywords="download MQTT server, free MQTT server, MQTT Docker image, MQTT server Docker, Linux MQTT server, Windows MQTT server, XMQ, SPTK"
+                 description="Download the free XMQ MQTT server for Linux (.deb and .rpm), FreeBSD (pkg) and Windows, and as a Docker image, and the SPTK C++ class library in source code and binary packages."
+                 keywords="download MQTT server, free MQTT server, MQTT Docker image, MQTT server Docker, Linux MQTT server, FreeBSD MQTT server, MQTT broker FreeBSD, Windows MQTT server, XMQ, SPTK"
                  path="/downloads"/>
             <div style={{textAlign: "left", padding: 16}}>
                 <h1>Download the XMQ MQTT server</h1>
                 <p>
                     The free XMQ MQTT server is distributed as binary packages for Linux
-                    (.deb and .rpm) and Windows, and as a <a href="#docker">Docker image</a>. Pick
-                    the XMQ version and the operating system; each release also lists the SPTK
-                    class library it was built with, in source code and binary packages.
+                    (.deb and .rpm), FreeBSD (pkg) and Windows, and as
+                    a <a href="#docker">Docker image</a>. Pick the XMQ version and the operating
+                    system; each release also lists the SPTK class library it was built with, in
+                    source code and binary packages.
                 </p>
             </div>
             <div>
@@ -148,6 +161,17 @@ export default class Downloads extends React.Component
                         the SmartScreen window and then <b>Run anyway</b>. Nothing else about the
                         installation is unusual, and the file is the one listed above, served from
                         this site over HTTPS.
+                    </p>}
+                {checksumFile(xmqFiles) &&
+                    <p className="DownloadsNote">
+                        Each package has a <code>.sha256</code> file beside it holding the checksum
+                        of the download, so you can tell that what arrived is what was published.
+                        Download both into the same directory and check it:
+                        <br/>
+                        <code>shasum -a 256 -c {checksumFile(xmqFiles)}</code>
+                        <br/>
+                        On Windows, <code>certutil -hashfile &lt;file&gt; SHA256</code> prints the
+                        checksum to compare by eye.
                     </p>}
                 {sptkFiles.length > 0 && entry &&
                     <p className="DownloadsNote">

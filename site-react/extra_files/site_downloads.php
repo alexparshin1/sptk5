@@ -93,6 +93,10 @@ function osVersionNames()
         "fedora-43"      => "Fedora 43",
         "oraclelinux9"   => "Oracle Linux 9",
         "oraclelinux-9.5" => "Oracle Linux 9.5",
+        // The major version alone: the package's ABI is FreeBSD:15:amd64, so it installs on any
+        // 15.x. Without an entry here the directory would still be listed, under the name the
+        // fallback makes of it - "Freebsd 15".
+        "freebsd-15" => "FreeBSD 15",
         "tar" => "Source code (OS-independent)",
         "windows" => "Windows 10"
     );
