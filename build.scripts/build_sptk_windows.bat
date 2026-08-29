@@ -53,7 +53,11 @@ if not defined ADVINST (
 )
 echo Building the installer with %ADVINST%
 
-"%ADVINST%" /build build.scripts\SPTK.aip >> build.log 2>&1
+REM The project at the root of the tree, which is the one that is maintained - 278 files and 24
+REM prerequisites, against the 236 and none of the copy that used to be built here. Building the
+REM other one quietly published an installer 14 MB smaller than the release before it. There is
+REM one project now; the copy under build.scripts is gone.
+"%ADVINST%" /build "Simply Powerful Toolkit.aip" >> build.log 2>&1
 if errorlevel 1 (
     echo "Can't build installer"
     exit /b %errorlevel%
@@ -63,18 +67,18 @@ mkdir Downloads >> build.log 2>&1
 
 set /p VERSION=<VERSION
 
-REM Two things this line had wrong, and both were silent. Advanced Installer writes its output
-REM beside the .aip, so the directory is under build.scripts and not here; and the build produces
-REM SPTK.msi - the project is a plain MSI, not the bootstrapper XMQ's is - so nothing called
-REM SPTK.exe was ever going to be found. And "move", not "mv": this runs in cmd, where mv does not
-REM exist. Git for Windows ships one, in a directory that is not on PATH.
-move /Y build.scripts\SPTK-SetupFiles\SPTK.msi Downloads\SPTK-%VERSION%.msi >> build.log 2>&1
+REM Advanced Installer writes its output beside the .aip, so the directory is named after the
+REM project and sits here at the root. The build produces SPTK.msi - the project is a plain MSI,
+REM not the bootstrapper XMQ's is - so nothing called SPTK.exe was ever going to be found. And
+REM "move", not "mv": this runs in cmd, where mv does not exist. Git for Windows ships one, in a
+REM directory that is not on PATH.
+move /Y "Simply Powerful Toolkit-SetupFiles\SPTK.msi" Downloads\SPTK-%VERSION%.msi >> build.log 2>&1
 if errorlevel 1 (
     echo "Can't move installer to Downloads directory"
     exit /b %errorlevel%
 )
 
-rmdir /S /Q build.scripts\SPTK-SetupFiles build.scripts\SPTK-cache >> build.log 2>&1
+rmdir /S /Q "Simply Powerful Toolkit-SetupFiles" >> build.log 2>&1
 
 echo Computing the checksum
 REM Written in the format "shasum -a 256 -c" reads: the hash, two spaces, the name. Get-FileHash
