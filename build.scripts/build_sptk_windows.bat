@@ -72,7 +72,7 @@ REM project and sits here at the root. The build produces SPTK.msi - the project
 REM not the bootstrapper XMQ's is - so nothing called SPTK.exe was ever going to be found. And
 REM "move", not "mv": this runs in cmd, where mv does not exist. Git for Windows ships one, in a
 REM directory that is not on PATH.
-move /Y "Simply Powerful Toolkit-SetupFiles\SPTK.msi" Downloads\SPTK-%VERSION%.msi >> build.log 2>&1
+move /Y "Simply Powerful Toolkit-SetupFiles\SPTK-%VERSION%.msi" Downloads\SPTK-%VERSION%.msi >> build.log 2>&1
 if errorlevel 1 (
     echo "Can't move installer to Downloads directory"
     exit /b %errorlevel%
