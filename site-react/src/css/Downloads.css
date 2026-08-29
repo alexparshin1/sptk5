@@ -13,3 +13,21 @@
     font-style: italic;
     opacity: 0.8;
 }
+
+/* The checksum column. Monospace and a size down from the rest, so that 64 hex characters read as
+   a machine value rather than as a name, and so the row stays the height of one line. break-all
+   because a hash has nowhere natural to wrap: without it the column would push the table wider
+   than the page on a narrow screen instead of folding. */
+.FileChecksum {
+    padding-top: 4px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 0.78em;
+    word-break: break-all;
+    opacity: 0.85;
+}
+
+/* Releases published before the build scripts wrote checksums have none. Shown as a dash, so the
+   column reads as empty on purpose rather than broken. */
+.FileChecksumMissing {
+    opacity: 0.4;
+}

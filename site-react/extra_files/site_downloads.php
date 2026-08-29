@@ -39,19 +39,37 @@ function getDownloadFiles($sptkVersion, $directory, $os_dirname, $title)
 
     echo "        \"files\": [\n";
 
+    // A .sha256 is not a download of its own - it belongs to the file it is named after, and is
+    // reported with it as "sha256" below. It stays on disk and reachable by URL, for anyone who
+    // would rather run "shasum -a 256 -c" than compare by eye; it is only not listed as a package.
+    $downloads = array();
+    foreach ($files as $file) {
+        if ($file == "." || $file == ".." || substr($file, -7) === ".sha256")
+            continue;
+        $downloads[] = $file;
+    }
+
     $first = true;
     $fileCount = 0;
-    foreach ($files as $file) {
-        if ($file == "." || $file == "..")
-            continue;
+    foreach ($downloads as $file) {
         if ($first) {
             $first = false;
         } else {
             echo ",\n";
         }
+
+        // The hash alone. The file holds it in the format shasum reads - the hash, two spaces and
+        // the name - and the name is already known here.
+        $checksum = "";
+        $checksumFile = "$directory/$file.sha256";
+        if (file_exists($checksumFile)) {
+            $checksum = strtok(trim(file_get_contents($checksumFile)), " ");
+        }
+
         echo "          { \"file\": \"$file\", ";
         echo "\"fdate\": \"" . date("d M Y", filemtime("$directory/$file")) . "\", ";
-        echo "\"fsize\": \"" . (int) (filesize("$directory/$file") / 1024) . " Kb\" }";
+        echo "\"fsize\": \"" . (int) (filesize("$directory/$file") / 1024) . " Kb\", ";
+        echo "\"sha256\": \"$checksum\" }";
         $fileCount++;
     }
 

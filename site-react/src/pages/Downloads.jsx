@@ -13,15 +13,14 @@ function sortedFiles(files)
 }
 
 /**
- * The first checksum file among those listed, or null when there is none.
+ * Whether any of the listed files comes with a checksum.
  *
- * Returned rather than a yes-or-no, because the note that follows shows the command to run and
- * that command has to name a file that is actually on the page.
+ * Releases published before the build scripts started writing them have none, and the note that
+ * explains the column has nothing to explain there.
  */
-function checksumFile(files)
+function hasChecksums(files)
 {
-    const found = files.find((file) => /\.sha256$/i.test(file.file));
-    return found ? found.file : null;
+    return files.some((file) => file.sha256);
 }
 
 /**
@@ -85,6 +84,7 @@ export default class Downloads extends React.Component
                 <th style={{width: 300}}>File</th>
                 <th style={{width: 150}}>Date</th>
                 <th style={{width: 100}}>Size</th>
+                <th>SHA-256</th>
             </tr>
             </thead>
             <tbody>
@@ -96,6 +96,14 @@ export default class Downloads extends React.Component
                 </td>
                 <td key={file.file + "-date"} className="FileInfo">{file.fdate}</td>
                 <td key={file.file + "-size"} className="FileInfo">{file.fsize}</td>
+                {/* The checksum, linking to the .sha256 file it came from - so that it reads as a
+                    property of the file above it rather than as another thing to download. */}
+                <td key={file.file + "-sha256"} className="FileChecksum">
+                    {file.sha256
+                        ? <a href={"download/" + entry.sptkVersion + "/" + entry.osDir + "/" + file.file + ".sha256"}
+                             title={"SHA-256 of " + file.file}>{file.sha256}</a>
+                        : <span className="FileChecksumMissing">—</span>}
+                </td>
             </tr>)}
             </tbody>
         </table>;
@@ -162,16 +170,13 @@ export default class Downloads extends React.Component
                         installation is unusual, and the file is the one listed above, served from
                         this site over HTTPS.
                     </p>}
-                {checksumFile(xmqFiles) &&
+                {hasChecksums(xmqFiles) &&
                     <p className="DownloadsNote">
-                        Each package has a <code>.sha256</code> file beside it holding the checksum
-                        of the download, so you can tell that what arrived is what was published.
-                        Download both into the same directory and check it:
-                        <br/>
-                        <code>shasum -a 256 -c {checksumFile(xmqFiles)}</code>
-                        <br/>
-                        On Windows, <code>certutil -hashfile &lt;file&gt; SHA256</code> prints the
-                        checksum to compare by eye.
+                        The SHA-256 column is the checksum of the file beside it, and links to the
+                        <code>.sha256</code> file that <code>shasum -a 256 -c</code> reads; on
+                        Windows, <code>certutil -hashfile &lt;file&gt; SHA256</code> prints the same
+                        thing to compare by eye. It tells you that a download arrived intact. It is
+                        not a signature and says nothing about who built the file.
                     </p>}
                 {sptkFiles.length > 0 && entry &&
                     <p className="DownloadsNote">
