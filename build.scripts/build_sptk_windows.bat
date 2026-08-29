@@ -39,7 +39,21 @@ if errorlevel 1 (
     exit /b %errorlevel%
 )
 
-"C:\Program Files (x86)\Caphyon\Advanced Installer 23.3\bin\x86\advinst.exe" /build build.scripts\SPTK.aip >> build.log 2>&1
+REM Found rather than named. The version was written in here as 23.3 while 23.9 is what is
+REM installed, so this step ran a path that does not exist and the build stopped here every time.
+REM Highest name wins, which is right until there is a 23.10 to sort below 23.9 - pin ADVINST in
+REM the environment if that day comes.
+set ADVINST=
+for /f "delims=" %%d in ('dir /b /o-n "C:\Program Files (x86)\Caphyon\Advanced Installer *" 2^>nul') do (
+    if not defined ADVINST if exist "C:\Program Files (x86)\Caphyon\%%d\bin\x86\advinst.exe" set "ADVINST=C:\Program Files (x86)\Caphyon\%%d\bin\x86\advinst.exe"
+)
+if not defined ADVINST (
+    echo "Advanced Installer not found under C:\Program Files (x86)\Caphyon"
+    exit /b 1
+)
+echo Building the installer with %ADVINST%
+
+"%ADVINST%" /build build.scripts\SPTK.aip >> build.log 2>&1
 if errorlevel 1 (
     echo "Can't build installer"
     exit /b %errorlevel%
@@ -49,7 +63,9 @@ mkdir Downloads >> build.log 2>&1
 
 set /p VERSION=<VERSION
 
-mv SPTK-SetupFiles\SPTK.exe Downloads\SPTK-%VERSION%.exe >> build.log 2>&1
+REM move, not mv: this runs in cmd, where mv does not exist. Git for Windows has one, in a
+REM directory that is not on PATH, so the line failed and the installer never reached Downloads.
+move /Y SPTK-SetupFiles\SPTK.exe Downloads\SPTK-%VERSION%.exe >> build.log 2>&1
 if errorlevel 1 (
     echo "Can't move installer to Downloads directory"
     exit /b %errorlevel%
