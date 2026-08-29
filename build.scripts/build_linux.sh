@@ -36,9 +36,9 @@ rsync -av git/xmq/ $XMQ_DIR > /tmp/op.log || (cat /tmp/op.log; exit 1)
 
 rm -f logs/*.log
 
-#for dname in /home/alexeyp/Docker/Dockerfile.*
+for dname in /home/alexeyp/Docker/Dockerfile.*
 #for dname in /home/alexeyp/Docker/Dockerfile.ubuntu-25.10
-for dname in /home/alexeyp/Docker/Dockerfile.debian-forky
+#for dname in /home/alexeyp/Docker/Dockerfile.debian-forky
 do
     name=$(echo $dname | sed -re 's/^.*Dockerfile.//')
     echo "$(date +%H:%M:%S) Building $name"
