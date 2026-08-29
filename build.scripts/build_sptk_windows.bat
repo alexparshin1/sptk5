@@ -63,22 +63,25 @@ mkdir Downloads >> build.log 2>&1
 
 set /p VERSION=<VERSION
 
-REM move, not mv: this runs in cmd, where mv does not exist. Git for Windows has one, in a
-REM directory that is not on PATH, so the line failed and the installer never reached Downloads.
-move /Y SPTK-SetupFiles\SPTK.exe Downloads\SPTK-%VERSION%.exe >> build.log 2>&1
+REM Two things this line had wrong, and both were silent. Advanced Installer writes its output
+REM beside the .aip, so the directory is under build.scripts and not here; and the build produces
+REM SPTK.msi - the project is a plain MSI, not the bootstrapper XMQ's is - so nothing called
+REM SPTK.exe was ever going to be found. And "move", not "mv": this runs in cmd, where mv does not
+REM exist. Git for Windows ships one, in a directory that is not on PATH.
+move /Y build.scripts\SPTK-SetupFiles\SPTK.msi Downloads\SPTK-%VERSION%.msi >> build.log 2>&1
 if errorlevel 1 (
     echo "Can't move installer to Downloads directory"
     exit /b %errorlevel%
 )
 
-rmdir /S /Q SPTK-SetupFiles SPTK-cache >> build.log 2>&1
+rmdir /S /Q build.scripts\SPTK-SetupFiles build.scripts\SPTK-cache >> build.log 2>&1
 
 echo Computing the checksum
 REM Written in the format "shasum -a 256 -c" reads: the hash, two spaces, the name. Get-FileHash
 REM rather than certutil, whose output has changed shape between Windows versions. No trailing
 REM newline, so that no CR reaches a file that will be read on Linux - a CR there becomes part of
 REM the file name and the check then fails looking for a file nobody has.
-powershell -NoProfile -Command "$name = 'SPTK-%VERSION%.exe'; $hash = (Get-FileHash -Algorithm SHA256 (Join-Path 'Downloads' $name)).Hash.ToLower(); Set-Content -Path (Join-Path 'Downloads' ($name + '.sha256')) -Value ($hash + '  ' + $name) -NoNewline -Encoding ascii"
+powershell -NoProfile -Command "$name = 'SPTK-%VERSION%.msi'; $hash = (Get-FileHash -Algorithm SHA256 (Join-Path 'Downloads' $name)).Hash.ToLower(); Set-Content -Path (Join-Path 'Downloads' ($name + '.sha256')) -Value ($hash + '  ' + $name) -NoNewline -Encoding ascii"
 if errorlevel 1 (
     echo "Can't compute the checksum"
     exit /b %errorlevel%
@@ -97,7 +100,7 @@ if errorlevel 1 (
     exit /b %errorlevel%
 )
 
-scp -P 443 Downloads\SPTK-%VERSION%.exe Downloads\SPTK-%VERSION%.exe.sha256 %REMOTE_HOST%:%REMOTE_DIR%/
+scp -P 443 Downloads\SPTK-%VERSION%.msi Downloads\SPTK-%VERSION%.msi.sha256 %REMOTE_HOST%:%REMOTE_DIR%/
 if errorlevel 1 (
     echo "Can't upload the installer"
     exit /b %errorlevel%
