@@ -91,16 +91,20 @@ REM The download area is laid out as SPTK-<version>, not <version>: this used to
 REM download/5.6.9/windows, a directory that does not exist, so the copy failed and no Windows
 REM installer has been published since 5.6.7. The directory is created first, because a new
 REM release has none.
-set REMOTE_HOST=alexeyp@www.sptk.net
+REM The web host over the local network, because that is where this machine is. It used to be
+REM www.sptk.net on 443, which answers from outside but closes the connection from here. Both are
+REM overridable: set REMOTE_HOST and REMOTE_PORT before running to publish from somewhere else.
+if not defined REMOTE_HOST set REMOTE_HOST=alexeyp@10.1.1.242
+if not defined REMOTE_PORT set REMOTE_PORT=22
 set REMOTE_DIR=/var/www/html/sptk/download/SPTK-%VERSION%/windows
 
-ssh -p 443 %REMOTE_HOST% "mkdir -p %REMOTE_DIR%"
+ssh -p %REMOTE_PORT% %REMOTE_HOST% "mkdir -p %REMOTE_DIR%"
 if errorlevel 1 (
     echo "Can't create the remote directory"
     exit /b %errorlevel%
 )
 
-scp -P 443 Downloads\SPTK-%VERSION%.msi Downloads\SPTK-%VERSION%.msi.sha256 %REMOTE_HOST%:%REMOTE_DIR%/
+scp -P %REMOTE_PORT% Downloads\SPTK-%VERSION%.msi Downloads\SPTK-%VERSION%.msi.sha256 %REMOTE_HOST%:%REMOTE_DIR%/
 if errorlevel 1 (
     echo "Can't upload the installer"
     exit /b %errorlevel%
