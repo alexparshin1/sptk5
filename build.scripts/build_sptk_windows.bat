@@ -14,10 +14,10 @@ if errorlevel 1 (
 
 echo Remove old build64 directory
 rmdir /S /Q build
-REM 2>&1 >> build.log
+REM >> build.log 2>&1
 
 echo Create build directory
-mkdir build 2>&1 >> build.log
+mkdir build >> build.log 2>&1
 cd build
 if errorlevel 1 (
     echo "Can't switch to build directory"
@@ -39,22 +39,50 @@ if errorlevel 1 (
     exit /b %errorlevel%
 )
 
-"C:\Program Files (x86)\Caphyon\Advanced Installer 23.3\bin\x86\advinst.exe" /build build.scripts\SPTK.aip 2>&1 >> build.log
+"C:\Program Files (x86)\Caphyon\Advanced Installer 23.3\bin\x86\advinst.exe" /build build.scripts\SPTK.aip >> build.log 2>&1
 if errorlevel 1 (
     echo "Can't build installer"
     exit /b %errorlevel%
 )
 
-mkdir Downloads 2>&1 >> build.log
+mkdir Downloads >> build.log 2>&1
 
 set /p VERSION=<VERSION
 
-mv SPTK-SetupFiles\SPTK.exe Downloads\SPTK-%VERSION%.exe 2>&1 >> build.log
+mv SPTK-SetupFiles\SPTK.exe Downloads\SPTK-%VERSION%.exe >> build.log 2>&1
 if errorlevel 1 (
     echo "Can't move installer to Downloads directory"
     exit /b %errorlevel%
 )
 
-rmdir /S /Q SPTK-SetupFiles SPTK-cache 2>&1 >> build.log
+rmdir /S /Q SPTK-SetupFiles SPTK-cache >> build.log 2>&1
 
-scp -P 443 Downloads\SPTK-%VERSION%.exe alexeyp@www.sptk.net:/var/www/html/sptk/download/%VERSION%/windows/SPTK-%VERSION%.exe
+echo Computing the checksum
+REM Written in the format "shasum -a 256 -c" reads: the hash, two spaces, the name. Get-FileHash
+REM rather than certutil, whose output has changed shape between Windows versions. No trailing
+REM newline, so that no CR reaches a file that will be read on Linux - a CR there becomes part of
+REM the file name and the check then fails looking for a file nobody has.
+powershell -NoProfile -Command "$name = 'SPTK-%VERSION%.exe'; $hash = (Get-FileHash -Algorithm SHA256 (Join-Path 'Downloads' $name)).Hash.ToLower(); Set-Content -Path (Join-Path 'Downloads' ($name + '.sha256')) -Value ($hash + '  ' + $name) -NoNewline -Encoding ascii"
+if errorlevel 1 (
+    echo "Can't compute the checksum"
+    exit /b %errorlevel%
+)
+
+REM The download area is laid out as SPTK-<version>, not <version>: this used to upload into
+REM download/5.6.9/windows, a directory that does not exist, so the copy failed and no Windows
+REM installer has been published since 5.6.7. The directory is created first, because a new
+REM release has none.
+set REMOTE_HOST=alexeyp@www.sptk.net
+set REMOTE_DIR=/var/www/html/sptk/download/SPTK-%VERSION%/windows
+
+ssh -p 443 %REMOTE_HOST% "mkdir -p %REMOTE_DIR%"
+if errorlevel 1 (
+    echo "Can't create the remote directory"
+    exit /b %errorlevel%
+)
+
+scp -P 443 Downloads\SPTK-%VERSION%.exe Downloads\SPTK-%VERSION%.exe.sha256 %REMOTE_HOST%:%REMOTE_DIR%/
+if errorlevel 1 (
+    echo "Can't upload the installer"
+    exit /b %errorlevel%
+)
