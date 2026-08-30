@@ -10,7 +10,7 @@ export default class XMQ_configuration extends React.Component
         return <div key="configuration-menu" className="XMQ" style={{textAlign: "left", padding: 8}}>
             <Seo title="XMQ MQTT Server Configuration"
                  description="How to configure the XMQ MQTT server: listeners, TLS, message persistence backends, MQTT bridge links and the administration interface."
-                 keywords="XMQ configuration, MQTT bridge, Linux MQTT server, Windows MQTT server"
+                 keywords="XMQ configuration, MQTT bridge, Linux MQTT server, FreeBSD MQTT server, Windows MQTT server"
                  path="/xmq_configuration"/>
             <h1>XMQ MQTT Server Configuration</h1>
             <p>

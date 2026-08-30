@@ -8,9 +8,9 @@ export default class XMQ_about extends React.Component
     render()
     {
         return <div className="XMQ" style={{textAlign: "left", padding: 8}}>
-            <Seo title="About XMQ — Fast Free MQTT Server for Linux and Windows"
-                 description="XMQ is a fast, free MQTT server written in C++. It supports MQTT 3.1, 3.1.1 and 5.0, QoS 0/1/2, TLS encryption, message persistence and MQTT bridging, on Linux and Windows."
-                 keywords="XMQ, fast MQTT server, free MQTT server, MQTT bridge, Linux MQTT server, Windows MQTT server"
+            <Seo title="About XMQ — Fast Free MQTT Server for Linux, FreeBSD and Windows"
+                 description="XMQ is a fast, free MQTT server written in C++. It supports MQTT 3.1, 3.1.1 and 5.0, QoS 0/1/2, TLS encryption, message persistence and MQTT bridging, on Linux, FreeBSD and Windows."
+                 keywords="XMQ, fast MQTT server, free MQTT server, MQTT bridge, Linux MQTT server, FreeBSD MQTT server, MQTT broker FreeBSD, Windows MQTT server"
                  path="/xmq_about"/>
             <h1>XMQ MQTT Server</h1>
 
@@ -39,8 +39,8 @@ export default class XMQ_about extends React.Component
             <h3>Supported Operating Systems</h3>
             <p>
                 As a Linux MQTT server, XMQ ships in .deb and .rpm flavours.
-                As a Windows MQTT server it is supported, though the installer isn't yet available.
-                BSD port is in the works, but the ETA is not available.
+                As a FreeBSD MQTT server it ships as a native pkg, with an rc.d service.
+                As a Windows MQTT server it comes with an installer.
                 The binary packages are available on the <Link to="/downloads">Downloads</Link> page.
             </p>
 
@@ -102,6 +102,11 @@ export default class XMQ_about extends React.Component
                     <td>Windows installer</td>
                     <td>Implemented</td>
                     <td>0.9.13</td>
+                </tr>
+                <tr>
+                    <td>FreeBSD package (pkg)</td>
+                    <td>Implemented</td>
+                    <td>0.9.15</td>
                 </tr>
                 <tr>
                     <td>SSL encryption</td>
