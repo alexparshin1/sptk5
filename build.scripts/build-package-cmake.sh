@@ -58,7 +58,15 @@ case $OS_NAME in
 
     ol)
         OS_TYPE="$PLATFORM"
-        DOWNLOAD_DIRNAME="oraclelinux-9.5"
+        # The major version alone, because the packages are binary compatible across an Enterprise
+        # Linux major release: one directory serves RHEL, Alma, Rocky and Oracle of that major.
+        #
+        # This was hardcoded to "oraclelinux-9.5" and stayed there when the image moved to Oracle
+        # Linux 10, so EL10 packages were published under a name promising EL9. They ask for
+        # glibc 2.38 and EL9 has 2.34, so anyone who followed that name downloaded something that
+        # could not install. Derived from the running system now, like every other distribution
+        # here.
+        DOWNLOAD_DIRNAME="$OS_FULLNAME-${OS_VERSION%%.*}"
         ;;
 
     fedora)
