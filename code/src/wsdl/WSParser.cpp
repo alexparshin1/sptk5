@@ -702,23 +702,45 @@ void WSParser::generate(const String& sourceDirectory, const String& headerFile,
 namespace {
 void fileToCxxStream(const filesystem::path& fileName, const String& variableName, stringstream& cxxStream)
 {
+    // Emitted as a series of adjacent literals, which the compiler joins back into one string.
+    //
+    // A compiler is only required to support string literals of 65,536 characters, and MSVC enforces
+    // exactly that as a hard error with no option to raise it. XMQ's WSDL passed that some time ago -
+    // 88,284 characters - and Clang says so through -Woverlength-strings. It matters more here than
+    // in ordinary code because wsdl2cxx is a tool other people run on their own WSDL files: a limit
+    // hit inside generated code is not something its author can do anything about.
+    //
+    // Splitting on line boundaries is safe. The content cannot contain the )" delimiter - if it did,
+    // the single-literal form would not have compiled either - so no split can create one.
+    constexpr size_t chunkLimit = 16384;
+
     Strings content;
     content.loadFromFile(fileName);
 
     cxxStream << "const sptk::String " << variableName << "(R\"(";
 
-    auto first = true;
+    auto   first = true;
+    size_t chunkLength = 0;
     for (const auto& row: content)
     {
         if (first)
         {
             first = false;
         }
+        else if (chunkLength >= chunkLimit)
+        {
+            // The newline belongs to the line just written, so it goes inside the literal being
+            // closed - otherwise the join would lose it and every chunk boundary would run two
+            // lines together.
+            cxxStream << "\n)\"\n    R\"(";
+            chunkLength = 0;
+        }
         else
         {
             cxxStream << "\n";
         }
         cxxStream << "    " << row;
+        chunkLength += row.length() + 5;
     }
 
     cxxStream << ")\");\n\n";
