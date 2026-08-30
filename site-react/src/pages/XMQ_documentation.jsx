@@ -17,7 +17,7 @@ export default class XMQ_documentation extends React.Component
     {
         return <div key="xmq-documentation" className="XMQ" style={{textAlign: "left", padding: 8}}>
             <Seo title="XMQ MQTT Server Documentation"
-                 description="User manual for the XMQ MQTT server: installation on Linux and Windows, configuration, MQTT bridge setup, security and administration."
+                 description="User manual for the XMQ MQTT server: installation on Linux, FreeBSD and Windows, configuration, MQTT bridge setup, security and administration."
                  path="/xmq_documentation"/>
             <h1>XMQ MQTT Server Documentation</h1>
             <UserManualScreen/>

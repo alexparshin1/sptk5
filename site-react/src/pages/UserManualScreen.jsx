@@ -73,6 +73,11 @@ export default class UserManualScreen extends React.Component {
                     <td><code>.rpm</code></td>
                 </tr>
                 <tr>
+                    <td>FreeBSD</td>
+                    <td>15</td>
+                    <td><code>pkg</code></td>
+                </tr>
+                <tr>
                     <td>Windows</td>
                     <td>10, 11, Server</td>
                     <td>installer</td>
@@ -98,13 +103,14 @@ export default class UserManualScreen extends React.Component {
 
             <p>
                 Packages are named <code>XMQ-server</code> and install under <code>/usr/local</code>
-                on Linux. The server, the utilities, the configuration interface, and the load-test scenarios all
+                on Linux and FreeBSD. The server, the utilities, the configuration interface, and the load-test scenarios all
                 come from that one package.
             </p>
 
             <p>
                 The dependencies for Linux include brotli and pcre2 packages that are included in all major
-                Linux distributions. The dependencies for Windows are installed with XMQ.
+                Linux distributions. On FreeBSD <code>pkg</code> resolves them from the official
+                repository. The dependencies for Windows are installed with XMQ.
             </p>
 
             <p>
@@ -117,6 +123,9 @@ export default class UserManualScreen extends React.Component {
 
             <h5>Fedora and Oracle Linux</h5>
             <pre className="userManualCode">{`sudo dnf install ./XMQ-server-*.rpm`}</pre>
+
+            <h5>FreeBSD</h5>
+            <pre className="userManualCode">{`sudo pkg install ./XMQ-server-*.pkg`}</pre>
 
             <p>
                 Installing through the package manager rather than <code>dpkg -i</code> or
@@ -175,6 +184,13 @@ sudo systemctl status xmq_server
 sudo journalctl -u xmq_server -f`}</pre>
 
             <p>
+                On FreeBSD the package installs an <code>rc.d</code> script instead:
+            </p>
+            <pre className="userManualCode">{`sudo sysrc xmq_server_enable=YES
+sudo service xmq_server start
+sudo service xmq_server status`}</pre>
+
+            <p>
                 On Windows, <code>xmq_server --install-service</code> registers it as a Windows
                 service, and <code>--uninstall-service</code> removes it.
             </p>
@@ -190,12 +206,6 @@ sudo journalctl -u xmq_server -f`}</pre>
                 </tr>
                 </thead>
                 <tbody>
-                <tr>
-                    <td><code>-s</code>, <code>--console</code></td>
-                    <td>Stay in the foreground instead of self-daemonizing. This is what the
-                        systemd unit uses, so that systemd supervises the real process
-                    </td>
-                </tr>
                 <tr>
                     <td><code>-c</code>, <code>--configuration-file</code></td>
                     <td>Use a configuration file other than the default</td>
@@ -224,7 +234,7 @@ sudo journalctl -u xmq_server -f`}</pre>
             <p>
                 Once the server runs, the configuration interface is reachable on port 18883 by
                 default. On a server that has just been installed it answers on that machine only,
-                at <code>https://localhost:18883</code>, and the <code>admin</code> account it
+                at <code>https://127.0.0.1:18883</code>, and the <code>admin</code> account it
                 created has no password: sign in as <code>admin</code> leaving the password empty.
                 The <b>Initial Setup</b> page opens straight away, and the password set there is
                 what opens the interface to the rest of the network.
@@ -353,7 +363,7 @@ sudo sysctl --system`}</pre>
                 <code>https://xmq_host:18883</code>, where xmq_host is the host the XMQ server runs
                 on. It is administered through the <code>admin</code> account. A server that has
                 never been set up is the exception in two ways: it answers at{" "}
-                <code>https://localhost:18883</code> and nowhere else, and <code>admin</code> has
+                <code>https://127.0.0.1:18883</code> and nowhere else, and <code>admin</code> has
                 no password yet &mdash; sign in with the password field left empty, and set one on
                 the <b>Initial Setup</b> page that opens.
             </p>
@@ -432,7 +442,7 @@ sudo sysctl --system`}</pre>
             </p>
 
             <pre className="userManualCode">{`sudo systemctl stop xmq
-sudo xmq_server --reset-configuration --console   # or start the service again afterwards`}</pre>
+sudo xmq_server --reset-configuration   # or start the service again afterwards`}</pre>
 
             <p>
                 It replaces <code>xmq_server.conf</code> with the starting configuration and carries

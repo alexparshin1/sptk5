@@ -37,12 +37,12 @@ export default class Home extends React.Component
         }
 
         return <div key="home-page" className="Page">
-            <Seo title="XMQ — Fast Free MQTT Server for Linux and Windows"
-                 description="XMQ is a fast, free MQTT server for Linux and Windows. MQTT 3.1, 3.1.1, and 5.0, QoS 0/1/2, TLS, message persistence, MQTT bridge and up to 1 million concurrent clients, with an open MQTT test suite and published MQTT performance tests."
-                 keywords="XMQ, fast MQTT server, free MQTT server, MQTT bridge, Linux MQTT server, Windows MQTT server, MQTT test suite, MQTT performance tests"
+            <Seo title="XMQ — Fast Free MQTT Server for Linux, FreeBSD and Windows"
+                 description="XMQ is a fast, free MQTT server for Linux, FreeBSD and Windows. MQTT 3.1, 3.1.1, and 5.0, QoS 0/1/2, TLS, message persistence, MQTT bridge and up to 1 million concurrent clients, with an open MQTT test suite and published MQTT performance tests."
+                 keywords="XMQ, fast MQTT server, free MQTT server, MQTT bridge, Linux MQTT server, FreeBSD MQTT server, MQTT broker FreeBSD, Windows MQTT server, MQTT test suite, MQTT performance tests"
                  path="/"/>
 
-            <h1>XMQ — a fast, free MQTT server for Linux and Windows</h1>
+            <h1>XMQ — a fast, free MQTT server for Linux, FreeBSD and Windows</h1>
             <p>
                 <Link to="/xmq_about">XMQ</Link> is a cross-platform MQTT server written in C++.
                 It implements MQTT protocol versions 3.1, 3.1.1, and 5.0 with QoS levels 0, 1, and 2,
@@ -52,8 +52,8 @@ export default class Home extends React.Component
             </p>
             <ul>
                 <li>
-                    Runs as a <b>Linux MQTT server</b> (.deb and .rpm packages) and as a
-                    <b> Windows MQTT server</b>.
+                    Runs as a <b>Linux MQTT server</b> (.deb and .rpm packages), a
+                    <b> FreeBSD MQTT server</b> (pkg), and a <b>Windows MQTT server</b>.
                 </li>
                 <li>
                     Acts as an <b>MQTT bridge</b>, forwarding messages between XMQ nodes and
