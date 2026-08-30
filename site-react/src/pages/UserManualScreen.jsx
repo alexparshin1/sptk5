@@ -225,11 +225,39 @@ sudo service xmq_server status`}</pre>
                     <td>Verbose logging, regardless of the configured levels</td>
                 </tr>
                 <tr>
+                    <td><code>--set-password</code></td>
+                    <td>Set an account's password and exit, reading the password from standard
+                        input. The way to give the administrator a password where the
+                        configuration interface cannot be reached &mdash; see below
+                    </td>
+                </tr>
+                <tr>
                     <td><code>--version</code></td>
                     <td>Print the version and exit</td>
                 </tr>
                 </tbody>
             </table>
+
+            <h5>Setting the administrator password without the interface</h5>
+
+            <p>
+                A freshly installed server has an administrator with no password, and until one is
+                set the configuration interface answers on <code>127.0.0.1</code> only. On a machine
+                with a console that is exactly right. Where there is no console it is a problem, so
+                the password can also be set from the command line:
+            </p>
+
+            <pre className="userManualCode">{`printf '%s' 'the-new-password' | sudo -u xmq xmq_server --set-password admin`}</pre>
+
+            <p>
+                The password is read from standard input, not taken as an argument, so it does not
+                appear in the process list or the shell history. On a headless server the
+                alternative is to forward the port &mdash;
+                <code>ssh -L 18883:127.0.0.1:18883 the-server</code> &mdash; and use the interface
+                as usual. In a container neither the console nor the loopback address is available,
+                and the image sets the password from <code>XMQ_ADMIN_PASSWORD</code> for this
+                reason.
+            </p>
 
             <p>
                 Once the server runs, the configuration interface is reachable on port 18883 by
