@@ -702,22 +702,29 @@ void WSParser::generate(const String& sourceDirectory, const String& headerFile,
 namespace {
 void fileToCxxStream(const filesystem::path& fileName, const String& variableName, stringstream& cxxStream)
 {
-    // Emitted as a series of adjacent literals, which the compiler joins back into one string.
+    // Emitted as separate literals joined at run time, NOT as adjacent literals.
     //
-    // A compiler is only required to support string literals of 65,536 characters, and MSVC enforces
-    // exactly that as a hard error with no option to raise it. XMQ's WSDL passed that some time ago -
-    // 88,284 characters - and Clang says so through -Woverlength-strings. It matters more here than
-    // in ordinary code because wsdl2cxx is a tool other people run on their own WSDL files: a limit
-    // hit inside generated code is not something its author can do anything about.
+    // A compiler need only support a string literal of 65,536 characters, and MSVC enforces that as
+    // a hard error with no option to raise it. XMQ's WSDL passed it long ago - 88,284 characters -
+    // and Clang says so through -Woverlength-strings.
     //
-    // Splitting on line boundaries is safe. The content cannot contain the )" delimiter - if it did,
-    // the single-literal form would not have compiled either - so no split can create one.
+    // Writing the pieces as adjacent literals does not help, which is worth stating because it is
+    // the obvious thing to try and it was tried: adjacent literals are concatenated in translation
+    // phase 6, and the limit applies to the result of that concatenation. The source looks split
+    // and the compiler sees one literal exactly as long as before. Joining with operator+ leaves
+    // them separate literals and moves the joining to run time, where no limit applies.
+    //
+    // It matters more here than in ordinary code because wsdl2cxx is a tool other people run on
+    // their own WSDL files: a limit hit inside generated code is not something its author can act on.
+    //
+    // Splitting on line boundaries is safe - content holding the )" delimiter could not have
+    // compiled in any form.
     constexpr size_t chunkLimit = 16384;
 
     Strings content;
     content.loadFromFile(fileName);
 
-    cxxStream << "const sptk::String " << variableName << "(R\"(";
+    cxxStream << "const sptk::String " << variableName << " = std::string(R\"(";
 
     auto   first = true;
     size_t chunkLength = 0;
@@ -729,10 +736,8 @@ void fileToCxxStream(const filesystem::path& fileName, const String& variableNam
         }
         else if (chunkLength >= chunkLimit)
         {
-            // The newline belongs to the line just written, so it goes inside the literal being
-            // closed - otherwise the join would lose it and every chunk boundary would run two
-            // lines together.
-            cxxStream << "\n)\"\n    R\"(";
+            // The newline ends the line just written, so it stays inside the literal being closed.
+            cxxStream << "\n)\")\n    + std::string(R\"(";
             chunkLength = 0;
         }
         else
