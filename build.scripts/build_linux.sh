@@ -91,3 +91,4 @@ fi
 
 rsync -qav /build/output/$SPTK_DIR/* /var/www/html/sptk/download/$SPTK_DIR/
 rsync -qav /build/output/$XMQ_DIR/* /var/www/html/sptk/download/$SPTK_DIR/
+cp /build/scripts/XMQ_VERSION /var/www/html/sptk/download/XMQ_VERSION_DEV
