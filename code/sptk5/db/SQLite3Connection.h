@@ -187,6 +187,28 @@ protected:
     }
 
     /**
+     * @brief Whether the SQLite this is linked against understands RETURNING.
+     *
+     * The clause arrived in 3.35.0. Asked of the library at run time rather than decided when SPTK
+     * was built, because the answer belongs to whatever SQLite is loaded: Enterprise Linux 9 ships
+     * 3.34.1 and offers nothing newer in any repository, while every other platform SPTK is built
+     * on is well past it.
+     */
+    [[nodiscard]] bool supportsReturning() const override;
+
+    /**
+     * @brief The rowid of the last row inserted on this connection.
+     *
+     * What InsertQuery uses in place of RETURNING. Read straight from the connection rather than
+     * through "SELECT last_insert_rowid()", which would cost a statement to learn the same thing.
+     *
+     * A trigger that inserts a row of its own moves this: SQLite reports the trigger's insert, not
+     * the caller's. There are no triggers in anything SPTK creates, and this is the reason not to
+     * add one lightly.
+     */
+    [[nodiscard]] int64_t lastInsertId() const override;
+
+    /**
      * @brief Opens the database connection. If unsuccessful, throws an exception.
      * @param newConnectionString  The SQLite3 connection string.
      */

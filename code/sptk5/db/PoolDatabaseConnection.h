@@ -299,6 +299,37 @@ public:
     }
 
     /**
+     * @brief Whether this connection's server understands a RETURNING clause on INSERT.
+     *
+     * Asked rather than assumed from the connection type, because one type is not one capability:
+     * SQLite gained RETURNING in 3.35, and Enterprise Linux 9 ships 3.34.1 and has nothing newer in
+     * any repository. Until this was asked, InsertQuery appended RETURNING to every SQLite insert
+     * and every insert that wanted its generated id back failed there with a syntax error.
+     *
+     * Answered by the driver, which is the only part that knows what its library can do. False here
+     * so that a driver saying nothing is assumed not to support it - the safe direction, since the
+     * caller then uses lastInsertId() and gets a correct answer either way.
+     */
+    [[nodiscard]] virtual bool supportsReturning() const
+    {
+        return false;
+    }
+
+    /**
+     * @brief The generated key of the last row this connection inserted.
+     *
+     * The way back when supportsReturning() is false. Per connection and per statement: it must be
+     * read before anything else is inserted on the same connection, which holding the connection
+     * for the duration of a query already arranges.
+     *
+     * @throws sptk::Exception when the driver has no way to answer.
+     */
+    [[nodiscard]] virtual int64_t lastInsertId() const
+    {
+        throw Exception("This driver cannot report the id of the last inserted row");
+    }
+
+    /**
      * @brief Returns the driver description.
      */
     [[nodiscard]] virtual String driverDescription() const

@@ -39,12 +39,14 @@ BulkQuery::BulkQuery(const WPoolDatabaseConnection& connection, const String& ta
         throw Exception("No primary key column specified and column list is empty");
     }
     const auto conn = connection.lock();
-    m_insertQuery.sql(makeInsertSQL(conn->connectionType(), tableName, serialColumnName, columnNames, groupSize));
+    m_insertQuery.sql(makeInsertSQL(conn->connectionType(), tableName, serialColumnName, columnNames, groupSize,
+                                   conn->supportsReturning()));
     m_deleteQuery.sql(makeGenericDeleteSQL(tableName, serialColumnName.empty() ? columnNames[0] : serialColumnName, groupSize));
     m_lastInsertedIdQuery.sql(conn->lastAutoIncrementSql(tableName));
 }
 
-String BulkQuery::makeInsertSQL(const DatabaseConnectionType connectionType, const String& tableName, const String& keyColumnName, const Strings& columnNames, const size_t groupSize)
+String BulkQuery::makeInsertSQL(const DatabaseConnectionType connectionType, const String& tableName, const String& keyColumnName, const Strings& columnNames, const size_t groupSize,
+                               const bool supportsReturning)
 {
     using enum DatabaseConnectionType;
     String sql;
@@ -68,7 +70,7 @@ String BulkQuery::makeInsertSQL(const DatabaseConnectionType connectionType, con
             throw Exception("Unsupported database type");
     }
 
-    if (!keyColumnName.empty() && (connectionType == POSTGRES || connectionType == SQLITE3))
+    if (!keyColumnName.empty() && (connectionType == POSTGRES || (connectionType == SQLITE3 && supportsReturning)))
     {
         sql += " RETURNING " + keyColumnName;
     }
@@ -324,7 +326,8 @@ void BulkQuery::insertRows(const vector<VariantVector>& rows, vector<int64_t>* i
         // Last group
         const span group(firstRow, remainder);
         const auto databaseConnectionType = conn->connectionType();
-        Query      insertQuery(m_connection, makeInsertSQL(databaseConnectionType, m_tableName, m_serialColumnName, m_columnNames, remainder));
+        Query      insertQuery(m_connection, makeInsertSQL(databaseConnectionType, m_tableName, m_serialColumnName, m_columnNames, remainder,
+                                                          conn->supportsReturning()));
         insertGroupRows(insertQuery, group, insertedIds, useReservedIds, serialColumnIndex, reservedIdOffset);
     }
 }
@@ -404,7 +407,13 @@ size_t BulkQuery::insertGroupRows(Query& insertQuery, const span<const VariantVe
     const auto conn = m_connection.lock();
     const auto connectionType = conn->connectionType();
     const auto captureInsertedIds = (!m_serialColumnName.empty() && insertedIds != nullptr) || connectionType == MSSQL_ODBC;
-    const auto insertReturnsIds = connectionType == POSTGRES || connectionType == SQLITE3 || connectionType == MSSQL_ODBC;
+    // SQLite only returns them when the library has RETURNING, which arrived in 3.35 and is absent
+    // from the 3.34.1 that Enterprise Linux 9 ships. Without it the branch below asks the connection
+    // afterwards, exactly as it already does for MySQL - and that is the safer of the two under
+    // concurrency, because the rowids are allocated inside the write, under its lock, where another
+    // connection's insert cannot interleave.
+    const auto insertReturnsIds = connectionType == POSTGRES || connectionType == MSSQL_ODBC ||
+                                  (connectionType == SQLITE3 && conn->supportsReturning());
     const auto sequenceReturnedIds = useReservedIds && (connectionType == ORACLE || connectionType == ORACLE_OCI);
 
     int64_t    rowCount = 0;

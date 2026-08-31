@@ -119,6 +119,18 @@ DatabaseConnectionType AutoDatabaseConnection::connectionType() const
     return connection->connectionType();
 }
 
+bool AutoDatabaseConnection::supportsReturning() const
+{
+    const auto connection = acquireConnection();
+    return connection->supportsReturning();
+}
+
+int64_t AutoDatabaseConnection::lastInsertId() const
+{
+    const auto connection = acquireConnection();
+    return connection->lastInsertId();
+}
+
 String AutoDatabaseConnection::driverDescription() const
 {
     const auto connection = acquireConnection();
