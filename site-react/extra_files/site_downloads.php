@@ -68,21 +68,14 @@ function getDownloadFiles($sptkVersion, $directory, $os_dirname, $title)
         $downloads[] = $file;
     }
 
-    // Only the newest release of each package is listed. XMQ and SPTK no longer move together, so
-    // a directory named after an SPTK version can hold two XMQ releases - SPTK-5.6.6 holds 0.9.11
-    // and 0.9.12 - and listing both side by side with nothing to say which is newer invites
-    // someone to take the older one.
+    // Everything published, less the version being built. There is deliberately no notion of
+    // "newest" here: the rule is one anyone can check by looking at the directory, and both 0.9.11
+    // and 0.9.12 belong on the page if both were released.
     //
-    // The version is the first dotted number in the name, and what remains once it is taken out
-    // identifies the package: xmq-server_0.9.16_amd64.deb and xmq-server_0.9.15_amd64.deb reduce
-    // to the same thing, sptk-core_5.6.9_amd64.deb to something else. Nothing here needs to know
-    // what any of the products are called. A file with no version in its name is always listed.
-    //
-    // The older files are not removed and stay reachable at their URL, which is how a previous
-    // release can still be fetched; they are only not offered beside the current one.
-    // Before the newest of each package is picked, not after: choosing first would settle on the
-    // development version and then remove it, leaving an operating system with nothing offered even
-    // though the released package is sitting beside it.
+    // An earlier version of this picked the newest of each package instead, which quietly covered
+    // up something else: SPTK-5.6.5 holds 5.6.4 packages and SPTK-5.6.6 holds XMQ 0.9.11, left by
+    // an older publishing fault. A display rule is the wrong place to hide files that should not be
+    // on disk.
     if (developmentVersion() !== "") {
         $published = array();
         foreach ($downloads as $file) {
@@ -91,24 +84,6 @@ function getDownloadFiles($sptkVersion, $directory, $os_dirname, $title)
             }
         }
         $downloads = $published;
-    }
-
-    $newest = array();
-    $unversioned = array();
-    foreach ($downloads as $file) {
-        if (!preg_match('/\d+\.\d+(?:\.\d+)*/', $file, $matched)) {
-            $unversioned[] = $file;
-            continue;
-        }
-        $version = $matched[0];
-        $package = str_replace($version, "%V%", $file);
-        if (!isset($newest[$package]) || version_compare($version, $newest[$package]["version"], ">")) {
-            $newest[$package] = array("version" => $version, "file" => $file);
-        }
-    }
-    $downloads = $unversioned;
-    foreach ($newest as $entry) {
-        $downloads[] = $entry["file"];
     }
     sort($downloads);
 
