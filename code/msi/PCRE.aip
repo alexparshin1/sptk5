@@ -1,0 +1,638 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<DOCUMENT Type="Advanced Installer" CreateVersion="13.0" version="13.5" Modules="professional" RootPath="." Language="en" Id="{AD53B111-1C1E-44E8-9DF2-33E2343230C3}">
+  <COMPONENT cid="caphyon.advinst.msicomp.ProjectOptionsComponent">
+    <ROW Name="HiddenItems" Value="AppXAppDetailsComponent;AppXCapabilitiesComponent;AppXDependenciesComponent;AppXProductDetailsComponent;AppXVisualAssetsComponent;AppXAppDeclarationsComponent;AppXUriRulesComponent"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiPropsComponent">
+    <ROW Property="AI_BITMAP_DISPLAY_MODE" Value="0"/>
+    <ROW Property="AI_FINDEXE_TITLE" Value="Select the installation package for [|ProductName]" ValueLocId="AI.Property.FindExeTitle"/>
+    <ROW Property="ALLUSERS" Value="1"/>
+    <ROW Property="ARPCOMMENTS" Value="This installer database contains the logic and data required to install [|ProductName]." ValueLocId="*"/>
+    <ROW Property="ARPURLINFOABOUT" Value="http://www.pcre.org"/>
+    <ROW Property="Manufacturer" Value="Zoltan Herczeg"/>
+    <ROW Property="ProductCode" Value="1033:{7F8C981D-201F-4BFB-80BC-62ABCF572C3F} " Type="16"/>
+    <ROW Property="ProductLanguage" Value="1033"/>
+    <ROW Property="ProductName" Value="PCRE"/>
+    <ROW Property="ProductVersion" Value="8.33" Type="32"/>
+    <ROW Property="SecureCustomProperties" Value="OLDPRODUCTS;AI_NEWERPRODUCTFOUND;AI_SETUPEXEPATH;SETUPEXEDIR"/>
+    <ROW Property="UpgradeCode" Value="{E973BEBE-DE60-452C-B504-D6F9F4760A30}"/>
+    <ROW Property="WindowsType9X" MultiBuildValue="DefaultBuild:Windows 9x/ME" ValueLocId="-"/>
+    <ROW Property="WindowsType9XDisplay" MultiBuildValue="DefaultBuild:Windows 9x/ME" ValueLocId="-"/>
+    <ROW Property="WindowsTypeNT40" MultiBuildValue="DefaultBuild:Windows NT 4.0" ValueLocId="-"/>
+    <ROW Property="WindowsTypeNT40Display" MultiBuildValue="DefaultBuild:Windows NT 4.0" ValueLocId="-"/>
+    <ROW Property="WindowsTypeNT50" MultiBuildValue="DefaultBuild:Windows 2000" ValueLocId="-"/>
+    <ROW Property="WindowsTypeNT50Display" MultiBuildValue="DefaultBuild:Windows 2000" ValueLocId="-"/>
+    <ROW Property="WindowsTypeNT5X" MultiBuildValue="DefaultBuild:Windows XP/2003 RTM, Windows XP/2003 SP1, Windows XP SP2 x86" ValueLocId="-"/>
+    <ROW Property="WindowsTypeNT5XDisplay" MultiBuildValue="DefaultBuild:Windows XP/2003 RTM, Windows XP/2003 SP1, Windows XP SP2 x86" ValueLocId="-"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiDirsComponent">
+    <ROW Directory="APPDIR" Directory_Parent="TARGETDIR" DefaultDir="APPDIR:." IsPseudoRoot="1"/>
+    <ROW Directory="PCRE_Dir" Directory_Parent="ProgramFiles64Folder" DefaultDir="PCRE"/>
+    <ROW Directory="ProgramFiles64Folder" Directory_Parent="TARGETDIR" DefaultDir="PROGRA~1|ProgramFiles64Folder" IsPseudoRoot="1"/>
+    <ROW Directory="TARGETDIR" DefaultDir="SourceDir"/>
+    <ROW Directory="bin_Dir" Directory_Parent="PCRE_Dir" DefaultDir="bin"/>
+    <ROW Directory="build_Dir" Directory_Parent="src_Dir" DefaultDir="build"/>
+    <ROW Directory="cmake_Dir" Directory_Parent="src_Dir" DefaultDir="cmake"/>
+    <ROW Directory="doc_Dir" Directory_Parent="src_Dir" DefaultDir="doc"/>
+    <ROW Directory="html_Dir" Directory_Parent="doc_Dir" DefaultDir="html"/>
+    <ROW Directory="inc_Dir" Directory_Parent="PCRE_Dir" DefaultDir="inc"/>
+    <ROW Directory="lib_Dir" Directory_Parent="PCRE_Dir" DefaultDir="lib"/>
+    <ROW Directory="m4_Dir" Directory_Parent="src_Dir" DefaultDir="m4"/>
+    <ROW Directory="sljit_Dir" Directory_Parent="src_Dir" DefaultDir="sljit"/>
+    <ROW Directory="src_Dir" Directory_Parent="PCRE_Dir" DefaultDir="src"/>
+    <ROW Directory="testdata_Dir" Directory_Parent="src_Dir" DefaultDir="testdata"/>
+    <ROW Directory="vc2008_Dir" Directory_Parent="build_Dir" DefaultDir="vc2008"/>
+    <ROW Directory="vcres_Dir" Directory_Parent="build_Dir" DefaultDir="vcres"/>
+    <ROW Directory="x64_1_Dir" Directory_Parent="lib_Dir" DefaultDir="x64"/>
+    <ROW Directory="x64_Dir" Directory_Parent="bin_Dir" DefaultDir="x64"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiCompsComponent">
+    <ROW Component="AI_ExePath" ComponentId="{C79B2A1C-4A55-44D5-8DB0-9A4511E9931E}" Directory_="APPDIR" Attributes="260" KeyPath="AI_ExePath"/>
+    <ROW Component="AiresoftReadme.txt" ComponentId="{D03ACD97-DD80-42EA-A0DD-493F5F5A8B10}" Directory_="PCRE_Dir" Attributes="0" KeyPath="AiresoftReadme.txt" Type="0"/>
+    <ROW Component="COPYINGCMAKESCRIPTS" ComponentId="{8F89BADD-F73F-4921-BE59-0608C65967E5}" Directory_="cmake_Dir" Attributes="0" KeyPath="COPYINGCMAKESCRIPTS" Type="0"/>
+    <ROW Component="ProductInformation" ComponentId="{A3D845A9-02F2-4A11-A0BE-3651DA2A5667}" Directory_="APPDIR" Attributes="4" KeyPath="Version"/>
+    <ROW Component="ax_pthread.m4" ComponentId="{61788C4F-6AC9-4DF3-953C-832D91C8D9EC}" Directory_="m4_Dir" Attributes="0" KeyPath="ax_pthread.m4" Type="0"/>
+    <ROW Component="config.h" ComponentId="{8FC2C3C2-02A3-4AAA-86B5-36CD83E8E3CF}" Directory_="vc2008_Dir" Attributes="0" KeyPath="config.h" Type="0"/>
+    <ROW Component="grepbinary" ComponentId="{322CB636-8854-476A-88D2-68CA73AE038A}" Directory_="testdata_Dir" Attributes="0" KeyPath="grepbinary" Type="0"/>
+    <ROW Component="html" ComponentId="{C65E70BF-6D23-4E2B-9584-37F58CA01875}" Directory_="src_Dir" Attributes="0" KeyPath="html" Type="0"/>
+    <ROW Component="index.html" ComponentId="{EFA10EA6-108F-4BD6-9B76-08E505E4ADB3}" Directory_="html_Dir" Attributes="0" KeyPath="index.html" Type="0"/>
+    <ROW Component="index.html.src" ComponentId="{26937F44-359B-4BEF-9D68-3F2563ACAC9B}" Directory_="doc_Dir" Attributes="0" KeyPath="index.html.src" Type="0"/>
+    <ROW Component="pcre.h" ComponentId="{C5599530-76DC-4E90-A958-45BD6BB49B34}" Directory_="inc_Dir" Attributes="0" KeyPath="pcre.h" Type="0"/>
+    <ROW Component="pcre3.dll" ComponentId="{55F0FF87-E8E0-4329-8A44-BEC2DEFDBCBC}" Directory_="bin_Dir" Attributes="0" KeyPath="pcre3.dll"/>
+    <ROW Component="pcre3.dll_1" ComponentId="{2289064D-17AE-4EEE-B583-7745A38FAD19}" Directory_="x64_Dir" Attributes="256" KeyPath="pcre3.dll_1"/>
+    <ROW Component="pcre3.lib" ComponentId="{F60DF321-1AFA-42CC-B17D-D60DBFC98DB9}" Directory_="lib_Dir" Attributes="0" KeyPath="pcre3.lib" Type="0"/>
+    <ROW Component="pcre3.lib_1" ComponentId="{6945B01B-0DD7-4F94-A058-AC2679CDE803}" Directory_="x64_1_Dir" Attributes="0" KeyPath="pcre3.lib_1" Type="0"/>
+    <ROW Component="pcre3d.dll" ComponentId="{40448011-0B1B-405B-9AE4-E4242AAAC715}" Directory_="bin_Dir" Attributes="0" KeyPath="pcre3d.dll"/>
+    <ROW Component="pcre3d.dll_1" ComponentId="{9FB86584-AA67-40E0-949D-0EA2A5066A03}" Directory_="x64_Dir" Attributes="256" KeyPath="pcre3d.dll_1"/>
+    <ROW Component="pcre83.dll.def" ComponentId="{3EF5B3D2-84F4-4B0D-AEF0-36F53A3492F7}" Directory_="build_Dir" Attributes="0" KeyPath="pcre83.dll.def" Type="0"/>
+    <ROW Component="pcredllres.rc" ComponentId="{DA3A88C3-598D-42F7-B6AE-EBC4E53A90B6}" Directory_="vcres_Dir" Attributes="0" KeyPath="pcredllres.rc" Type="0"/>
+    <ROW Component="pcregrep.exe" ComponentId="{F974FA28-7DC5-4998-8E32-14A1C2B9316C}" Directory_="bin_Dir" Attributes="0" KeyPath="pcregrep.exe"/>
+    <ROW Component="pcregrep.exe_1" ComponentId="{351AF2B1-4B0E-468E-8AAA-BBEF79B3440C}" Directory_="x64_Dir" Attributes="256" KeyPath="pcregrep.exe_1"/>
+    <ROW Component="pcregrepd.exe" ComponentId="{77E6415E-AFAF-4C76-9335-19C3AE3CD0E4}" Directory_="bin_Dir" Attributes="0" KeyPath="pcregrepd.exe"/>
+    <ROW Component="pcregrepd.exe_1" ComponentId="{705A69FA-B72A-49FC-ACB3-612C2DA31FB3}" Directory_="x64_Dir" Attributes="256" KeyPath="pcregrepd.exe_1"/>
+    <ROW Component="pcreposix3.dll" ComponentId="{47DD21F6-A54C-4272-97DC-3BDC513C845C}" Directory_="bin_Dir" Attributes="0" KeyPath="pcreposix3.dll"/>
+    <ROW Component="pcreposix3.dll_1" ComponentId="{5B78E52E-2753-4407-8B90-445EDF2EEB7C}" Directory_="x64_Dir" Attributes="256" KeyPath="pcreposix3.dll_1"/>
+    <ROW Component="pcreposix3d.dll" ComponentId="{1E38DF6D-7BE3-486F-B1AA-859C693981EC}" Directory_="bin_Dir" Attributes="0" KeyPath="pcreposix3d.dll"/>
+    <ROW Component="pcreposix3d.dll_1" ComponentId="{63BE7010-2B5F-4162-AEB4-2FB556224A20}" Directory_="x64_Dir" Attributes="256" KeyPath="pcreposix3d.dll_1"/>
+    <ROW Component="pcretest.exe" ComponentId="{74097CAF-5D34-4CF4-B204-D00EA439F58F}" Directory_="bin_Dir" Attributes="0" KeyPath="pcretest.exe"/>
+    <ROW Component="pcretest.exe_1" ComponentId="{9620701F-AF89-4904-8FA0-0E8E37ADE4EA}" Directory_="x64_Dir" Attributes="256" KeyPath="pcretest.exe_1"/>
+    <ROW Component="pcretestd.exe" ComponentId="{B44444A0-28A7-4585-8C8A-F2EDD0B50583}" Directory_="bin_Dir" Attributes="0" KeyPath="pcretestd.exe"/>
+    <ROW Component="pcretestd.exe_1" ComponentId="{C84ED2F8-C06C-4350-90D2-FA4E115D591D}" Directory_="x64_Dir" Attributes="256" KeyPath="pcretestd.exe_1"/>
+    <ROW Component="sljitConfig.h" ComponentId="{79B4AF4C-3589-4A7C-B1DC-1AA42BBE368B}" Directory_="sljit_Dir" Attributes="0" KeyPath="sljitConfig.h" Type="0"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiFeatsComponent">
+    <ROW Feature="MainFeature" Title="MainFeature" Description="Description" Display="1" Level="1" Directory_="APPDIR" Attributes="0" Components="AI_ExePath AiresoftReadme.txt COPYINGCMAKESCRIPTS ProductInformation ax_pthread.m4 config.h grepbinary html index.html index.html.src pcre.h pcre3.dll pcre3.dll_1 pcre3.lib pcre3.lib_1 pcre3d.dll pcre3d.dll_1 pcre83.dll.def pcredllres.rc pcregrep.exe pcregrep.exe_1 pcregrepd.exe pcregrepd.exe_1 pcreposix3.dll pcreposix3.dll_1 pcreposix3d.dll pcreposix3d.dll_1 pcretest.exe pcretest.exe_1 pcretestd.exe pcretestd.exe_1 sljitConfig.h"/>
+    <ATTRIBUTE name="CurrentFeature" value="MainFeature"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiFilesComponent">
+    <ROW File="AUTHORS" Component_="html" FileName="AUTHORS" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\AUTHORS" SelfReg="false" NextFile="pcre83.dll.def"/>
+    <ROW File="AiresoftReadme.txt" Component_="AiresoftReadme.txt" FileName="AIRESO~1.TXT|AiresoftReadme.txt" Attributes="0" SourcePath="..\..\Program Files\PCRE\AiresoftReadme.txt" SelfReg="false" NextFile="pcre3.dll"/>
+    <ROW File="CMakeLists.txt" Component_="html" FileName="CMAKEL~1.TXT|CMakeLists.txt" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\CMakeLists.txt" SelfReg="false" NextFile="compile"/>
+    <ROW File="COPYING" Component_="html" FileName="COPYING" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\COPYING" SelfReg="false" NextFile="depcomp"/>
+    <ROW File="COPYINGCMAKESCRIPTS" Component_="COPYINGCMAKESCRIPTS" FileName="COPYIN~1|COPYING-CMAKE-SCRIPTS" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\cmake\COPYING-CMAKE-SCRIPTS" SelfReg="false" NextFile="FindEditline.cmake"/>
+    <ROW File="ChangeLog" Component_="html" FileName="CHANGE~1|ChangeLog" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\ChangeLog" SelfReg="false" NextFile="CheckMan"/>
+    <ROW File="CheckMan" Component_="html" FileName="CheckMan" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\CheckMan" SelfReg="false" NextFile="CleanTxt"/>
+    <ROW File="CleanTxt" Component_="html" FileName="CleanTxt" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\CleanTxt" SelfReg="false" NextFile="COPYINGCMAKESCRIPTS"/>
+    <ROW File="Detrail" Component_="html" FileName="Detrail" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\Detrail" SelfReg="false" NextFile="dftables.c"/>
+    <ROW File="FindEditline.cmake" Component_="COPYINGCMAKESCRIPTS" FileName="FINDED~1.CMA|FindEditline.cmake" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\cmake\FindEditline.cmake" SelfReg="false" NextFile="FindPackageHandleStandardArgs.cmake"/>
+    <ROW File="FindPackageHandleStandardArgs.cmake" Component_="COPYINGCMAKESCRIPTS" FileName="FINDPA~1.CMA|FindPackageHandleStandardArgs.cmake" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\cmake\FindPackageHandleStandardArgs.cmake" SelfReg="false" NextFile="FindReadline.cmake"/>
+    <ROW File="FindReadline.cmake" Component_="COPYINGCMAKESCRIPTS" FileName="FINDRE~1.CMA|FindReadline.cmake" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\cmake\FindReadline.cmake" SelfReg="false" NextFile="CMakeLists.txt"/>
+    <ROW File="HACKING" Component_="html" FileName="HACKING" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\HACKING" SelfReg="false" NextFile="INSTALL"/>
+    <ROW File="INSTALL" Component_="html" FileName="INSTALL" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\INSTALL" SelfReg="false" NextFile="installsh"/>
+    <ROW File="LICENCE" Component_="html" FileName="LICENCE" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\LICENCE" SelfReg="false" NextFile="ltmain.sh"/>
+    <ROW File="Makefile.am" Component_="html" FileName="Makefile.am" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\Makefile.am" SelfReg="false" NextFile="Makefile.in"/>
+    <ROW File="Makefile.in" Component_="html" FileName="Makefile.in" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\Makefile.in" SelfReg="false" NextFile="makevp.bat"/>
+    <ROW File="NEWS" Component_="html" FileName="NEWS" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\NEWS" SelfReg="false" NextFile="NONAUTOTOOLSBUILD"/>
+    <ROW File="NONAUTOTOOLSBUILD" Component_="html" FileName="NON-AU~1|NON-AUTOTOOLS-BUILD" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\NON-AUTOTOOLS-BUILD" SelfReg="false" NextFile="NONUNIXUSE"/>
+    <ROW File="NONAUTOTOOLSBUILD.txt" Component_="index.html" FileName="NON-AU~1.TXT|NON-AUTOTOOLS-BUILD.txt" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\doc\html\NON-AUTOTOOLS-BUILD.txt" SelfReg="false" NextFile="pcreconfig.html"/>
+    <ROW File="NONUNIXUSE" Component_="html" FileName="NON-UN~1|NON-UNIX-USE" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\NON-UNIX-USE" SelfReg="false" NextFile="pcreconfig.in"/>
+    <ROW File="PrepareRelease" Component_="html" FileName="PREPAR~1|PrepareRelease" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\PrepareRelease" SelfReg="false" NextFile="README"/>
+    <ROW File="README" Component_="html" FileName="README" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\README" SelfReg="false" NextFile="RunGrepTest"/>
+    <ROW File="README.txt" Component_="index.html" FileName="README.txt" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\doc\html\README.txt" SelfReg="false" NextFile="index.html.src"/>
+    <ROW File="RunGrepTest" Component_="html" FileName="RUNGRE~1|RunGrepTest" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\RunGrepTest" SelfReg="false" NextFile="RunTest"/>
+    <ROW File="RunTest" Component_="html" FileName="RunTest" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\RunTest" SelfReg="false" NextFile="RunTest.bat"/>
+    <ROW File="RunTest.bat" Component_="html" FileName="RunTest.bat" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\RunTest.bat" SelfReg="false" NextFile="sljitConfig.h"/>
+    <ROW File="aclocal.m4" Component_="html" FileName="aclocal.m4" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\aclocal.m4" SelfReg="false" NextFile="arlib"/>
+    <ROW File="arlib" Component_="html" FileName="ar-lib" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\ar-lib" SelfReg="false" NextFile="AUTHORS"/>
+    <ROW File="ax_pthread.m4" Component_="ax_pthread.m4" FileName="AX_PTH~1.M4|ax_pthread.m4" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\m4\ax_pthread.m4" SelfReg="false" NextFile="libtool.m4"/>
+    <ROW File="compile" Component_="html" FileName="compile" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\compile" SelfReg="false" NextFile="configcmake.h.in"/>
+    <ROW File="config.guess" Component_="html" FileName="CONFIG~1.GUE|config.guess" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\config.guess" SelfReg="false" NextFile="config.h.generic"/>
+    <ROW File="config.h" Component_="config.h" FileName="config.h" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\build\vc2008\config.h" SelfReg="false" NextFile="dftables.vcproj"/>
+    <ROW File="config.h.generic" Component_="html" FileName="CONFIG~1.GEN|config.h.generic" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\config.h.generic" SelfReg="false" NextFile="config.h.in"/>
+    <ROW File="config.h.in" Component_="html" FileName="CONFIG~2.IN|config.h.in" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\config.h.in" SelfReg="false" NextFile="config.sub"/>
+    <ROW File="config.sub" Component_="html" FileName="config.sub" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\config.sub" SelfReg="false" NextFile="configure"/>
+    <ROW File="configcmake.h.in" Component_="html" FileName="CONFIG~1.IN|config-cmake.h.in" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\config-cmake.h.in" SelfReg="false" NextFile="config.guess"/>
+    <ROW File="configure" Component_="html" FileName="CONFIG~1|configure" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\configure" SelfReg="false" NextFile="configure.ac"/>
+    <ROW File="configure.ac" Component_="html" FileName="CONFIG~1.AC|configure.ac" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\configure.ac" SelfReg="false" NextFile="COPYING"/>
+    <ROW File="depcomp" Component_="html" FileName="depcomp" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\depcomp" SelfReg="false" NextFile="Detrail"/>
+    <ROW File="dftables.c" Component_="html" FileName="dftables.c" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\dftables.c" SelfReg="false" NextFile="index.html"/>
+    <ROW File="dftables.vcproj" Component_="config.h" FileName="DFTABL~1.VCP|dftables.vcproj" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\build\vc2008\dftables.vcproj" SelfReg="false" NextFile="pcre.h_1"/>
+    <ROW File="grepbinary" Component_="grepbinary" FileName="GREPBI~1|grepbinary" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\testdata\grepbinary" SelfReg="false" NextFile="grepfilelist"/>
+    <ROW File="grepfilelist" Component_="grepbinary" FileName="GREPFI~1|grepfilelist" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\testdata\grepfilelist" SelfReg="false" NextFile="grepinput"/>
+    <ROW File="grepinput" Component_="grepbinary" FileName="GREPIN~1|grepinput" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\testdata\grepinput" SelfReg="false" NextFile="grepinput3"/>
+    <ROW File="grepinput3" Component_="grepbinary" FileName="GREPIN~2|grepinput3" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\testdata\grepinput3" SelfReg="false" NextFile="grepinput8"/>
+    <ROW File="grepinput8" Component_="grepbinary" FileName="GREPIN~3|grepinput8" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\testdata\grepinput8" SelfReg="false" NextFile="grepinputv"/>
+    <ROW File="grepinputv" Component_="grepbinary" FileName="GREPIN~4|grepinputv" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\testdata\grepinputv" SelfReg="false" NextFile="grepinputx"/>
+    <ROW File="grepinputx" Component_="grepbinary" FileName="GREPIN~5|grepinputx" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\testdata\grepinputx" SelfReg="false" NextFile="greplist"/>
+    <ROW File="greplist" Component_="grepbinary" FileName="greplist" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\testdata\greplist" SelfReg="false" NextFile="grepoutput"/>
+    <ROW File="grepoutput" Component_="grepbinary" FileName="GREPOU~1|grepoutput" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\testdata\grepoutput" SelfReg="false" NextFile="grepoutput8"/>
+    <ROW File="grepoutput8" Component_="grepbinary" FileName="GREPOU~2|grepoutput8" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\testdata\grepoutput8" SelfReg="false" NextFile="grepoutputN"/>
+    <ROW File="grepoutputN" Component_="grepbinary" FileName="GREPOU~3|grepoutputN" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\testdata\grepoutputN" SelfReg="false" NextFile="greppatN4"/>
+    <ROW File="greppatN4" Component_="grepbinary" FileName="GREPPA~1|greppatN4" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\testdata\greppatN4" SelfReg="false" NextFile="saved16"/>
+    <ROW File="html" Component_="html" FileName="132html" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\132html" SelfReg="false" NextFile="aclocal.m4"/>
+    <ROW File="index.html" Component_="index.html" FileName="INDEX~1.HTM|index.html" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\doc\html\index.html" SelfReg="false" NextFile="NONAUTOTOOLSBUILD.txt"/>
+    <ROW File="index.html.src" Component_="index.html.src" FileName="INDEXH~1.SRC|index.html.src" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\doc\index.html.src" SelfReg="false" NextFile="pcreconfig.1"/>
+    <ROW File="installsh" Component_="html" FileName="INSTAL~1|install-sh" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\install-sh" SelfReg="false" NextFile="libpcre.pc.in"/>
+    <ROW File="libpcre.pc.in" Component_="html" FileName="LIBPCR~1.IN|libpcre.pc.in" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\libpcre.pc.in" SelfReg="false" NextFile="libpcre16.pc.in"/>
+    <ROW File="libpcre16.pc.in" Component_="html" FileName="LIBPCR~2.IN|libpcre16.pc.in" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\libpcre16.pc.in" SelfReg="false" NextFile="libpcre32.pc.in"/>
+    <ROW File="libpcre32.pc.in" Component_="html" FileName="LIBPCR~3.IN|libpcre32.pc.in" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\libpcre32.pc.in" SelfReg="false" NextFile="libpcrecpp.pc.in"/>
+    <ROW File="libpcrecpp.pc.in" Component_="html" FileName="LIBPCR~4.IN|libpcrecpp.pc.in" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\libpcrecpp.pc.in" SelfReg="false" NextFile="libpcreposix.pc.in"/>
+    <ROW File="libpcreposix.pc.in" Component_="html" FileName="LIBPCR~5.IN|libpcreposix.pc.in" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\libpcreposix.pc.in" SelfReg="false" NextFile="LICENCE"/>
+    <ROW File="libtool.m4" Component_="ax_pthread.m4" FileName="libtool.m4" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\m4\libtool.m4" SelfReg="false" NextFile="ltoptions.m4"/>
+    <ROW File="ltmain.sh" Component_="html" FileName="ltmain.sh" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\ltmain.sh" SelfReg="false" NextFile="ax_pthread.m4"/>
+    <ROW File="ltobsolete.m4" Component_="ax_pthread.m4" FileName="LT~OBS~1.M4|lt~obsolete.m4" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\m4\lt~obsolete.m4" SelfReg="false" NextFile="pcre_visibility.m4"/>
+    <ROW File="ltoptions.m4" Component_="ax_pthread.m4" FileName="LTOPTI~1.M4|ltoptions.m4" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\m4\ltoptions.m4" SelfReg="false" NextFile="ltsugar.m4"/>
+    <ROW File="ltsugar.m4" Component_="ax_pthread.m4" FileName="ltsugar.m4" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\m4\ltsugar.m4" SelfReg="false" NextFile="ltversion.m4"/>
+    <ROW File="ltversion.m4" Component_="ax_pthread.m4" FileName="LTVERS~1.M4|ltversion.m4" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\m4\ltversion.m4" SelfReg="false" NextFile="ltobsolete.m4"/>
+    <ROW File="makevp.bat" Component_="html" FileName="makevp.bat" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\makevp.bat" SelfReg="false" NextFile="makevp_c.txt"/>
+    <ROW File="makevp_c.txt" Component_="html" FileName="makevp_c.txt" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\makevp_c.txt" SelfReg="false" NextFile="makevp_l.txt"/>
+    <ROW File="makevp_l.txt" Component_="html" FileName="makevp_l.txt" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\makevp_l.txt" SelfReg="false" NextFile="missing"/>
+    <ROW File="missing" Component_="html" FileName="missing" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\missing" SelfReg="false" NextFile="NEWS"/>
+    <ROW File="pcre.3" Component_="index.html.src" FileName="pcre.3" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\doc\pcre.3" SelfReg="false" NextFile="pcre.txt"/>
+    <ROW File="pcre.h" Component_="pcre.h" FileName="pcre.h" Attributes="0" SourcePath="..\..\Program Files\PCRE\inc\pcre.h" SelfReg="false" NextFile="pcreposix.h"/>
+    <ROW File="pcre.h.generic" Component_="html" FileName="PCREH~1.GEN|pcre.h.generic" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\pcre.h.generic" SelfReg="false" NextFile="pcre.h.in"/>
+    <ROW File="pcre.h.in" Component_="html" FileName="PCREH~1.IN|pcre.h.in" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\pcre.h.in" SelfReg="false" NextFile="pcre16_byte_order.c"/>
+    <ROW File="pcre.h_1" Component_="config.h" FileName="pcre.h" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\build\vc2008\pcre.h" SelfReg="false" NextFile="pcre.sln"/>
+    <ROW File="pcre.html" Component_="index.html" FileName="PCRE~1.HTM|pcre.html" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\doc\html\pcre.html" SelfReg="false" NextFile="pcre16.html"/>
+    <ROW File="pcre.ico" Component_="pcredllres.rc" FileName="pcre.ico" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\build\vcres\pcre.ico" SelfReg="false" NextFile="pcregrepres.rc"/>
+    <ROW File="pcre.sln" Component_="config.h" FileName="pcre.sln" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\build\vc2008\pcre.sln" SelfReg="false" NextFile="pcre.suo"/>
+    <ROW File="pcre.suo" Component_="config.h" FileName="pcre.suo" Attributes="2" SourcePath="..\..\Program Files\PCRE\src\build\vc2008\pcre.suo" SelfReg="false" NextFile="pcre.vcproj"/>
+    <ROW File="pcre.txt" Component_="index.html.src" FileName="pcre.txt" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\doc\pcre.txt" SelfReg="false" NextFile="pcre16.3"/>
+    <ROW File="pcre.vcproj" Component_="config.h" FileName="PCRE~1.VCP|pcre.vcproj" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\build\vc2008\pcre.vcproj" SelfReg="false" NextFile="pcregrep.vcproj"/>
+    <ROW File="pcre16.3" Component_="index.html.src" FileName="pcre16.3" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\doc\pcre16.3" SelfReg="false" NextFile="pcre32.3"/>
+    <ROW File="pcre16.html" Component_="index.html" FileName="PCRE16~1.HTM|pcre16.html" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\doc\html\pcre16.html" SelfReg="false" NextFile="pcre32.html"/>
+    <ROW File="pcre16_byte_order.c" Component_="html" FileName="PCRE16~1.C|pcre16_byte_order.c" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\pcre16_byte_order.c" SelfReg="false" NextFile="pcre16_chartables.c"/>
+    <ROW File="pcre16_chartables.c" Component_="html" FileName="PCRE16~2.C|pcre16_chartables.c" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\pcre16_chartables.c" SelfReg="false" NextFile="pcre16_compile.c"/>
+    <ROW File="pcre16_compile.c" Component_="html" FileName="PCRE16~3.C|pcre16_compile.c" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\pcre16_compile.c" SelfReg="false" NextFile="pcre16_config.c"/>
+    <ROW File="pcre16_config.c" Component_="html" FileName="PCRE16~4.C|pcre16_config.c" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\pcre16_config.c" SelfReg="false" NextFile="pcre16_dfa_exec.c"/>
+    <ROW File="pcre16_dfa_exec.c" Component_="html" FileName="PCRE16~5.C|pcre16_dfa_exec.c" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\pcre16_dfa_exec.c" SelfReg="false" NextFile="pcre16_exec.c"/>
+    <ROW File="pcre16_exec.c" Component_="html" FileName="PCRE16~6.C|pcre16_exec.c" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\pcre16_exec.c" SelfReg="false" NextFile="pcre16_fullinfo.c"/>
+    <ROW File="pcre16_fullinfo.c" Component_="html" FileName="PCRE16~7.C|pcre16_fullinfo.c" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\pcre16_fullinfo.c" SelfReg="false" NextFile="pcre16_get.c"/>
+    <ROW File="pcre16_get.c" Component_="html" FileName="PCRE16~8.C|pcre16_get.c" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\pcre16_get.c" SelfReg="false" NextFile="pcre16_globals.c"/>
+    <ROW File="pcre16_globals.c" Component_="html" FileName="PCRE16~9.C|pcre16_globals.c" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\pcre16_globals.c" SelfReg="false" NextFile="pcre16_jit_compile.c"/>
+    <ROW File="pcre16_jit_compile.c" Component_="html" FileName="PCRE1~10.C|pcre16_jit_compile.c" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\pcre16_jit_compile.c" SelfReg="false" NextFile="pcre16_maketables.c"/>
+    <ROW File="pcre16_maketables.c" Component_="html" FileName="PCRE1~11.C|pcre16_maketables.c" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\pcre16_maketables.c" SelfReg="false" NextFile="pcre16_newline.c"/>
+    <ROW File="pcre16_newline.c" Component_="html" FileName="PCRE1~12.C|pcre16_newline.c" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\pcre16_newline.c" SelfReg="false" NextFile="pcre16_ord2utf16.c"/>
+    <ROW File="pcre16_ord2utf16.c" Component_="html" FileName="PCRE1~13.C|pcre16_ord2utf16.c" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\pcre16_ord2utf16.c" SelfReg="false" NextFile="pcre16_printint.c"/>
+    <ROW File="pcre16_printint.c" Component_="html" FileName="PCRE1~14.C|pcre16_printint.c" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\pcre16_printint.c" SelfReg="false" NextFile="pcre16_refcount.c"/>
+    <ROW File="pcre16_refcount.c" Component_="html" FileName="PCRE1~15.C|pcre16_refcount.c" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\pcre16_refcount.c" SelfReg="false" NextFile="pcre16_string_utils.c"/>
+    <ROW File="pcre16_string_utils.c" Component_="html" FileName="PCRE1~16.C|pcre16_string_utils.c" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\pcre16_string_utils.c" SelfReg="false" NextFile="pcre16_study.c"/>
+    <ROW File="pcre16_study.c" Component_="html" FileName="PCRE1~17.C|pcre16_study.c" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\pcre16_study.c" SelfReg="false" NextFile="pcre16_tables.c"/>
+    <ROW File="pcre16_tables.c" Component_="html" FileName="PCRE1~18.C|pcre16_tables.c" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\pcre16_tables.c" SelfReg="false" NextFile="pcre16_ucd.c"/>
+    <ROW File="pcre16_ucd.c" Component_="html" FileName="PCRE1~19.C|pcre16_ucd.c" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\pcre16_ucd.c" SelfReg="false" NextFile="pcre16_utf16_utils.c"/>
+    <ROW File="pcre16_utf16_utils.c" Component_="html" FileName="PCRE1~20.C|pcre16_utf16_utils.c" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\pcre16_utf16_utils.c" SelfReg="false" NextFile="pcre16_valid_utf16.c"/>
+    <ROW File="pcre16_valid_utf16.c" Component_="html" FileName="PCRE1~21.C|pcre16_valid_utf16.c" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\pcre16_valid_utf16.c" SelfReg="false" NextFile="pcre16_version.c"/>
+    <ROW File="pcre16_version.c" Component_="html" FileName="PCRE1~22.C|pcre16_version.c" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\pcre16_version.c" SelfReg="false" NextFile="pcre16_xclass.c"/>
+    <ROW File="pcre16_xclass.c" Component_="html" FileName="PCRE1~23.C|pcre16_xclass.c" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\pcre16_xclass.c" SelfReg="false" NextFile="pcre32_byte_order.c"/>
+    <ROW File="pcre3.dll" Component_="pcre3.dll" FileName="pcre3.dll" Attributes="0" SourcePath="..\..\Program Files\PCRE\bin\pcre3.dll" SelfReg="false" NextFile="pcre3d.dll"/>
+    <ROW File="pcre3.dll_1" Component_="pcre3.dll_1" FileName="pcre3.dll" Attributes="0" SourcePath="..\..\Program Files\PCRE\bin\x64\pcre3.dll" SelfReg="false" NextFile="pcre3d.dll_1"/>
+    <ROW File="pcre3.lib" Component_="pcre3.lib" FileName="pcre3.lib" Attributes="0" SourcePath="..\..\Program Files\PCRE\lib\pcre3.lib" SelfReg="false" NextFile="pcre3d.lib"/>
+    <ROW File="pcre3.lib_1" Component_="pcre3.lib_1" FileName="pcre3.lib" Attributes="0" SourcePath="..\..\Program Files\PCRE\lib\x64\pcre3.lib" SelfReg="false" NextFile="pcre3d.lib_1"/>
+    <ROW File="pcre32.3" Component_="index.html.src" FileName="pcre32.3" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\doc\pcre32.3" SelfReg="false" NextFile="pcreapi.3"/>
+    <ROW File="pcre32.html" Component_="index.html" FileName="PCRE32~1.HTM|pcre32.html" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\doc\html\pcre32.html" SelfReg="false" NextFile="pcreapi.html"/>
+    <ROW File="pcre32_byte_order.c" Component_="html" FileName="PCRE32~1.C|pcre32_byte_order.c" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\pcre32_byte_order.c" SelfReg="false" NextFile="pcre32_chartables.c"/>
+    <ROW File="pcre32_chartables.c" Component_="html" FileName="PCRE32~2.C|pcre32_chartables.c" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\pcre32_chartables.c" SelfReg="false" NextFile="pcre32_compile.c"/>
+    <ROW File="pcre32_compile.c" Component_="html" FileName="PCRE32~3.C|pcre32_compile.c" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\pcre32_compile.c" SelfReg="false" NextFile="pcre32_config.c"/>
+    <ROW File="pcre32_config.c" Component_="html" FileName="PCRE32~4.C|pcre32_config.c" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\pcre32_config.c" SelfReg="false" NextFile="pcre32_dfa_exec.c"/>
+    <ROW File="pcre32_dfa_exec.c" Component_="html" FileName="PCRE32~5.C|pcre32_dfa_exec.c" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\pcre32_dfa_exec.c" SelfReg="false" NextFile="pcre32_exec.c"/>
+    <ROW File="pcre32_exec.c" Component_="html" FileName="PCRE32~6.C|pcre32_exec.c" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\pcre32_exec.c" SelfReg="false" NextFile="pcre32_fullinfo.c"/>
+    <ROW File="pcre32_fullinfo.c" Component_="html" FileName="PCRE32~7.C|pcre32_fullinfo.c" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\pcre32_fullinfo.c" SelfReg="false" NextFile="pcre32_get.c"/>
+    <ROW File="pcre32_get.c" Component_="html" FileName="PCRE32~8.C|pcre32_get.c" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\pcre32_get.c" SelfReg="false" NextFile="pcre32_globals.c"/>
+    <ROW File="pcre32_globals.c" Component_="html" FileName="PCRE32~9.C|pcre32_globals.c" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\pcre32_globals.c" SelfReg="false" NextFile="pcre32_jit_compile.c"/>
+    <ROW File="pcre32_jit_compile.c" Component_="html" FileName="PCRE3~10.C|pcre32_jit_compile.c" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\pcre32_jit_compile.c" SelfReg="false" NextFile="pcre32_maketables.c"/>
+    <ROW File="pcre32_maketables.c" Component_="html" FileName="PCRE3~11.C|pcre32_maketables.c" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\pcre32_maketables.c" SelfReg="false" NextFile="pcre32_newline.c"/>
+    <ROW File="pcre32_newline.c" Component_="html" FileName="PCRE3~12.C|pcre32_newline.c" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\pcre32_newline.c" SelfReg="false" NextFile="pcre32_ord2utf32.c"/>
+    <ROW File="pcre32_ord2utf32.c" Component_="html" FileName="PCRE3~13.C|pcre32_ord2utf32.c" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\pcre32_ord2utf32.c" SelfReg="false" NextFile="pcre32_printint.c"/>
+    <ROW File="pcre32_printint.c" Component_="html" FileName="PCRE3~14.C|pcre32_printint.c" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\pcre32_printint.c" SelfReg="false" NextFile="pcre32_refcount.c"/>
+    <ROW File="pcre32_refcount.c" Component_="html" FileName="PCRE3~15.C|pcre32_refcount.c" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\pcre32_refcount.c" SelfReg="false" NextFile="pcre32_string_utils.c"/>
+    <ROW File="pcre32_string_utils.c" Component_="html" FileName="PCRE3~16.C|pcre32_string_utils.c" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\pcre32_string_utils.c" SelfReg="false" NextFile="pcre32_study.c"/>
+    <ROW File="pcre32_study.c" Component_="html" FileName="PCRE3~17.C|pcre32_study.c" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\pcre32_study.c" SelfReg="false" NextFile="pcre32_tables.c"/>
+    <ROW File="pcre32_tables.c" Component_="html" FileName="PCRE3~18.C|pcre32_tables.c" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\pcre32_tables.c" SelfReg="false" NextFile="pcre32_ucd.c"/>
+    <ROW File="pcre32_ucd.c" Component_="html" FileName="PCRE3~19.C|pcre32_ucd.c" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\pcre32_ucd.c" SelfReg="false" NextFile="pcre32_utf32_utils.c"/>
+    <ROW File="pcre32_utf32_utils.c" Component_="html" FileName="PCRE3~20.C|pcre32_utf32_utils.c" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\pcre32_utf32_utils.c" SelfReg="false" NextFile="pcre32_valid_utf32.c"/>
+    <ROW File="pcre32_valid_utf32.c" Component_="html" FileName="PCRE3~21.C|pcre32_valid_utf32.c" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\pcre32_valid_utf32.c" SelfReg="false" NextFile="pcre32_version.c"/>
+    <ROW File="pcre32_version.c" Component_="html" FileName="PCRE3~22.C|pcre32_version.c" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\pcre32_version.c" SelfReg="false" NextFile="pcre32_xclass.c"/>
+    <ROW File="pcre32_xclass.c" Component_="html" FileName="PCRE3~23.C|pcre32_xclass.c" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\pcre32_xclass.c" SelfReg="false" NextFile="pcrecpp.cc"/>
+    <ROW File="pcre3d.dll" Component_="pcre3d.dll" FileName="pcre3d.dll" Attributes="0" SourcePath="..\..\Program Files\PCRE\bin\pcre3d.dll" SelfReg="false" NextFile="pcregrepd.exe"/>
+    <ROW File="pcre3d.dll_1" Component_="pcre3d.dll_1" FileName="pcre3d.dll" Attributes="0" SourcePath="..\..\Program Files\PCRE\bin\x64\pcre3d.dll" SelfReg="false" NextFile="pcregrepd.exe_1"/>
+    <ROW File="pcre3d.lib" Component_="pcre3.lib" FileName="pcre3d.lib" Attributes="0" SourcePath="..\..\Program Files\PCRE\lib\pcre3d.lib" SelfReg="false" NextFile="pcreposix3.lib"/>
+    <ROW File="pcre3d.lib_1" Component_="pcre3.lib_1" FileName="pcre3d.lib" Attributes="0" SourcePath="..\..\Program Files\PCRE\lib\x64\pcre3d.lib" SelfReg="false" NextFile="pcreposix3.lib_1"/>
+    <ROW File="pcre83.dll.def" Component_="pcre83.dll.def" FileName="PCRE83~1.DEF|pcre83.dll.def" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\build\pcre83.dll.def" SelfReg="false" NextFile="pcreposix83.dll.def"/>
+    <ROW File="pcre_assign_jit_stack.3" Component_="index.html.src" FileName="PCRE_A~1.3|pcre_assign_jit_stack.3" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\doc\pcre_assign_jit_stack.3" SelfReg="false" NextFile="pcre_compile.3"/>
+    <ROW File="pcre_assign_jit_stack.html" Component_="index.html" FileName="PCRE_A~1.HTM|pcre_assign_jit_stack.html" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\doc\html\pcre_assign_jit_stack.html" SelfReg="false" NextFile="pcre_compile.html"/>
+    <ROW File="pcre_byte_order.c" Component_="html" FileName="PCRE_B~1.C|pcre_byte_order.c" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\pcre_byte_order.c" SelfReg="false" NextFile="pcre_chartables.c"/>
+    <ROW File="pcre_chartables.c" Component_="html" FileName="PCRE_C~1.C|pcre_chartables.c" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\pcre_chartables.c" SelfReg="false" NextFile="pcre_chartables.c.dist"/>
+    <ROW File="pcre_chartables.c.dist" Component_="html" FileName="PCRE_C~1.DIS|pcre_chartables.c.dist" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\pcre_chartables.c.dist" SelfReg="false" NextFile="pcre_compile.c"/>
+    <ROW File="pcre_compile.3" Component_="index.html.src" FileName="PCRE_C~1.3|pcre_compile.3" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\doc\pcre_compile.3" SelfReg="false" NextFile="pcre_compile2.3"/>
+    <ROW File="pcre_compile.c" Component_="html" FileName="PCRE_C~2.C|pcre_compile.c" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\pcre_compile.c" SelfReg="false" NextFile="pcre_config.c"/>
+    <ROW File="pcre_compile.html" Component_="index.html" FileName="PCRE_C~1.HTM|pcre_compile.html" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\doc\html\pcre_compile.html" SelfReg="false" NextFile="pcre_compile2.html"/>
+    <ROW File="pcre_compile2.3" Component_="index.html.src" FileName="PCRE_C~2.3|pcre_compile2.3" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\doc\pcre_compile2.3" SelfReg="false" NextFile="pcre_config.3"/>
+    <ROW File="pcre_compile2.html" Component_="index.html" FileName="PCRE_C~2.HTM|pcre_compile2.html" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\doc\html\pcre_compile2.html" SelfReg="false" NextFile="pcre_config.html"/>
+    <ROW File="pcre_config.3" Component_="index.html.src" FileName="PCRE_C~3.3|pcre_config.3" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\doc\pcre_config.3" SelfReg="false" NextFile="pcre_copy_named_substring.3"/>
+    <ROW File="pcre_config.c" Component_="html" FileName="PCRE_C~3.C|pcre_config.c" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\pcre_config.c" SelfReg="false" NextFile="pcre_dfa_exec.c"/>
+    <ROW File="pcre_config.html" Component_="index.html" FileName="PCRE_C~3.HTM|pcre_config.html" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\doc\html\pcre_config.html" SelfReg="false" NextFile="pcre_copy_named_substring.html"/>
+    <ROW File="pcre_copy_named_substring.3" Component_="index.html.src" FileName="PCRE_C~4.3|pcre_copy_named_substring.3" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\doc\pcre_copy_named_substring.3" SelfReg="false" NextFile="pcre_copy_substring.3"/>
+    <ROW File="pcre_copy_named_substring.html" Component_="index.html" FileName="PCRE_C~4.HTM|pcre_copy_named_substring.html" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\doc\html\pcre_copy_named_substring.html" SelfReg="false" NextFile="pcre_copy_substring.html"/>
+    <ROW File="pcre_copy_substring.3" Component_="index.html.src" FileName="PCRE_C~5.3|pcre_copy_substring.3" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\doc\pcre_copy_substring.3" SelfReg="false" NextFile="pcre_dfa_exec.3"/>
+    <ROW File="pcre_copy_substring.html" Component_="index.html" FileName="PCRE_C~5.HTM|pcre_copy_substring.html" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\doc\html\pcre_copy_substring.html" SelfReg="false" NextFile="pcre_dfa_exec.html"/>
+    <ROW File="pcre_dfa_exec.3" Component_="index.html.src" FileName="PCRE_D~1.3|pcre_dfa_exec.3" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\doc\pcre_dfa_exec.3" SelfReg="false" NextFile="pcre_exec.3"/>
+    <ROW File="pcre_dfa_exec.c" Component_="html" FileName="PCRE_D~1.C|pcre_dfa_exec.c" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\pcre_dfa_exec.c" SelfReg="false" NextFile="pcre_exec.c"/>
+    <ROW File="pcre_dfa_exec.html" Component_="index.html" FileName="PCRE_D~1.HTM|pcre_dfa_exec.html" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\doc\html\pcre_dfa_exec.html" SelfReg="false" NextFile="pcre_exec.html"/>
+    <ROW File="pcre_exec.3" Component_="index.html.src" FileName="PCRE_E~1.3|pcre_exec.3" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\doc\pcre_exec.3" SelfReg="false" NextFile="pcre_free_study.3"/>
+    <ROW File="pcre_exec.c" Component_="html" FileName="PCRE_E~1.C|pcre_exec.c" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\pcre_exec.c" SelfReg="false" NextFile="pcre_fullinfo.c"/>
+    <ROW File="pcre_exec.html" Component_="index.html" FileName="PCRE_E~1.HTM|pcre_exec.html" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\doc\html\pcre_exec.html" SelfReg="false" NextFile="pcre_free_study.html"/>
+    <ROW File="pcre_free_study.3" Component_="index.html.src" FileName="PCRE_F~1.3|pcre_free_study.3" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\doc\pcre_free_study.3" SelfReg="false" NextFile="pcre_free_substring.3"/>
+    <ROW File="pcre_free_study.html" Component_="index.html" FileName="PCRE_F~1.HTM|pcre_free_study.html" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\doc\html\pcre_free_study.html" SelfReg="false" NextFile="pcre_free_substring.html"/>
+    <ROW File="pcre_free_substring.3" Component_="index.html.src" FileName="PCRE_F~2.3|pcre_free_substring.3" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\doc\pcre_free_substring.3" SelfReg="false" NextFile="pcre_free_substring_list.3"/>
+    <ROW File="pcre_free_substring.html" Component_="index.html" FileName="PCRE_F~2.HTM|pcre_free_substring.html" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\doc\html\pcre_free_substring.html" SelfReg="false" NextFile="pcre_free_substring_list.html"/>
+    <ROW File="pcre_free_substring_list.3" Component_="index.html.src" FileName="PCRE_F~3.3|pcre_free_substring_list.3" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\doc\pcre_free_substring_list.3" SelfReg="false" NextFile="pcre_fullinfo.3"/>
+    <ROW File="pcre_free_substring_list.html" Component_="index.html" FileName="PCRE_F~3.HTM|pcre_free_substring_list.html" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\doc\html\pcre_free_substring_list.html" SelfReg="false" NextFile="pcre_fullinfo.html"/>
+    <ROW File="pcre_fullinfo.3" Component_="index.html.src" FileName="PCRE_F~4.3|pcre_fullinfo.3" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\doc\pcre_fullinfo.3" SelfReg="false" NextFile="pcre_get_named_substring.3"/>
+    <ROW File="pcre_fullinfo.c" Component_="html" FileName="PCRE_F~1.C|pcre_fullinfo.c" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\pcre_fullinfo.c" SelfReg="false" NextFile="pcre_get.c"/>
+    <ROW File="pcre_fullinfo.html" Component_="index.html" FileName="PCRE_F~4.HTM|pcre_fullinfo.html" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\doc\html\pcre_fullinfo.html" SelfReg="false" NextFile="pcre_get_named_substring.html"/>
+    <ROW File="pcre_get.c" Component_="html" FileName="pcre_get.c" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\pcre_get.c" SelfReg="false" NextFile="pcre_globals.c"/>
+    <ROW File="pcre_get_named_substring.3" Component_="index.html.src" FileName="PCRE_G~1.3|pcre_get_named_substring.3" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\doc\pcre_get_named_substring.3" SelfReg="false" NextFile="pcre_get_stringnumber.3"/>
+    <ROW File="pcre_get_named_substring.html" Component_="index.html" FileName="PCRE_G~1.HTM|pcre_get_named_substring.html" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\doc\html\pcre_get_named_substring.html" SelfReg="false" NextFile="pcre_get_stringnumber.html"/>
+    <ROW File="pcre_get_stringnumber.3" Component_="index.html.src" FileName="PCRE_G~2.3|pcre_get_stringnumber.3" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\doc\pcre_get_stringnumber.3" SelfReg="false" NextFile="pcre_get_stringtable_entries.3"/>
+    <ROW File="pcre_get_stringnumber.html" Component_="index.html" FileName="PCRE_G~2.HTM|pcre_get_stringnumber.html" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\doc\html\pcre_get_stringnumber.html" SelfReg="false" NextFile="pcre_get_stringtable_entries.html"/>
+    <ROW File="pcre_get_stringtable_entries.3" Component_="index.html.src" FileName="PCRE_G~3.3|pcre_get_stringtable_entries.3" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\doc\pcre_get_stringtable_entries.3" SelfReg="false" NextFile="pcre_get_substring.3"/>
+    <ROW File="pcre_get_stringtable_entries.html" Component_="index.html" FileName="PCRE_G~3.HTM|pcre_get_stringtable_entries.html" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\doc\html\pcre_get_stringtable_entries.html" SelfReg="false" NextFile="pcre_get_substring.html"/>
+    <ROW File="pcre_get_substring.3" Component_="index.html.src" FileName="PCRE_G~4.3|pcre_get_substring.3" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\doc\pcre_get_substring.3" SelfReg="false" NextFile="pcre_get_substring_list.3"/>
+    <ROW File="pcre_get_substring.html" Component_="index.html" FileName="PCRE_G~4.HTM|pcre_get_substring.html" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\doc\html\pcre_get_substring.html" SelfReg="false" NextFile="pcre_get_substring_list.html"/>
+    <ROW File="pcre_get_substring_list.3" Component_="index.html.src" FileName="PCRE_G~5.3|pcre_get_substring_list.3" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\doc\pcre_get_substring_list.3" SelfReg="false" NextFile="pcre_jit_exec.3"/>
+    <ROW File="pcre_get_substring_list.html" Component_="index.html" FileName="PCRE_G~5.HTM|pcre_get_substring_list.html" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\doc\html\pcre_get_substring_list.html" SelfReg="false" NextFile="pcre_jit_exec.html"/>
+    <ROW File="pcre_globals.c" Component_="html" FileName="PCRE_G~1.C|pcre_globals.c" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\pcre_globals.c" SelfReg="false" NextFile="pcre_internal.h"/>
+    <ROW File="pcre_internal.h" Component_="html" FileName="PCRE_I~1.H|pcre_internal.h" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\pcre_internal.h" SelfReg="false" NextFile="pcre_jit_compile.c"/>
+    <ROW File="pcre_jit_compile.c" Component_="html" FileName="PCRE_J~1.C|pcre_jit_compile.c" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\pcre_jit_compile.c" SelfReg="false" NextFile="pcre_jit_test.c"/>
+    <ROW File="pcre_jit_exec.3" Component_="index.html.src" FileName="PCRE_J~1.3|pcre_jit_exec.3" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\doc\pcre_jit_exec.3" SelfReg="false" NextFile="pcre_jit_stack_alloc.3"/>
+    <ROW File="pcre_jit_exec.html" Component_="index.html" FileName="PCRE_J~1.HTM|pcre_jit_exec.html" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\doc\html\pcre_jit_exec.html" SelfReg="false" NextFile="pcre_jit_stack_alloc.html"/>
+    <ROW File="pcre_jit_stack_alloc.3" Component_="index.html.src" FileName="PCRE_J~2.3|pcre_jit_stack_alloc.3" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\doc\pcre_jit_stack_alloc.3" SelfReg="false" NextFile="pcre_jit_stack_free.3"/>
+    <ROW File="pcre_jit_stack_alloc.html" Component_="index.html" FileName="PCRE_J~2.HTM|pcre_jit_stack_alloc.html" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\doc\html\pcre_jit_stack_alloc.html" SelfReg="false" NextFile="pcre_jit_stack_free.html"/>
+    <ROW File="pcre_jit_stack_free.3" Component_="index.html.src" FileName="PCRE_J~3.3|pcre_jit_stack_free.3" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\doc\pcre_jit_stack_free.3" SelfReg="false" NextFile="pcre_maketables.3"/>
+    <ROW File="pcre_jit_stack_free.html" Component_="index.html" FileName="PCRE_J~3.HTM|pcre_jit_stack_free.html" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\doc\html\pcre_jit_stack_free.html" SelfReg="false" NextFile="pcre_maketables.html"/>
+    <ROW File="pcre_jit_test.c" Component_="html" FileName="PCRE_J~2.C|pcre_jit_test.c" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\pcre_jit_test.c" SelfReg="false" NextFile="pcre_maketables.c"/>
+    <ROW File="pcre_maketables.3" Component_="index.html.src" FileName="PCRE_M~1.3|pcre_maketables.3" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\doc\pcre_maketables.3" SelfReg="false" NextFile="pcre_pattern_to_host_byte_order.3"/>
+    <ROW File="pcre_maketables.c" Component_="html" FileName="PCRE_M~1.C|pcre_maketables.c" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\pcre_maketables.c" SelfReg="false" NextFile="pcre_newline.c"/>
+    <ROW File="pcre_maketables.html" Component_="index.html" FileName="PCRE_M~1.HTM|pcre_maketables.html" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\doc\html\pcre_maketables.html" SelfReg="false" NextFile="pcre_pattern_to_host_byte_order.html"/>
+    <ROW File="pcre_newline.c" Component_="html" FileName="PCRE_N~1.C|pcre_newline.c" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\pcre_newline.c" SelfReg="false" NextFile="pcre_ord2utf8.c"/>
+    <ROW File="pcre_ord2utf8.c" Component_="html" FileName="PCRE_O~1.C|pcre_ord2utf8.c" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\pcre_ord2utf8.c" SelfReg="false" NextFile="pcre_printint.c"/>
+    <ROW File="pcre_pattern_to_host_byte_order.3" Component_="index.html.src" FileName="PCRE_P~1.3|pcre_pattern_to_host_byte_order.3" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\doc\pcre_pattern_to_host_byte_order.3" SelfReg="false" NextFile="pcre_refcount.3"/>
+    <ROW File="pcre_pattern_to_host_byte_order.html" Component_="index.html" FileName="PCRE_P~1.HTM|pcre_pattern_to_host_byte_order.html" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\doc\html\pcre_pattern_to_host_byte_order.html" SelfReg="false" NextFile="pcre_refcount.html"/>
+    <ROW File="pcre_printint.c" Component_="html" FileName="PCRE_P~1.C|pcre_printint.c" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\pcre_printint.c" SelfReg="false" NextFile="pcre_refcount.c"/>
+    <ROW File="pcre_refcount.3" Component_="index.html.src" FileName="PCRE_R~1.3|pcre_refcount.3" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\doc\pcre_refcount.3" SelfReg="false" NextFile="pcre_study.3"/>
+    <ROW File="pcre_refcount.c" Component_="html" FileName="PCRE_R~1.C|pcre_refcount.c" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\pcre_refcount.c" SelfReg="false" NextFile="pcre_scanner.cc"/>
+    <ROW File="pcre_refcount.html" Component_="index.html" FileName="PCRE_R~1.HTM|pcre_refcount.html" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\doc\html\pcre_refcount.html" SelfReg="false" NextFile="pcre_study.html"/>
+    <ROW File="pcre_scanner.cc" Component_="html" FileName="PCRE_S~1.CC|pcre_scanner.cc" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\pcre_scanner.cc" SelfReg="false" NextFile="pcre_scanner.h"/>
+    <ROW File="pcre_scanner.h" Component_="html" FileName="PCRE_S~1.H|pcre_scanner.h" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\pcre_scanner.h" SelfReg="false" NextFile="pcre_scanner_unittest.cc"/>
+    <ROW File="pcre_scanner_unittest.cc" Component_="html" FileName="PCRE_S~2.CC|pcre_scanner_unittest.cc" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\pcre_scanner_unittest.cc" SelfReg="false" NextFile="pcre_stringpiece.cc"/>
+    <ROW File="pcre_string_utils.c" Component_="html" FileName="PCRE_S~1.C|pcre_string_utils.c" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\pcre_string_utils.c" SelfReg="false" NextFile="pcre_study.c"/>
+    <ROW File="pcre_stringpiece.cc" Component_="html" FileName="PCRE_S~3.CC|pcre_stringpiece.cc" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\pcre_stringpiece.cc" SelfReg="false" NextFile="pcre_stringpiece.h.in"/>
+    <ROW File="pcre_stringpiece.h" Component_="config.h" FileName="PCRE_S~1.H|pcre_stringpiece.h" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\build\vc2008\pcre_stringpiece.h" SelfReg="false" NextFile="resource.h"/>
+    <ROW File="pcre_stringpiece.h.in" Component_="html" FileName="PCRE_S~1.IN|pcre_stringpiece.h.in" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\pcre_stringpiece.h.in" SelfReg="false" NextFile="pcre_stringpiece_unittest.cc"/>
+    <ROW File="pcre_stringpiece_unittest.cc" Component_="html" FileName="PCRE_S~4.CC|pcre_stringpiece_unittest.cc" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\pcre_stringpiece_unittest.cc" SelfReg="false" NextFile="pcre_string_utils.c"/>
+    <ROW File="pcre_study.3" Component_="index.html.src" FileName="PCRE_S~1.3|pcre_study.3" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\doc\pcre_study.3" SelfReg="false" NextFile="pcre_utf16_to_host_byte_order.3"/>
+    <ROW File="pcre_study.c" Component_="html" FileName="PCRE_S~2.C|pcre_study.c" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\pcre_study.c" SelfReg="false" NextFile="pcre_tables.c"/>
+    <ROW File="pcre_study.html" Component_="index.html" FileName="PCRE_S~1.HTM|pcre_study.html" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\doc\html\pcre_study.html" SelfReg="false" NextFile="pcre_utf16_to_host_byte_order.html"/>
+    <ROW File="pcre_tables.c" Component_="html" FileName="PCRE_T~1.C|pcre_tables.c" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\pcre_tables.c" SelfReg="false" NextFile="pcre_ucd.c"/>
+    <ROW File="pcre_ucd.c" Component_="html" FileName="pcre_ucd.c" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\pcre_ucd.c" SelfReg="false" NextFile="pcre_valid_utf8.c"/>
+    <ROW File="pcre_utf16_to_host_byte_order.3" Component_="index.html.src" FileName="PCRE_U~1.3|pcre_utf16_to_host_byte_order.3" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\doc\pcre_utf16_to_host_byte_order.3" SelfReg="false" NextFile="pcre_utf32_to_host_byte_order.3"/>
+    <ROW File="pcre_utf16_to_host_byte_order.html" Component_="index.html" FileName="PCRE_U~1.HTM|pcre_utf16_to_host_byte_order.html" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\doc\html\pcre_utf16_to_host_byte_order.html" SelfReg="false" NextFile="pcre_utf32_to_host_byte_order.html"/>
+    <ROW File="pcre_utf32_to_host_byte_order.3" Component_="index.html.src" FileName="PCRE_U~2.3|pcre_utf32_to_host_byte_order.3" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\doc\pcre_utf32_to_host_byte_order.3" SelfReg="false" NextFile="pcre_version.3"/>
+    <ROW File="pcre_utf32_to_host_byte_order.html" Component_="index.html" FileName="PCRE_U~2.HTM|pcre_utf32_to_host_byte_order.html" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\doc\html\pcre_utf32_to_host_byte_order.html" SelfReg="false" NextFile="pcre_version.html"/>
+    <ROW File="pcre_valid_utf8.c" Component_="html" FileName="PCRE_V~1.C|pcre_valid_utf8.c" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\pcre_valid_utf8.c" SelfReg="false" NextFile="pcre_version.c"/>
+    <ROW File="pcre_version.3" Component_="index.html.src" FileName="PCRE_V~1.3|pcre_version.3" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\doc\pcre_version.3" SelfReg="false" NextFile="perltest.txt"/>
+    <ROW File="pcre_version.c" Component_="html" FileName="PCRE_V~2.C|pcre_version.c" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\pcre_version.c" SelfReg="false" NextFile="pcre_xclass.c"/>
+    <ROW File="pcre_version.html" Component_="index.html" FileName="PCRE_V~1.HTM|pcre_version.html" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\doc\html\pcre_version.html" SelfReg="false" NextFile="README.txt"/>
+    <ROW File="pcre_visibility.m4" Component_="ax_pthread.m4" FileName="PCRE_V~1.M4|pcre_visibility.m4" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\m4\pcre_visibility.m4" SelfReg="false" NextFile="Makefile.am"/>
+    <ROW File="pcre_xclass.c" Component_="html" FileName="PCRE_X~1.C|pcre_xclass.c" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\pcre_xclass.c" SelfReg="false" NextFile="perltest.pl"/>
+    <ROW File="pcreapi.3" Component_="index.html.src" FileName="pcreapi.3" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\doc\pcreapi.3" SelfReg="false" NextFile="pcrebuild.3"/>
+    <ROW File="pcreapi.html" Component_="index.html" FileName="PCREAP~1.HTM|pcreapi.html" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\doc\html\pcreapi.html" SelfReg="false" NextFile="pcrebuild.html"/>
+    <ROW File="pcrebuild.3" Component_="index.html.src" FileName="PCREBU~1.3|pcrebuild.3" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\doc\pcrebuild.3" SelfReg="false" NextFile="pcrecallout.3"/>
+    <ROW File="pcrebuild.html" Component_="index.html" FileName="PCREBU~1.HTM|pcrebuild.html" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\doc\html\pcrebuild.html" SelfReg="false" NextFile="pcrecallout.html"/>
+    <ROW File="pcrecallout.3" Component_="index.html.src" FileName="PCRECA~1.3|pcrecallout.3" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\doc\pcrecallout.3" SelfReg="false" NextFile="pcrecompat.3"/>
+    <ROW File="pcrecallout.html" Component_="index.html" FileName="PCRECA~1.HTM|pcrecallout.html" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\doc\html\pcrecallout.html" SelfReg="false" NextFile="pcrecompat.html"/>
+    <ROW File="pcrecompat.3" Component_="index.html.src" FileName="PCRECO~1.3|pcrecompat.3" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\doc\pcrecompat.3" SelfReg="false" NextFile="pcrecpp.3"/>
+    <ROW File="pcrecompat.html" Component_="index.html" FileName="PCRECO~1.HTM|pcrecompat.html" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\doc\html\pcrecompat.html" SelfReg="false" NextFile="pcrecpp.html"/>
+    <ROW File="pcreconfig.1" Component_="index.html.src" FileName="PCRE-C~1.1|pcre-config.1" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\doc\pcre-config.1" SelfReg="false" NextFile="pcreconfig.txt"/>
+    <ROW File="pcreconfig.html" Component_="index.html" FileName="PCRE-C~1.HTM|pcre-config.html" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\doc\html\pcre-config.html" SelfReg="false" NextFile="pcre.html"/>
+    <ROW File="pcreconfig.in" Component_="html" FileName="PCRE-C~1.IN|pcre-config.in" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\pcre-config.in" SelfReg="false" NextFile="pcre.h.generic"/>
+    <ROW File="pcreconfig.txt" Component_="index.html.src" FileName="PCRE-C~1.TXT|pcre-config.txt" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\doc\pcre-config.txt" SelfReg="false" NextFile="pcre.3"/>
+    <ROW File="pcrecpp.3" Component_="index.html.src" FileName="pcrecpp.3" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\doc\pcrecpp.3" SelfReg="false" NextFile="pcredemo.3"/>
+    <ROW File="pcrecpp.cc" Component_="html" FileName="pcrecpp.cc" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\pcrecpp.cc" SelfReg="false" NextFile="pcrecpp.h"/>
+    <ROW File="pcrecpp.h" Component_="html" FileName="pcrecpp.h" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\pcrecpp.h" SelfReg="false" NextFile="pcrecpparg.h.in"/>
+    <ROW File="pcrecpp.html" Component_="index.html" FileName="PCRECP~1.HTM|pcrecpp.html" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\doc\html\pcrecpp.html" SelfReg="false" NextFile="pcredemo.html"/>
+    <ROW File="pcrecpp_internal.h" Component_="html" FileName="PCRECP~1.H|pcrecpp_internal.h" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\pcrecpp_internal.h" SelfReg="false" NextFile="pcrecpp_unittest.cc"/>
+    <ROW File="pcrecpp_unittest.cc" Component_="html" FileName="PCRECP~1.CC|pcrecpp_unittest.cc" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\pcrecpp_unittest.cc" SelfReg="false" NextFile="pcredemo.c"/>
+    <ROW File="pcrecpparg.h.in" Component_="html" FileName="PCRECP~1.IN|pcrecpparg.h.in" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\pcrecpparg.h.in" SelfReg="false" NextFile="pcrecpp_internal.h"/>
+    <ROW File="pcredemo.3" Component_="index.html.src" FileName="pcredemo.3" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\doc\pcredemo.3" SelfReg="false" NextFile="pcregrep.1"/>
+    <ROW File="pcredemo.c" Component_="html" FileName="pcredemo.c" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\pcredemo.c" SelfReg="false" NextFile="pcregexp.pas"/>
+    <ROW File="pcredemo.html" Component_="index.html" FileName="PCREDE~1.HTM|pcredemo.html" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\doc\html\pcredemo.html" SelfReg="false" NextFile="pcregrep.html"/>
+    <ROW File="pcredllres.rc" Component_="pcredllres.rc" FileName="PCRE-D~1.RC|pcre-dll-res.rc" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\build\vcres\pcre-dll-res.rc" SelfReg="false" NextFile="pcredllversion.c"/>
+    <ROW File="pcredllversion.c" Component_="pcredllres.rc" FileName="PCRE-D~1.C|pcre-dllversion.c" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\build\vcres\pcre-dllversion.c" SelfReg="false" NextFile="pcre.ico"/>
+    <ROW File="pcregexp.pas" Component_="html" FileName="pcregexp.pas" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\pcregexp.pas" SelfReg="false" NextFile="pcregrep.c"/>
+    <ROW File="pcregrep.1" Component_="index.html.src" FileName="pcregrep.1" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\doc\pcregrep.1" SelfReg="false" NextFile="pcregrep.txt"/>
+    <ROW File="pcregrep.c" Component_="html" FileName="pcregrep.c" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\pcregrep.c" SelfReg="false" NextFile="pcreposix.c"/>
+    <ROW File="pcregrep.exe" Component_="pcregrep.exe" FileName="pcregrep.exe" Attributes="0" SourcePath="..\..\Program Files\PCRE\bin\pcregrep.exe" SelfReg="false" NextFile="pcreposix3.dll" DigSign="true"/>
+    <ROW File="pcregrep.exe_1" Component_="pcregrep.exe_1" FileName="pcregrep.exe" Attributes="0" SourcePath="..\..\Program Files\PCRE\bin\x64\pcregrep.exe" SelfReg="false" NextFile="pcreposix3.dll_1" DigSign="true"/>
+    <ROW File="pcregrep.html" Component_="index.html" FileName="PCREGR~1.HTM|pcregrep.html" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\doc\html\pcregrep.html" SelfReg="false" NextFile="pcrejit.html"/>
+    <ROW File="pcregrep.txt" Component_="index.html.src" FileName="pcregrep.txt" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\doc\pcregrep.txt" SelfReg="false" NextFile="pcrejit.3"/>
+    <ROW File="pcregrep.vcproj" Component_="config.h" FileName="PCREGR~1.VCP|pcregrep.vcproj" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\build\vc2008\pcregrep.vcproj" SelfReg="false" NextFile="pcreposix.vcproj"/>
+    <ROW File="pcregrepd.exe" Component_="pcregrepd.exe" FileName="PCREGR~1.EXE|pcregrep-d.exe" Attributes="0" SourcePath="..\..\Program Files\PCRE\bin\pcregrep-d.exe" SelfReg="false" NextFile="pcregrep.exe" DigSign="true"/>
+    <ROW File="pcregrepd.exe_1" Component_="pcregrepd.exe_1" FileName="PCREGR~1.EXE|pcregrep-d.exe" Attributes="0" SourcePath="..\..\Program Files\PCRE\bin\x64\pcregrep-d.exe" SelfReg="false" NextFile="pcregrep.exe_1" DigSign="true"/>
+    <ROW File="pcregrepres.rc" Component_="pcredllres.rc" FileName="PCREGR~1.RC|pcregrep-res.rc" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\build\vcres\pcregrep-res.rc" SelfReg="false" NextFile="pcreposixdllres.rc"/>
+    <ROW File="pcrejit.3" Component_="index.html.src" FileName="pcrejit.3" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\doc\pcrejit.3" SelfReg="false" NextFile="pcrelimits.3"/>
+    <ROW File="pcrejit.html" Component_="index.html" FileName="PCREJI~1.HTM|pcrejit.html" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\doc\html\pcrejit.html" SelfReg="false" NextFile="pcrelimits.html"/>
+    <ROW File="pcrelimits.3" Component_="index.html.src" FileName="PCRELI~1.3|pcrelimits.3" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\doc\pcrelimits.3" SelfReg="false" NextFile="pcrematching.3"/>
+    <ROW File="pcrelimits.html" Component_="index.html" FileName="PCRELI~1.HTM|pcrelimits.html" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\doc\html\pcrelimits.html" SelfReg="false" NextFile="pcrematching.html"/>
+    <ROW File="pcrematching.3" Component_="index.html.src" FileName="PCREMA~1.3|pcrematching.3" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\doc\pcrematching.3" SelfReg="false" NextFile="pcrepartial.3"/>
+    <ROW File="pcrematching.html" Component_="index.html" FileName="PCREMA~1.HTM|pcrematching.html" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\doc\html\pcrematching.html" SelfReg="false" NextFile="pcrepartial.html"/>
+    <ROW File="pcrepartial.3" Component_="index.html.src" FileName="PCREPA~1.3|pcrepartial.3" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\doc\pcrepartial.3" SelfReg="false" NextFile="pcrepattern.3"/>
+    <ROW File="pcrepartial.html" Component_="index.html" FileName="PCREPA~1.HTM|pcrepartial.html" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\doc\html\pcrepartial.html" SelfReg="false" NextFile="pcrepattern.html"/>
+    <ROW File="pcrepattern.3" Component_="index.html.src" FileName="PCREPA~2.3|pcrepattern.3" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\doc\pcrepattern.3" SelfReg="false" NextFile="pcreperform.3"/>
+    <ROW File="pcrepattern.html" Component_="index.html" FileName="PCREPA~2.HTM|pcrepattern.html" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\doc\html\pcrepattern.html" SelfReg="false" NextFile="pcreperform.html"/>
+    <ROW File="pcreperform.3" Component_="index.html.src" FileName="PCREPE~1.3|pcreperform.3" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\doc\pcreperform.3" SelfReg="false" NextFile="pcreposix.3"/>
+    <ROW File="pcreperform.html" Component_="index.html" FileName="PCREPE~1.HTM|pcreperform.html" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\doc\html\pcreperform.html" SelfReg="false" NextFile="pcreposix.html"/>
+    <ROW File="pcreposix.3" Component_="index.html.src" FileName="PCREPO~1.3|pcreposix.3" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\doc\pcreposix.3" SelfReg="false" NextFile="pcreprecompile.3"/>
+    <ROW File="pcreposix.c" Component_="html" FileName="PCREPO~1.C|pcreposix.c" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\pcreposix.c" SelfReg="false" NextFile="pcreposix.h_1"/>
+    <ROW File="pcreposix.h" Component_="pcre.h" FileName="PCREPO~1.H|pcreposix.h" Attributes="0" SourcePath="..\..\Program Files\PCRE\inc\pcreposix.h" SelfReg="false" NextFile="pcre3.lib"/>
+    <ROW File="pcreposix.h_1" Component_="html" FileName="PCREPO~1.H|pcreposix.h" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\pcreposix.h" SelfReg="false" NextFile="pcretest.c"/>
+    <ROW File="pcreposix.html" Component_="index.html" FileName="PCREPO~1.HTM|pcreposix.html" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\doc\html\pcreposix.html" SelfReg="false" NextFile="pcreprecompile.html"/>
+    <ROW File="pcreposix.vcproj" Component_="config.h" FileName="PCREPO~1.VCP|pcreposix.vcproj" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\build\vc2008\pcreposix.vcproj" SelfReg="false" NextFile="pcretest.vcproj"/>
+    <ROW File="pcreposix3.dll" Component_="pcreposix3.dll" FileName="PCREPO~1.DLL|pcreposix3.dll" Attributes="0" SourcePath="..\..\Program Files\PCRE\bin\pcreposix3.dll" SelfReg="false" NextFile="pcreposix3d.dll"/>
+    <ROW File="pcreposix3.dll_1" Component_="pcreposix3.dll_1" FileName="PCREPO~1.DLL|pcreposix3.dll" Attributes="0" SourcePath="..\..\Program Files\PCRE\bin\x64\pcreposix3.dll" SelfReg="false" NextFile="pcreposix3d.dll_1"/>
+    <ROW File="pcreposix3.lib" Component_="pcre3.lib" FileName="PCREPO~1.LIB|pcreposix3.lib" Attributes="0" SourcePath="..\..\Program Files\PCRE\lib\pcreposix3.lib" SelfReg="false" NextFile="pcreposix3d.lib"/>
+    <ROW File="pcreposix3.lib_1" Component_="pcre3.lib_1" FileName="PCREPO~1.LIB|pcreposix3.lib" Attributes="0" SourcePath="..\..\Program Files\PCRE\lib\x64\pcreposix3.lib" SelfReg="false" NextFile="pcreposix3d.lib_1"/>
+    <ROW File="pcreposix3d.dll" Component_="pcreposix3d.dll" FileName="PCREPO~2.DLL|pcreposix3d.dll" Attributes="0" SourcePath="..\..\Program Files\PCRE\bin\pcreposix3d.dll" SelfReg="false" NextFile="pcretestd.exe"/>
+    <ROW File="pcreposix3d.dll_1" Component_="pcreposix3d.dll_1" FileName="PCREPO~2.DLL|pcreposix3d.dll" Attributes="0" SourcePath="..\..\Program Files\PCRE\bin\x64\pcreposix3d.dll" SelfReg="false" NextFile="pcretestd.exe_1"/>
+    <ROW File="pcreposix3d.lib" Component_="pcre3.lib" FileName="PCREPO~2.LIB|pcreposix3d.lib" Attributes="0" SourcePath="..\..\Program Files\PCRE\lib\pcreposix3d.lib" SelfReg="false" NextFile="pcre3.lib_1"/>
+    <ROW File="pcreposix3d.lib_1" Component_="pcre3.lib_1" FileName="PCREPO~2.LIB|pcreposix3d.lib" Attributes="0" SourcePath="..\..\Program Files\PCRE\lib\x64\pcreposix3d.lib" SelfReg="false" NextFile="html"/>
+    <ROW File="pcreposix83.dll.def" Component_="pcre83.dll.def" FileName="PCREPO~1.DEF|pcreposix83.dll.def" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\build\pcreposix83.dll.def" SelfReg="false" NextFile="config.h"/>
+    <ROW File="pcreposixdllres.rc" Component_="pcredllres.rc" FileName="PCREPO~1.RC|pcreposix-dll-res.rc" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\build\vcres\pcreposix-dll-res.rc" SelfReg="false" NextFile="pcreposixdllversion.c"/>
+    <ROW File="pcreposixdllversion.c" Component_="pcredllres.rc" FileName="PCREPO~1.C|pcreposix-dllversion.c" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\build\vcres\pcreposix-dllversion.c" SelfReg="false" NextFile="pcretestres.rc"/>
+    <ROW File="pcreprecompile.3" Component_="index.html.src" FileName="PCREPR~1.3|pcreprecompile.3" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\doc\pcreprecompile.3" SelfReg="false" NextFile="pcresample.3"/>
+    <ROW File="pcreprecompile.html" Component_="index.html" FileName="PCREPR~1.HTM|pcreprecompile.html" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\doc\html\pcreprecompile.html" SelfReg="false" NextFile="pcresample.html"/>
+    <ROW File="pcresample.3" Component_="index.html.src" FileName="PCRESA~1.3|pcresample.3" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\doc\pcresample.3" SelfReg="false" NextFile="pcrestack.3"/>
+    <ROW File="pcresample.html" Component_="index.html" FileName="PCRESA~1.HTM|pcresample.html" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\doc\html\pcresample.html" SelfReg="false" NextFile="pcrestack.html"/>
+    <ROW File="pcrestack.3" Component_="index.html.src" FileName="PCREST~1.3|pcrestack.3" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\doc\pcrestack.3" SelfReg="false" NextFile="pcresyntax.3"/>
+    <ROW File="pcrestack.html" Component_="index.html" FileName="PCREST~1.HTM|pcrestack.html" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\doc\html\pcrestack.html" SelfReg="false" NextFile="pcresyntax.html"/>
+    <ROW File="pcresyntax.3" Component_="index.html.src" FileName="PCRESY~1.3|pcresyntax.3" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\doc\pcresyntax.3" SelfReg="false" NextFile="pcretest.1"/>
+    <ROW File="pcresyntax.html" Component_="index.html" FileName="PCRESY~1.HTM|pcresyntax.html" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\doc\html\pcresyntax.html" SelfReg="false" NextFile="pcretest.html"/>
+    <ROW File="pcretest.1" Component_="index.html.src" FileName="pcretest.1" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\doc\pcretest.1" SelfReg="false" NextFile="pcretest.txt"/>
+    <ROW File="pcretest.c" Component_="html" FileName="pcretest.c" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\pcretest.c" SelfReg="false" NextFile="pcre_byte_order.c"/>
+    <ROW File="pcretest.exe" Component_="pcretest.exe" FileName="pcretest.exe" Attributes="0" SourcePath="..\..\Program Files\PCRE\bin\pcretest.exe" SelfReg="false" NextFile="pcre3.dll_1" DigSign="true"/>
+    <ROW File="pcretest.exe_1" Component_="pcretest.exe_1" FileName="pcretest.exe" Attributes="0" SourcePath="..\..\Program Files\PCRE\bin\x64\pcretest.exe" SelfReg="false" NextFile="pcre.h" DigSign="true"/>
+    <ROW File="pcretest.html" Component_="index.html" FileName="PCRETE~1.HTM|pcretest.html" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\doc\html\pcretest.html" SelfReg="false" NextFile="pcreunicode.html"/>
+    <ROW File="pcretest.txt" Component_="index.html.src" FileName="pcretest.txt" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\doc\pcretest.txt" SelfReg="false" NextFile="pcreunicode.3"/>
+    <ROW File="pcretest.vcproj" Component_="config.h" FileName="PCRETE~1.VCP|pcretest.vcproj" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\build\vc2008\pcretest.vcproj" SelfReg="false" NextFile="pcre_stringpiece.h"/>
+    <ROW File="pcretestd.exe" Component_="pcretestd.exe" FileName="PCRETE~1.EXE|pcretest-d.exe" Attributes="0" SourcePath="..\..\Program Files\PCRE\bin\pcretest-d.exe" SelfReg="false" NextFile="pcretest.exe" DigSign="true"/>
+    <ROW File="pcretestd.exe_1" Component_="pcretestd.exe_1" FileName="PCRETE~1.EXE|pcretest-d.exe" Attributes="0" SourcePath="..\..\Program Files\PCRE\bin\x64\pcretest-d.exe" SelfReg="false" NextFile="pcretest.exe_1" DigSign="true"/>
+    <ROW File="pcretestres.rc" Component_="pcredllres.rc" FileName="PCRETE~1.RC|pcretest-res.rc" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\build\vcres\pcretest-res.rc" SelfReg="false" NextFile="ChangeLog"/>
+    <ROW File="pcreunicode.3" Component_="index.html.src" FileName="PCREUN~1.3|pcreunicode.3" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\doc\pcreunicode.3" SelfReg="false" NextFile="pcre_assign_jit_stack.3"/>
+    <ROW File="pcreunicode.html" Component_="index.html" FileName="PCREUN~1.HTM|pcreunicode.html" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\doc\html\pcreunicode.html" SelfReg="false" NextFile="pcre_assign_jit_stack.html"/>
+    <ROW File="perltest.pl" Component_="html" FileName="perltest.pl" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\perltest.pl" SelfReg="false" NextFile="PrepareRelease"/>
+    <ROW File="perltest.txt" Component_="index.html.src" FileName="perltest.txt" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\doc\perltest.txt" SelfReg="false" NextFile="HACKING"/>
+    <ROW File="resource.h" Component_="config.h" FileName="resource.h" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\build\vc2008\resource.h" SelfReg="false" NextFile="pcredllres.rc"/>
+    <ROW File="saved16" Component_="grepbinary" FileName="saved16" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\testdata\saved16" SelfReg="false" NextFile="saved16BE1"/>
+    <ROW File="saved16BE1" Component_="grepbinary" FileName="SAVED1~1|saved16BE-1" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\testdata\saved16BE-1" SelfReg="false" NextFile="saved16BE2"/>
+    <ROW File="saved16BE2" Component_="grepbinary" FileName="SAVED1~2|saved16BE-2" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\testdata\saved16BE-2" SelfReg="false" NextFile="saved16LE1"/>
+    <ROW File="saved16LE1" Component_="grepbinary" FileName="SAVED1~3|saved16LE-1" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\testdata\saved16LE-1" SelfReg="false" NextFile="saved16LE2"/>
+    <ROW File="saved16LE2" Component_="grepbinary" FileName="SAVED1~4|saved16LE-2" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\testdata\saved16LE-2" SelfReg="false" NextFile="saved32"/>
+    <ROW File="saved32" Component_="grepbinary" FileName="saved32" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\testdata\saved32" SelfReg="false" NextFile="saved32BE1"/>
+    <ROW File="saved32BE1" Component_="grepbinary" FileName="SAVED3~1|saved32BE-1" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\testdata\saved32BE-1" SelfReg="false" NextFile="saved32BE2"/>
+    <ROW File="saved32BE2" Component_="grepbinary" FileName="SAVED3~2|saved32BE-2" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\testdata\saved32BE-2" SelfReg="false" NextFile="saved32LE1"/>
+    <ROW File="saved32LE1" Component_="grepbinary" FileName="SAVED3~3|saved32LE-1" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\testdata\saved32LE-1" SelfReg="false" NextFile="saved32LE2"/>
+    <ROW File="saved32LE2" Component_="grepbinary" FileName="SAVED3~4|saved32LE-2" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\testdata\saved32LE-2" SelfReg="false" NextFile="saved8"/>
+    <ROW File="saved8" Component_="grepbinary" FileName="saved8" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\testdata\saved8" SelfReg="false" NextFile="testinput1"/>
+    <ROW File="sljitConfig.h" Component_="sljitConfig.h" FileName="SLJITC~1.H|sljitConfig.h" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\sljit\sljitConfig.h" SelfReg="false" NextFile="sljitConfigInternal.h"/>
+    <ROW File="sljitConfigInternal.h" Component_="sljitConfig.h" FileName="SLJITC~2.H|sljitConfigInternal.h" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\sljit\sljitConfigInternal.h" SelfReg="false" NextFile="sljitExecAllocator.c"/>
+    <ROW File="sljitExecAllocator.c" Component_="sljitConfig.h" FileName="SLJITE~1.C|sljitExecAllocator.c" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\sljit\sljitExecAllocator.c" SelfReg="false" NextFile="sljitLir.c"/>
+    <ROW File="sljitLir.c" Component_="sljitConfig.h" FileName="sljitLir.c" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\sljit\sljitLir.c" SelfReg="false" NextFile="sljitLir.h"/>
+    <ROW File="sljitLir.h" Component_="sljitConfig.h" FileName="sljitLir.h" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\sljit\sljitLir.h" SelfReg="false" NextFile="sljitNativeARM_Thumb2.c"/>
+    <ROW File="sljitNativeARM_Thumb2.c" Component_="sljitConfig.h" FileName="SLJITN~1.C|sljitNativeARM_Thumb2.c" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\sljit\sljitNativeARM_Thumb2.c" SelfReg="false" NextFile="sljitNativeARM_v5.c"/>
+    <ROW File="sljitNativeARM_v5.c" Component_="sljitConfig.h" FileName="SLJITN~2.C|sljitNativeARM_v5.c" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\sljit\sljitNativeARM_v5.c" SelfReg="false" NextFile="sljitNativeMIPS_32.c"/>
+    <ROW File="sljitNativeMIPS_32.c" Component_="sljitConfig.h" FileName="SLJITN~3.C|sljitNativeMIPS_32.c" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\sljit\sljitNativeMIPS_32.c" SelfReg="false" NextFile="sljitNativeMIPS_common.c"/>
+    <ROW File="sljitNativeMIPS_common.c" Component_="sljitConfig.h" FileName="SLJITN~4.C|sljitNativeMIPS_common.c" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\sljit\sljitNativeMIPS_common.c" SelfReg="false" NextFile="sljitNativePPC_32.c"/>
+    <ROW File="sljitNativePPC_32.c" Component_="sljitConfig.h" FileName="SLJITN~5.C|sljitNativePPC_32.c" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\sljit\sljitNativePPC_32.c" SelfReg="false" NextFile="sljitNativePPC_64.c"/>
+    <ROW File="sljitNativePPC_64.c" Component_="sljitConfig.h" FileName="SLJITN~6.C|sljitNativePPC_64.c" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\sljit\sljitNativePPC_64.c" SelfReg="false" NextFile="sljitNativePPC_common.c"/>
+    <ROW File="sljitNativePPC_common.c" Component_="sljitConfig.h" FileName="SLJITN~7.C|sljitNativePPC_common.c" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\sljit\sljitNativePPC_common.c" SelfReg="false" NextFile="sljitNativeSPARC_32.c"/>
+    <ROW File="sljitNativeSPARC_32.c" Component_="sljitConfig.h" FileName="SLJITN~8.C|sljitNativeSPARC_32.c" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\sljit\sljitNativeSPARC_32.c" SelfReg="false" NextFile="sljitNativeSPARC_common.c"/>
+    <ROW File="sljitNativeSPARC_common.c" Component_="sljitConfig.h" FileName="SLJITN~9.C|sljitNativeSPARC_common.c" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\sljit\sljitNativeSPARC_common.c" SelfReg="false" NextFile="sljitNativeX86_32.c"/>
+    <ROW File="sljitNativeX86_32.c" Component_="sljitConfig.h" FileName="SLJIT~10.C|sljitNativeX86_32.c" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\sljit\sljitNativeX86_32.c" SelfReg="false" NextFile="sljitNativeX86_64.c"/>
+    <ROW File="sljitNativeX86_64.c" Component_="sljitConfig.h" FileName="SLJIT~11.C|sljitNativeX86_64.c" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\sljit\sljitNativeX86_64.c" SelfReg="false" NextFile="sljitNativeX86_common.c"/>
+    <ROW File="sljitNativeX86_common.c" Component_="sljitConfig.h" FileName="SLJIT~12.C|sljitNativeX86_common.c" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\sljit\sljitNativeX86_common.c" SelfReg="false" NextFile="sljitUtils.c"/>
+    <ROW File="sljitUtils.c" Component_="sljitConfig.h" FileName="SLJITU~1.C|sljitUtils.c" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\sljit\sljitUtils.c" SelfReg="false" NextFile="testdriver"/>
+    <ROW File="testdriver" Component_="html" FileName="TEST-D~1|test-driver" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\test-driver" SelfReg="false" NextFile="grepbinary"/>
+    <ROW File="testinput1" Component_="grepbinary" FileName="TESTIN~1|testinput1" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\testdata\testinput1" SelfReg="false" NextFile="testinput10"/>
+    <ROW File="testinput10" Component_="grepbinary" FileName="TESTIN~2|testinput10" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\testdata\testinput10" SelfReg="false" NextFile="testinput11"/>
+    <ROW File="testinput11" Component_="grepbinary" FileName="TESTIN~3|testinput11" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\testdata\testinput11" SelfReg="false" NextFile="testinput12"/>
+    <ROW File="testinput12" Component_="grepbinary" FileName="TESTIN~4|testinput12" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\testdata\testinput12" SelfReg="false" NextFile="testinput13"/>
+    <ROW File="testinput13" Component_="grepbinary" FileName="TESTIN~5|testinput13" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\testdata\testinput13" SelfReg="false" NextFile="testinput14"/>
+    <ROW File="testinput14" Component_="grepbinary" FileName="TESTIN~6|testinput14" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\testdata\testinput14" SelfReg="false" NextFile="testinput15"/>
+    <ROW File="testinput15" Component_="grepbinary" FileName="TESTIN~7|testinput15" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\testdata\testinput15" SelfReg="false" NextFile="testinput16"/>
+    <ROW File="testinput16" Component_="grepbinary" FileName="TESTIN~8|testinput16" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\testdata\testinput16" SelfReg="false" NextFile="testinput17"/>
+    <ROW File="testinput17" Component_="grepbinary" FileName="TESTIN~9|testinput17" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\testdata\testinput17" SelfReg="false" NextFile="testinput18"/>
+    <ROW File="testinput18" Component_="grepbinary" FileName="TESTI~10|testinput18" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\testdata\testinput18" SelfReg="false" NextFile="testinput19"/>
+    <ROW File="testinput19" Component_="grepbinary" FileName="TESTI~11|testinput19" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\testdata\testinput19" SelfReg="false" NextFile="testinput2"/>
+    <ROW File="testinput2" Component_="grepbinary" FileName="TESTI~12|testinput2" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\testdata\testinput2" SelfReg="false" NextFile="testinput20"/>
+    <ROW File="testinput20" Component_="grepbinary" FileName="TESTI~13|testinput20" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\testdata\testinput20" SelfReg="false" NextFile="testinput21"/>
+    <ROW File="testinput21" Component_="grepbinary" FileName="TESTI~14|testinput21" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\testdata\testinput21" SelfReg="false" NextFile="testinput22"/>
+    <ROW File="testinput22" Component_="grepbinary" FileName="TESTI~15|testinput22" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\testdata\testinput22" SelfReg="false" NextFile="testinput23"/>
+    <ROW File="testinput23" Component_="grepbinary" FileName="TESTI~16|testinput23" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\testdata\testinput23" SelfReg="false" NextFile="testinput24"/>
+    <ROW File="testinput24" Component_="grepbinary" FileName="TESTI~17|testinput24" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\testdata\testinput24" SelfReg="false" NextFile="testinput25"/>
+    <ROW File="testinput25" Component_="grepbinary" FileName="TESTI~18|testinput25" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\testdata\testinput25" SelfReg="false" NextFile="testinput26"/>
+    <ROW File="testinput26" Component_="grepbinary" FileName="TESTI~19|testinput26" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\testdata\testinput26" SelfReg="false" NextFile="testinput3"/>
+    <ROW File="testinput3" Component_="grepbinary" FileName="TESTI~20|testinput3" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\testdata\testinput3" SelfReg="false" NextFile="testinput4"/>
+    <ROW File="testinput4" Component_="grepbinary" FileName="TESTI~21|testinput4" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\testdata\testinput4" SelfReg="false" NextFile="testinput5"/>
+    <ROW File="testinput5" Component_="grepbinary" FileName="TESTI~22|testinput5" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\testdata\testinput5" SelfReg="false" NextFile="testinput6"/>
+    <ROW File="testinput6" Component_="grepbinary" FileName="TESTI~23|testinput6" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\testdata\testinput6" SelfReg="false" NextFile="testinput7"/>
+    <ROW File="testinput7" Component_="grepbinary" FileName="TESTI~24|testinput7" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\testdata\testinput7" SelfReg="false" NextFile="testinput8"/>
+    <ROW File="testinput8" Component_="grepbinary" FileName="TESTI~25|testinput8" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\testdata\testinput8" SelfReg="false" NextFile="testinput9"/>
+    <ROW File="testinput9" Component_="grepbinary" FileName="TESTI~26|testinput9" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\testdata\testinput9" SelfReg="false" NextFile="testinputEBC"/>
+    <ROW File="testinputEBC" Component_="grepbinary" FileName="TESTI~27|testinputEBC" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\testdata\testinputEBC" SelfReg="false" NextFile="testoutput1"/>
+    <ROW File="testoutput1" Component_="grepbinary" FileName="TESTOU~1|testoutput1" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\testdata\testoutput1" SelfReg="false" NextFile="testoutput10"/>
+    <ROW File="testoutput10" Component_="grepbinary" FileName="TESTOU~2|testoutput10" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\testdata\testoutput10" SelfReg="false" NextFile="testoutput1116"/>
+    <ROW File="testoutput1116" Component_="grepbinary" FileName="TESTOU~3|testoutput11-16" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\testdata\testoutput11-16" SelfReg="false" NextFile="testoutput1132"/>
+    <ROW File="testoutput1132" Component_="grepbinary" FileName="TESTOU~4|testoutput11-32" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\testdata\testoutput11-32" SelfReg="false" NextFile="testoutput118"/>
+    <ROW File="testoutput118" Component_="grepbinary" FileName="TESTOU~5|testoutput11-8" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\testdata\testoutput11-8" SelfReg="false" NextFile="testoutput12"/>
+    <ROW File="testoutput12" Component_="grepbinary" FileName="TESTOU~6|testoutput12" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\testdata\testoutput12" SelfReg="false" NextFile="testoutput13"/>
+    <ROW File="testoutput13" Component_="grepbinary" FileName="TESTOU~7|testoutput13" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\testdata\testoutput13" SelfReg="false" NextFile="testoutput14"/>
+    <ROW File="testoutput14" Component_="grepbinary" FileName="TESTOU~8|testoutput14" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\testdata\testoutput14" SelfReg="false" NextFile="testoutput15"/>
+    <ROW File="testoutput15" Component_="grepbinary" FileName="TESTOU~9|testoutput15" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\testdata\testoutput15" SelfReg="false" NextFile="testoutput16"/>
+    <ROW File="testoutput16" Component_="grepbinary" FileName="TESTO~10|testoutput16" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\testdata\testoutput16" SelfReg="false" NextFile="testoutput17"/>
+    <ROW File="testoutput17" Component_="grepbinary" FileName="TESTO~11|testoutput17" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\testdata\testoutput17" SelfReg="false" NextFile="testoutput1816"/>
+    <ROW File="testoutput1816" Component_="grepbinary" FileName="TESTO~12|testoutput18-16" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\testdata\testoutput18-16" SelfReg="false" NextFile="testoutput1832"/>
+    <ROW File="testoutput1832" Component_="grepbinary" FileName="TESTO~13|testoutput18-32" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\testdata\testoutput18-32" SelfReg="false" NextFile="testoutput19"/>
+    <ROW File="testoutput19" Component_="grepbinary" FileName="TESTO~14|testoutput19" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\testdata\testoutput19" SelfReg="false" NextFile="testoutput2"/>
+    <ROW File="testoutput2" Component_="grepbinary" FileName="TESTO~15|testoutput2" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\testdata\testoutput2" SelfReg="false" NextFile="testoutput20"/>
+    <ROW File="testoutput20" Component_="grepbinary" FileName="TESTO~16|testoutput20" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\testdata\testoutput20" SelfReg="false" NextFile="testoutput2116"/>
+    <ROW File="testoutput2116" Component_="grepbinary" FileName="TESTO~17|testoutput21-16" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\testdata\testoutput21-16" SelfReg="false" NextFile="testoutput2132"/>
+    <ROW File="testoutput2132" Component_="grepbinary" FileName="TESTO~18|testoutput21-32" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\testdata\testoutput21-32" SelfReg="false" NextFile="testoutput2216"/>
+    <ROW File="testoutput2216" Component_="grepbinary" FileName="TESTO~19|testoutput22-16" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\testdata\testoutput22-16" SelfReg="false" NextFile="testoutput2232"/>
+    <ROW File="testoutput2232" Component_="grepbinary" FileName="TESTO~20|testoutput22-32" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\testdata\testoutput22-32" SelfReg="false" NextFile="testoutput23"/>
+    <ROW File="testoutput23" Component_="grepbinary" FileName="TESTO~21|testoutput23" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\testdata\testoutput23" SelfReg="false" NextFile="testoutput24"/>
+    <ROW File="testoutput24" Component_="grepbinary" FileName="TESTO~22|testoutput24" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\testdata\testoutput24" SelfReg="false" NextFile="testoutput25"/>
+    <ROW File="testoutput25" Component_="grepbinary" FileName="TESTO~23|testoutput25" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\testdata\testoutput25" SelfReg="false" NextFile="testoutput26"/>
+    <ROW File="testoutput26" Component_="grepbinary" FileName="TESTO~24|testoutput26" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\testdata\testoutput26" SelfReg="false" NextFile="testoutput3"/>
+    <ROW File="testoutput3" Component_="grepbinary" FileName="TESTO~25|testoutput3" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\testdata\testoutput3" SelfReg="false" NextFile="testoutput4"/>
+    <ROW File="testoutput4" Component_="grepbinary" FileName="TESTO~26|testoutput4" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\testdata\testoutput4" SelfReg="false" NextFile="testoutput5"/>
+    <ROW File="testoutput5" Component_="grepbinary" FileName="TESTO~27|testoutput5" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\testdata\testoutput5" SelfReg="false" NextFile="testoutput6"/>
+    <ROW File="testoutput6" Component_="grepbinary" FileName="TESTO~28|testoutput6" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\testdata\testoutput6" SelfReg="false" NextFile="testoutput7"/>
+    <ROW File="testoutput7" Component_="grepbinary" FileName="TESTO~29|testoutput7" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\testdata\testoutput7" SelfReg="false" NextFile="testoutput8"/>
+    <ROW File="testoutput8" Component_="grepbinary" FileName="TESTO~30|testoutput8" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\testdata\testoutput8" SelfReg="false" NextFile="testoutput9"/>
+    <ROW File="testoutput9" Component_="grepbinary" FileName="TESTO~31|testoutput9" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\testdata\testoutput9" SelfReg="false" NextFile="testoutputEBC"/>
+    <ROW File="testoutputEBC" Component_="grepbinary" FileName="TESTO~32|testoutputEBC" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\testdata\testoutputEBC" SelfReg="false" NextFile="wintestinput3"/>
+    <ROW File="ucp.h" Component_="html" FileName="ucp.h" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\ucp.h" SelfReg="false"/>
+    <ROW File="wintestinput3" Component_="grepbinary" FileName="WINTES~1|wintestinput3" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\testdata\wintestinput3" SelfReg="false" NextFile="wintestoutput3"/>
+    <ROW File="wintestoutput3" Component_="grepbinary" FileName="WINTES~2|wintestoutput3" Attributes="0" SourcePath="..\..\Program Files\PCRE\src\testdata\wintestoutput3" SelfReg="false" NextFile="ucp.h"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.BuildComponent">
+    <ROW BuildKey="DefaultBuild" BuildName="DefaultBuild" BuildOrder="1" BuildType="0" Languages="en" InstallationType="2" CabsLocation="1" CompressCabs="false" UseLzma="true" LzmaMethod="2" LzmaCompressionLevel="2" PackageType="1" FilesInsideExe="true" ExtractionFolder="[AppDataFolder][|Manufacturer]\[|ProductName] [|ProductVersion]\install" UseLargeSchema="true" MsiPackageType="x64" UACExecutionLevel="2"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.DictionaryComponent">
+    <ROW Path="&lt;AI_DICTS&gt;ui.ail"/>
+    <ROW Path="&lt;AI_DICTS&gt;ui_en.ail"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.FragmentComponent">
+    <ROW Fragment="CommonUI.aip" Path="&lt;AI_FRAGS&gt;CommonUI.aip"/>
+    <ROW Fragment="FolderDlg.aip" Path="&lt;AI_THEMES&gt;classic\fragments\FolderDlg.aip"/>
+    <ROW Fragment="MaintenanceTypeDlg.aip" Path="&lt;AI_THEMES&gt;classic\fragments\MaintenanceTypeDlg.aip"/>
+    <ROW Fragment="MaintenanceWelcomeDlg.aip" Path="&lt;AI_THEMES&gt;classic\fragments\MaintenanceWelcomeDlg.aip"/>
+    <ROW Fragment="SequenceDialogs.aip" Path="&lt;AI_THEMES&gt;classic\fragments\SequenceDialogs.aip"/>
+    <ROW Fragment="Sequences.aip" Path="&lt;AI_FRAGS&gt;Sequences.aip"/>
+    <ROW Fragment="StaticUIStrings.aip" Path="&lt;AI_FRAGS&gt;StaticUIStrings.aip"/>
+    <ROW Fragment="UI.aip" Path="&lt;AI_THEMES&gt;classic\fragments\UI.aip"/>
+    <ROW Fragment="Validation.aip" Path="&lt;AI_FRAGS&gt;Validation.aip"/>
+    <ROW Fragment="VerifyRemoveDlg.aip" Path="&lt;AI_THEMES&gt;classic\fragments\VerifyRemoveDlg.aip"/>
+    <ROW Fragment="VerifyRepairDlg.aip" Path="&lt;AI_THEMES&gt;classic\fragments\VerifyRepairDlg.aip"/>
+    <ROW Fragment="WelcomeDlg.aip" Path="&lt;AI_THEMES&gt;classic\fragments\WelcomeDlg.aip"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiActionTextComponent">
+    <ROW Action="AI_DeleteLzma" Description="Deleting files extracted from archive" DescriptionLocId="ActionText.Description.AI_DeleteLzma" TemplateLocId="-"/>
+    <ROW Action="AI_DeleteRLzma" Description="Deleting files extracted from archive" DescriptionLocId="ActionText.Description.AI_DeleteLzma" TemplateLocId="-"/>
+    <ROW Action="AI_ExtractFiles" Description="Extracting files from archive" DescriptionLocId="ActionText.Description.AI_ExtractLzma" TemplateLocId="-"/>
+    <ROW Action="AI_ExtractLzma" Description="Extracting files from archive" DescriptionLocId="ActionText.Description.AI_ExtractLzma" TemplateLocId="-"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiAppSearchComponent">
+    <ROW Property="AI_SETUPEXEPATH" Signature_="AI_EXE_PATH_CU" Builds="DefaultBuild"/>
+    <ROW Property="AI_SETUPEXEPATH" Signature_="AI_EXE_PATH_LM" Builds="DefaultBuild"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiBinaryComponent">
+    <ROW Name="Prereq.dll" SourcePath="&lt;AI_CUSTACTS&gt;Prereq.dll"/>
+    <ROW Name="aicustact.dll" SourcePath="&lt;AI_CUSTACTS&gt;aicustact.dll"/>
+    <ROW Name="lzmaextractor.dll" SourcePath="&lt;AI_CUSTACTS&gt;lzmaextractor.dll"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiControlEventComponent">
+    <ROW Dialog_="WelcomeDlg" Control_="Next" Event="NewDialog" Argument="FolderDlg" Condition="AI_INSTALL" Ordering="1"/>
+    <ROW Dialog_="FolderDlg" Control_="Next" Event="NewDialog" Argument="VerifyReadyDlg" Condition="AI_INSTALL" Ordering="201"/>
+    <ROW Dialog_="FolderDlg" Control_="Back" Event="NewDialog" Argument="WelcomeDlg" Condition="AI_INSTALL" Ordering="1"/>
+    <ROW Dialog_="MaintenanceWelcomeDlg" Control_="Next" Event="NewDialog" Argument="MaintenanceTypeDlg" Condition="AI_MAINT" Ordering="99"/>
+    <ROW Dialog_="VerifyReadyDlg" Control_="Install" Event="EndDialog" Argument="Return" Condition="AI_MAINT" Ordering="198"/>
+    <ROW Dialog_="VerifyReadyDlg" Control_="Back" Event="NewDialog" Argument="CustomizeDlg" Condition="AI_MAINT" Ordering="202"/>
+    <ROW Dialog_="VerifyReadyDlg" Control_="Install" Event="EndDialog" Argument="Return" Condition="AI_INSTALL" Ordering="197"/>
+    <ROW Dialog_="VerifyReadyDlg" Control_="Back" Event="NewDialog" Argument="FolderDlg" Condition="AI_INSTALL" Ordering="201"/>
+    <ROW Dialog_="CustomizeDlg" Control_="Next" Event="NewDialog" Argument="VerifyReadyDlg" Condition="AI_MAINT" Ordering="101"/>
+    <ROW Dialog_="CustomizeDlg" Control_="Back" Event="NewDialog" Argument="MaintenanceTypeDlg" Condition="AI_MAINT" Ordering="1"/>
+    <ROW Dialog_="MaintenanceTypeDlg" Control_="ChangeButton" Event="NewDialog" Argument="CustomizeDlg" Condition="AI_MAINT" Ordering="501"/>
+    <ROW Dialog_="MaintenanceTypeDlg" Control_="Back" Event="NewDialog" Argument="MaintenanceWelcomeDlg" Condition="AI_MAINT" Ordering="1"/>
+    <ROW Dialog_="MaintenanceTypeDlg" Control_="RemoveButton" Event="NewDialog" Argument="VerifyRemoveDlg" Condition="AI_MAINT AND InstallMode=&quot;Remove&quot;" Ordering="601"/>
+    <ROW Dialog_="VerifyRemoveDlg" Control_="Back" Event="NewDialog" Argument="MaintenanceTypeDlg" Condition="AI_MAINT AND InstallMode=&quot;Remove&quot;" Ordering="1"/>
+    <ROW Dialog_="MaintenanceTypeDlg" Control_="RepairButton" Event="NewDialog" Argument="VerifyRepairDlg" Condition="AI_MAINT AND InstallMode=&quot;Repair&quot;" Ordering="601"/>
+    <ROW Dialog_="VerifyRepairDlg" Control_="Back" Event="NewDialog" Argument="MaintenanceTypeDlg" Condition="AI_MAINT AND InstallMode=&quot;Repair&quot;" Ordering="1"/>
+    <ROW Dialog_="VerifyRepairDlg" Control_="Repair" Event="EndDialog" Argument="Return" Condition="AI_MAINT AND InstallMode=&quot;Repair&quot;" Ordering="399" Options="1"/>
+    <ROW Dialog_="VerifyRemoveDlg" Control_="Remove" Event="EndDialog" Argument="Return" Condition="AI_MAINT AND InstallMode=&quot;Remove&quot;" Ordering="299" Options="1"/>
+    <ROW Dialog_="PatchWelcomeDlg" Control_="Next" Event="NewDialog" Argument="VerifyReadyDlg" Condition="AI_PATCH" Ordering="201"/>
+    <ROW Dialog_="ResumeDlg" Control_="Install" Event="EndDialog" Argument="Return" Condition="AI_RESUME" Ordering="299"/>
+    <ROW Dialog_="VerifyReadyDlg" Control_="Install" Event="EndDialog" Argument="Return" Condition="AI_PATCH" Ordering="199"/>
+    <ROW Dialog_="VerifyReadyDlg" Control_="Back" Event="NewDialog" Argument="PatchWelcomeDlg" Condition="AI_PATCH" Ordering="203"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiCustActComponent">
+    <ROW Action="AI_BACKUP_AI_SETUPEXEPATH" Type="51" Source="AI_SETUPEXEPATH_ORIGINAL" Target="[AI_SETUPEXEPATH]"/>
+    <ROW Action="AI_DATA_SETTER" Type="51" Source="AI_ExtractFiles" Target="[AI_SETUPEXEPATH]"/>
+    <ROW Action="AI_DOWNGRADE" Type="19" Target="4010"/>
+    <ROW Action="AI_DeleteCadLzma" Type="51" Source="AI_DeleteLzma" Target="[AI_SETUPEXEPATH]"/>
+    <ROW Action="AI_DeleteLzma" Type="1025" Source="lzmaextractor.dll" Target="DeleteLZMAFiles"/>
+    <ROW Action="AI_DeleteRCadLzma" Type="51" Source="AI_DeleteRLzma" Target="[AI_SETUPEXEPATH]"/>
+    <ROW Action="AI_DeleteRLzma" Type="1281" Source="lzmaextractor.dll" Target="DeleteLZMAFiles"/>
+    <ROW Action="AI_DpiContentScale" Type="1" Source="aicustact.dll" Target="DpiContentScale"/>
+    <ROW Action="AI_EnableDebugLog" Type="321" Source="aicustact.dll" Target="EnableDebugLog"/>
+    <ROW Action="AI_EstimateExtractFiles" Type="1" Source="Prereq.dll" Target="EstimateExtractFiles"/>
+    <ROW Action="AI_ExtractCadLzma" Type="51" Source="AI_ExtractLzma" Target="[AI_SETUPEXEPATH]"/>
+    <ROW Action="AI_ExtractFiles" Type="1025" Source="Prereq.dll" Target="ExtractSourceFiles" AdditionalSeq="AI_DATA_SETTER"/>
+    <ROW Action="AI_ExtractLzma" Type="1025" Source="lzmaextractor.dll" Target="ExtractLZMAFiles"/>
+    <ROW Action="AI_FindExeLzma" Type="1" Source="lzmaextractor.dll" Target="FindEXE"/>
+    <ROW Action="AI_InstallModeCheck" Type="1" Source="aicustact.dll" Target="UpdateInstallMode" WithoutSeq="true"/>
+    <ROW Action="AI_PREPARE_UPGRADE" Type="65" Source="aicustact.dll" Target="PrepareUpgrade"/>
+    <ROW Action="AI_RESTORE_AI_SETUPEXEPATH" Type="51" Source="AI_SETUPEXEPATH" Target="[AI_SETUPEXEPATH_ORIGINAL]"/>
+    <ROW Action="AI_RESTORE_LOCATION" Type="65" Source="aicustact.dll" Target="RestoreLocation"/>
+    <ROW Action="AI_ResolveKnownFolders" Type="1" Source="aicustact.dll" Target="AI_ResolveKnownFolders"/>
+    <ROW Action="AI_SHOW_LOG" Type="65" Source="aicustact.dll" Target="LaunchLogFile" WithoutSeq="true"/>
+    <ROW Action="AI_STORE_LOCATION" Type="51" Source="ARPINSTALLLOCATION" Target="[APPDIR]"/>
+    <ROW Action="SET_APPDIR" Type="307" Source="APPDIR" Target="[ProgramFilesFolder][Manufacturer]\[ProductName]" MultiBuildTarget="DefaultBuild:[ProgramFiles64Folder][ProductName]"/>
+    <ROW Action="SET_SHORTCUTDIR" Type="307" Source="SHORTCUTDIR" Target="[ProgramMenuFolder][ProductName]"/>
+    <ROW Action="SET_TARGETDIR_TO_APPDIR" Type="51" Source="TARGETDIR" Target="[APPDIR]"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiEnvComponent">
+    <ROW Environment="Path" Name="=-*Path" Value="[~];[PCRE_Dir]bin\x64" Component_="pcre3.dll"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiInstExSeqComponent">
+    <ROW Action="AI_DOWNGRADE" Condition="AI_NEWERPRODUCTFOUND AND (UILevel &lt;&gt; 5)" Sequence="210"/>
+    <ROW Action="AI_RESTORE_LOCATION" Condition="APPDIR=&quot;&quot;" Sequence="749"/>
+    <ROW Action="AI_STORE_LOCATION" Condition="(Not Installed) OR REINSTALL" Sequence="1501"/>
+    <ROW Action="AI_PREPARE_UPGRADE" Condition="AI_UPGRADE=&quot;No&quot; AND (Not Installed)" Sequence="1399"/>
+    <ROW Action="AI_ResolveKnownFolders" Sequence="52"/>
+    <ROW Action="AI_EnableDebugLog" Sequence="51"/>
+    <ROW Action="AI_BACKUP_AI_SETUPEXEPATH" Sequence="99" Builds="DefaultBuild"/>
+    <ROW Action="AI_RESTORE_AI_SETUPEXEPATH" Condition="AI_SETUPEXEPATH_ORIGINAL" Sequence="101" Builds="DefaultBuild"/>
+    <ROW Action="AI_DeleteCadLzma" Condition="SETUPEXEDIR=&quot;&quot; AND Installed AND (REMOVE&lt;&gt;&quot;ALL&quot;) AND (AI_INSTALL_MODE&lt;&gt;&quot;Remove&quot;) AND (NOT PATCH)" Sequence="199" Builds="DefaultBuild"/>
+    <ROW Action="AI_DeleteRCadLzma" Condition="SETUPEXEDIR=&quot;&quot; AND Installed AND (REMOVE&lt;&gt;&quot;ALL&quot;) AND (AI_INSTALL_MODE&lt;&gt;&quot;Remove&quot;) AND (NOT PATCH)" Sequence="198" Builds="DefaultBuild"/>
+    <ROW Action="AI_ExtractCadLzma" Condition="SETUPEXEDIR=&quot;&quot; AND Installed AND (REMOVE&lt;&gt;&quot;ALL&quot;) AND (AI_INSTALL_MODE&lt;&gt;&quot;Remove&quot;) AND (NOT PATCH)" Sequence="197" Builds="DefaultBuild"/>
+    <ROW Action="AI_FindExeLzma" Condition="SETUPEXEDIR=&quot;&quot; AND Installed AND (REMOVE&lt;&gt;&quot;ALL&quot;) AND (AI_INSTALL_MODE&lt;&gt;&quot;Remove&quot;) AND (NOT PATCH)" Sequence="196" Builds="DefaultBuild"/>
+    <ROW Action="AI_ExtractLzma" Condition="SETUPEXEDIR=&quot;&quot; AND Installed AND (REMOVE&lt;&gt;&quot;ALL&quot;) AND (AI_INSTALL_MODE&lt;&gt;&quot;Remove&quot;) AND (NOT PATCH)" Sequence="1549" Builds="DefaultBuild"/>
+    <ROW Action="AI_DeleteRLzma" Condition="SETUPEXEDIR=&quot;&quot; AND Installed AND (REMOVE&lt;&gt;&quot;ALL&quot;) AND (AI_INSTALL_MODE&lt;&gt;&quot;Remove&quot;) AND (NOT PATCH)" Sequence="1548" Builds="DefaultBuild"/>
+    <ROW Action="AI_DeleteLzma" Condition="SETUPEXEDIR=&quot;&quot; AND Installed AND (REMOVE&lt;&gt;&quot;ALL&quot;) AND (AI_INSTALL_MODE&lt;&gt;&quot;Remove&quot;) AND (NOT PATCH)" Sequence="6599" Builds="DefaultBuild"/>
+    <ROW Action="AI_ExtractFiles" Sequence="3998" Builds="DefaultBuild"/>
+    <ROW Action="AI_DATA_SETTER" Sequence="3997"/>
+    <ROW Action="AI_EstimateExtractFiles" Sequence="3999" Builds="DefaultBuild"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiInstallUISequenceComponent">
+    <ROW Action="AI_RESTORE_LOCATION" Condition="APPDIR=&quot;&quot;" Sequence="749"/>
+    <ROW Action="AI_ResolveKnownFolders" Sequence="53"/>
+    <ROW Action="AI_DpiContentScale" Sequence="52"/>
+    <ROW Action="AI_EnableDebugLog" Sequence="51"/>
+    <ROW Action="AI_BACKUP_AI_SETUPEXEPATH" Sequence="99"/>
+    <ROW Action="AI_RESTORE_AI_SETUPEXEPATH" Condition="AI_SETUPEXEPATH_ORIGINAL" Sequence="101"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiLaunchConditionsComponent">
+    <ROW Condition="(VersionNT &lt;&gt; 400)" Description="[ProductName] cannot be installed on [WindowsTypeNT40Display]." DescriptionLocId="AI.LaunchCondition.NoNT40" IsPredefined="true" Builds="DefaultBuild"/>
+    <ROW Condition="(VersionNT &lt;&gt; 500)" Description="[ProductName] cannot be installed on [WindowsTypeNT50Display]." DescriptionLocId="AI.LaunchCondition.NoNT50" IsPredefined="true" Builds="DefaultBuild"/>
+    <ROW Condition="(VersionNT64 OR ((VersionNT &lt;&gt; 501) OR (ServicePackLevel = 3))) AND ((VersionNT &lt;&gt; 502) OR (ServicePackLevel = 2))" Description="[ProductName] cannot be installed on [WindowsTypeNT5XDisplay]." DescriptionLocId="AI.LaunchCondition.NoNT5X" IsPredefined="true" Builds="DefaultBuild"/>
+    <ROW Condition="SETUPEXEDIR OR (REMOVE=&quot;ALL&quot;)" Description="This package can only be run from a bootstrapper." DescriptionLocId="AI.LaunchCondition.RequireBootstrapper" IsPredefined="true" Builds="DefaultBuild"/>
+    <ROW Condition="VersionNT" Description="[ProductName] cannot be installed on [WindowsType9XDisplay]." DescriptionLocId="AI.LaunchCondition.No9X" IsPredefined="true" Builds="DefaultBuild"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiRegLocatorComponent">
+    <ROW Signature_="AI_EXE_PATH_CU" Root="1" Key="Software\Caphyon\Advanced Installer\LZMA\[ProductCode]\[ProductVersion]" Name="AI_ExePath" Type="2"/>
+    <ROW Signature_="AI_EXE_PATH_LM" Root="2" Key="Software\Caphyon\Advanced Installer\LZMA\[ProductCode]\[ProductVersion]" Name="AI_ExePath" Type="2"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiRegsComponent">
+    <ROW Registry="AI_ExePath" Root="-1" Key="Software\Caphyon\Advanced Installer\LZMA\[ProductCode]\[ProductVersion]" Name="AI_ExePath" Value="[AI_SETUPEXEPATH]" Component_="AI_ExePath"/>
+    <ROW Registry="Path" Root="-1" Key="Software\[Manufacturer]\[ProductName]" Name="Path" Value="[APPDIR]" Component_="ProductInformation"/>
+    <ROW Registry="Version" Root="-1" Key="Software\[Manufacturer]\[ProductName]" Name="Version" Value="[ProductVersion]" Component_="ProductInformation"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiThemeComponent">
+    <ATTRIBUTE name="UsedTheme" value="classic"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiUpgradeComponent">
+    <ROW UpgradeCode="[|UpgradeCode]" VersionMin="0.0.1" VersionMax="[|ProductVersion]" Attributes="257" ActionProperty="OLDPRODUCTS"/>
+    <ROW UpgradeCode="[|UpgradeCode]" VersionMin="[|ProductVersion]" Attributes="2" ActionProperty="AI_NEWERPRODUCTFOUND"/>
+  </COMPONENT>
+</DOCUMENT>
