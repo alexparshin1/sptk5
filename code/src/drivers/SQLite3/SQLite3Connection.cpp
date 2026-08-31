@@ -766,3 +766,20 @@ SynchronizedMap<SQLite3Connection*, shared_ptr<SQLite3Connection>> SQLite3Connec
 }
 
 #endif
+
+bool SQLite3Connection::supportsReturning() const
+{
+    // 3.35.0, in SQLite's own encoding: major*1000000 + minor*1000 + patch.
+    constexpr int firstVersionWithReturning = 3035000;
+    return sqlite3_libversion_number() >= firstVersionWithReturning;
+}
+
+int64_t SQLite3Connection::lastInsertId() const
+{
+    auto* handle = connection();
+    if (handle == nullptr)
+    {
+        throw Exception("Database connection is not open");
+    }
+    return sqlite3_last_insert_rowid(handle);
+}

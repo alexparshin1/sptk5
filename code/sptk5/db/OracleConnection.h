@@ -69,6 +69,18 @@ class SP_EXPORT OracleConnection
     friend class OracleStatement;
 
 public:
+
+    /**
+     * @brief This server understands RETURNING on INSERT.
+     *
+     * Stated rather than left to the base's "not known to", so the capability reads truthfully for
+     * anyone who asks. InsertQuery consults it only for SQLite today, where the answer varies with
+     * the library version rather than with the kind of database.
+     */
+    [[nodiscard]] bool supportsReturning() const override
+    {
+        return true;
+    }
     using Environment = oracle::occi::Environment;
     using Connection = oracle::occi::Connection;
     using Statement = oracle::occi::Statement;

@@ -106,6 +106,18 @@ public:
     [[nodiscard]] DatabaseConnectionType connectionType() const;
 
     /**
+     * @brief Whether the connection's server understands RETURNING on INSERT - see
+     *        PoolDatabaseConnection::supportsReturning().
+     */
+    [[nodiscard]] bool supportsReturning() const;
+
+    /**
+     * @brief The generated key of the last row inserted on this connection - see
+     *        PoolDatabaseConnection::lastInsertId().
+     */
+    [[nodiscard]] int64_t lastInsertId() const;
+
+    /**
      * @brief Returns the driver description.
      */
     [[nodiscard]] String driverDescription() const;

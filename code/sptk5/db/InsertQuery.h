@@ -130,7 +130,8 @@ private:
      * @param idFieldName       Auto-incremental field name.
      * @returns Adjusted SQL.
      */
-    static String reviewQuery(DatabaseConnectionType connectionType, const String& sql, const String& idFieldName);
+    static String reviewQuery(DatabaseConnectionType connectionType, const String& sql, const String& idFieldName,
+                              bool supportsReturning);
 };
 
 } // namespace sptk

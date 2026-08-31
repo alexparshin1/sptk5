@@ -57,7 +57,7 @@ String InsertQuery::reviewMsSqlQuery(const String& sql, const String& idFieldNam
 }
 
 String InsertQuery::reviewQuery(const DatabaseConnectionType connectionType, const String& sql,
-                                const String& idFieldName)
+                                const String& idFieldName, const bool supportsReturning)
 {
     if (sql.toUpperCase().contains("RETURNING"))
     {
@@ -70,7 +70,15 @@ String InsertQuery::reviewQuery(const DatabaseConnectionType connectionType, con
         case MSSQL_ODBC:
             return reviewMsSqlQuery(sql, idFieldName);
         case POSTGRES:
+            return sql + " RETURNING " + idFieldName;
         case SQLITE3:
+            // SQLite gained RETURNING in 3.35, and Enterprise Linux 9 ships 3.34.1 with nothing
+            // newer in any repository. Where it is missing the statement stays as it is and exec()
+            // asks the connection for the id instead.
+            if (!supportsReturning)
+            {
+                return sql;
+            }
             return sql + " RETURNING " + idFieldName;
         case ORACLE:
         case ORACLE_OCI:
@@ -82,7 +90,7 @@ String InsertQuery::reviewQuery(const DatabaseConnectionType connectionType, con
 }
 
 InsertQuery::InsertQuery(const DatabaseConnection& db, const String& sql, const String& idFieldName, const bool autoPrepare)
-    : Query(db, reviewQuery(db->connectionType(), sql, idFieldName), autoPrepare)
+    : Query(db, reviewQuery(db->connectionType(), sql, idFieldName, db->supportsReturning()), autoPrepare)
     , m_idFieldName(idFieldName)
 {
 }
@@ -94,7 +102,7 @@ void InsertQuery::sql(const String& _sql)
     {
         throw Exception("Database connection is not valid");
     }
-    Query::sql(reviewQuery(db->connectionType(), _sql, m_idFieldName));
+    Query::sql(reviewQuery(db->connectionType(), _sql, m_idFieldName, db->supportsReturning()));
 }
 
 void InsertQuery::exec()
@@ -116,8 +124,22 @@ void InsertQuery::exec()
             break;
 
         case POSTGRES:
-        case SQLITE3:
             m_id = scalar().asInt64();
+            break;
+
+        case SQLITE3:
+            if (db->supportsReturning())
+            {
+                m_id = scalar().asInt64();
+            }
+            else
+            {
+                // No RETURNING to read a row from, so the statement returns nothing and the id
+                // comes from the connection. Read straight after the insert and before anything
+                // else can be inserted on this connection, which holding it for the query arranges.
+                Query::exec();
+                m_id = static_cast<uint64_t>(db->lastInsertId());
+            }
             break;
 
         case MYSQL:

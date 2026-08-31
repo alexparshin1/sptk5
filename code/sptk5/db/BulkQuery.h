@@ -71,7 +71,8 @@ private:
     WPoolDatabaseConnection m_connection;          ///< Database connection.
     Query                   m_lastInsertedIdQuery; ///< Query that retrieves the last inserted id.
 
-    [[nodiscard]] static String makeInsertSQL(DatabaseConnectionType connectionType, const String& tableName, const String& keyColumnName, const Strings& columnNames, size_t groupSize);
+    [[nodiscard]] static String makeInsertSQL(DatabaseConnectionType connectionType, const String& tableName, const String& keyColumnName, const Strings& columnNames, size_t groupSize,
+                                             bool supportsReturning);
     [[nodiscard]] static String makeOracleInsertSQL(const String& tableName, const Strings& columnNames, size_t groupSize);
     [[nodiscard]] static String makeGenericInsertSQL(const String& tableName, const Strings& columnNames, size_t groupSize, const String& intoAttribute = "");
     [[nodiscard]] static String makeSqlite3InsertSQL(const String& tableName, const Strings& columnNames, size_t groupSize);

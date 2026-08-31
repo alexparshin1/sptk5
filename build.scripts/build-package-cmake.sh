@@ -180,7 +180,19 @@ if [ $RUN_TESTS = "true" ]; then
         suite="${lcPACKAGE}_unit_tests"
     fi
     echo "Test suite: $suite"
-    $suite --gtest_filter=-*Scenario* > /build/logs/${lcPACKAGE}_unit_tests.$OS_TYPE.log 2>&1
+    # Shuffled, with a seed taken from the clock and printed at the top of the log.
+    #
+    # A suite that only passes in one order proves less than it looks: on 2026-08-31 shuffling this
+    # one turned up six tests that read the broker's own counters as though nothing else used them,
+    # one of which cleared the shared statistics and sent a counter below zero for everything that
+    # ran after it. All of them passed every run of the farm until then. Ubuntu 24.10 was dropped
+    # from the farm years earlier over two or three failures nobody could explain, which is what
+    # this kind of fault looks like from the outside.
+    #
+    # A different order every run, rather than a fixed seed, so the farm keeps looking; the seed in
+    # the log is what makes a failure reproducible afterwards - pass it back with
+    # --gtest_random_seed=N.
+    $suite --gtest_filter=-*Scenario* --gtest_shuffle > /build/logs/${lcPACKAGE}_unit_tests.$OS_TYPE.log 2>&1
     RC=$?
 
     # The image is in the name. It used to be ${lcPACKAGE}_failed.log for every image in the run,
