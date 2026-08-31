@@ -1,7 +1,13 @@
 REM Build SPTK installer in Windows
 REM @echo off
 
-cd "C:\workspace\sptk5"
+if "%~1" == "" (
+    PACKAGE="sptk5"
+) else (
+    PACKAGE="%~1"
+)
+
+cd "C:\workspace\%PACKAGE%"
 git reset --hard
 git pull
 
