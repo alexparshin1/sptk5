@@ -20,6 +20,25 @@ function countDownloadFiles($sptkVersion, $directory)
     return count($files);
 }
 
+/**
+ * The XMQ release that is being built but is not published yet, or "" when there is none.
+ *
+ * Written by the build farm at the end of every run - see build.scripts/build_linux.sh - so it
+ * cannot go stale the way a constant here would. Publishing 0.9.16 therefore means removing this
+ * file or pointing it at the next development version, which is one deliberate act instead of the
+ * side effect a test run used to be.
+ */
+function developmentVersion()
+{
+    static $version = null;
+    if ($version === null) {
+        $version = file_exists("download/XMQ_VERSION_DEV")
+            ? trim(file_get_contents("download/XMQ_VERSION_DEV"))
+            : "";
+    }
+    return $version;
+}
+
 function getDownloadFiles($sptkVersion, $directory, $os_dirname, $title)
 {
     if (!file_exists($directory)) {
@@ -61,6 +80,19 @@ function getDownloadFiles($sptkVersion, $directory, $os_dirname, $title)
     //
     // The older files are not removed and stay reachable at their URL, which is how a previous
     // release can still be fetched; they are only not offered beside the current one.
+    // Before the newest of each package is picked, not after: choosing first would settle on the
+    // development version and then remove it, leaving an operating system with nothing offered even
+    // though the released package is sitting beside it.
+    if (developmentVersion() !== "") {
+        $published = array();
+        foreach ($downloads as $file) {
+            if (strpos($file, developmentVersion()) === false) {
+                $published[] = $file;
+            }
+        }
+        $downloads = $published;
+    }
+
     $newest = array();
     $unversioned = array();
     foreach ($downloads as $file) {
