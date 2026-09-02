@@ -1,0 +1,68 @@
+FROM oraclelinux:9
+
+LABEL maintainer="Alexey Parshin alexeyp@gmail.com"
+
+ENV TZ=Australia/Melbourne
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
+RUN yum -y update
+
+RUN yum -y install gcc gcc-c++ cmake git make 
+
+# Enterprise Linux 9, which is where most of the machines that run a broker actually are: RHEL 9
+# and its rebuilds - Alma, Rocky, Oracle - are binary compatible, so one package serves all of them.
+#
+# The reason this image did not exist before is the compiler: EL9 ships GCC 11, too old for what
+# XMQ is written in. gcc-toolset supplies a newer one alongside it, and links the parts of the new
+# libstdc++ that the base system lacks into the binary rather than requiring the toolset at run
+# time - which is the whole point of it, and what makes a package built here installable on a
+# machine that has never heard of a toolset. Verify that after the first build: the binary should
+# ask for no GLIBCXX newer than the base system carries.
+#
+# Note also that the glibc floor follows the build host, not XMQ. Packages built on the newer
+# images ask for GLIBC_2.38 and cannot install here, where glibc is 2.34; built here, they ask for
+# 2.34 and install everywhere from EL9 upwards.
+RUN yum -y install gcc-toolset-14 gcc-toolset-14-libstdc++-devel
+ENV PATH=/opt/rh/gcc-toolset-14/root/usr/bin:$PATH
+ENV MANPATH=/opt/rh/gcc-toolset-14/root/usr/share/man:$MANPATH
+ENV PKG_CONFIG_PATH=/opt/rh/gcc-toolset-14/root/usr/lib64/pkgconfig:$PKG_CONFIG_PATH
+
+RUN yum -y install mc pcre2 pcre2-devel unixODBC postgresql-server postgresql-devel mariadb  sqlite sqlite-devel
+RUN yum -y install rpm-build rsync brotli-devel
+
+RUN dnf install -y mariadb-connector-c-devel
+
+RUN dnf -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm
+RUN dnf -y install gtest gtest-devel
+
+COPY oracle.install/etc /etc
+COPY oracle.install/usr /usr
+COPY oracle.oci.install/usr /usr
+RUN  ldconfig
+
+RUN dnf -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm
+RUN dnf -y install mosquitto procps
+# The default nodejs module on EL9 is 16, out of support since 2023 and carrying npm 8 - the last
+# npm that drops privileges to the owner of its working directory when run as root. With /build
+# shared by nine containers and its ownership mixed, that made the React build fail with EACCES
+# on files it had just written. Every other image has npm 10, where the behaviour is gone, so
+# this image is brought to the same stream rather than taught to work around it.
+# npm is a package of its own in the newer streams, where the 16 stream bundled it with nodejs.
+RUN dnf -y module enable nodejs:22 && dnf -y install nodejs npm
+# fltk-devel lives in CodeReady Builder on EL9, where EL10 has it in a default repository.
+RUN dnf -y install --enablerepo=ol9_codeready_builder fltk fltk-devel libXext-devel
+
+RUN yum -y install freetds libnsl libaio
+COPY freetds.conf /etc/
+COPY odbc*.ini /etc/
+
+RUN useradd -m alexeyp
+COPY etc/xmq /etc/xmq
+COPY etc/mosquitto /etc/mosquitto
+RUN mkdir -p /var/log/xmq
+RUN chmod 777 /var/log/xmq
+
+# io_uring support for the batched socket writer; optional at build time.
+RUN dnf -y install --enablerepo=ol9_codeready_builder liburing-devel
+
+VOLUME /build

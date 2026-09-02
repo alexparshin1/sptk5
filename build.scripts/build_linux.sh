@@ -1,3 +1,11 @@
+#!/usr/bin/bash
+
+# Started by hand from the build root, and by the scheduler from wherever cron happens to be, so
+# it sets its own rather than trusting the one it was given. This lived as an uncommitted edit on
+# the build host, which meant every pull of this file stopped on it; FARM_ROOT is here so another
+# machine does not need one of its own.
+cd "${FARM_ROOT:-$HOME/build}" || exit 1
+
 BUILD_ROOT=$(pwd)
 
 TESTS=""
