@@ -1,10 +1,10 @@
 IF (WIN32)
    SET (PFX86 "$ENV{ProgramFiles} \(x86\)")
    SET (FLTK_POSSIBLE_INCLUDE_PATHS
-        $ENV{SYSTEMDRIVE}/*/FLTK
         $ENV{ProgramFiles}/FLTK/include
         "${PFX86}/FLTK/include"
-        $ENV{ProgramW6432}/FLTK/include)
+        $ENV{ProgramW6432}/FLTK/include
+        $ENV{SYSTEMDRIVE}/*/FLTK)
    SET (FLTK_POSSIBLE_LIB_PATHS $ENV{SYSTEMDRIVE}/*/lib $ENV{ProgramFiles}/FLTK/lib "${PFX86}/FLTK/lib")
 ELSE ()
    SET (FLTK_POSSIBLE_INCLUDE_PATHS $ENV{HOME}/local/include /usr/local/include /usr/include /usr/include/*)
