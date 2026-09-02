@@ -48,7 +48,17 @@ using namespace sptk;
 using namespace chrono;
 namespace sptk {
 
-TEST(HttpProxyTests, connect)
+// Disabled: it tests whatever the machine happens to be configured with, and then the internet.
+//
+// It runs only when HTTP_PROXY or http_proxy is set, so on most machines it silently does nothing;
+// and where it does run it connects out to www.sptk.net:80, which makes it a test of the network
+// between here and there. On the build farm that came to six images skipping it and three failing
+// it with "Can't connect to proxy 127.0.0.1:3128" - a proxy address that appears from somewhere in
+// those images and answers nowhere. Neither outcome says anything about HttpProxy.
+//
+// To bring it back it needs both halves made local: a proxy the test can rely on, and a
+// destination on this side of the internet - test_http_host:80 on the farm.
+TEST(HttpProxyTests, DISABLED_connect)
 {
     // Check if the proxy is defined in the environment variable.
     // It's typical for Linux, and rare for Windows.
