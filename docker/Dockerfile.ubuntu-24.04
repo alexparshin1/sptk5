@@ -1,4 +1,4 @@
-FROM ubuntu:25.10
+FROM ubuntu:24.04
 
 LABEL maintainer="Alexey Parshin alexeyp@gmail.com"
 
@@ -9,6 +9,13 @@ RUN apt -y update
 RUN apt -y full-upgrade
 
 RUN apt -y install apt-utils gcc g++ cmake git
+
+# 24.04 is the one image whose default compiler is GCC 13, where the others have 14 or newer.
+# The archive carries 14, so it is installed and made the default: the point of this image is
+# to package for an LTS release, not to find out on the farm which language features 13 lacks.
+RUN apt -y install gcc-14 g++-14
+RUN update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-14 100 \
+    --slave /usr/bin/g++ g++ /usr/bin/g++-14
 RUN apt -y install mc libpcre2-dev unixodbc unixodbc-dev postgresql libpq-dev mariadb-server libmariadb-dev sqlite3 libsqlite3-dev
 RUN apt -y install libfltk1.3 libfltk1.3-dev aspell libaspell-dev rsync make libxext-dev
 RUN apt -y install build-essential devscripts debhelper
