@@ -93,10 +93,13 @@ do
                -i builder-$name /build/scripts/build-package-cmake.sh $TESTS SPTK XMQ > $RUN_LOGS/build-$name.log 2>&1
     echo BUILD RC=$?
 
-    # The container writes to /build/logs under a name of its own choosing - el9 for the image
-    # called oraclelinux-9, and so on - so these cannot be matched to $name. Move whatever this
-    # image produced before the next one starts, and no pattern is needed.
-    mv logs/*_unit_tests.*.log logs/*_failed.*.log $RUN_LOGS/ 2>/dev/null
+    # Everything the container left, whatever it called it. This image's own host-side log already
+    # goes straight to $RUN_LOGS, so what remains flat is exactly what the container wrote - and
+    # naming the patterns instead lost the build logs, which are the ones that matter when a build
+    # is what failed. Moved before the next image starts, so nothing has to be matched to $name:
+    # the container names its logs after the distribution (el9 for the image called oraclelinux-9),
+    # not after the image.
+    mv logs/*.log $RUN_LOGS/ 2>/dev/null
 done
 
 echo "$(date +%H:%M:%S) Building complete"
