@@ -94,7 +94,7 @@ public:
 
     std::string themeFolder()
     {
-        return m_themeFolder;
+        return m_themeFolder.string();
     }
 };
 

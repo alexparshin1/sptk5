@@ -1,9 +1,11 @@
 IF (WIN32)
+   SET (PFX86 "$ENV{ProgramFiles} \(x86\)")
    SET (FLTK_POSSIBLE_INCLUDE_PATHS
-        $ENV{SYSTEMDRIVE}/*
-        $ENV{ProgramFiles}/*/include
-        $ENV{ProgramW6432}/*)
-   SET (FLTK_POSSIBLE_LIB_PATHS $ENV{SYSTEMDRIVE}/*/lib $ENV{ProgramFiles}/*/lib $ENV{ProgramW6432}/*/lib)
+        $ENV{SYSTEMDRIVE}/*/FLTK
+        $ENV{ProgramFiles}/FLTK/include
+        "${PFX86}/FLTK/include"
+        $ENV{ProgramW6432}/FLTK/include)
+   SET (FLTK_POSSIBLE_LIB_PATHS $ENV{SYSTEMDRIVE}/*/lib $ENV{ProgramFiles}/FLTK/lib "${PFX86}/FLTK/lib")
 ELSE ()
    SET (FLTK_POSSIBLE_INCLUDE_PATHS $ENV{HOME}/local/include /usr/local/include /usr/include /usr/include/*)
    SET (FLTK_POSSIBLE_LIB_PATHS $ENV{HOME}/local/lib /usr/local/lib /usr/lib /usr/lib/* /usr/lib64/*)
@@ -11,12 +13,13 @@ ENDIF ()
 
 FIND_PATH(FLTK_INCLUDE_DIR FL/Fl.H ${FLTK_POSSIBLE_INCLUDE_PATHS})
 FIND_LIBRARY(FLTK_LIBRARY NAMES fltk fltkd PATHS ${FLTK_POSSIBLE_LIB_PATHS})
+
 FIND_LIBRARY(FLTK_LIBRARY_IMAGES NAMES fltkimages fltkimagesd fltk_images PATHS ${FLTK_POSSIBLE_LIB_PATHS})
 
 IF (WIN32)
    FIND_LIBRARY(FLTK_LIBRARY_JPEG NAMES fltk_jpeg fltk_jpegd PATHS ${FLTK_POSSIBLE_LIB_PATHS})
    FIND_LIBRARY(FLTK_LIBRARY_PNG NAMES fltk_png fltk_pngd PATHS ${FLTK_POSSIBLE_LIB_PATHS})
-   FIND_LIBRARY(FLTK_LIBRARY_ZLIB NAMES zlib zlibd PATHS ${FLTK_POSSIBLE_LIB_PATHS})
+   FIND_LIBRARY(FLTK_LIBRARY_ZLIB NAMES fltk_z fltk_zd PATHS ${FLTK_POSSIBLE_LIB_PATHS})
 ENDIF()
 
 IF (FLTK_INCLUDE_DIR AND FLTK_LIBRARY)

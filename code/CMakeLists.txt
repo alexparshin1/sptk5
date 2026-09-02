@@ -290,7 +290,6 @@ IF (WIN32)
         ADD_DEFINITIONS(-DSP_DLL)
     ENDIF (LIBRARY_TYPE STREQUAL "SHARED")
 ELSE (WIN32)
-    #SET (LIBRARY_TYPE STATIC)
     SET(LIBRARY_TYPE SHARED)
 
     # Default to a user-owned install prefix instead of CMake's built-in /usr/local.

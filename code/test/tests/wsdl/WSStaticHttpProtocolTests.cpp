@@ -85,6 +85,8 @@ public:
 
 } // namespace
 
+namespace sptk {
+
 TEST(SPTK_WSStaticHttpProtocol, servesFilesInTheDirectory)
 {
     const StaticFilesDirectory files;
@@ -135,3 +137,5 @@ TEST(SPTK_WSStaticHttpProtocol, doesNotTakeASiblingDirectoryForItsOwn)
     ASSERT_TRUE(exists(files.sibling()));
     EXPECT_TRUE(WSStaticHttpProtocol::resolveFile(files.root(), "/../sptk_static_files_test-elsewhere/file.txt").empty());
 }
+
+} // namespace sptk

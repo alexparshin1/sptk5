@@ -190,7 +190,7 @@ const Strings& CThemes::searchDirectories()
 #ifdef _WIN32
     array<char, 256> windir;
     GetEnvironmentVariable("PROGRAMFILES", windir.data(), sizeof(windir));
-    if (strlen(windir))
+    if (strlen(windir.data()))
         sd.push_back(windir.data() + String("\\SPTK\\share\\sptk5"));
 #else
     sd.push_back("/usr/share/sptk5");
@@ -412,7 +412,7 @@ void CThemes::set(string theThemeName)
         CTreeItem::setFolderOpened(
             getIconImage("folder_opened", CIconSize::IS_SMALL_ICON)); ///< Default image of the opened floder
         CTreeItem::setFolderClosed(
-            getIconImage("folder_closed", CIconSize::IS_SMALL_ICON));               ///< Default image of the closed floder
+            getIconImage("folder_closed", CIconSize::IS_SMALL_ICON)); ///< Default image of the closed floder
         CTreeItem::setDocument(getIconImage("document", CIconSize::IS_SMALL_ICON)); ///< Default image of the document
         if (!CTreeItem::getFolderOpened())
         {
@@ -626,7 +626,7 @@ bool CThemes::sizeButton(CThemeButtonType sz, int& w, int& h)
 }
 
 bool CThemes::drawButton(CThemeButtonType sz, int x, int y, int& w, int& h, bool highlited, bool pressed,
-                         bool defaultButton)
+                         bool             defaultButton)
 {
     int ndx = THM_IMAGE_NORMAL;
 

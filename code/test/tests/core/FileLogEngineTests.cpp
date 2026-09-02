@@ -45,7 +45,7 @@ using namespace sptk;
 namespace {
 
 #ifdef _WIN32
-const filesystem::path logFileName("C:/Windows/temp/file_log_test.tmp");
+const filesystem::path logFileName(filesystem::temp_directory_path() / "file_log_test.tmp");
 #else
 const filesystem::path logFileName("/tmp/file_log_test.tmp");
 #endif
@@ -79,7 +79,7 @@ void testPriority(FileLogEngine& logEngine, LogPriority priority, size_t expecte
 } // namespace
 namespace sptk {
 
-TEST(FileLogEngineTests,testLogPriorities)
+TEST(FileLogEngineTests, testLogPriorities)
 {
     FileLogEngine logEngine(logFileName);
 
@@ -198,7 +198,9 @@ TEST(FileLogEngineTests, rotateLeavesOtherFilesAlone)
     // A file in the same directory whose name begins the same way but is not one of ours. Deleting
     // by a looser rule than the one rotate() writes is how a cleanup removes what nobody asked it to.
     const auto stranger = filesystem::path(logFileName.string() + ".keep-me");
-    { std::ofstream(stranger) << "not an archive\n"; }
+    {
+        std::ofstream(stranger) << "not an archive\n";
+    }
 
     logMessages(logEngine);
     logEngine.flush();
@@ -210,7 +212,7 @@ TEST(FileLogEngineTests, rotateLeavesOtherFilesAlone)
     filesystem::remove(stranger);
 }
 
-TEST(FileLogEngineTests,performance)
+TEST(FileLogEngineTests, performance)
 {
     FileLogEngine logEngine(logFileName);
     Logger        logger(logEngine, "(Test application) ");
@@ -223,7 +225,7 @@ TEST(FileLogEngineTests,performance)
     }
     stopWatch.stop();
     COUT("Logged " << messageCount << " messages for " << stopWatch.milliseconds() << "ms ("
-                   << static_cast<double>(messageCount) / stopWatch.milliseconds() << " messages/sec)\n");
+        << static_cast<double>(messageCount) / stopWatch.milliseconds() << " messages/sec)\n");
 }
 
 } // namespace sptk_test

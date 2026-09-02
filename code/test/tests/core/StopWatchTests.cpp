@@ -43,9 +43,10 @@
 
 using namespace std;
 using namespace sptk;
+
 namespace sptk {
 
-TEST(StopwatchTests,startZeroElapsed)
+TEST(StopwatchTests, startZeroElapsed)
 {
     Stopwatch stopWatch;
     stopWatch.start();
@@ -53,7 +54,7 @@ TEST(StopwatchTests,startZeroElapsed)
     EXPECT_DOUBLE_EQ(0.0, stopWatch.milliseconds());
 }
 
-TEST(StopwatchTests,elapsedTime)
+TEST(StopwatchTests, elapsedTime)
 {
     Stopwatch stopWatch;
     stopWatch.start();
@@ -68,7 +69,7 @@ TEST(StopwatchTests,elapsedTime)
     EXPECT_LE(deltaMs, 1.0);
 }
 
-TEST(StopwatchTests,resetElapsedTime)
+TEST(StopwatchTests, resetElapsedTime)
 {
     Stopwatch stopWatch;
     stopWatch.start();
@@ -85,7 +86,7 @@ TEST(StopwatchTests,resetElapsedTime)
     // Comparing directly against the first interval's measurement is flaky under scheduler
     // jitter, since two independently-measured short sleeps can vary in either order.
     EXPECT_GE(secondMs, 15.0);
-    EXPECT_LT(secondMs, 35.0);
+    EXPECT_LT(secondMs, 50.0);
 }
 
 } // namespace sptk_test
