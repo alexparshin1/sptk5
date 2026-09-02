@@ -633,7 +633,12 @@ void SQLite3Connection::setFieldToNull(Field* field, const short sqliteFieldType
             break;
         case SQLITE_TEXT:
         case SQLITE_BLOB:
-            field->setString("");
+            // An empty buffer, not an empty String. Storing a String and then calling the field a
+            // VAR_BUFFER leaves the two disagreeing, and the next row's non-empty value is then
+            // assigned to a Buffer that is not there. An empty text column followed by a value in
+            // the same column is all it takes, which is what reading a table of accounts where one
+            // has no password does.
+            field->setBuffer(nullptr, 0, VAR_BUFFER);
             field->setNull(VAR_BUFFER);
             break;
         default:

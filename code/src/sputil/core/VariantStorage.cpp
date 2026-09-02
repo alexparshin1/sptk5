@@ -333,13 +333,19 @@ VariantStorage& VariantStorage::operator=(const double aValue)
 VariantStorage& VariantStorage::operator=(Buffer&& buffer)
 {
     const auto valueSize = buffer.size();
-    if (type().type != VariantDataType::VAR_BUFFER || !storageClient())
+
+    // What is actually stored decides, not what the type says it should be. The two can disagree:
+    // a caller that stores a String and then declares the type VAR_BUFFER leaves exactly that
+    // state, and the assignment below used to trust the type, cast to Buffer*, and dereference the
+    // null the cast returned. This is the pattern the copy assignment in this file already uses.
+    if (auto* existing = dynamic_cast<Buffer*>(storageClient());
+        existing != nullptr && type().type == VariantDataType::VAR_BUFFER)
     {
-        setStorageClient(make_unique<Buffer>(std::move(buffer)));
+        *existing = std::move(buffer);
     }
     else
     {
-        *dynamic_cast<Buffer*>(storageClient()) = std::move(buffer);
+        setStorageClient(make_unique<Buffer>(std::move(buffer)));
     }
     setNull(false, VariantDataType::VAR_BUFFER);
     setSize(valueSize);
