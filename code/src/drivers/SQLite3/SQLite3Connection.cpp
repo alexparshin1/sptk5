@@ -142,8 +142,19 @@ void SQLite3Connection::_openDatabase(const String& newConnectionString)
                                         });
 
         const Strings pragmas {
+            // SQLite parses a REFERENCES clause whether or not this is on, and silently enforces
+            // nothing when it is off - which is its default. A schema whose foreign keys are
+            // believed to hold and are not is worse off than one that declares none: the cascade
+            // never runs, the orphan is never refused, and nothing anywhere says so.
+            "pragma foreign_keys = ON",
             "pragma journal_mode = WAL",
-            "pragma synchronous = off",
+            // FULL, not off. Off does not wait for a commit to reach the disk, so a power cut or a
+            // kernel crash loses transactions that were reported as committed - a reasonable trade
+            // for a queue that can replay, and the wrong one for the accounts and rules a broker is
+            // about to keep here, where a password change that quietly did not happen is worse than
+            // a slow one. NORMAL would be the middle ground in WAL mode; the choice wants to be a
+            // connection parameter rather than a constant, and is not one yet.
+            "pragma synchronous = full",
             "pragma temp_store = memory",
             "pragma mmap_size = 30000000000",
             "pragma auto_vacuum = incremental",
