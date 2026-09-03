@@ -30,7 +30,7 @@ set(CMAKE_INSTALL_MESSAGE NEVER)
 
 SET(VERSION_MAJOR "5")
 SET(VERSION_MINOR "6")
-SET(VERSION_PATCH "9")
+SET(VERSION_PATCH "10")
 SET(VERSION "${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}")
 
 PROJECT(SPTK
@@ -700,7 +700,7 @@ ELSEIF (USE_GTEST)
     ENDIF ()
     IF (NOT SPTK_GTEST_LIBRARY)
         MESSAGE(FATAL_ERROR "USE_GTEST is on but no googletest library was found. "
-                            "Install one, or turn USE_GTEST off.")
+                "Install one, or turn USE_GTEST off.")
     ENDIF ()
 ENDIF ()
 
