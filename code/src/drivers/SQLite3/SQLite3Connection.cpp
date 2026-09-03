@@ -141,6 +141,18 @@ void SQLite3Connection::_openDatabase(const String& newConnectionString)
                                             closeAndClean();
                                         });
 
+        // Wait for a database another connection is writing, rather than failing the moment it is
+        // found busy - which is what SQLite does when no timeout is set, and no timeout was.
+        //
+        // A pool hands out several connections to one file, so a read arriving while a write is
+        // committing is ordinary rather than exceptional. Without this the read returns
+        // SQLITE_BUSY immediately and the caller sees an error that says nothing about what is
+        // wrong; with it, it waits the few milliseconds the writer needs. Ten seconds is far
+        // longer than any write here takes, and is a limit rather than a delay: a database that
+        // is genuinely stuck still reports it rather than hanging for good.
+        constexpr int busyTimeoutMs = 10000;
+        sqlite3_busy_timeout(m_connect.get(), busyTimeoutMs);
+
         const Strings pragmas {
             // SQLite parses a REFERENCES clause whether or not this is on, and silently enforces
             // nothing when it is off - which is its default. A schema whose foreign keys are
