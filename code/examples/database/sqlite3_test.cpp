@@ -91,7 +91,7 @@ int main()
 #ifdef _WIN32
     const string dbUri = "sqlite3://localhost/C:\\tmp\\demo_db.sqlite3";
 #else
-    const string dbUri = "sqlite3://localhost/tmp/demo_db.sqlite3";
+    const string dbUri = "sqlite3://localhost//tmp/demo_db.sqlite3";
 #endif
     DatabaseConnectionPool connectionPool(dbUri);
     DatabaseConnection     db = connectionPool.getConnection();
