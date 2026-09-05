@@ -46,9 +46,9 @@ using namespace sptk;
 int main()
 {
 #ifdef _WIN32
-    COUT("Attention: This example project must include file events.rc.");
-    COUT("You should also have enough access rights to write into HKEY_LOCAL_MACHINE");
-    COUT("in Windows registry.\n\n");
+    COUT("Attention: Registering an event source requires enough access rights to write");
+    COUT("into HKEY_LOCAL_MACHINE in Windows registry. Without them, messages still");
+    COUT("reach the Application event log but Event Viewer can't format them.\n");
 #endif
     try
     {

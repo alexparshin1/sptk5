@@ -1,4 +1,6 @@
- // The following are the categories of events.
+ // Event categories mirror the syslog facility codes, so that the same SysLogEngine
+ // facility groups messages the same way on Windows and on *nix:
+ // category N is syslog facility N-1.
 //
 //  Values are 32 bit values laid out as follows:
 //
@@ -44,31 +46,220 @@
 
 
 //
-// MessageId: SPTK_MSG_CATEGORY
+// MessageId: SPTK_CATEGORY_KERN
 //
 // MessageText:
 //
-// Network Events
+// Kernel
 //
-#define SPTK_MSG_CATEGORY                ((WORD)0x00000001L)
+#define SPTK_CATEGORY_KERN               ((WORD)0x00000001L)
 
 //
-// MessageId: DATABASE_CATEGORY
+// MessageId: SPTK_CATEGORY_USER
 //
 // MessageText:
 //
-// Database Events
+// User
 //
-#define DATABASE_CATEGORY                ((WORD)0x00000002L)
+#define SPTK_CATEGORY_USER               ((WORD)0x00000002L)
 
 //
-// MessageId: UI_CATEGORY
+// MessageId: SPTK_CATEGORY_MAIL
 //
 // MessageText:
 //
-// UI Events
+// Mail
 //
-#define UI_CATEGORY                      ((WORD)0x00000003L)
+#define SPTK_CATEGORY_MAIL               ((WORD)0x00000003L)
+
+//
+// MessageId: SPTK_CATEGORY_DAEMON
+//
+// MessageText:
+//
+// Daemon
+//
+#define SPTK_CATEGORY_DAEMON             ((WORD)0x00000004L)
+
+//
+// MessageId: SPTK_CATEGORY_AUTH
+//
+// MessageText:
+//
+// Security/Authorization
+//
+#define SPTK_CATEGORY_AUTH               ((WORD)0x00000005L)
+
+//
+// MessageId: SPTK_CATEGORY_SYSLOG
+//
+// MessageText:
+//
+// Syslog
+//
+#define SPTK_CATEGORY_SYSLOG             ((WORD)0x00000006L)
+
+//
+// MessageId: SPTK_CATEGORY_LPR
+//
+// MessageText:
+//
+// Line Printer
+//
+#define SPTK_CATEGORY_LPR                ((WORD)0x00000007L)
+
+//
+// MessageId: SPTK_CATEGORY_NEWS
+//
+// MessageText:
+//
+// Network News
+//
+#define SPTK_CATEGORY_NEWS               ((WORD)0x00000008L)
+
+//
+// MessageId: SPTK_CATEGORY_UUCP
+//
+// MessageText:
+//
+// UUCP
+//
+#define SPTK_CATEGORY_UUCP               ((WORD)0x00000009L)
+
+//
+// MessageId: SPTK_CATEGORY_CRON
+//
+// MessageText:
+//
+// Clock Daemon
+//
+#define SPTK_CATEGORY_CRON               ((WORD)0x0000000AL)
+
+//
+// MessageId: SPTK_CATEGORY_AUTHPRIV
+//
+// MessageText:
+//
+// Security/Authorization (private)
+//
+#define SPTK_CATEGORY_AUTHPRIV           ((WORD)0x0000000BL)
+
+//
+// MessageId: SPTK_CATEGORY_FTP
+//
+// MessageText:
+//
+// FTP Daemon
+//
+#define SPTK_CATEGORY_FTP                ((WORD)0x0000000CL)
+
+//
+// MessageId: SPTK_CATEGORY_RESERVED12
+//
+// MessageText:
+//
+// Reserved 12
+//
+#define SPTK_CATEGORY_RESERVED12         ((WORD)0x0000000DL)
+
+//
+// MessageId: SPTK_CATEGORY_RESERVED13
+//
+// MessageText:
+//
+// Reserved 13
+//
+#define SPTK_CATEGORY_RESERVED13         ((WORD)0x0000000EL)
+
+//
+// MessageId: SPTK_CATEGORY_RESERVED14
+//
+// MessageText:
+//
+// Reserved 14
+//
+#define SPTK_CATEGORY_RESERVED14         ((WORD)0x0000000FL)
+
+//
+// MessageId: SPTK_CATEGORY_RESERVED15
+//
+// MessageText:
+//
+// Reserved 15
+//
+#define SPTK_CATEGORY_RESERVED15         ((WORD)0x00000010L)
+
+//
+// MessageId: SPTK_CATEGORY_LOCAL0
+//
+// MessageText:
+//
+// Local 0
+//
+#define SPTK_CATEGORY_LOCAL0             ((WORD)0x00000011L)
+
+//
+// MessageId: SPTK_CATEGORY_LOCAL1
+//
+// MessageText:
+//
+// Local 1
+//
+#define SPTK_CATEGORY_LOCAL1             ((WORD)0x00000012L)
+
+//
+// MessageId: SPTK_CATEGORY_LOCAL2
+//
+// MessageText:
+//
+// Local 2
+//
+#define SPTK_CATEGORY_LOCAL2             ((WORD)0x00000013L)
+
+//
+// MessageId: SPTK_CATEGORY_LOCAL3
+//
+// MessageText:
+//
+// Local 3
+//
+#define SPTK_CATEGORY_LOCAL3             ((WORD)0x00000014L)
+
+//
+// MessageId: SPTK_CATEGORY_LOCAL4
+//
+// MessageText:
+//
+// Local 4
+//
+#define SPTK_CATEGORY_LOCAL4             ((WORD)0x00000015L)
+
+//
+// MessageId: SPTK_CATEGORY_LOCAL5
+//
+// MessageText:
+//
+// Local 5
+//
+#define SPTK_CATEGORY_LOCAL5             ((WORD)0x00000016L)
+
+//
+// MessageId: SPTK_CATEGORY_LOCAL6
+//
+// MessageText:
+//
+// Local 6
+//
+#define SPTK_CATEGORY_LOCAL6             ((WORD)0x00000017L)
+
+//
+// MessageId: SPTK_CATEGORY_LOCAL7
+//
+// MessageText:
+//
+// Local 7
+//
+#define SPTK_CATEGORY_LOCAL7             ((WORD)0x00000018L)
 
  // The following are the message definitions.
 //

@@ -16,6 +16,11 @@ LIST(REMOVE_ITEM SPUTIL_SOURCES ${CONDITIONAL_SOURCES})
 IF (WIN32)
     FILE(GLOB WEPOLL_SOURCES wepoll/*.c wepoll/*.h)
     SET(SPUTIL_SOURCES ${SPUTIL_SOURCES} ${WEPOLL_SOURCES})
+
+    # Windows event log message table. It's linked into this library, and SysLogEngine
+    # registers this library as the event source EventMessageFile, so applications using
+    # SPTK don't have to embed the resource into their own executables.
+    SET(SPUTIL_SOURCES ${SPUTIL_SOURCES} ${SPTK_SOURCE_DIR}/events.w32/event_provider.rc)
 ENDIF ()
 
 IF (ZLIB_FOUND)
@@ -52,6 +57,11 @@ ENDIF ()
 
 ADD_LIBRARY(sputil5 SHARED ${SPUTIL_SOURCES})
 SET_SPTK_TARGET_PROPERTIES(sputil5)
+
+IF (WIN32)
+    # event_provider.rc and event_provider.h are generated from event_provider.mc
+    ADD_DEPENDENCIES(sputil5 Windows_Event_Log_Resources)
+ENDIF ()
 
 SET_SPTK_TARGET_PROPERTIES(sputil5)
 

@@ -41,6 +41,8 @@
 
 #ifdef _WIN32
 #include <events.w32/event_provider.h>
+#include <array>
+#include <memory>
 #include <sstream> // libc++
 #endif
 
@@ -51,7 +53,27 @@ std::mutex  SysLogEngine::m_syslogMutex;
 atomic_bool SysLogEngine::m_logOpened(false);
 
 #ifdef _WIN32
-bool SysLogEngine::m_registrySet(false);
+namespace {
+/**
+ * Any address within this shared library, used to find the module that carries
+ * the event message table resource.
+ */
+const char moduleAnchor {0};
+
+/**
+ * Highest syslog facility code (LOG_LOCAL7), and the number of event categories
+ * defined for it in events.w32/event_provider.mc.
+ */
+constexpr uint32_t maxSyslogFacility = LOG_LOCAL7 >> 3;
+constexpr DWORD    syslogFacilityCount = maxSyslogFacility + 1;
+
+// The category is computed from the facility rather than looked up, so pin the
+// message table to the facility codes it's generated from.
+static_assert(SPTK_CATEGORY_KERN == (LOG_KERN >> 3) + 1);
+static_assert(SPTK_CATEGORY_USER == (LOG_USER >> 3) + 1);
+static_assert(SPTK_CATEGORY_AUTH == (LOG_AUTH >> 3) + 1);
+static_assert(SPTK_CATEGORY_LOCAL7 == (LOG_LOCAL7 >> 3) + 1);
+} // namespace
 #endif
 
 SysLogEngine::SysLogEngine(const String& _programName, const uint32_t facilities)
@@ -75,10 +97,13 @@ bool SysLogEngine::saveMessage(const Logger::Message& message)
         const scoped_lock lock(m_syslogMutex);
         if (!m_logOpened)
         {
-            openlog(programName.c_str(), LOG_NOWAIT, LOG_USER | LOG_INFO);
+            openlog(programName.c_str(), LOG_NOWAIT, static_cast<int>(facilities));
             m_logOpened = true;
         }
-        syslog(static_cast<int>(message.priority), "[%s] %s", priorityName(message.priority).c_str(), message.message.c_str());
+        // openlog() registers one default facility for the whole process, but syslog() takes
+        // facility|priority, so each engine's own facility is applied per message.
+        syslog(static_cast<int>(facilities) | static_cast<int>(message.priority), "[%s] %s",
+               priorityName(message.priority).c_str(), message.message.c_str());
 #else
         if (m_logHandle.load() == nullptr)
         {
@@ -98,6 +123,12 @@ bool SysLogEngine::saveMessage(const Logger::Message& message)
         {
             throw Exception("Can't open Application Event Log");
         }
+
+        // Event categories mirror the syslog facility codes (see events.w32/event_provider.mc):
+        // category N is facility N-1, so the same facility groups messages the same way on
+        // every platform. Category 0 tells Event Viewer that the event has no category.
+        const uint32_t facilityCode = facilities >> 3;
+        const auto     category = facilityCode <= maxSyslogFacility ? static_cast<WORD>(facilityCode + 1) : WORD {0};
 
         WORD eventType;
         switch ((int) message.priority)
@@ -122,7 +153,7 @@ bool SysLogEngine::saveMessage(const Logger::Message& message)
         if (!ReportEvent(
                 m_logHandle,       // handle returned by RegisterEventSource
                 eventType,         // event type to log
-                SPTK_MSG_CATEGORY, // event category
+                category,          // event category
                 MSG_TEXT,          // event identifier
                 NULL,              // user security identifier (optional)
                 1,                 // number of strings to merge with message
@@ -162,75 +193,118 @@ void SysLogEngine::setupEventSource() const
     m_logOpened = false;
     closelog();
 #else
-    char* buffer = new char[_MAX_PATH];
-    GetModuleFileName(0, buffer, _MAX_PATH);
-    string moduleFileName = buffer;
+    // Event Viewer formats a message by loading the message table resource from the module
+    // named in EventMessageFile. That table (events.w32/event_provider.rc) is linked into
+    // this library, so register the library itself rather than the host executable -
+    // applications using SPTK don't have to embed the resource in their own binaries.
+    HMODULE thisModule {nullptr};
+    if (!GetModuleHandleEx(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
+                           reinterpret_cast<LPCSTR>(&moduleAnchor), &thisModule))
+    {
+        throw Exception("Can't determine SPTK module handle");
+    }
 
-    string keyName = R"(SYSTEM\CurrentControlSet\Services\EventLog\Application\)" + m_programName;
+    // One extra byte keeps the buffer NUL terminated even for a registry value that isn't
+    constexpr DWORD                 pathBufferSize = MAX_PATH;
+    array<char, pathBufferSize + 1> buffer {};
 
-    HKEY keyHandle;
-    if (RegCreateKey(HKEY_CURRENT_USER, keyName.c_str(), &keyHandle) != ERROR_SUCCESS)
-        throw Exception("Can't create registry key HKEY_LOCAL_MACHINE '" + keyName + "'");
+    const auto moduleFileNameLength = GetModuleFileName(thisModule, buffer.data(), pathBufferSize);
+    if (moduleFileNameLength == 0 || moduleFileNameLength >= pathBufferSize)
+    {
+        throw Exception("Can't determine SPTK module file name");
+    }
+    const String moduleFileName(buffer.data(), moduleFileNameLength);
 
-    unsigned long len = _MAX_PATH;
-    unsigned long vtype = REG_EXPAND_SZ;
-    int           rc = RegQueryValueEx(keyHandle, "EventMessageFile", 0, &vtype, reinterpret_cast<BYTE*>(buffer), &len);
+    const String keyName = R"(SYSTEM\CurrentControlSet\Services\EventLog\Application\)" + m_programName;
+
+    HKEY keyHandle {nullptr};
+    auto rc = RegCreateKeyEx(HKEY_LOCAL_MACHINE, keyName.c_str(), 0, nullptr, REG_OPTION_NON_VOLATILE,
+                             KEY_QUERY_VALUE | KEY_SET_VALUE, nullptr, &keyHandle, nullptr);
+    if (rc == ERROR_ACCESS_DENIED)
+    {
+        // Registering an event source is a machine-wide operation that requires administrator
+        // rights. Without it messages still reach the Application log, they just aren't
+        // formatted by Event Viewer, so this isn't worth failing the application over.
+        return;
+    }
     if (rc != ERROR_SUCCESS)
     {
-        struct ValueData
-        {
-            const char* name;
-            const char* strValue;
-            DWORD       intValue;
-        } valueData[5] = {
-            {"CategoryCount", NULL, 3},
-            {"CategoryMessageFile", moduleFileName.c_str(), 0},
-            {"EventMessageFile", moduleFileName.c_str(), 0},
-            {"ParameterMessageFile", moduleFileName.c_str(), 0},
-            {"TypesSupported", NULL, 7}};
+        throw Exception("Can't create registry key HKEY_LOCAL_MACHINE '" + keyName + "'");
+    }
 
-        for (int i = 0; i < 5; i++)
+    const auto closeKey = [](HKEY handle)
+    {
+        RegCloseKey(handle);
+    };
+    const unique_ptr<remove_pointer_t<HKEY>, decltype(closeKey)> key(keyHandle, closeKey);
+
+    // Re-register whenever the recorded module path is missing or stale, so that moving or
+    // upgrading the library doesn't leave the event source pointing at the old file.
+    DWORD valueSize = pathBufferSize;
+    DWORD valueType = REG_EXPAND_SZ;
+    rc = RegQueryValueEx(keyHandle, "EventMessageFile", nullptr, &valueType, reinterpret_cast<BYTE*>(buffer.data()), &valueSize);
+    if (rc == ERROR_SUCCESS && String(buffer.data()) == moduleFileName)
+    {
+        return;
+    }
+
+    struct ValueData
+    {
+        const char* name;
+        const char* strValue;
+        DWORD       intValue;
+    };
+
+    const array<ValueData, 5> valueData {
+        ValueData {"CategoryCount", nullptr, syslogFacilityCount},
+        ValueData {"CategoryMessageFile", moduleFileName.c_str(), 0},
+        ValueData {"EventMessageFile", moduleFileName.c_str(), 0},
+        ValueData {"ParameterMessageFile", moduleFileName.c_str(), 0},
+        ValueData {"TypesSupported", nullptr, 7}};
+
+    for (const auto& item: valueData)
+    {
+        const BYTE* value;
+        if (item.strValue == nullptr)
         {
-            CONST BYTE* value;
-            DWORD       valueSize;
-            DWORD       valueType;
-            if (valueData[i].strValue == NULL)
+            // DWORD value
+            value = reinterpret_cast<const BYTE*>(&item.intValue);
+            valueSize = sizeof(item.intValue);
+            valueType = REG_DWORD;
+        }
+        else
+        {
+            // String value
+            value = reinterpret_cast<const BYTE*>(item.strValue);
+            valueSize = static_cast<DWORD>(strlen(item.strValue)) + 1;
+            valueType = REG_EXPAND_SZ;
+        }
+
+        rc = RegSetValueEx(
+            keyHandle,  // handle to key to set value for
+            item.name,  // name of the value to set
+            0,          // reserved
+            valueType,  // flag for value type
+            value,      // address of value data
+            valueSize   // size of value data
+        );
+
+        if (rc != ERROR_SUCCESS)
+        {
+            stringstream error;
+            error << "Can't set registry key HKEY_LOCAL_MACHINE '" << keyName << "' ";
+            error << "value '" << item.name << "' to ";
+            if (item.strValue == nullptr)
             {
-                // DWORD value
-                value = (CONST BYTE*) &(valueData[i].intValue);
-                valueSize = sizeof(valueData[i].intValue);
-                valueType = REG_DWORD;
+                error << "REG_DWORD " << item.intValue;
             }
             else
             {
-                // String value
-                value = (CONST BYTE*) valueData[i].strValue;
-                valueSize = (DWORD) strlen(valueData[i].strValue) + 1;
-                valueType = REG_EXPAND_SZ;
+                error << "REG_EXPAND_SZ " << item.strValue;
             }
-            rc = RegSetValueEx(
-                keyHandle,         // handle to key to set value for
-                valueData[i].name, // name of the value to set
-                0,                 // reserved
-                valueType,         // flag for value type
-                value,             // address of value data
-                valueSize          // size of value data
-            );
-
-            if (rc != ERROR_SUCCESS)
-            {
-                stringstream error;
-                error << "Can't set registry key HKEY_LOCAL_MACHINE '" << keyName << "' ";
-                error << "value '" << valueData[i].name << "' to ";
-                if (valueData[i].strValue == NULL)
-                    error << "REG_DWORD " << valueData[i].intValue;
-                else
-                    error << "REG_SZ " << valueData[i].strValue;
-                throw Exception(error.str());
-            }
+            throw Exception(error.str());
         }
     }
-    RegCloseKey(keyHandle);
 #endif
 }
 

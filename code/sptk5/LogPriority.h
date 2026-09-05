@@ -63,6 +63,17 @@
 #define LOG_NEWS (7 << 3)   /* network news subsystem */
 #define LOG_UUCP (8 << 3)   /* UUCP subsystem */
 #define LOG_CRON (9 << 3)   /* clock daemon */
+#define LOG_AUTHPRIV (10 << 3) /* security/authorization messages (private) */
+#define LOG_FTP (11 << 3)      /* ftp daemon */
+/* codes 12-15 are reserved for system use */
+#define LOG_LOCAL0 (16 << 3)   /* reserved for local use */
+#define LOG_LOCAL1 (17 << 3)   /* reserved for local use */
+#define LOG_LOCAL2 (18 << 3)   /* reserved for local use */
+#define LOG_LOCAL3 (19 << 3)   /* reserved for local use */
+#define LOG_LOCAL4 (20 << 3)   /* reserved for local use */
+#define LOG_LOCAL5 (21 << 3)   /* reserved for local use */
+#define LOG_LOCAL6 (22 << 3)   /* reserved for local use */
+#define LOG_LOCAL7 (23 << 3)   /* reserved for local use */
 #endif
 
 namespace sptk {

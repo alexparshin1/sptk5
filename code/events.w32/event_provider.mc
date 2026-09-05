@@ -14,26 +14,154 @@ FacilityNames=(System=0x0:FACILITY_SYSTEM
 LanguageNames=(English=0x409:MSG00409)
 
 
-; // The following are the categories of events.
+; // Event categories mirror the syslog facility codes, so that the same SysLogEngine
+; // facility groups messages the same way on Windows and on *nix:
+; // category N is syslog facility N-1.
 
 MessageIdTypedef=WORD
 
 MessageId=0x1
-SymbolicName=SPTK_MSG_CATEGORY
+SymbolicName=SPTK_CATEGORY_KERN
 Language=English
-Network Events
+Kernel
 .
 
 MessageId=0x2
-SymbolicName=DATABASE_CATEGORY
+SymbolicName=SPTK_CATEGORY_USER
 Language=English
-Database Events
+User
 .
 
 MessageId=0x3
-SymbolicName=UI_CATEGORY
+SymbolicName=SPTK_CATEGORY_MAIL
 Language=English
-UI Events
+Mail
+.
+
+MessageId=0x4
+SymbolicName=SPTK_CATEGORY_DAEMON
+Language=English
+Daemon
+.
+
+MessageId=0x5
+SymbolicName=SPTK_CATEGORY_AUTH
+Language=English
+Security/Authorization
+.
+
+MessageId=0x6
+SymbolicName=SPTK_CATEGORY_SYSLOG
+Language=English
+Syslog
+.
+
+MessageId=0x7
+SymbolicName=SPTK_CATEGORY_LPR
+Language=English
+Line Printer
+.
+
+MessageId=0x8
+SymbolicName=SPTK_CATEGORY_NEWS
+Language=English
+Network News
+.
+
+MessageId=0x9
+SymbolicName=SPTK_CATEGORY_UUCP
+Language=English
+UUCP
+.
+
+MessageId=0xa
+SymbolicName=SPTK_CATEGORY_CRON
+Language=English
+Clock Daemon
+.
+
+MessageId=0xb
+SymbolicName=SPTK_CATEGORY_AUTHPRIV
+Language=English
+Security/Authorization (private)
+.
+
+MessageId=0xc
+SymbolicName=SPTK_CATEGORY_FTP
+Language=English
+FTP Daemon
+.
+
+MessageId=0xd
+SymbolicName=SPTK_CATEGORY_RESERVED12
+Language=English
+Reserved 12
+.
+
+MessageId=0xe
+SymbolicName=SPTK_CATEGORY_RESERVED13
+Language=English
+Reserved 13
+.
+
+MessageId=0xf
+SymbolicName=SPTK_CATEGORY_RESERVED14
+Language=English
+Reserved 14
+.
+
+MessageId=0x10
+SymbolicName=SPTK_CATEGORY_RESERVED15
+Language=English
+Reserved 15
+.
+
+MessageId=0x11
+SymbolicName=SPTK_CATEGORY_LOCAL0
+Language=English
+Local 0
+.
+
+MessageId=0x12
+SymbolicName=SPTK_CATEGORY_LOCAL1
+Language=English
+Local 1
+.
+
+MessageId=0x13
+SymbolicName=SPTK_CATEGORY_LOCAL2
+Language=English
+Local 2
+.
+
+MessageId=0x14
+SymbolicName=SPTK_CATEGORY_LOCAL3
+Language=English
+Local 3
+.
+
+MessageId=0x15
+SymbolicName=SPTK_CATEGORY_LOCAL4
+Language=English
+Local 4
+.
+
+MessageId=0x16
+SymbolicName=SPTK_CATEGORY_LOCAL5
+Language=English
+Local 5
+.
+
+MessageId=0x17
+SymbolicName=SPTK_CATEGORY_LOCAL6
+Language=English
+Local 6
+.
+
+MessageId=0x18
+SymbolicName=SPTK_CATEGORY_LOCAL7
+Language=English
+Local 7
 .
 
 

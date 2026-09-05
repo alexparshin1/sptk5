@@ -1,13 +1,17 @@
 IF (WIN32)
 
-    # Generating event_provider.rc to be included to any Visual Studio projects
-    # that use Windows event log.
-    ADD_CUSTOM_COMMAND (
-        OUTPUT  ${CMAKE_CURRENT_SOURCE_DIR}/event_provider.rc
-        DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/event_provider.mc
-        COMMAND ${MC_COMPILER}
-        ARGS -A ${CMAKE_CURRENT_SOURCE_DIR}/event_provider.mc -h ${CMAKE_CURRENT_SOURCE_DIR} -r ${CMAKE_CURRENT_SOURCE_DIR}
-    )
+    # Generating event_provider.rc and event_provider.h from the message definitions.
+    # The generated files are also checked in, so the message compiler is only needed
+    # when event_provider.mc changes.
+    IF (MC_COMPILER)
+        ADD_CUSTOM_COMMAND (
+            OUTPUT  ${CMAKE_CURRENT_SOURCE_DIR}/event_provider.rc
+                    ${CMAKE_CURRENT_SOURCE_DIR}/event_provider.h
+            DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/event_provider.mc
+            COMMAND ${MC_COMPILER}
+            ARGS -A ${CMAKE_CURRENT_SOURCE_DIR}/event_provider.mc -h ${CMAKE_CURRENT_SOURCE_DIR} -r ${CMAKE_CURRENT_SOURCE_DIR}
+        )
+    ENDIF (MC_COMPILER)
 
     # Build target for event_provider.rc
     ADD_CUSTOM_TARGET (

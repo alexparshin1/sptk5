@@ -59,7 +59,9 @@ namespace sptk {
  * On *nix , the log is sent to *nix syslog daemon.
  * On Windows NT/2000+/XP the log is sent to Event Log (Application).
  * On Windows 95/98/ME the system log isn't supported..
- * The facility method allows to define - which system log is used
+ * The facility defines which system log is used: it selects the syslog facility
+ * on *nix, and the matching Event Log category on Windows, so the same facility
+ * groups messages the same way on every platform.
  */
 class SP_EXPORT SysLogEngine
     : public LogEngine
@@ -76,14 +78,14 @@ public:
     /**
      * Constructor
      *
-     * Creates a new log object based on the syslog facility (or facilities).
-     * For Windows, parameter facilities is ignored and messages are stored
-     * into Application event log.
+     * Creates a new log object based on the syslog facility.
+     * For Windows, messages are stored into the Application event log, and the
+     * facility selects the event category.
      * The program name is optional. It is set for all the SysLogEngine objects at once.
      * If set, it appears in the log as a message prefix. Every time the program
      * name is changed, the log is closed to be re-opened on next message.
      * @param programName       Program name
-     * @param facilities        Log facility or a set of facilities.
+     * @param facilities        Log facility, one of LOG_KERN..LOG_LOCAL7.
      */
     SysLogEngine(const String& programName, uint32_t facilities = LOG_USER);
 
@@ -105,13 +107,12 @@ public:
 private:
 #ifdef _WIN32
     std::atomic<HANDLE> m_logHandle {0}; ///< The handle of the log file
-    static bool         m_registrySet;   ///< Is registry set?
 #endif
 
     static std::mutex       m_syslogMutex;
     static std::atomic_bool m_logOpened;
 
-    uint32_t m_facilities;  ///< List of facilities allows to define one or more system logs where messages would be sent
+    uint32_t m_facilities;  ///< Syslog facility defining which system log receives the messages
     String   m_programName; ///< Application name
 
     void programName(const String& progName);
