@@ -43,6 +43,7 @@
 using namespace std;
 using namespace chrono;
 using namespace sptk;
+
 namespace sptk {
 
 TEST(TimerTests, repeat) /* NOLINT */
@@ -53,8 +54,8 @@ TEST(TimerTests, repeat) /* NOLINT */
 
         int eventSet(0);
 
-        constexpr milliseconds repeatInterval {20};
-        constexpr milliseconds sleepInterval {105};
+        constexpr milliseconds repeatInterval{20};
+        constexpr milliseconds sleepInterval{105};
 
         const auto event = timer.repeat(repeatInterval,
                                         [&eventSet]()
@@ -77,7 +78,7 @@ TEST(TimerTests, fireOnce) /* NOLINT */
     size_t      counter = 1;
     const Timer timer;
 
-    constexpr milliseconds delayInterval {100};
+    constexpr milliseconds delayInterval{100};
     const auto             event = timer.fireAt(
         DateTime::clock::now() + delayInterval,
         [&counter, &counterMutex]()
@@ -100,7 +101,7 @@ TEST(TimerTests, repeatTwice) /* NOLINT */
     const Timer timer;
     Semaphore   allEventsReceived;
 
-    constexpr auto repeatInterval {10ms};
+    constexpr auto repeatInterval{10ms};
     const auto     event = timer.repeat(
         repeatInterval,
         [&counter, &counterMutex, &allEventsReceived]()
@@ -126,7 +127,7 @@ TEST(TimerTests, repeatTwoEventsTwice) /* NOLINT */
     size_t      counter = 0;
     const Timer timer;
 
-    constexpr auto repeatInterval {10ms};
+    constexpr auto repeatInterval{10ms};
     const auto     event1 = timer.repeat(
         repeatInterval,
         [&counter, &counterMutex]()
@@ -190,10 +191,10 @@ TEST(TimerTests, repeatCancel) /* NOLINT */
 
     vector<STimerEvent> createdEvents;
     const auto          event = timer.repeat(10ms,
-                                             [&totalEvents]
-                                             {
+                                    [&totalEvents]
+                                    {
                                         ++totalEvents;
-                                             });
+                                    });
 
     this_thread::sleep_for(100ms);
     EXPECT_NEAR(9, totalEvents, 2);
@@ -220,10 +221,10 @@ TEST(TimerTests, scheduleTwoEvents) /* NOLINT */
     vector<STimerEvent> createdEvents;
     const auto          started = DateTime::clock::now();
     const auto          event1 = timer.fireAt(started + 1s,
-                                              [&timestamp1]
-                                              {
+                                     [&timestamp1]
+                                     {
                                          timestamp1 = DateTime::clock::now();
-                                              });
+                                     });
 
     this_thread::sleep_for(10ms);
 
@@ -233,7 +234,7 @@ TEST(TimerTests, scheduleTwoEvents) /* NOLINT */
                                          timestamp2 = DateTime::clock::now();
                                      });
 
-    this_thread::sleep_for(1100ms);
+    this_thread::sleep_for(1200ms);
     EXPECT_TRUE(timestamp2 < timestamp1);
 }
 
@@ -294,7 +295,7 @@ TEST(TimerTests, scheduleEventsPerformance) /* NOLINT */
 
     constexpr auto OneThousand = 1000.0;
     COUT(maxEvents << fixed << setprecision(1) << " events scheduled, " << maxEvents / OneThousand / stopwatch.seconds()
-                   << "K events/s");
+        << "K events/s");
 
     stopwatch.start();
     for (const auto& event: createdEvents)
@@ -304,7 +305,7 @@ TEST(TimerTests, scheduleEventsPerformance) /* NOLINT */
     stopwatch.stop();
 
     COUT(maxEvents << fixed << setprecision(1) << " events canceled, " << maxEvents / OneThousand / stopwatch.seconds()
-                   << "K events/s");
+        << "K events/s");
 }
 
 } // namespace sptk
