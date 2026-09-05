@@ -56,6 +56,7 @@ public:
         : DatabaseField(fieldName, 0, VariantDataType::VAR_BUFFER, 0, 0)
     {
     }
+
     using DatabaseField::operator=;
 };
 
@@ -92,7 +93,9 @@ String SQLite3Connection::nativeConnectionString() const
         throw DatabaseException("Invalid connection string");
     }
 
-    return "/" + connectionString().databaseName() + "/" + connectionString().schema();
+    const auto dbFileName = static_cast<string>(connectionString().databaseName());
+    const auto schema = connectionString().schema();
+    return schema.empty() ? dbFileName : dbFileName + "/" + schema;
 }
 
 chrono::minutes SQLite3Connection::getSessionTimezoneOffset()
@@ -104,9 +107,9 @@ chrono::minutes SQLite3Connection::getSessionTimezoneOffset()
     }
 
     m_sessionTimezoneOffset = chrono::minutes(0);
-    Query query(self, "SELECT CURRENT_TIMESTAMP");
-    const auto  timestamp = query.scalar().asDateTime();
-    const auto  sessionTimezoneOffset = chrono::duration_cast<chrono::minutes>(timestamp - DateTime::Now());
+    Query      query(self, "SELECT CURRENT_TIMESTAMP");
+    const auto timestamp = query.scalar().asDateTime();
+    const auto sessionTimezoneOffset = chrono::duration_cast<chrono::minutes>(timestamp - DateTime::Now());
     return sessionTimezoneOffset;
 }
 
@@ -153,7 +156,7 @@ void SQLite3Connection::_openDatabase(const String& newConnectionString)
         constexpr int busyTimeoutMs = 10000;
         sqlite3_busy_timeout(m_connect.get(), busyTimeoutMs);
 
-        const Strings pragmas {
+        const Strings pragmas{
             // SQLite parses a REFERENCES clause whether or not this is on, and silently enforces
             // nothing when it is off - which is its default. A schema whose foreign keys are
             // believed to hold and are not is worse off than one that declares none: the cascade
@@ -375,7 +378,7 @@ void SQLite3Connection::bindParameter(Query* query, const uint32_t paramNumber)
         {
             switch (parameterType)
             {
-                using enum VariantDataType;
+                    using enum VariantDataType;
                 case VAR_BOOL:
                     res = sqlite3_bind_int(stmt, parameterBindNumber, parameter->get<bool>());
                     break;
@@ -634,7 +637,7 @@ void SQLite3Connection::setFieldToNull(Field* field, const short sqliteFieldType
 {
     switch (sqliteFieldType)
     {
-        using enum VariantDataType;
+            using enum VariantDataType;
         case SQLITE_INTEGER:
             field->setInt64(0);
             field->setNull(VAR_INT64);

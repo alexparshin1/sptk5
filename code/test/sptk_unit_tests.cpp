@@ -56,7 +56,7 @@ int main(int argc, char* argv[])
     TestRunner::addDatabaseConnection(DatabaseConnectionString("mysql://gtest:test#123@dbhost_mysql:3306/gtest"));
     TestRunner::addDatabaseConnection(DatabaseConnectionString("mssql://gtest:test#123@dsn_mssql/gtest"));
     TestRunner::addDatabaseConnection(DatabaseConnectionString("oracle://gtest:test#123@oracledb:1521/xe"));
-    TestRunner::addDatabaseConnection(DatabaseConnectionString("sqlite3://localhost" + tempDirectory + "/test.sqlite3"));
+    TestRunner::addDatabaseConnection(DatabaseConnectionString("sqlite3://localhost/" + tempDirectory + "/test.sqlite3"));
 
     return tests.runAllTests();
 }
