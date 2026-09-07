@@ -8,9 +8,43 @@ cd "${FARM_ROOT:-$HOME/build}" || exit 1
 
 BUILD_ROOT=$(pwd)
 
+# Where the images are described. One file per image, and the name after the dot is the name the
+# image is known by - both to the loop below and to whoever names one on the command line.
+DOCKER_DIR=/home/alexeyp/Docker
+
 TESTS=""
-if [ "$1" = "--no-tests" ]; then
-    TESTS=$1
+IMAGE=""
+for argument in "$@"; do
+    case "$argument" in
+        --no-tests)
+            TESTS=$argument
+            ;;
+        -*)
+            echo "Unknown option: $argument" >&2
+            echo "Usage: $(basename "$0") [--no-tests] [image]" >&2
+            exit 1
+            ;;
+        *)
+            # An image to build instead of all of them - for a single package, or for retrying the
+            # one that failed last night without waiting for the other eight. This is what used to
+            # be done by editing the loop's glob into a comment on the build host, which then sat
+            # as an uncommitted change and stopped every pull of this file.
+            IMAGE=$argument
+            ;;
+    esac
+done
+
+if [ -n "$IMAGE" ]; then
+    DOCKERFILES=$DOCKER_DIR/Dockerfile.$IMAGE
+    if [ ! -f "$DOCKERFILES" ]; then
+        # Named, and said with the list: a typo in an image name would otherwise build nothing at
+        # all and report success, which is the failure nobody notices until the package is missing.
+        echo "There is no image called '$IMAGE'. Available:" >&2
+        ls $DOCKER_DIR/Dockerfile.* 2>/dev/null | sed -re 's|^.*Dockerfile\.|  |' >&2
+        exit 1
+    fi
+else
+    DOCKERFILES=$DOCKER_DIR/Dockerfile.*
 fi
 
 if [ -f XMQ_VERSION ]; then
@@ -59,9 +93,7 @@ rsync -av git/xmq/ $XMQ_DIR > /tmp/op.log || (cat /tmp/op.log; exit 1)
 # Strays from a run that died before it could file its logs. This run's own go to $RUN_LOGS.
 rm -f logs/*.log
 
-for dname in /home/alexeyp/Docker/Dockerfile.*
-#for dname in /home/alexeyp/Docker/Dockerfile.ubuntu-25.10
-#for dname in /home/alexeyp/Docker/Dockerfile.debian-forky
+for dname in $DOCKERFILES
 do
     name=$(echo $dname | sed -re 's/^.*Dockerfile.//')
     echo "$(date +%H:%M:%S) Building $name"
@@ -135,6 +167,13 @@ ln -sfn $RUN_STAMP $BUILD_ROOT/logs/latest
 # Two weeks of nights is enough to see whether a failure recurs, and small enough to keep.
 find $BUILD_ROOT/logs -mindepth 1 -maxdepth 1 -type d -mtime +14 -exec rm -rf {} + 2>/dev/null
 
-rsync -qav /build/output/$SPTK_DIR/* /var/www/html/sptk/download/$SPTK_DIR/
-rsync -qav /build/output/$XMQ_DIR/* /var/www/html/sptk/download/$SPTK_DIR/
-cp /build/scripts/XMQ_VERSION /var/www/html/sptk/download/XMQ_VERSION_DEV
+# Only a full run publishes. A single image is built to get one package or to retry one failure,
+# and neither is a moment to move what the download page offers - the other distributions' packages
+# there would then be from a different commit than the one just replaced, with nothing saying so.
+if [ -z "$IMAGE" ]; then
+    rsync -qav /build/output/$SPTK_DIR/* /var/www/html/sptk/download/$SPTK_DIR/
+    rsync -qav /build/output/$XMQ_DIR/* /var/www/html/sptk/download/$SPTK_DIR/
+    cp /build/scripts/XMQ_VERSION /var/www/html/sptk/download/XMQ_VERSION_DEV
+else
+    echo "Built $IMAGE only; the download directory is left as it was."
+fi
