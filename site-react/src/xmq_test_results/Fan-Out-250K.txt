@@ -48,7 +48,7 @@ Average      74998184     2480us       249993
 Server:   XMQ
 Version:  0.9.16
 Date:     2026-09-08
-CPU Load: 612% mean / 615% peak
+CPU Load: 615% peak (steady state only)
 Max RAM:  27 Mb
 Interval        Count    Latency       Rate/s
 ─────────────────────────────────────────────
@@ -70,12 +70,33 @@ Average      74997758     2853us       249992
   MemAvailable floor 38.7 Gb
   client CPU   mean 419%, peak 422%   (of 1600%)
 
-  The one scenario where 0.9.16 is worse than 0.9.13 on these instances: 2880us
-  against 2480us, +16%, and the broker holds 612% against a 329% mean. The client is
-  unchanged (419% against 422%), so the extra work is the broker's, on the path that
-  turns one publish into a thousand deliveries. Not yet explained, and not yet
-  bisected - 0.9.14 and 0.9.15 packages exist for this distribution, so an
-  interleaved A/B can say where it entered.
+  2880us against 0.9.13's 2480us. This was first written up here as a 16% regression;
+  it is not one, and the retraction is the same evening's work.
+
+  Repeating this run three more times - identical binary, identical configuration,
+  broker restarted before each - gave 3380, 3081 and 2658us. The scenario's spread
+  between runs is 27%, more than twice the difference it was supposed to prove, and
+  2480us sits within 7% of the best of the four. One run against one run says nothing
+  here, which is what this file's own discipline says elsewhere and what this row
+  ignored.
+
+  Why this scenario moves so much, when Fan-In and Point-To-Point reproduce to a few
+  microseconds across six weeks: delivery is sharded by a hash of the publisher's
+  client id, and this scenario has five publishers against eight shards on these
+  instances. At most five shards ever work, three sit idle, and the busiest one sets
+  the latency. That is also why the broker sits at 612% of the 800% it is allowed
+  while the machine has more to give - the ceiling is the scenario's, not the code's.
+
+  The CPU column above is not comparable with 0.9.13's either, and for a duller reason
+  than the code: this run's sampler was started 3.5 minutes into five, so its 612%
+  is a mean over steady state alone, while 0.9.13's 329% is a mean over the whole run
+  including the connect phase and the ramp, when the broker is nearly idle. The peaks,
+  which do not depend on the window, are 615% and 595% - the same figure. Fan-In,
+  sampled here for its whole run, shows the same shape: 239% mean against a 398% peak.
+
+  So nothing in this row survives as a difference between the versions. The bench
+  agrees: interleaved, the two builds cost 253% and 257%, and the phase breakdown puts
+  the send path at 3592us against 3583us measured before batching existed.
   
   CPU caveat: the sampler was started 3.5 minutes into this 5-minute run, so its mean
   covers the last 80 seconds only. The latency figure is the whole run.
