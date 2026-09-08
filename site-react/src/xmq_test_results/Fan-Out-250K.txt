@@ -45,6 +45,42 @@ Average      74998184     2480us       249993
   Full rate at 2.48ms, flat across every interval (2.41-2.52ms), in 22Mb of RSS.
 
 
+Server:   XMQ
+Version:  0.9.16
+Date:     2026-09-08
+CPU Load: 612% mean / 615% peak
+Max RAM:  27 Mb
+Interval        Count    Latency       Rate/s
+─────────────────────────────────────────────
+0ms           7499613     2669us       249987
+30000ms       7499959     2762us       249998
+60000ms       7500131     2847us       250004
+90000ms       7499889     2880us       249996
+120000ms      7500043     2926us       250001
+150000ms      7499904     2937us       249996
+180000ms      7500132     2880us       250004
+210000ms      7499937     2818us       249997
+240000ms      7499915     2906us       249997
+270000ms      7498235     2908us       249941
+─────────────────────────────────────────────
+Average      74997758     2853us       249992
+
+  server CPU   mean 612%, peak 615%   (of 800% available to it)
+  server RSS   27 Mb peak
+  MemAvailable floor 38.7 Gb
+  client CPU   mean 419%, peak 422%   (of 1600%)
+
+  The one scenario where 0.9.16 is worse than 0.9.13 on these instances: 2880us
+  against 2480us, +16%, and the broker holds 612% against a 329% mean. The client is
+  unchanged (419% against 422%), so the extra work is the broker's, on the path that
+  turns one publish into a thousand deliveries. Not yet explained, and not yet
+  bisected - 0.9.14 and 0.9.15 packages exist for this distribution, so an
+  interleaved A/B can say where it entered.
+  
+  CPU caveat: the sampler was started 3.5 minutes into this 5-minute run, so its mean
+  covers the last 80 seconds only. The latency figure is the whole run.
+
+
 Server:   EMQX
 Version:  5.8.9
 CPU Load: 870% mean / 1557% peak

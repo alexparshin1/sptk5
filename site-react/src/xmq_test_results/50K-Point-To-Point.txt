@@ -73,6 +73,35 @@ Interval        Count    Latency       Rate/s
 Average     179950225      278us        99972
 
 
+Server:   XMQ
+Version:  0.9.16
+Date:     2026-09-08
+CPU Load: 335% mean / 358% peak
+Max RAM:  572 Mb
+Interval        Count    Latency       Rate/s
+─────────────────────────────────────────────
+0ms           8999986      210us        49999
+180000ms      9000001      211us        50000
+360000ms      9000001      210us        50000
+540000ms      9000001      212us        50000
+720000ms      8999994      211us        49999
+900000ms      9000007      210us        50000
+1080000ms     8999996      211us        49999
+1260000ms     9000002      211us        50000
+1440000ms     8999999      212us        49999
+1620000ms     8972738      211us        49848
+─────────────────────────────────────────────
+Average      89972725      211us        49984
+
+  server CPU   mean 335%, peak 358%   (of 800% available to it)
+  server RSS   572 Mb peak
+  MemAvailable floor 38.0 Gb
+  client CPU   mean 295%, peak 337%   (of 1600%)
+
+  211us with a 2us spread across every interval (210-212us) - the flattest run in
+  this file. Against 0.9.13: 2% faster on 8% less broker CPU.
+
+
 Server:   EMQX
 QOS:      1
 Rate:     1 msg/s per publisher
@@ -113,3 +142,26 @@ Interval        Count    Latency       Rate/s
 1620000ms    15392744 262958529us        85515
 ─────────────────────────────────────────────
 Average     152288256 149268638us        84604
+
+
+Server:   FlashMQ
+Version:  1.26.2
+Date:     2026-09-08
+Interval        Count    Latency       Rate/s
+─────────────────────────────────────────────
+0ms           8999987      190us        49999
+180000ms      8999999      191us        49999
+360000ms      9000003      190us        50000
+540000ms      9000001      191us        50000
+720000ms      9000001      191us        50000
+900000ms      8999998      191us        49999
+1080000ms     9000000      191us        50000
+1260000ms     8999999      190us        49999
+1440000ms     8999999      191us        49999
+1620000ms     8974425      191us        49857
+─────────────────────────────────────────────
+Average      89974412      191us        49985
+
+
+  191us against XMQ 0.9.16's 211us, a 9.5% gap - again matching July's (198 against 215).
+  CPU and RSS not sampled for this run.

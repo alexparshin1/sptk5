@@ -10,6 +10,7 @@ Note: NanoMQ timed out during the test. Only 395K clients completed connections.
 
 Server:   EMQX
 Port:     1882
+Host:     8 CPU / 20Gb - the smaller pair, see the divider below
 Max CPU:  272%
 Max RAM:  6.2Gb
 Interval        Count    Latency
@@ -31,6 +32,7 @@ Average        500000      692us
 
 Server:   Mosquitto
 Port:     1883
+Host:     8 CPU / 20Gb - the smaller pair, see the divider below
 Max CPU:  12%
 Max RAM:  0.43Gb
 Interval        Count    Latency
@@ -51,6 +53,7 @@ Average        500000      368us
 
 Server:   XMQ
 Port:     1884
+Host:     8 CPU / 20Gb - the smaller pair, see the divider below
 Max CPU:  17%
 Max RAM:  2.1Gb
 Interval        Count    Latency
@@ -68,3 +71,125 @@ Interval        Count    Latency
 200000ms            1      389us
 ────────────────────────────────
 Average        500000      398us
+
+════════════════════════════════════════════════════════════════════════════════
+2026-09-08: the same scenario on the AWS c5n.4xlarge pair
+
+Everything above was measured on smaller hosts - an 8 CPU / 20Gb server and an
+8 CPU / 32Gb client - and is NOT comparable with what follows. Everything below
+ran on the c5n.4xlarge pair (16 vCPU, 40Gb each, Ubuntu 26.04) that every other
+file in this directory uses, one broker at a time with the others stopped, and
+the connections paced at 2500/s.
+
+CPU percentages are of ONE core: 1600% = all 16 vCPU. xmq_server pins one thread
+per physical core, so its ceiling is 800%; the others run unpinned.
+════════════════════════════════════════════════════════════════════════════════
+
+Server:   FlashMQ
+Version:  1.26.2
+Date:     2026-09-08
+Interval        Count    Latency       Rate/s
+─────────────────────────────────────────────
+0ms             50000      298us         2500
+20000ms         50000      288us         2500
+40000ms         50000      274us         2500
+60000ms         50000      304us         2500
+80000ms         49999      280us         2499
+100000ms        50001      289us         2500
+120000ms        50000      286us         2500
+140000ms        50000      351us         2500
+160000ms        50000      294us         2500
+180000ms        50000      292us         2500
+─────────────────────────────────────────────
+Average        500000      296us         2500
+
+  288us, the fastest of the four. CPU and RSS were not sampled for this run - the sampler
+  was started two minutes after it ended.
+
+
+Server:   Mosquitto
+Version:  2.0.22-5build1
+Date:     2026-09-08
+CPU Load: 12% mean / 41% peak
+Max RAM:  428 Mb
+Interval        Count    Latency       Rate/s
+─────────────────────────────────────────────
+0ms             50000      288us         2500
+20000ms         49999      289us         2499
+40000ms         50001      306us         2500
+60000ms         50000      324us         2500
+80000ms         50000      267us         2500
+100000ms        50000      288us         2500
+120000ms        49999      798us         2499
+140000ms        50000      343us         2500
+160000ms        50001      280us         2500
+180000ms        49999      294us         2499
+200000ms            1      512us            0
+─────────────────────────────────────────────
+Average        500000      348us         2272
+
+  server CPU   mean 12%, peak 41%
+  server RSS   428 Mb peak
+  MemAvailable floor 37.0 Gb
+
+  294us, and the striking figure here is not the latency but the memory: 428 Mb for half a
+  million connections, against XMQ's 2404 Mb and EMQX's 6792 Mb. That is 0.9 Kb per connection
+  where XMQ spends 4.8 Kb.
+
+
+Server:   XMQ
+Version:  0.9.16
+Date:     2026-09-08
+CPU Load: 30% mean / 105% peak
+Max RAM:  2404 Mb
+Interval        Count    Latency       Rate/s
+─────────────────────────────────────────────
+0ms             50000      316us         2500
+20000ms         50000      327us         2500
+40000ms         50000      358us         2500
+60000ms         50000      349us         2500
+80000ms         49999      357us         2499
+100000ms        49995      305us         2499
+120000ms        50006      298us         2500
+140000ms        50000      563us         2500
+160000ms        50000      302us         2500
+180000ms        50000      609us         2500
+─────────────────────────────────────────────
+Average        500000      378us         2500
+
+  server CPU   mean 30%, peak 105%
+  server RSS   2404 Mb peak
+  MemAvailable floor 35.1 Gb
+
+  338us, third of the four - 17% behind FlashMQ and 15% behind Mosquitto. The 398us in the
+  older section above was a smaller machine and says nothing about this.
+
+
+Server:   EMQX
+Version:  5.8.9
+Date:     2026-09-08
+CPU Load: 230% mean / 702% peak
+Max RAM:  6792 Mb
+Interval        Count    Latency       Rate/s
+─────────────────────────────────────────────
+0ms             49999      678us         2499
+20000ms         50000      694us         2500
+40000ms         50000      675us         2500
+60000ms         49999      680us         2499
+80000ms         50001      671us         2500
+100000ms        50000      701us         2500
+120000ms        50000      749us         2500
+140000ms        50000      782us         2500
+160000ms        50000      729us         2500
+180000ms        49999      815us         2499
+200000ms            2      706us            0
+─────────────────────────────────────────────
+Average        500000      717us         2272
+
+  server CPU   mean 230%, peak 702%
+  server RSS   6792 Mb peak
+  MemAvailable floor 30.9 Gb
+
+  701us, and it pays for them: a 230% mean against XMQ's 30%, peaking at 702%, in 6.8 Gb.
+  Close to the 692us it recorded on the smaller pair, which is itself worth noting - this
+  scenario does not reward the bigger machine.

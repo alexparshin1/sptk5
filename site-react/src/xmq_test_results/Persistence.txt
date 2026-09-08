@@ -88,3 +88,91 @@ Interval        Count    Latency       Rate/s
 270000ms      1179827     2740us        39327
 ─────────────────────────────────────────────
 Average      11979776     1287us        39932
+
+
+Server:   XMQ
+Version:  0.9.16
+Date:     2026-09-08
+CPU Load: 419% mean / 445% peak
+Max RAM:  356 Mb
+Interval        Count    Latency       Rate/s
+─────────────────────────────────────────────
+0ms           5400000      313us        30000
+180000ms      5400045      317us        30000
+360000ms      5400055      316us        30000
+540000ms      5400054      319us        30000
+720000ms      5400056      319us        30000
+900000ms      5400050      316us        30000
+1080000ms     5400058      318us        30000
+1260000ms     5400053      317us        30000
+1440000ms     5400054      317us        30000
+1620000ms     5389605      319us        29942
+─────────────────────────────────────────────
+Average      53990030      317us        29994
+
+  server CPU   mean 419%, peak 445%   (of 800% available to it)
+  server RSS   356 Mb peak
+  MemAvailable floor 38.3 Gb
+  client CPU   mean 183%, peak 217%   (of 1600%)
+
+  30K persistent sessions against Redis on the broker host, 317us - 4% better than
+  0.9.13's 330us at the same scale. Redis was empty at the start (clean_start true)
+  and held 60006 keys once the sessions were up.
+
+
+Server:   FlashMQ
+Version:  1.26.2
+CPU Load: 88% mean / 89% peak
+Max RAM:  211 Mb
+Scenario: Point-To-Point 20K (persistent sessions) - Point-To-Point-20K-persistent.json
+          20000 publishers / 20000 subscribers, clean_session off, QoS 1, 16B payload,
+          1 msg/s per publisher = 20k/s aggregate, 30 minutes.
+Date:     2026-08-11
+Interval        Count    Latency       Rate/s
+─────────────────────────────────────────────
+0ms           3599997      159us        19999
+180000ms      3599998      159us        19999
+360000ms      3600001      159us        20000
+540000ms      3600001      158us        20000
+720000ms      3600000      160us        20000
+900000ms      3599998      160us        19999
+1080000ms     3600002      160us        20000
+1260000ms     3600000      158us        20000
+1440000ms     3600001      160us        20000
+1620000ms     3596187      159us        19978
+─────────────────────────────────────────────
+Average      35996185      159us        19997
+
+  server CPU   mean 88%, peak 89%      (of 1600%)
+  server RSS   211 Mb peak
+  MemAvailable floor 38.5 Gb
+  client CPU   mean 123%, peak 353%    (of 1600%)
+
+  Full rate for 30 minutes at 159us, within 2us across every interval, on 88% of one
+  core's worth of a 16-core machine.
+
+  READ THIS BEFORE COMPARING IT WITH THE XMQ FIGURE ABOVE. The two are not measuring
+  the same mechanism, and this run had no persistence of any kind.
+
+  XMQ writes session and message state to Redis - a separate server, over the network,
+  paying a round trip - and the XMQ numbers are what that costs.
+
+  FlashMQ was run with NO storage_dir configured, which is how it was already set up on
+  this host (the directive was present but commented out) and how it was left. Without
+  storage_dir FlashMQ writes nothing to disk at all: sessions, retained messages and
+  wills live in memory and are gone when the process is. MQTT session semantics were
+  exercised - clean_session was off and subscribers kept their sessions - but nothing
+  here survives a restart, let alone a crash.
+
+  So this figure is FlashMQ's in-memory session handling with durability switched off
+  entirely. It is not comparable to the XMQ figure above, and it is not even FlashMQ's
+  own persistent configuration.
+
+  WHAT WOULD MAKE IT COMPARABLE: re-run FlashMQ with storage_dir set, which is the
+  measurement that was intended here and has not been taken. Even then FlashMQ's disk
+  writes and XMQ's Redis round trip are different guarantees. The other half of a fair
+  comparison is XMQ measured with persistence off - see the persistence-cost figures,
+  ~49.8K/s off versus ~25.2K/s on for 100K sessions.
+
+  Config: log_level warning, thread_count 16, max_qos_msg_pending_per_client 65535,
+  max_qos_bytes_pending_per_client 268435456, tcp_nodelay true.

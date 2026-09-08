@@ -60,6 +60,23 @@ export function parseBrokerResult(text)
         if ((m = line.match(/^([A-Za-z ]+?):\s+(.+)$/)) && current)
             current.meta[m[1].trim()] = m[2].trim();
     }
+
+    // A file can hold the same broker twice - two XMQ versions, or a broker measured again on
+    // different hardware. They would otherwise share a name, a colour and a React key, and the
+    // chart would show two indistinguishable lines. Label them by what tells them apart, and
+    // dash every line but the newest of each name.
+    for (const s of servers) {
+        const sameName = servers.filter((o) => o.name === s.name);
+        if (sameName.length < 2) {
+            s.label = s.name;
+            s.dashed = false;
+            continue;
+        }
+        const tag = s.meta["Version"] || s.meta["Date"];
+        s.label = tag ? `${s.name} ${tag}` : `${s.name} (earlier run)`;
+        s.dashed = s !== sameName[sameName.length - 1];
+    }
+
     return servers;
 }
 
@@ -129,7 +146,7 @@ function LatencyChart({servers, width = 760, height = 340})
     };
 
     const hoverRows = hover === null ? [] : servers
-        .map((s) => ({name: s.name, point: s.dataPoints.find((p) => p.interval === hover)}))
+        .map((s) => ({name: s.name, label: s.label, point: s.dataPoints.find((p) => p.interval === hover)}))
         .filter((r) => r.point);
 
     const tipW = 190;
@@ -168,12 +185,13 @@ function LatencyChart({servers, width = 760, height = 340})
             )}
 
             {servers.map((s) => (
-                <polyline key={s.name} fill="none" stroke={SERVER_COLORS[s.name] || "#333"} strokeWidth="2"
+                <polyline key={s.label} fill="none" stroke={SERVER_COLORS[s.name] || "#333"} strokeWidth="2"
+                          strokeDasharray={s.dashed ? "6 3" : undefined}
                           points={s.dataPoints.map((p) => `${xScale(p.interval)},${yScale(p.latency)}`).join(" ")}/>
             ))}
 
             {hover !== null && hoverRows.map((r) => (
-                <circle key={r.name} cx={xScale(hover)} cy={yScale(r.point.latency)} r="4"
+                <circle key={r.label} cx={xScale(hover)} cy={yScale(r.point.latency)} r="4"
                         fill={SERVER_COLORS[r.name] || "#333"} stroke="#fff" strokeWidth="2"/>
             ))}
 
@@ -182,11 +200,11 @@ function LatencyChart({servers, width = 760, height = 340})
                     <rect x={tipX} y={tipY} width={tipW} height={tipH} rx="4" fill="#fff" stroke="#ccc" opacity="0.96"/>
                     <text x={tipX + 8} y={tipY + 14} fontSize="11" fill="#555">{formatInterval(hover)} elapsed</text>
                     {hoverRows.map((r, i) => (
-                        <g key={r.name}>
+                        <g key={r.label}>
                             <rect x={tipX + 8} y={tipY + 22 + i * 16} width="8" height="8"
                                   fill={SERVER_COLORS[r.name] || "#333"}/>
                             <text x={tipX + 22} y={tipY + 30 + i * 16} fontSize="11" fill="#333">
-                                {r.name} {formatLatency(r.point.latency)} &middot; {formatRate(r.point.rate)}
+                                {r.label} {formatLatency(r.point.latency)} &middot; {formatRate(r.point.rate)}
                             </text>
                         </g>
                     ))}
@@ -221,13 +239,13 @@ export function BrokerBenchmark({servers, targetRate})
                 {servers.map((s) => {
                     const missed = targetRate && s.averageRate && s.averageRate < targetRate * 0.97;
                     return (
-                        <tr key={s.name}>
+                        <tr key={s.label}>
                             <td style={cell}>
                                 <span style={{
                                     display: "inline-block", width: 10, height: 10,
                                     backgroundColor: SERVER_COLORS[s.name] || "#333", marginRight: 6
                                 }}/>
-                                {s.name}
+                                {s.label}
                             </td>
                             <td style={cell}>{s.meta["Version"] || "-"}</td>
                             <td style={cell}>{s.averageCount?.toLocaleString()}</td>
@@ -246,12 +264,12 @@ export function BrokerBenchmark({servers, targetRate})
 
             <div style={{display: "flex", gap: 16, margin: "12px 0 8px"}}>
                 {servers.map((s) => (
-                    <div key={s.name} style={{display: "flex", alignItems: "center", gap: 4}}>
+                    <div key={s.label} style={{display: "flex", alignItems: "center", gap: 4}}>
                         <span style={{
                             width: 10, height: 10, display: "inline-block",
                             backgroundColor: SERVER_COLORS[s.name] || "#333"
                         }}/>
-                        <span>{s.name}</span>
+                        <span>{s.label}</span>
                     </div>
                 ))}
             </div>

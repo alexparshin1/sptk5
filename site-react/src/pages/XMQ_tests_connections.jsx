@@ -3,13 +3,20 @@ import Seo from "../components/Seo";
 import "../css/Documentation.css";
 import test100kUrl from "../xmq_test_results/100K-connections.txt";
 import test500kUrl from "../xmq_test_results/500K-connections.txt";
+import test1mUrl from "../xmq_test_results/1M-connections.txt";
 
 const SERVER_COLORS = {
     XMQ: "#1f77b4",
     Mosquitto: "#2ca02c",
     EMQX: "#d62728",
     NanoMQ: "#ff7f0e",
+    FlashMQ: "#9467bd",
 };
+
+// "Server:" also names the host in the newer files' preamble ("Server:   AWS c5n.4xlarge..."),
+// so only a known broker starts a result block. Without this the host line becomes a broker
+// with no data points and an entry in the legend.
+const KNOWN_BROKERS = /^(XMQ|EMQX|Mosquitto|NanoMQ|FlashMQ)$/;
 
 // Meta keys that are per-server but not interesting as their own table column
 // because they duplicate the test title (e.g. "Scenario: 100K Connection Test").
@@ -32,19 +39,24 @@ function parseConnectionsResult(text)
 
         const serverMatch = line.match(/^Server:\s*(.+)$/);
         if (serverMatch) {
-            current = {name: serverMatch[1].trim(), meta: {}, dataPoints: []};
-            servers.push(current);
+            const name = serverMatch[1].trim();
+            if (KNOWN_BROKERS.test(name)) {
+                current = {name, meta: {}, dataPoints: []};
+                servers.push(current);
+            } else {
+                current = null;
+            }
             continue;
         }
 
-        const avgMatch = line.match(/^Average\s+(\d+)\s+(\d+)us$/);
+        const avgMatch = line.match(/^Average\s+(\d+)\s+(\d+)us(?:\s+\d+)?$/);
         if (avgMatch && current) {
             current.averageCount = parseInt(avgMatch[1], 10);
             current.averageLatency = parseInt(avgMatch[2], 10);
             continue;
         }
 
-        const rowMatch = line.match(/^(\d+)ms\s+(\d+)\s+(\d+)us$/);
+        const rowMatch = line.match(/^(\d+)ms\s+(\d+)\s+(\d+)us(?:\s+\d+)?$/);
         if (rowMatch && current) {
             current.dataPoints.push({
                 interval: parseInt(rowMatch[1], 10),
@@ -63,6 +75,25 @@ function parseConnectionsResult(text)
             else
                 conditions[key] = value;
         }
+    }
+
+    // One file can hold the same broker twice: 500K was measured on a smaller pair in July and
+    // again on the c5n.4xlarge pair in September. Same name, same colour, same React key - so
+    // label them apart and dash all but the newest.
+    for (const s of servers) {
+        const sameName = servers.filter((o) => o.name === s.name);
+        if (sameName.length < 2) {
+            s.label = s.name;
+            s.dashed = false;
+            continue;
+        }
+        // Version first, then the date, then the host - the 500K file holds the same brokers
+        // measured on a smaller pair, and "XMQ 8 CPU / 20Gb" says why its line sits where it
+        // does far better than "XMQ (earlier run)" would.
+        const host = s.meta["Host"] ? s.meta["Host"].split(" - ")[0] : null;
+        const tag = s.meta["Version"] || s.meta["Date"] || host;
+        s.label = tag ? `${s.name} ${tag}` : `${s.name} (earlier run)`;
+        s.dashed = s !== sameName[sameName.length - 1];
     }
 
     return {conditions, note, servers};
@@ -159,9 +190,10 @@ function LatencyChart({servers, width = 760, height = 340})
 
             {chartServers.map((s) => (
                 <polyline
-                    key={s.name}
+                    key={s.label}
                     fill="none"
                     stroke={SERVER_COLORS[s.name] || "#333"}
+                    strokeDasharray={s.dashed ? "6 3" : undefined}
                     strokeWidth="2"
                     points={s.dataPoints
                         .map((p) => `${xScale(p.interval)},${yScale(Math.max(p.latency, yMin || 1))}`)
@@ -203,13 +235,13 @@ function ConnectionsTest({title, test})
                 </thead>
                 <tbody>
                 {servers.map((s) => (
-                    <tr key={s.name}>
+                    <tr key={s.label}>
                         <td>
                             <span style={{
                                 display: "inline-block", width: 10, height: 10,
                                 backgroundColor: SERVER_COLORS[s.name] || "#333", marginRight: 6
                             }}/>
-                            {s.name}
+                            {s.label}
                         </td>
                         {extraColumns.map((c) => <td key={c}>{s.meta[c] || "-"}</td>)}
                         <td>{s.averageCount?.toLocaleString()}</td>
@@ -221,12 +253,12 @@ function ConnectionsTest({title, test})
 
             <div style={{display: "flex", gap: 16, margin: "12px 0 8px"}}>
                 {servers.map((s) => (
-                    <div key={s.name} style={{display: "flex", alignItems: "center", gap: 4}}>
+                    <div key={s.label} style={{display: "flex", alignItems: "center", gap: 4}}>
                         <span style={{
                             width: 10, height: 10, display: "inline-block",
                             backgroundColor: SERVER_COLORS[s.name] || "#333"
                         }}/>
-                        <span>{s.name}</span>
+                        <span>{s.label}</span>
                     </div>
                 ))}
             </div>
@@ -237,18 +269,20 @@ function ConnectionsTest({title, test})
 
 export default class XMQ_tests_connections extends React.Component
 {
-    state = {test100k: null, test500k: null, error: null};
+    state = {test100k: null, test500k: null, test1m: null, error: null};
 
     componentDidMount()
     {
         Promise.all([
             fetch(test100kUrl).then((r) => r.text()),
             fetch(test500kUrl).then((r) => r.text()),
+            fetch(test1mUrl).then((r) => r.text()),
         ])
-            .then(([text100k, text500k]) => {
+            .then(([text100k, text500k, text1m]) => {
                 this.setState({
                     test100k: parseConnectionsResult(text100k),
                     test500k: parseConnectionsResult(text500k),
+                    test1m: parseConnectionsResult(text1m),
                 });
             })
             .catch((err) => this.setState({error: String(err)}));
@@ -256,10 +290,10 @@ export default class XMQ_tests_connections extends React.Component
 
     render()
     {
-        const {test100k, test500k, error} = this.state;
+        const {test100k, test500k, test1m, error} = this.state;
         return <div key="tests-connections" className="XMQ" style={{textAlign: "left", padding: 8}}>
             <Seo title="MQTT Performance Tests — Concurrent Connections"
-                 description="MQTT performance tests of concurrent client connections: XMQ holds 100,000 and 500,000 simultaneous MQTT connections, measured against other MQTT servers."
+                 description="MQTT performance tests of concurrent client connections: XMQ holds 100,000, 500,000 and 1,000,000 simultaneous MQTT connections, measured against other MQTT servers."
                  keywords="MQTT performance tests, fast MQTT server, MQTT benchmark, XMQ"
                  path="/xmq_tests_connections"/>
             <h1>MQTT Performance Tests: Concurrent Connections</h1>
@@ -273,6 +307,7 @@ export default class XMQ_tests_connections extends React.Component
             {error && <p>Failed to load test results: {error}</p>}
             <ConnectionsTest title="100K Connections" test={test100k}/>
             <ConnectionsTest title="500K Connections" test={test500k}/>
+            <ConnectionsTest title="1M Connections" test={test1m}/>
         </div>;
     }
 }

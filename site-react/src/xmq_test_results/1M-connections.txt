@@ -1,0 +1,87 @@
+Scenario: 1M connections - 1M-Connections-5K-rate.json
+          1000000 clients connecting at a paced 5000/s, no publishing: the figure is the
+          time from connect to CONNACK, and what the broker costs in memory to hold them.
+          QoS 1, MQTT 5. First run on AWS 2026-09-08; the bench has run it since 0.9.15.
+Date:     2026-09-08
+Server:   AWS c5n.4xlarge, 16 vCPU (8 physical cores x 2 threads), 40Gb RAM, Ubuntu 26.04
+Client:   AWS c5n.4xlarge, 16 vCPU, 40Gb RAM, 30 source IPs, same AZ + cluster placement group
+Client:   xmq_scn 0.9.16
+
+CPU percentages are of ONE core: 1600% = all 16 vCPU. xmq_server pins one thread per
+physical core (its shipping default), so its ceiling is 800%; FlashMQ runs unpinned with
+all 1600% available.
+
+How much further this pair goes, measured on this run rather than guessed. Per million
+connections the broker gives up 8.4 Gb of MemAvailable (4.8 Gb of it RSS) and the client
+6.5 Gb (3.1 Gb RSS), so 40 Gb hosts would hold about four million. They will not get
+there: the client binds 30 source addresses of 55536 ports each, which caps it at
+**1.66M connections**, and the file-descriptor limit on both sides (fs.nr_open = 2097152)
+caps it at 2.09M. Each further secondary IP registered on the ENI is worth another 55536.
+CPU is not close to being the limit: the broker held a million at a 47% mean.
+
+
+Server:   XMQ
+Version:  0.9.16
+CPU Load: 47% mean / 104% peak
+Max RAM:  4790 Mb
+Interval        Count    Latency       Rate/s
+─────────────────────────────────────────────
+0ms             99998      351us         4999
+20000ms        100001      418us         5000
+40000ms        100000      419us         5000
+60000ms        100000      565us         5000
+80000ms         99999      677us         4999
+100000ms       100000      354us         5000
+120000ms       100001      321us         5000
+140000ms        99613      907us         4980
+160000ms        99994      349us         4999
+180000ms       100006     1762us         5000
+200000ms          388      319us           19
+─────────────────────────────────────────────
+Average       1000000      612us         4545
+
+  server CPU   mean 47%, peak 104%   (of 800% available to it)
+  server RSS   4790 Mb peak
+  MemAvailable floor 31.3 Gb
+  client CPU   mean 48%, peak 113%   (of 1600%)
+
+  A million connections in 200 seconds at the paced 5000/s, median 419us, in 4.8 Gb.
+  The bench measures the same scenario at 518us on a smaller machine.
+  Two intervals stand out - 907us and 1762us - against a 321-677us body; the median
+  drops neither, and what causes them has not been looked into.
+
+
+Server:   FlashMQ
+Version:  1.26.2
+Date:     2026-09-08
+CPU Load: 31% mean / 88% peak
+Max RAM:  4236 Mb
+Interval        Count    Latency       Rate/s
+─────────────────────────────────────────────
+0ms             99998      317us         4999
+20000ms        100000      315us         5000
+40000ms        100001      312us         5000
+60000ms         99999      349us         4999
+80000ms        100001      298us         5000
+100000ms       100000      314us         5000
+120000ms        99999      312us         4999
+140000ms        99621      435us         4981
+160000ms        99999      307us         4999
+180000ms       100001      304us         5000
+200000ms          381      311us           19
+─────────────────────────────────────────────
+Average       1000000      326us         4545
+
+  server CPU   mean 31%, peak 88%
+  server RSS   4236 Mb peak
+  MemAvailable floor 31.8 Gb
+
+  312us against XMQ 0.9.16's 419us, and 4236 Mb against 4790 Mb - 26% faster and 12%
+  leaner at a million connections.
+  
+  It took two attempts. FlashMQ's `rlimit_nofile` defaults to exactly 1000000, so the run
+  died at 999928 connections with "Too many open files" - a million clients need more than
+  a million descriptors, because the process also has its listeners, epolls and log. Raising
+  `fs.nr_open` did not help: the limit is the broker's own, and the fix is one line in
+  flashmq.conf. Worth knowing before anyone sizes a host for it. The figure above is from
+  the run with `rlimit_nofile 1200000`; both brokers use one descriptor per connection.

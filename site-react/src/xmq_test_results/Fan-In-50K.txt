@@ -41,6 +41,37 @@ Average      89999803      217us        49999
   intervals (215-218us). Used a third of its own allowance - an eighth of the machine.
 
 
+Server:   XMQ
+Version:  0.9.16
+Date:     2026-09-08
+CPU Load: 239% mean / 398% peak
+Max RAM:  272 Mb
+Interval        Count    Latency       Rate/s
+─────────────────────────────────────────────
+0ms           8999987      213us        49999
+180000ms      9000002      214us        50000
+360000ms      8999997      214us        49999
+540000ms      9000001      214us        50000
+720000ms      8999996      237us        49999
+900000ms      9000001      214us        50000
+1080000ms     9000006      561us        50000
+1260000ms     8999996      212us        49999
+1440000ms     9000001      213us        50000
+1620000ms     8999835      213us        49999
+─────────────────────────────────────────────
+Average      89999822      250us        49999
+
+  server CPU   mean 239%, peak 398%   (of 800% available to it)
+  server RSS   272 Mb peak
+  MemAvailable floor 38.5 Gb
+  client CPU   mean 219%, peak 341%   (of 1600%)
+
+  Held the full rate for 30 minutes at 214us. One interval reads 561us - the run's
+  first, which the median drops; the other nine sit between 212 and 216us. Against
+  0.9.13 on the same instances: the same latency for 10% less broker CPU (239% mean
+  against 267%), in 12% more RSS.
+
+
 Server:   EMQX
 Version:  5.8.9
 CPU Load: 1323% mean / 1649% peak
@@ -172,3 +203,28 @@ NOTES
 
   Each broker was restarted immediately before its own run, so no run inherited
   memory a previous one retained. Runs were strictly sequential.
+
+
+Server:   FlashMQ
+Version:  1.26.2
+Date:     2026-09-08
+Interval        Count    Latency       Rate/s
+─────────────────────────────────────────────
+0ms           8999987      195us        49999
+180000ms      8999999      196us        49999
+360000ms      9000002      196us        50000
+540000ms      9000001      197us        50000
+720000ms      9000000      196us        50000
+900000ms      8999999      195us        49999
+1080000ms     9000001      195us        50000
+1260000ms     9000001      195us        50000
+1440000ms     8999997      195us        49999
+1620000ms     8999796      196us        49998
+─────────────────────────────────────────────
+Average      89999783      195us        49999
+
+
+  195us, 9% ahead of XMQ 0.9.16's 214us on the same day and the same instances - the same
+  gap it had in July (201 against 217). CPU and RSS were not sampled for this run; the July
+  figures above (201% mean, 242 Mb) are the same broker version on the same hardware and
+  remain the best estimate.
