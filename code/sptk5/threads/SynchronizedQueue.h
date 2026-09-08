@@ -41,6 +41,7 @@
 #include <condition_variable>
 #include <deque>
 #include <mutex>
+#include <iterator>
 #include <vector>
 
 #include <sptk5/Printer.h>
@@ -113,6 +114,33 @@ public:
             m_queue.push_back(data);
         }
         m_condition.notify_one();
+    }
+
+    /**
+     * @brief Pushes several items to the back of the queue, taking the mutex once.
+     *
+     * The single-item push_back locks and signals per item. A fan-out hands one session per
+     * delivered message to a send thread, which at 250000 deliveries a second is 250000 locks and
+     * as many condition signals, for work that is produced in shard-sized groups. This takes the
+     * lock once for the group and signals once - enough, because the consumer takes a batch per
+     * wake (the pop_front() that fills a vector).
+     *
+     * The items are moved out; the vector is left empty.
+     * @param items            Items to push.
+     */
+    void push_back(std::vector<T>& items)
+    {
+        if (items.empty())
+        {
+            return;
+        }
+        {
+            std::scoped_lock lock(m_mutex);
+            m_queue.insert(m_queue.end(), std::make_move_iterator(items.begin()),
+                           std::make_move_iterator(items.end()));
+        }
+        m_condition.notify_one();
+        items.clear();
     }
 
     /**
