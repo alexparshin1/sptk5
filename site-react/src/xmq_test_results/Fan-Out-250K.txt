@@ -81,11 +81,13 @@ Average      74997758     2853us       249992
   ignored.
 
   Why this scenario moves so much, when Fan-In and Point-To-Point reproduce to a few
-  microseconds across six weeks: delivery is sharded by a hash of the publisher's
-  client id, and this scenario has five publishers against eight shards on these
-  instances. At most five shards ever work, three sit idle, and the busiest one sets
-  the latency. That is also why the broker sits at 612% of the 800% it is allowed
-  while the machine has more to give - the ceiling is the scenario's, not the code's.
+  microseconds across six weeks, is not established. An explanation offered here
+  first - that delivery is sharded by the publisher's id, so five publishers could
+  not fill eight shards - is wrong and has been withdrawn: the sender's hash only
+  picks the thread that starts a fan-out, and that thread spreads the subscribers
+  across every shard. What is true is that with five publishers only five of the
+  eight threads ever start one, but that is 250 messages a second against 250000
+  deliveries, and not where the time goes.
 
   The CPU column above is not comparable with 0.9.13's either, and for a duller reason
   than the code: this run's sampler was started 3.5 minutes into five, so its 612%
