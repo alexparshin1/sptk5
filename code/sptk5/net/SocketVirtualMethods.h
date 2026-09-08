@@ -111,6 +111,15 @@ static constexpr int DEFAULT_LISTEN_BACKLOG = 4096;
 class SP_EXPORT SocketVirtualMethods
 {
 public:
+
+    /**
+     * @brief Returned when a read should be retried (EAGAIN/EINTR): no data was read, and the
+     * socket wasn't closed.
+     *
+     * Public because it is part of the contract of Socket::readAvailable(), which a caller that
+     * must not wait uses instead of read().
+     */
+    static constexpr size_t RECV_RETRY = static_cast<size_t>(-1);
     /**
     * @brief A mode to open a socket, one of.
     */
@@ -289,12 +298,6 @@ protected:
      * @param timeout           Write timeout.
      */
     [[nodiscard]] virtual bool readyToWriteUnlocked(const std::chrono::milliseconds& timeout);
-
-    /**
-     * @brief Returned by recvUnlocked() when the operation should be retried
-     * (EAGAIN/EINTR): no data was read, and the socket wasn't closed.
-     */
-    static constexpr size_t RECV_RETRY = static_cast<size_t>(-1);
 
     /**
      * @brief Reads data from the socket in regular or SSL mode.

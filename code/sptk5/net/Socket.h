@@ -313,6 +313,33 @@ public:
     }
 
     /**
+     * @brief Reads whatever the socket already holds, without waiting for more.
+     *
+     * read() is for a caller that wants its bytes: on an empty non-blocking socket it polls for
+     * up to 500ms and then throws a timeout. A reactor's receive pass wants the opposite - there
+     * "nothing right now" is an ordinary answer, and it must cost no more than the recv that
+     * discovered it. Without this, such a caller has to ask FIONREAD first and read only when the
+     * answer is above zero, which is two syscalls per pass: XMQ measured 112659 ioctls a second
+     * against 91179 reads they sized, at 250k messages a second.
+     *
+     * @param buffer            The memory buffer.
+     * @param size              The number of bytes to read.
+     * @returns the number of bytes read, 0 if the peer closed the connection, or RECV_RETRY if
+     * nothing was waiting.
+     */
+    [[nodiscard]] size_t readAvailable(uint8_t* buffer, const size_t size)
+    {
+        if (!fullDuplexIO())
+        {
+            const WriteLock lock(m_mutex);
+            return recvUnlocked(buffer, size);
+        }
+        const ReadLock        stateLock(m_mutex);
+        const std::lock_guard directionLock(m_readMutex);
+        return recvUnlocked(buffer, size);
+    }
+
+    /**
      * @brief Reads data from the socket into the memory buffer.
      *
      * Buffer bytes() is set to the number of bytes read.
