@@ -192,6 +192,24 @@ protected:
     size_t recvUnlocked(uint8_t* buffer, size_t size) override;
 
     /**
+     * @brief Bytes OpenSSL has decrypted and not yet handed over.
+     */
+    [[nodiscard]] size_t pendingBytes() const override;
+
+    /**
+     * @brief One SSL_read, and RECV_RETRY instead of waiting when there is nothing decrypted yet.
+     */
+    [[nodiscard]] size_t recvAvailableUnlocked(uint8_t* buffer, size_t len) override;
+
+    /**
+     * @brief True: SSL_read() returns one record at a time, so a short read proves nothing.
+     */
+    [[nodiscard]] bool readsInRecords() const override
+    {
+        return true;
+    }
+
+    /**
      * @brief Sends data through SSL socket.
      * @param buffer            Send buffer.
      * @param len               Send data length.

@@ -332,11 +332,11 @@ public:
         if (!fullDuplexIO())
         {
             const WriteLock lock(m_mutex);
-            return recvUnlocked(buffer, size);
+            return recvAvailableUnlocked(buffer, size);
         }
         const ReadLock        stateLock(m_mutex);
         const std::lock_guard directionLock(m_readMutex);
-        return recvUnlocked(buffer, size);
+        return recvAvailableUnlocked(buffer, size);
     }
 
     /**

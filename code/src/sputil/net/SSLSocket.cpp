@@ -412,6 +412,35 @@ bool SSLSocket::readyToReadUnlocked(const chrono::milliseconds& timeout)
     return SocketVirtualMethods::readyToReadUnlocked(timeout);
 }
 
+size_t SSLSocket::pendingBytes() const
+{
+    // Through sslPending(), which takes m_mutex and checks the handle - not SSL_pending() and a
+    // lock of this function's own, which would deadlock wherever the caller already holds it.
+    return active() ? static_cast<size_t>(sslPending()) : 0;
+}
+
+size_t SSLSocket::recvAvailableUnlocked(uint8_t* buffer, const size_t len)
+{
+    if (len == 0)
+    {
+        return 0;
+    }
+
+    // One attempt, and the caller is told to come back rather than being made to wait: this is
+    // what a reactor's receive pass needs. recvUnlocked() below does the waiting, because the
+    // callers that go through it want their bytes and nothing else to do until they arrive.
+    const auto [result, errorCode] = sslRead(buffer, len);
+    if (result >= 0)
+    {
+        return static_cast<size_t>(result);
+    }
+    if (errorCode == SSL_ERROR_WANT_READ || errorCode == SSL_ERROR_WANT_WRITE)
+    {
+        return RECV_RETRY;
+    }
+    return recvUnlocked(buffer, len);
+}
+
 size_t SSLSocket::recvUnlocked(uint8_t* buffer, const size_t len)
 {
     if (len == 0)

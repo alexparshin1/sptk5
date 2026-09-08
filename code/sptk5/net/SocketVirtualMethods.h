@@ -120,6 +120,34 @@ public:
      * must not wait uses instead of read().
      */
     static constexpr size_t RECV_RETRY = static_cast<size_t>(-1);
+
+    /**
+     * @brief Bytes already decrypted and waiting inside the socket, invisible to the kernel.
+     *
+     * Zero for a plain socket: everything it has is in the kernel's receive queue, and a reactor
+     * that is told there is nothing left can trust that. An SSL socket can hold a decrypted record
+     * of its own after a read, and a caller that stops there would wait for a readiness event that
+     * never comes - the bytes are past the file descriptor already.
+     */
+    [[nodiscard]] virtual size_t pendingBytes() const
+    {
+        return 0;
+    }
+
+    /**
+     * @brief Whether a short read leaves it unknown whether the socket still holds data.
+     *
+     * False for a plain socket: recv() returns everything the kernel has, so a read shorter than
+     * the buffer means the socket is drained. True for a TLS one, which returns at most a single
+     * record however large the buffer is - the rest stays in the kernel, where an edge-triggered
+     * readiness mechanism will not announce it again because it never arrived twice. A reader of
+     * such a socket has to go on until recvAvailableUnlocked() answers RECV_RETRY.
+     */
+    [[nodiscard]] virtual bool readsInRecords() const
+    {
+        return false;
+    }
+
     /**
     * @brief A mode to open a socket, one of.
     */
@@ -307,6 +335,19 @@ protected:
      * connection, or RECV_RETRY if the operation should be retried (EAGAIN/EINTR).
      */
     [[nodiscard]] virtual size_t recvUnlocked(uint8_t* buffer, size_t len);
+
+    /**
+     * @brief Reads what is there and returns RECV_RETRY rather than waiting for more.
+     *
+     * recvUnlocked() is allowed to wait - the SSL one waits up to thirty seconds and then throws -
+     * because its callers want their bytes. A reactor's receive pass wants the opposite, and
+     * Socket::readAvailable() goes through here to get it.
+     */
+    [[nodiscard]] virtual size_t recvAvailableUnlocked(uint8_t* buffer, const size_t len)
+    {
+        return recvUnlocked(buffer, len);
+    }
+
 
     /**
      * @brief Reads data from the socket.
