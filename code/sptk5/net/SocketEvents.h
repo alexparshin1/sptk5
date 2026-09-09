@@ -68,13 +68,16 @@ public:
      * @param timeout            Timeout in the event monitoring loop.
      * @param triggerMode        Socket event trigger mode.
      * @param maxEvents          Maximum number of events per poll.
+     * @param reserveSize        Sockets to size the registration map for, 0 to let it grow.
+     *                           See SocketObjectPool's constructor for what that is worth.
      */
     SocketEvents(const String&                    name,
                  const SocketEventCallback<T>&    eventsCallback,
                  const std::chrono::milliseconds& timeout = std::chrono::milliseconds(100),
                  SocketPoolTriggerMode            triggerMode = SocketPoolTriggerMode::LevelTriggered,
-                 size_t                           maxEvents = 1024)
-        : SocketObjectPool<T>(eventsCallback, triggerMode, maxEvents)
+                 size_t                           maxEvents = 1024,
+                 size_t                           reserveSize = 0)
+        : SocketObjectPool<T>(eventsCallback, triggerMode, maxEvents, reserveSize)
         , Thread(name)
         , m_timeout(timeout)
     {

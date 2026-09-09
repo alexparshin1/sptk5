@@ -160,7 +160,7 @@ public:
      */
     explicit FastTCPServer(const std::string& serverName, std::shared_ptr<LogEngine> logEngine = nullptr,
                            SocketPoolTriggerMode triggerMode = SocketPoolTriggerMode::LevelTriggered, const size_t maxEvents = 128,
-                           int backlog = DEFAULT_LISTEN_BACKLOG);
+                           int backlog = DEFAULT_LISTEN_BACKLOG, size_t reserveConnections = 0);
 
     /**
      * @brief Destructor.

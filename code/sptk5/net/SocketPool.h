@@ -45,6 +45,7 @@
 #include <sptk5/Exception.h>
 #include <sptk5/net/Socket.h>
 
+#include <algorithm>
 #include <atomic>
 #include <cstdint>
 #include <functional>
@@ -228,17 +229,44 @@ public:
      * @param eventsCallback    Socket event callback function.
      * @param triggerMode       Socket event trigger mode.
      * @param maxEvents         Maximum number of socket events per poll.
+     * @param reserveSize       Sockets to size the registration map for, 0 to let it grow.
+     *
+     * On reserveSize: the map holds one entry per registered socket, and growing it rehashes every
+     * entry under the lock that every event needs. std::unordered_map grows at primes, so a pool
+     * filling at a steady rate stops on it at each of them - measured in a client opening 2500
+     * connections a second as a latency step at 140 seconds, where it passes 351062 sockets, and
+     * again at 285. A caller that knows roughly how many sockets it will hold can say so here and
+     * never meet the event. The default reserves nothing, because a pool watching a handful of
+     * sockets should not pay for a bucket array sized to a descriptor limit.
      */
-    SocketObjectPool(const SocketEventCallback<T>& eventsCallback, const SocketPoolTriggerMode triggerMode, size_t maxEvents)
+    SocketObjectPool(const SocketEventCallback<T>& eventsCallback, const SocketPoolTriggerMode triggerMode,
+                     size_t maxEvents, const size_t reserveSize = 0)
         : SocketPool(triggerMode, maxEvents)
         , m_eventsCallback(eventsCallback)
     {
+        if (reserveSize > 0)
+        {
+            m_objects.reserve(reserveSize);
+        }
     }
 
     /**
      * @brief Destructor.
      */
     ~SocketObjectPool() override = default;
+
+    /**
+     * @brief Size the registration map for about this many sockets, after construction.
+     *
+     * For a pool that is created before anyone knows how many sockets it will hold - a static one,
+     * say - and told later by whoever does. Same purpose as the constructor's reserveSize.
+     * @param socketCount Sockets to size for.
+     */
+    void reserve(const size_t socketCount)
+    {
+        std::scoped_lock lock(m_mutex);
+        m_objects.reserve(socketCount);
+    }
 
     /**
      * @brief Add the socket to the monitored pool.

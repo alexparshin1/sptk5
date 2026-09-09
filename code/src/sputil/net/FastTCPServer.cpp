@@ -188,7 +188,7 @@ bool FastTcpServerListener::acceptConnection(const chrono::milliseconds& timeout
 }
 
 FastTCPServer::FastTCPServer(const std::string& serverName, std::shared_ptr<LogEngine> logEngine, SocketPoolTriggerMode triggerMode, const size_t maxEvents,
-                             const int backlog)
+                             const int backlog, const size_t reserveConnections)
     : m_logEngine(std::move(logEngine))
     , m_socketEvents(
           serverName,
@@ -201,7 +201,7 @@ FastTCPServer::FastTCPServer(const std::string& serverName, std::shared_ptr<LogE
                   socketEventCallback(connection, type);
               }
           },
-          std::chrono::milliseconds(100), triggerMode, maxEvents)
+          std::chrono::milliseconds(100), triggerMode, maxEvents, reserveConnections)
     , m_backlog(backlog)
 {
     if (m_logEngine)
