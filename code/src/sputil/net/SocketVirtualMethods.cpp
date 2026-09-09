@@ -254,15 +254,17 @@ void SocketVirtualMethods::openAddressUnlocked(const sockaddr_in& addr, const Op
 
 void SocketVirtualMethods::closeUnlocked()
 {
-    // Taken out of the field first, rather than tested and cleared afterwards. Two threads closing
-    // the same socket - which happens routinely, the reactor seeing a hangup while a worker's
-    // write fails - could both pass the test and both call close(). The first frees the descriptor
-    // number and the second lands on whatever the kernel has handed it to since, which on a busy
-    // listener is a connection accepted microseconds ago.
+    // The descriptor is taken out of the field rather than tested and cleared afterwards, and the
+    // whole of it happens under m_descriptorMutex. Two threads closing the same socket is routine
+    // - the reactor sees a hangup while a worker's write fails - and without both of those, the
+    // first close frees the number while the second is still about to use it. The number is then
+    // whatever the kernel has handed it to since, which on a busy listener is a connection
+    // accepted microseconds ago.
     //
-    // Hardening, not a fix for anything observed: it was written while hunting a defect that
-    // turned out to be OpenSSL's per-thread error queue (see SSLSocket::sslRead), and this race
-    // was never caught firing. The exchange costs nothing and closes the window.
+    // Written as hardening while hunting a defect that turned out to be elsewhere (OpenSSL's
+    // per-thread error queue, see SSLSocket::sslRead); this race was never caught firing. It is
+    // closed by construction rather than by evidence.
+    const std::scoped_lock lock(m_descriptorMutex);
     if (const auto socketFd = m_socketFd.exchange(INVALID_SOCKET); socketFd != INVALID_SOCKET)
     {
 #ifndef _WIN32
@@ -276,7 +278,12 @@ void SocketVirtualMethods::closeUnlocked()
 
 void SocketVirtualMethods::shutdownUnlocked() const noexcept
 {
-    const SocketType socketFd = m_socketFd.load();
+    // Under m_descriptorMutex, so the number cannot be closed and recycled between the read below
+    // and the syscall that uses it - which would send FIN down a connection this socket has
+    // nothing to do with. Not the socket's own lock: the thread this call exists to wake is
+    // holding that one, parked in recv().
+    const std::scoped_lock lock(m_descriptorMutex);
+    const SocketType       socketFd = m_socketFd.load();
     if (socketFd == INVALID_SOCKET)
     {
         return;

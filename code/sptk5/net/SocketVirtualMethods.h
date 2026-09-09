@@ -38,6 +38,7 @@
 #pragma once
 
 #include <atomic>
+#include <mutex>
 #include <chrono>
 #include <sptk5/DateTime.h>
 #include <sptk5/Exception.h>
@@ -238,12 +239,16 @@ protected:
     /**
      * @brief Shuts both directions of the connection down, without closing the descriptor.
      *
-     * Unlike the rest of the *Unlocked() family, this one is meant to be called with no lock
-     * held at all: it only reads the atomic descriptor, and its whole purpose is to run
-     * before close() contends for the exclusive lock. A thread parked in a blocking recv()
-     * or send() holds the lock until its syscall returns, and shutdown() is what makes that
-     * happen - so taking the lock first would wait for a wake-up that only this call can
-     * deliver.
+     * Unlike the rest of the *Unlocked() family, this one is meant to be called with the
+     * socket's own lock not held: its whole purpose is to run before close() contends for the
+     * exclusive lock. A thread parked in a blocking recv() or send() holds that lock until its
+     * syscall returns, and shutdown() is what makes that happen - so taking it first would wait
+     * for a wake-up that only this call can deliver.
+     *
+     * It does take m_descriptorMutex, which no reader ever holds. Reading the descriptor
+     * atomically is not enough on its own: between the read and the syscall the number can be
+     * closed by another thread and handed by the kernel to a connection accepted since, and the
+     * shutdown would then land on that one.
      *
      * Errors are ignored: the descriptor may already be closed, or never have been connected
      * (a listener), and neither case is worth reporting from a teardown path.
@@ -395,6 +400,18 @@ protected:
 private:
     std::atomic<SocketType> m_socketFd {INVALID_SOCKET}; ///< Socket OS handle. Atomic: fd() reads it
                                                          ///< locklessly while close()/attach() write it under the owner's lock.
+
+    /**
+     * @brief Serialises the two operations that read the descriptor and then hand it to the kernel.
+     *
+     * Reading m_socketFd atomically is not enough for shutdown() and close(): between the read and
+     * the syscall another thread can close the descriptor, and the kernel can hand that number
+     * straight back out to a connection accepted since. The syscall then tears down a stranger's
+     * connection. Only these two hold it, for the length of one syscall each, so the thread parked
+     * in recv() - which holds the socket's own lock and is what shutdown() has to wake - never
+     * waits on it.
+     */
+    mutable std::mutex m_descriptorMutex;
     int32_t               m_domain;                      ///< Socket domain type.
     int32_t               m_type;                        ///< Socket type.
     int32_t               m_protocol;                    ///< Socket protocol.
