@@ -1,10 +1,13 @@
 REM Build SPTK installer in Windows
 REM @echo off
 
+REM Unquoted: "set PACKAGE=%~1" with quotes made the comparison below read "sptk5" == sptk5,
+REM which is false, so naming the package explicitly built the other one - the default was the
+REM only argument that worked.
 if "%~1" == "" (
     set PACKAGE=sptk5
 ) else (
-    set PACKAGE="%~1"
+    set PACKAGE=%~1
 )
 
 if %PACKAGE% == sptk5 (
