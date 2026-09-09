@@ -1,6 +1,7 @@
 import React from "react";
 import Seo from "../components/Seo";
 import "../css/Documentation.css";
+import {LegendMarker, markerFor, SeriesMarker} from "../components/BrokerBenchmark";
 import test100kUrl from "../xmq_test_results/100K-connections.txt";
 import test500kUrl from "../xmq_test_results/500K-connections.txt";
 import test1mUrl from "../xmq_test_results/1M-connections.txt";
@@ -200,6 +201,12 @@ function LatencyChart({servers, width = 760, height = 340})
                         .join(" ")}
                 />
             ))}
+
+            {chartServers.map((s, i) => s.dataPoints.map((p, j) => (
+                <SeriesMarker key={`${s.label}-${j}`} shape={markerFor(i)}
+                              cx={xScale(p.interval)} cy={yScale(Math.max(p.latency, yMin || 1))}
+                              fill={SERVER_COLORS[s.name] || "#333"}/>
+            )))}
         </svg>
     );
 }
@@ -256,12 +263,10 @@ function ConnectionsTest({title, test})
             </table>
 
             <div style={{display: "flex", gap: 16, margin: "12px 0 8px"}}>
-                {servers.map((s) => (
+                {servers.map((s, i) => (
                     <div key={s.label} style={{display: "flex", alignItems: "center", gap: 4}}>
-                        <span style={{
-                            width: 10, height: 10, display: "inline-block",
-                            backgroundColor: SERVER_COLORS[s.name] || "#333"
-                        }}/>
+                        <LegendMarker shape={markerFor(i)} dashed={s.dashed}
+                                      color={SERVER_COLORS[s.name] || "#333"}/>
                         <span>{s.label}</span>
                     </div>
                 ))}

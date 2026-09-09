@@ -92,6 +92,53 @@ export function formatLatency(us)
 const formatRate = (r) => (r >= 1000 ? `${(r / 1000).toFixed(1)}K/s` : `${r}/s`);
 const formatInterval = (ms) => `${Math.round(ms / 1000)}s`;
 
+// Colour says which broker a line belongs to; shape says which line. A file can hold the same
+// broker twice - two versions of it, or the same one measured again - and two squares of one
+// colour in a legend tell nobody which is the solid line and which the dashed. A marker drawn on
+// the points, repeated in the legend beside a sample of the line itself, does.
+const SERIES_MARKERS = ["circle", "square", "triangle", "diamond", "cross"];
+
+export const markerFor = (index) => SERIES_MARKERS[index % SERIES_MARKERS.length];
+
+/**
+ * One marker, centred on (cx, cy). Used on the chart, in the legend and in the hover tooltip, so
+ * that the three cannot disagree.
+ */
+export function SeriesMarker({shape, cx, cy, size = 7, fill, stroke = "#fff", strokeWidth = 1.25})
+{
+    const r = size / 2;
+    const common = {fill, stroke, strokeWidth};
+    switch (shape) {
+        case "square":
+            return <rect x={cx - r} y={cy - r} width={size} height={size} {...common}/>;
+        case "triangle":
+            return <polygon {...common}
+                            points={`${cx},${cy - r * 1.25} ${cx + r * 1.15},${cy + r * 0.95} ${cx - r * 1.15},${cy + r * 0.95}`}/>;
+        case "diamond":
+            return <polygon {...common}
+                            points={`${cx},${cy - r * 1.3} ${cx + r * 1.3},${cy} ${cx},${cy + r * 1.3} ${cx - r * 1.3},${cy}`}/>;
+        case "cross":
+            return <path {...common} strokeWidth={strokeWidth + 1} stroke={fill} fill="none"
+                         d={`M${cx - r},${cy - r} L${cx + r},${cy + r} M${cx - r},${cy + r} L${cx + r},${cy - r}`}/>;
+        default:
+            return <circle cx={cx} cy={cy} r={r} {...common}/>;
+    }
+}
+
+/**
+ * The legend entry: a sample of the line, dashes and all, with its marker sitting on it.
+ */
+export function LegendMarker({shape, color, dashed})
+{
+    return (
+        <svg width="30" height="14" style={{flex: "none"}} aria-hidden="true">
+            <line x1="1" x2="29" y1="7" y2="7" stroke={color} strokeWidth="2"
+                  strokeDasharray={dashed ? "5 3" : undefined}/>
+            <SeriesMarker shape={shape} cx={15} cy={7} fill={color}/>
+        </svg>
+    );
+}
+
 function LatencyChart({servers, width = 760, height = 340})
 {
     const [hover, setHover] = useState(null);
@@ -146,7 +193,10 @@ function LatencyChart({servers, width = 760, height = 340})
     };
 
     const hoverRows = hover === null ? [] : servers
-        .map((s) => ({name: s.name, label: s.label, point: s.dataPoints.find((p) => p.interval === hover)}))
+        .map((s, i) => ({
+            name: s.name, label: s.label, shape: markerFor(i),
+            point: s.dataPoints.find((p) => p.interval === hover)
+        }))
         .filter((r) => r.point);
 
     const tipW = 190;
@@ -190,9 +240,16 @@ function LatencyChart({servers, width = 760, height = 340})
                           points={s.dataPoints.map((p) => `${xScale(p.interval)},${yScale(p.latency)}`).join(" ")}/>
             ))}
 
+            {servers.map((s, i) => s.dataPoints.map((p, j) => (
+                <SeriesMarker key={`${s.label}-${j}`} shape={markerFor(i)}
+                              cx={xScale(p.interval)} cy={yScale(p.latency)}
+                              fill={SERVER_COLORS[s.name] || "#333"}/>
+            )))}
+
             {hover !== null && hoverRows.map((r) => (
-                <circle key={r.label} cx={xScale(hover)} cy={yScale(r.point.latency)} r="4"
-                        fill={SERVER_COLORS[r.name] || "#333"} stroke="#fff" strokeWidth="2"/>
+                <SeriesMarker key={r.label} shape={r.shape} size={11} strokeWidth={2}
+                              cx={xScale(hover)} cy={yScale(r.point.latency)}
+                              fill={SERVER_COLORS[r.name] || "#333"}/>
             ))}
 
             {hover !== null && hoverRows.length > 0 && (
@@ -201,8 +258,8 @@ function LatencyChart({servers, width = 760, height = 340})
                     <text x={tipX + 8} y={tipY + 14} fontSize="11" fill="#555">{formatInterval(hover)} elapsed</text>
                     {hoverRows.map((r, i) => (
                         <g key={r.label}>
-                            <rect x={tipX + 8} y={tipY + 22 + i * 16} width="8" height="8"
-                                  fill={SERVER_COLORS[r.name] || "#333"}/>
+                            <SeriesMarker shape={r.shape} cx={tipX + 12} cy={tipY + 26 + i * 16}
+                                          fill={SERVER_COLORS[r.name] || "#333"} stroke="none" strokeWidth={0}/>
                             <text x={tipX + 22} y={tipY + 30 + i * 16} fontSize="11" fill="#333">
                                 {r.label} {formatLatency(r.point.latency)} &middot; {formatRate(r.point.rate)}
                             </text>
@@ -236,15 +293,13 @@ export function BrokerBenchmark({servers, targetRate})
                     <td style={head}>CPU</td>
                     <td style={head}>Peak RAM</td>
                 </tr>
-                {servers.map((s) => {
+                {servers.map((s, i) => {
                     const missed = targetRate && s.averageRate && s.averageRate < targetRate * 0.97;
                     return (
                         <tr key={s.label}>
-                            <td style={cell}>
-                                <span style={{
-                                    display: "inline-block", width: 10, height: 10,
-                                    backgroundColor: SERVER_COLORS[s.name] || "#333", marginRight: 6
-                                }}/>
+                            <td style={{...cell, whiteSpace: "nowrap"}}>
+                                <LegendMarker shape={markerFor(i)} dashed={s.dashed}
+                                              color={SERVER_COLORS[s.name] || "#333"}/>
                                 {s.label}
                             </td>
                             <td style={cell}>{s.meta["Version"] || "-"}</td>
@@ -263,12 +318,10 @@ export function BrokerBenchmark({servers, targetRate})
             </table>
 
             <div style={{display: "flex", gap: 16, margin: "12px 0 8px"}}>
-                {servers.map((s) => (
+                {servers.map((s, i) => (
                     <div key={s.label} style={{display: "flex", alignItems: "center", gap: 4}}>
-                        <span style={{
-                            width: 10, height: 10, display: "inline-block",
-                            backgroundColor: SERVER_COLORS[s.name] || "#333"
-                        }}/>
+                        <LegendMarker shape={markerFor(i)} dashed={s.dashed}
+                                      color={SERVER_COLORS[s.name] || "#333"}/>
                         <span>{s.label}</span>
                     </div>
                 ))}
