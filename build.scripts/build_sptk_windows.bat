@@ -74,39 +74,52 @@ if errorlevel 1 (
     exit /b %errorlevel%
 )
 
-mkdir \workspace\Downloads >> build.log 2>&1
+REM Advanced Installer writes the .msi into a directory named after the project, and that name is
+REM not the package name: SPTK's is "Simply Powerful Toolkit-SetupFiles" and XMQ's is its own. It
+REM used to be spelled out here, which is why this script only ever worked for SPTK. Find the
+REM newest .msi under msi\ instead - one build per run produces exactly one.
+set "MSI="
+for /f "delims=" %%f in ('dir /b /s /o-d "msi\*.msi" 2^>nul') do if not defined MSI set "MSI=%%f"
+if not defined MSI (
+    echo "No installer was produced under msi\"
+    exit /b 1
+)
+for %%f in ("%MSI%") do set "MSI_NAME=%%~nxf"
 
-REM Advanced Installer writes its output beside the .aip, so the directory is named after the
-REM project and sits here at the msi/.
-move /Y "Simply Powerful Toolkit-SetupFiles\SPTK-%VERSION%.msi" \workspace\Downloads\SPTK-%VERSION%.msi >> build.log 2>&1
+set DOWNLOADS=C:\workspace\Downloads
+if not exist "%DOWNLOADS%" mkdir "%DOWNLOADS%" >> build.log 2>&1
+
+move /Y "%MSI%" "%DOWNLOADS%\%MSI_NAME%" >> build.log 2>&1
 if errorlevel 1 (
     echo "Can't move installer to Downloads directory"
     exit /b %errorlevel%
 )
+echo Installer %MSI_NAME%
 
-rmdir /S /Q "Simply Powerful Toolkit-SetupFiles" >> build.log 2>&1
+for /f "delims=" %%d in ('dir /b /ad "msi\*-SetupFiles" 2^>nul') do rmdir /S /Q "msi\%%d" >> build.log 2>&1
 
 echo Computing the checksum
 REM Written in the format "shasum -a 256 -c" reads: the hash, two spaces, the name. Get-FileHash
 REM rather than certutil, whose output has changed shape between Windows versions. No trailing
 REM newline, so that no CR reaches a file that will be read on Linux - a CR there becomes part of
 REM the file name and the check then fails looking for a file nobody has.
-powershell -NoProfile -Command "$name = '%PACKAGE%-%VERSION%.msi'; $hash = (Get-FileHash -Algorithm SHA256 (Join-Path 'Downloads' $name)).Hash.ToLower(); Set-Content -Path (Join-Path 'Downloads' ($name + '.sha256')) -Value ($hash + '  ' + $name) -NoNewline -Encoding ascii"
+powershell -NoProfile -Command "$name = '%MSI_NAME%'; $dir = '%DOWNLOADS%'; $hash = (Get-FileHash -Algorithm SHA256 (Join-Path $dir $name)).Hash.ToLower(); Set-Content -Path (Join-Path $dir ($name + '.sha256')) -Value ($hash + '  ' + $name) -NoNewline -Encoding ascii"
 if errorlevel 1 (
     echo "Can't compute the checksum"
     exit /b %errorlevel%
 )
 
-REM The download area is laid out as SPTK-<version>, not <version>: this used to upload into
-REM download/5.6.9/windows, a directory that does not exist, so the copy failed and no Windows
-REM installer has been published since 5.6.7. The directory is created first, because a new
-REM release has none.
+REM The download area is laid out as SPTK-<SPTK version>, and everything for a release lives under
+REM it - the XMQ packages included, which is why the directory is named from SPTK_VERSION whatever
+REM is being built. It used to upload into download/5.6.9/windows, a directory that does not
+REM exist, so the copy failed and no Windows installer was published between 5.6.7 and now.
 REM The web host over the local network, because that is where this machine is. It used to be
 REM www.sptk.net on 443, which answers from outside but closes the connection from here. Both are
 REM overridable: set REMOTE_HOST and REMOTE_PORT before running to publish from somewhere else.
+set /p SPTK_VERSION=<C:\workspace\sptk5\build.scripts\SPTK_VERSION
 if not defined REMOTE_HOST set REMOTE_HOST=alexeyp@10.1.1.242
 if not defined REMOTE_PORT set REMOTE_PORT=22
-set REMOTE_DIR=/var/www/html/sptk/download/SPTK-%VERSION%/windows
+set REMOTE_DIR=/var/www/html/sptk/download/SPTK-%SPTK_VERSION%/windows
 
 ssh -p %REMOTE_PORT% %REMOTE_HOST% "mkdir -p %REMOTE_DIR%"
 if errorlevel 1 (
@@ -114,8 +127,10 @@ if errorlevel 1 (
     exit /b %errorlevel%
 )
 
-scp -P %REMOTE_PORT% \workspace\Downloads\SPTK-%VERSION%.msi Downloads\SPTK-%VERSION%.msi.sha256 %REMOTE_HOST%:%REMOTE_DIR%/
+scp -P %REMOTE_PORT% "%DOWNLOADS%\%MSI_NAME%" "%DOWNLOADS%\%MSI_NAME%.sha256" %REMOTE_HOST%:%REMOTE_DIR%/
 if errorlevel 1 (
     echo "Can't upload the installer"
     exit /b %errorlevel%
 )
+
+echo Published %MSI_NAME% to %REMOTE_DIR%
