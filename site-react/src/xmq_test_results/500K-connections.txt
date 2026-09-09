@@ -201,8 +201,8 @@ Average        500000      717us         2272
   scenario does not reward the bigger machine.
 
 
-Server:   XMQ
-Version:  0.9.16 (maps reserved)
+Server:   XMQ (superseded, not charted)
+Version:  0.9.16 (session maps only)
 Date:     2026-09-09
 CPU Load: 21% mean / 99% peak
 Max RAM:  2578 Mb
@@ -232,3 +232,35 @@ Average        500000      357us         2500
 
   The 140000ms interval stays at 573us, as it does for every broker in this file. That one
   is the load generator, not the server.
+
+
+Server:   XMQ
+Version:  0.9.16 (final)
+Date:     2026-09-09
+Interval        Count    Latency       Rate/s
+─────────────────────────────────────────────
+0ms             50000      303us         2500
+20000ms         50000      299us         2500
+40000ms         50000      306us         2500
+60000ms         49999      300us         2499
+80000ms         50000      302us         2500
+100000ms        49991      320us         2499
+120000ms        50010      299us         2500
+140000ms        50000      310us         2500
+160000ms        49999      312us         2499
+180000ms        50000      297us         2500
+200000ms            1      359us            0
+─────────────────────────────────────────────
+Average        500000      305us         2272
+
+  305us, and every interval within 297-320. The step that used to sit at 180000ms - the
+  session map doubling past 450000 entries - is gone, and so is the one at 140000ms, which
+  belonged to the client and to the same kind of map inside it. Three maps hold one entry per
+  connection between the two processes, and all three are now sized once rather than grown.
+
+  296us is FlashMQ's figure above. This is 3% behind it, from 28% behind in the run recorded
+  a day earlier.
+
+  CPU and RSS were not sampled for this set - the runs were driven by
+  run_scenario_set.sh, which does not start a sampler.
+

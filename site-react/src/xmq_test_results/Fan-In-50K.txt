@@ -13,7 +13,7 @@ physical core (its shipping default, faster than --no-cpu-affinity), so its ceil
 800%; EMQX and Mosquitto run unpinned with all 1600% available.
 
 
-Server:   XMQ
+Server:   XMQ (0.9.13, not charted)
 Version:  0.9.13
 CPU Load: 267% mean / 341% peak
 Max RAM:  242 Mb
@@ -41,7 +41,7 @@ Average      89999803      217us        49999
   intervals (215-218us). Used a third of its own allowance - an eighth of the machine.
 
 
-Server:   XMQ
+Server:   XMQ (superseded, not charted)
 Version:  0.9.16
 Date:     2026-09-08
 CPU Load: 239% mean / 398% peak
@@ -228,3 +228,30 @@ Average      89999783      195us        49999
   gap it had in July (201 against 217). CPU and RSS were not sampled for this run; the July
   figures above (201% mean, 242 Mb) are the same broker version on the same hardware and
   remain the best estimate.
+
+
+Server:   XMQ
+Version:  0.9.16 (final)
+Date:     2026-09-09
+Interval        Count    Latency       Rate/s
+─────────────────────────────────────────────
+0ms           8999985      216us        49999
+180000ms      9000004      217us        50000
+360000ms      8999999      217us        49999
+540000ms      9000001      217us        50000
+720000ms      8999999      217us        49999
+900000ms      8999998      217us        49999
+1080000ms     9000002      218us        50000
+1260000ms     8999999      217us        49999
+1440000ms     9000001      216us        50000
+1620000ms     8999799      217us        49998
+─────────────────────────────────────────────
+Average      89999787      217us        49999
+
+  217us, back to what 0.9.13 measured and 13% below the 0.9.16 above it. Nothing in this
+  release was aimed at Fan-In; the likeliest cause is the receive path no longer asking
+  FIONREAD before every read, which is where this scenario spends its time.
+
+  CPU and RSS were not sampled for this set - the runs were driven by
+  run_scenario_set.sh, which does not start a sampler, and no one started one beside it.
+

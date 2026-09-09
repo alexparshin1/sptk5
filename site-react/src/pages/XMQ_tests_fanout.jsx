@@ -58,23 +58,30 @@ export default class XMQ_tests_fanout extends React.Component
                     <h4>Reading the results</h4>
                     <ul>
                         <li>
-                            <b>XMQ and EMQX both hold the full 250,000 messages/second</b>, which
-                            makes this a clean latency and efficiency comparison rather than a
-                            question of capacity. XMQ averages 2.48&nbsp;ms against EMQX's
-                            4.04&nbsp;ms, using 2.6&times; less CPU and 19&times; less memory
-                            &mdash; and doing it confined to 8 of the 16 vCPUs, while EMQX had all
-                            of them.
+                            <b>Read the spread before reading the numbers.</b> This scenario varies
+                            by 27% from run to run on identical software: three runs of one build,
+                            the broker restarted before each, gave 3.11, 3.22 and 3.34&nbsp;ms, and
+                            three of the build before it gave 3.38, 3.08 and 2.66&nbsp;ms. A single
+                            figure here carries about that much uncertainty, and differences
+                            smaller than it mean nothing at all.
                         </li>
                         <li>
-                            <b>XMQ's 22&nbsp;MB peak is the figure most worth noting.</b> Fan-out
-                            holds only 1,005 connections, so almost none of that memory is session
-                            state; it reflects how little the delivery path buffers when it keeps
-                            up with the send rate.
+                            <b>FlashMQ is the fastest of the four</b> at 2.13&nbsp;ms, with XMQ at
+                            3.18&nbsp;ms and EMQX at 4.04&nbsp;ms. All three hold the full 250,000
+                            messages a second, so this is a comparison of latency and efficiency
+                            rather than of capacity.
+                        </li>
+                        <li>
+                            <b>Memory is where the four separate most.</b> XMQ peaks at 27&nbsp;MB
+                            and FlashMQ at 29&nbsp;MB, against EMQX's 430&nbsp;MB and Mosquitto's
+                            2.52&nbsp;GB. Fan-out holds only 1,005 connections, so almost none of
+                            that is session state: it is what the delivery path buffers on the way
+                            through.
                         </li>
                         <li>
                             <b>Mosquitto reached 104,604/s of the 250,000 offered</b>, with latency
                             growing linearly from 8.5&nbsp;s to 165.9&nbsp;s &mdash; a fixed
-                            deficit converting straight into backlog, so the average is bounded by
+                            deficit converting straight into backlog, so its average is bounded by
                             run length rather than settling. Its single event-loop thread is the
                             constraint, and unlike the other limits in this suite that one does not
                             move with better hardware: one thread is one thread on any machine. It
@@ -82,11 +89,17 @@ export default class XMQ_tests_fanout extends React.Component
                             consistent with faster cores, but the shape is unchanged.
                         </li>
                         <li>
+                            <b>XMQ ran on half the machine.</b> It pins one thread per physical
+                            core and leaves the hyperthread siblings unused, so its ceiling here is
+                            800% of the 1600% the host has; EMQX had all of it and used 870% on
+                            average.
+                        </li>
+                        <li>
                             <b>The load generator was never the limit.</b> At 250,000
                             messages/second the client has to receive and timestamp every message,
                             so it could plausibly have been the bottleneck rather than the broker.
                             It peaked at 442% of the 1600% available &mdash; about 28% of the
-                            client machine &mdash; so both 250K results measure the broker.
+                            client machine &mdash; so these results measure the brokers.
                         </li>
                     </ul>
                 </>

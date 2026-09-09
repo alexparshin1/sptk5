@@ -18,7 +18,7 @@ physical core (its shipping default, faster than --no-cpu-affinity), so its ceil
 800%; EMQX and Mosquitto run unpinned with all 1600% available.
 
 
-Server:   XMQ
+Server:   XMQ (0.9.13, not charted)
 Version:  0.9.13
 CPU Load: 329% mean / 595% peak
 Max RAM:  22.2 Mb
@@ -45,7 +45,7 @@ Average      74998184     2480us       249993
   Full rate at 2.48ms, flat across every interval (2.41-2.52ms), in 22Mb of RSS.
 
 
-Server:   XMQ
+Server:   XMQ (superseded, not charted)
 Version:  0.9.16
 Date:     2026-09-08
 CPU Load: 615% peak (steady state only)
@@ -220,3 +220,39 @@ NOTES
 
   Each broker was restarted immediately before its own run. Runs were strictly
   sequential - two brokers competing for the same cores would corrupt both results.
+
+
+Server:   XMQ
+Version:  0.9.16 (final)
+Date:     2026-09-09
+Interval        Count    Latency       Rate/s
+─────────────────────────────────────────────
+0ms           7499568     2693us       249985
+30000ms       7500070     3078us       250002
+60000ms       7500024     3193us       250000
+90000ms       7499967     3230us       249998
+120000ms      7499948     3270us       249998
+150000ms      7500045     3227us       250001
+180000ms      7499965     3287us       249998
+210000ms      7499927     3246us       249997
+240000ms      7500026     3259us       250000
+270000ms      7498120     3267us       249937
+─────────────────────────────────────────────
+Average      74997660     3175us       249992
+
+  3175us, and the number on its own says very little: this scenario's spread between runs is
+  27%. Three runs of THIS build, the broker restarted before each, gave 3111, 3222 and 3337us
+  - a median of 3222. The three runs of the build above gave 3380, 3081 and 2658us, a median
+  of 3081. The bands overlap; today's three sit higher in theirs. A 5% difference cannot be
+  called from three samples a side, and the 2853us recorded above is the low draw of its own
+  three, not a level this broker used to hold.
+
+  What did not change between those two builds, checked in the diff rather than assumed: the
+  delivery path. SubscriptionManager, SocketWriteBuffer and the send threads are byte for byte
+  what they were - the send-queue batching tried in between was measured, rejected and
+  reverted. The two files that did change are the receive paths, and this scenario's broker
+  receives 250 messages a second.
+
+  CPU and RSS were not sampled for this set - the runs were driven by
+  run_scenario_set.sh, which does not start a sampler, and no one started one beside it.
+

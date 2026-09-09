@@ -93,8 +93,8 @@ Average       1000000      326us         4545
   the run with `rlimit_nofile 1200000`; both brokers use one descriptor per connection.
 
 
-Server:   XMQ
-Version:  0.9.16 (maps reserved)
+Server:   XMQ (superseded, not charted)
+Version:  0.9.16 (session maps only)
 Date:     2026-09-09
 CPU Load: 42% mean / 101% peak
 Max RAM:  4938 Mb
@@ -137,3 +137,36 @@ Average       1000000      451us         4545
   any of these runs where the client falls short of its own rate - 99622 of 100000 at
   4981/s - and it does that under FlashMQ too, on both AWS and the bench. See
   500K-connections.txt for the same pattern at half the size.
+
+
+Server:   XMQ
+Version:  0.9.16 (final)
+Date:     2026-09-09
+Interval        Count    Latency       Rate/s
+─────────────────────────────────────────────
+0ms             99999      355us         4999
+20000ms        100000      350us         5000
+40000ms         99998      359us         4999
+60000ms        100002      323us         5000
+80000ms         99999      351us         4999
+100000ms        99999      351us         4999
+120000ms       100001      324us         5000
+140000ms       100000      357us         5000
+160000ms        99974      362us         4998
+180000ms       100026      331us         5001
+200000ms            2      344us            0
+─────────────────────────────────────────────
+Average       1000000      346us         4545
+
+  346us, every interval within 323-362, and none of the three steps left. The run recorded
+  first here was 612us with an interval at 1762us; sizing the broker's session maps took it to
+  451us with the 180000ms step gone; sizing the two maps in SPTK that also hold one entry per
+  connection - the reactor's registration map, which the client has one of as well, and the
+  server's own - took out the 140000ms step and the rest.
+
+  326us is FlashMQ's figure above, from the run where it needed rlimit_nofile raised to reach
+  a million at all. This is 6% behind it, from 88% behind a day earlier.
+
+  CPU and RSS were not sampled for this set - the runs were driven by
+  run_scenario_set.sh, which does not start a sampler.
+

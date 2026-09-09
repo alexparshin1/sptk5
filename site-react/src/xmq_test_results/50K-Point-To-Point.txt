@@ -1,4 +1,4 @@
-Server:   XMQ
+Server:   XMQ (1 msg/s per publisher, not charted)
 QOS:      1
 Rate:     1 msg/s per publisher
 CPU Load: 364%
@@ -52,7 +52,7 @@ Average      89975529      198us        49986
   max_qos_bytes_pending_per_client 268435456, tcp_nodelay true.
 
 
-Server:   XMQ
+Server:   XMQ (2 msg/s per publisher, not charted)
 QOS:      1
 Rate:     2 msg/s per publisher
 CPU Load: 636%
@@ -73,7 +73,7 @@ Interval        Count    Latency       Rate/s
 Average     179950225      278us        99972
 
 
-Server:   XMQ
+Server:   XMQ (superseded, not charted)
 Version:  0.9.16
 Date:     2026-09-08
 CPU Load: 335% mean / 358% peak
@@ -165,3 +165,29 @@ Average      89974412      191us        49985
 
   191us against XMQ 0.9.16's 211us, a 9.5% gap - again matching July's (198 against 215).
   CPU and RSS not sampled for this run.
+
+
+Server:   XMQ
+Version:  0.9.16 (final)
+Date:     2026-09-09
+Interval        Count    Latency       Rate/s
+─────────────────────────────────────────────
+0ms           8999986      212us        49999
+180000ms      9000003      214us        50000
+360000ms      8999998      214us        49999
+540000ms      8999999      214us        49999
+720000ms      9000004      215us        50000
+900000ms      8999992      213us        49999
+1080000ms     9000005      214us        50000
+1260000ms     9000001      214us        50000
+1440000ms     9000001      214us        50000
+1620000ms     8971517      215us        49841
+─────────────────────────────────────────────
+Average      89971506      214us        49984
+
+  214us against the 211us above it - the same figure, and the run is as flat as that one:
+  212 to 215us across ten intervals of three minutes each.
+
+  CPU and RSS were not sampled for this set - the runs were driven by
+  run_scenario_set.sh, which does not start a sampler, and no one started one beside it.
+
