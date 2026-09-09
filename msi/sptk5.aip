@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<DOCUMENT Type="Advanced Installer" CreateVersion="13.0" version="23.9" Modules="professional" RootPath="." Language="en" Id="{D95E6C6D-A15A-4DBF-ACF9-FD9559D0BEE2}">
+<DOCUMENT Type="Advanced Installer" CreateVersion="13.0" version="24.0" Modules="professional" RootPath="." Language="en" Id="{D95E6C6D-A15A-4DBF-ACF9-FD9559D0BEE2}">
   <COMPONENT cid="caphyon.advinst.msicomp.MsiPropsComponent">
     <ROW Property="AI_BITMAP_DISPLAY_MODE" Value="0"/>
     <ROW Property="AI_PREREQ_REPAIR_ENABLED" MultiBuildValue="DefaultBuild:1"/>
@@ -9,10 +9,10 @@
     <ROW Property="ARPURLINFOABOUT" Value="http://www.sptk.net"/>
     <ROW Property="Manufacturer" Value="Alexey Parshin"/>
     <ROW Property="MsiLogging" MultiBuildValue="DefaultBuild:vp"/>
-    <ROW Property="ProductCode" Value="1033:{0B43F8C9-EF6E-46C2-8642-81F84EB427EF} " Type="16"/>
+    <ROW Property="ProductCode" Value="1033:{F7FCA57D-C5FB-4A60-B1B5-25CD9F192CE8} " Type="16"/>
     <ROW Property="ProductLanguage" Value="1033"/>
     <ROW Property="ProductName" Value="SPTK"/>
-    <ROW Property="ProductVersion" Value="5.6.9" Options="32"/>
+    <ROW Property="ProductVersion" Value="5.6.10" Options="32"/>
     <ROW Property="SecureCustomProperties" Value="OLDPRODUCTS;AI_NEWERPRODUCTFOUND"/>
     <ROW Property="UpgradeCode" Value="{7DE1367E-A155-4C2D-8B6A-922D34EF53C7}"/>
     <ROW Property="WindowsType9X" MultiBuildValue="DefaultBuild:Windows 9x/ME" ValueLocId="-"/>
@@ -41,20 +41,15 @@
     <ROW Directory="bin_Dir" Directory_Parent="SPTK_Dir" DefaultDir="bin"/>
     <ROW Directory="cmake_Dir" Directory_Parent="lib_Dir" DefaultDir="cmake"/>
     <ROW Directory="custom_1_Dir" Directory_Parent="internal_1_Dir" DefaultDir="custom"/>
-    <ROW Directory="custom_Dir" Directory_Parent="internal_Dir" DefaultDir="custom"/>
     <ROW Directory="db_Dir" Directory_Parent="sptk5_Dir" DefaultDir="db"/>
-    <ROW Directory="doc_Dir" Directory_Parent="sptk5_1_Dir" DefaultDir="doc"/>
-    <ROW Directory="gmock_Dir" Directory_Parent="include_Dir" DefaultDir="gmock"/>
     <ROW Directory="gtest_Dir" Directory_Parent="include_Dir" DefaultDir="gtest"/>
     <ROW Directory="gui_Dir" Directory_Parent="sptk5_Dir" DefaultDir="gui"/>
     <ROW Directory="include_Dir" Directory_Parent="SPTK_Dir" DefaultDir="include"/>
     <ROW Directory="internal_1_Dir" Directory_Parent="gtest_Dir" DefaultDir="internal"/>
-    <ROW Directory="internal_Dir" Directory_Parent="gmock_Dir" DefaultDir="internal"/>
     <ROW Directory="lib_Dir" Directory_Parent="SPTK_Dir" DefaultDir="lib"/>
     <ROW Directory="net_Dir" Directory_Parent="sptk5_Dir" DefaultDir="net"/>
     <ROW Directory="pkgconfig_Dir" Directory_Parent="lib_Dir" DefaultDir="PKGCON~1|pkgconfig"/>
     <ROW Directory="protocol_Dir" Directory_Parent="wsdl_Dir" DefaultDir="protocol"/>
-    <ROW Directory="resources_Dir" Directory_Parent="sptk5_1_Dir" DefaultDir="RESOUR~1|resources"/>
     <ROW Directory="share_Dir" Directory_Parent="SPTK_Dir" DefaultDir="share"/>
     <ROW Directory="sptk5_1_Dir" Directory_Parent="share_Dir" DefaultDir="sptk5"/>
     <ROW Directory="sptk5_2_Dir" Directory_Parent="lib_Dir" DefaultDir="sptk5"/>
@@ -73,6 +68,7 @@
     <ROW Component="AutoDatabaseConnection.h" ComponentId="{0E54F9E5-118E-4728-8EF5-F2DAC2F584F3}" Directory_="db_Dir" Attributes="0" KeyPath="AutoDatabaseConnection.h" Type="0"/>
     <ROW Component="BaseMailConnect.h" ComponentId="{D52F6DC4-2D47-4160-8054-840D3635F6A4}" Directory_="net_Dir" Attributes="0" KeyPath="BaseMailConnect.h" Type="0"/>
     <ROW Component="BaseWebServiceProtocol.h" ComponentId="{144350C8-265C-48B8-A080-88BEF56345AB}" Directory_="protocol_Dir" Attributes="0" KeyPath="BaseWebServiceProtocol.h" Type="0"/>
+    <ROW Component="Blue.tar" ComponentId="{8299CD78-97AE-469B-9FE2-B3204C8ACCBF}" Directory_="sptk5_1_Dir" Attributes="0" KeyPath="Blue.tar" Type="0"/>
     <ROW Component="C4FE6FD5B7C4D07B3A313E754A9A6A8" ComponentId="{F3D778E6-05CD-444F-ADB9-AC9B0828EBC1}" Directory_="APPDIR" Attributes="260" KeyPath="C4FE6FD5B7C4D07B3A313E754A9A6A8" Options="2"/>
     <ROW Component="CBox.h" ComponentId="{B9A79857-9B75-4406-BD67-21BB86C39B84}" Directory_="gui_Dir" Attributes="0" KeyPath="CBox.h" Type="0"/>
     <ROW Component="CancellationToken.h" ComponentId="{698F7EF4-53CF-400A-B121-0C8184C9EBC7}" Directory_="threads_Dir" Attributes="0" KeyPath="CancellationToken.h" Type="0"/>
@@ -82,6 +78,7 @@
     <ROW Component="EventLog" ComponentId="{72558A19-B26C-43EE-B8CF-73F9C318D46F}" Directory_="APPDIR" Attributes="260" KeyPath="EventLog"/>
     <ROW Component="EventMessageFile" ComponentId="{5D57D2E4-3290-47F9-91CD-F3DDB4B499D6}" Directory_="APPDIR" Attributes="260" KeyPath="EventMessageFile"/>
     <ROW Component="FastTCPServer.h" ComponentId="{F1B6B8DA-0C22-4D86-94B4-E102CC725F6B}" Directory_="net_Dir" Attributes="0" KeyPath="FastTCPServer.h" Type="0"/>
+    <ROW Component="Foo.inc" ComponentId="{C4CB9385-01BC-4143-ADA2-A2C71069E5E0}" Directory_="bin_Dir" Attributes="0" KeyPath="Test.inc" Type="0"/>
     <ROW Component="GTestConfig.cmake" ComponentId="{16B90602-35FF-4361-B291-F0E84BC88B8B}" Directory_="GTest_Dir" Attributes="0" KeyPath="GTestConfig.cmake" Type="0"/>
     <ROW Component="New_Key" ComponentId="{1AC045D3-FD6C-473C-AA41-48D4F69D95AF}" Directory_="APPDIR" Attributes="260" KeyPath="New_Key"/>
     <ROW Component="OpenApiGenerator.h" ComponentId="{D0A0CC58-2C03-4833-AC19-A4E425C2E83F}" Directory_="wsdl_Dir" Attributes="0" KeyPath="OpenApiGenerator.h" Type="0"/>
@@ -93,22 +90,24 @@
     <ROW Component="Services" ComponentId="{5139979C-7948-4BC9-96F1-0F0F087D6922}" Directory_="APPDIR" Attributes="260" KeyPath="Services"/>
     <ROW Component="TestRunner.h" ComponentId="{9C49DFCA-07AB-4C5E-997C-9999697EDF68}" Directory_="test_Dir" Attributes="0" KeyPath="TestRunner.h" Type="0"/>
     <ROW Component="TypesSupported" ComponentId="{6D325452-8F71-49EF-BA3E-071E6365A994}" Directory_="APPDIR" Attributes="260" KeyPath="TypesSupported"/>
-    <ROW Component="caching_sha2_password.dll" ComponentId="{B5CFB695-E31A-4C7E-90B7-A882EB08FB6D}" Directory_="bin_Dir" Attributes="256" KeyPath="caching_sha2_password.dll"/>
+    <ROW Component="calendar_test.exe" ComponentId="{CFA90AA8-D385-4550-BFA5-92D7DE8AA09D}" Directory_="bin_2_Dir" Attributes="256" KeyPath="calendar_test.exe"/>
+    <ROW Component="ceditor_test.exe" ComponentId="{88693253-663C-4C16-B22D-61153B224712}" Directory_="bin_2_Dir" Attributes="256" KeyPath="ceditor_test.exe"/>
+    <ROW Component="cgroup_test.exe" ComponentId="{39B3ADDA-C108-40CD-834C-22849BF2A409}" Directory_="bin_2_Dir" Attributes="256" KeyPath="cgroup_test.exe"/>
+    <ROW Component="check_buttons.exe" ComponentId="{A97B6A56-5870-48B5-84F5-323BD662FDD2}" Directory_="bin_2_Dir" Attributes="256" KeyPath="check_buttons.exe"/>
+    <ROW Component="combo_test.exe" ComponentId="{4D85CF6D-59CF-48D1-96C6-EDE1E44AE45E}" Directory_="bin_2_Dir" Attributes="256" KeyPath="combo_test.exe"/>
     <ROW Component="command_line.exe" ComponentId="{335BE3A0-72CA-43F8-B559-C944136A29D8}" Directory_="bin_1_Dir" Attributes="256"/>
+    <ROW Component="cscroll_test.exe" ComponentId="{5DD2EDC9-8278-4F02-926F-AFC2F3AFCBA6}" Directory_="bin_2_Dir" Attributes="256" KeyPath="cscroll_test.exe"/>
     <ROW Component="datetime.exe" ComponentId="{682BCB15-17A6-4BCE-B899-ACA2A42456AA}" Directory_="bin_1_Dir" Attributes="256"/>
-    <ROW Component="doc" ComponentId="{8FE5E742-5964-4C3D-AC9B-353B2FFAC11D}" Directory_="doc_Dir" Attributes="0"/>
+    <ROW Component="dialog_test.exe" ComponentId="{AFE3EA85-54BA-488F-959D-C729C321EEAB}" Directory_="bin_2_Dir" Attributes="256" KeyPath="dialog_test.exe"/>
     <ROW Component="driver_load_test.exe" ComponentId="{3E2EDD39-A086-4271-9B2B-542124FDCE9D}" Directory_="bin_1_Dir" Attributes="256"/>
-    <ROW Component="event_provider.h" ComponentId="{01ABDABD-EB64-47FA-8B68-1E98F5D25EF9}" Directory_="resources_Dir" Attributes="0" KeyPath="event_provider.h" Type="0"/>
     <ROW Component="eventlog_test.exe" ComponentId="{ACF5CA10-81B7-4EB6-82FC-5C5250D04567}" Directory_="bin_1_Dir" Attributes="256" KeyPath="eventlog_test.exe"/>
     <ROW Component="exceptions.exe" ComponentId="{13C30DDF-B4A2-4192-8C9E-B78ADAFE410D}" Directory_="bin_1_Dir" Attributes="256"/>
-    <ROW Component="gmock.dll" ComponentId="{572A39E5-2649-442F-A77B-9CBB10A5D242}" Directory_="bin_Dir" Attributes="256" KeyPath="gmock.dll"/>
-    <ROW Component="gmock.lib" ComponentId="{7EDD813C-6EC3-4FB1-8C75-6A7066733BE1}" Directory_="lib_Dir" Attributes="0" KeyPath="gmock.lib" Type="0"/>
+    <ROW Component="file_dialogs.exe" ComponentId="{80B3B459-40C2-4834-9BEB-3A993A5846BB}" Directory_="bin_2_Dir" Attributes="256" KeyPath="file_dialogs.exe"/>
+    <ROW Component="font_combo.exe" ComponentId="{C4ED1B0F-8CD8-4E7D-99FC-D5C0EE22E7B7}" Directory_="bin_2_Dir" Attributes="256" KeyPath="font_combo.exe"/>
+    <ROW Component="gmock.lib" ComponentId="{7EDD813C-6EC3-4FB1-8C75-6A7066733BE1}" Directory_="lib_Dir" Attributes="0" KeyPath="gtest.lib" Type="0"/>
     <ROW Component="gmock.pc" ComponentId="{68C66E12-14E7-420E-A7B0-B2C975B87905}" Directory_="pkgconfig_Dir" Attributes="0" KeyPath="gmock.pc" Type="0"/>
-    <ROW Component="gmock.pdb" ComponentId="{35612047-A48C-46CB-93D2-5DFB2A2A54CA}" Directory_="lib_Dir" Attributes="0" KeyPath="gmock.pdb" Type="4"/>
-    <ROW Component="gmock_main.dll" ComponentId="{385B1B1B-857C-4215-8837-A040676195C4}" Directory_="bin_Dir" Attributes="256" KeyPath="gmock_main.dll"/>
-    <ROW Component="gmockactions.h" ComponentId="{29EEEE58-A901-4B45-8FE4-0CE6C2A49308}" Directory_="gmock_Dir" Attributes="0" KeyPath="gmockactions.h" Type="0"/>
-    <ROW Component="gmockgeneratedactions.h" ComponentId="{67897B83-979A-4523-B725-9855D18FFE1E}" Directory_="custom_Dir" Attributes="0" KeyPath="gmockgeneratedactions.h" Type="0"/>
-    <ROW Component="gmockinternalutils.h" ComponentId="{9084C408-2DF5-4111-843B-B2C7AB2295BC}" Directory_="internal_Dir" Attributes="0" KeyPath="gmockinternalutils.h" Type="0"/>
+    <ROW Component="gmock.pdb" ComponentId="{35612047-A48C-46CB-93D2-5DFB2A2A54CA}" Directory_="lib_Dir" Attributes="0" KeyPath="gtest.pdb" Type="4"/>
+    <ROW Component="gmockpdb_debug_postfixNOTFOUND.pdb" ComponentId="{665E06FF-CF6A-4AF9-8456-2F4CDEB9B89A}" Directory_="bin_Dir" Attributes="0" KeyPath="gtestpdb_debug_postfixNOTFOUND.pdb_1" Type="4"/>
     <ROW Component="gtest.dll" ComponentId="{E7AEF8F8-2918-4876-B5B6-78597E1ED513}" Directory_="bin_Dir" Attributes="256" KeyPath="gtest.dll"/>
     <ROW Component="gtest_main.dll" ComponentId="{764928B4-3362-4B15-B98A-AADDD5EB6B4E}" Directory_="bin_Dir" Attributes="256" KeyPath="gtest_main.dll"/>
     <ROW Component="gtestassertionresult.h" ComponentId="{BD7BA562-61F0-4B43-8401-16DAA46633C4}" Directory_="gtest_Dir" Attributes="0" KeyPath="gtestassertionresult.h" Type="0"/>
@@ -117,22 +116,19 @@
     <ROW Component="libcrypto3x64.dll" ComponentId="{AFDDF382-32FB-4A5C-A331-707DB5487734}" Directory_="bin_Dir" Attributes="256" KeyPath="libcrypto3x64.dll"/>
     <ROW Component="libiconv2.dll" ComponentId="{CB04F228-4C87-413A-9228-8C884845B4D9}" Directory_="bin_Dir" Attributes="256" KeyPath="libiconv2.dll"/>
     <ROW Component="libintl9.dll" ComponentId="{C3D1B193-5816-48AC-B355-98621505EEDA}" Directory_="bin_Dir" Attributes="256" KeyPath="libintl9.dll"/>
-    <ROW Component="libmariadb.dll" ComponentId="{E2DAB664-F1C1-41CF-A3B1-43B20753E531}" Directory_="bin_Dir" Attributes="256" KeyPath="libmariadb.dll"/>
     <ROW Component="libpq.dll" ComponentId="{CA0EE287-6FA6-4DE9-A21F-83B047016BE0}" Directory_="bin_Dir" Attributes="256" KeyPath="libpq.dll"/>
     <ROW Component="libssl3x64.dll" ComponentId="{9DD6CF79-B20C-4ED7-A277-2E82351DE309}" Directory_="bin_Dir" Attributes="256" KeyPath="libssl3x64.dll"/>
     <ROW Component="libwinpthread1.dll" ComponentId="{BA3F1DB7-D710-4682-A6EE-EE54298443DE}" Directory_="bin_Dir" Attributes="256" KeyPath="libwinpthread1.dll"/>
     <ROW Component="load_balance.exe" ComponentId="{FACE3EC2-D3A7-45B5-BEDD-1B2291CCBC40}" Directory_="bin_Dir" Attributes="256" KeyPath="load_balance.exe"/>
     <ROW Component="logfile_test.exe" ComponentId="{6FB21073-13D4-49A8-AA2E-91A057791B15}" Directory_="bin_1_Dir" Attributes="256"/>
     <ROW Component="mycert.pem" ComponentId="{86CDFC55-6ABA-4B35-B15E-3373A0F46DD8}" Directory_="test_ssl_keys_Dir" Attributes="0" KeyPath="mycert.pem" Type="0"/>
-    <ROW Component="mysql_clear_password.dll" ComponentId="{A335B4E8-C3E0-404D-8CEB-78DAB9CF2C34}" Directory_="bin_Dir" Attributes="256" KeyPath="mysql_clear_password.dll"/>
     <ROW Component="odbc_test.exe" ComponentId="{8DC5D433-1CE5-4EE1-9C06-0469625F5D01}" Directory_="bin_1_Dir" Attributes="256"/>
     <ROW Component="odbc_test.exe_1" ComponentId="{37507BEF-CF2F-4FBD-AAA3-40AA242E29AB}" Directory_="bin_2_Dir" Attributes="256" KeyPath="odbc_test.exe"/>
     <ROW Component="pcre28.dll" ComponentId="{0534F2B4-241C-429D-9AEE-DC7E30760377}" Directory_="bin_Dir" Attributes="256" KeyPath="pcre28.dll"/>
     <ROW Component="regexp.exe" ComponentId="{342D01C0-1D97-4DC0-8E7B-94BB1202969D}" Directory_="bin_1_Dir" Attributes="256"/>
     <ROW Component="registry.exe" ComponentId="{10C38119-09DE-4AC7-8E79-2B49660322F5}" Directory_="bin_1_Dir" Attributes="256"/>
     <ROW Component="semaphore.exe" ComponentId="{14C1121C-D1D5-4888-943E-D17D6B9311B1}" Directory_="bin_1_Dir" Attributes="256"/>
-    <ROW Component="semaphore.exe_1" ComponentId="{06549CC5-DD62-4560-88EA-05B31240AAB4}" Directory_="bin_2_Dir" Attributes="256" KeyPath="semaphore.exe"/>
-    <ROW Component="sha256_password.dll" ComponentId="{18CDE190-FB22-4FD9-AF4D-C53630BD1288}" Directory_="bin_Dir" Attributes="256" KeyPath="sha256_password.dll"/>
+    <ROW Component="shaped_window.exe" ComponentId="{DE0440DC-85DC-4CF9-B8C8-E3A51304BEFA}" Directory_="bin_2_Dir" Attributes="256" KeyPath="shaped_window.exe"/>
     <ROW Component="spdb5.dll" ComponentId="{907939F9-9854-46F4-BEC8-DE175AE2EAE0}" Directory_="bin_Dir" Attributes="256" KeyPath="spdb5.dll"/>
     <ROW Component="spdb5.lib" ComponentId="{ED139A01-2A93-433C-BA2B-757652752978}" Directory_="lib_Dir" Attributes="0" KeyPath="spdb5.lib" Type="0"/>
     <ROW Component="spdb5_mysql.dll" ComponentId="{05E418A3-C119-472D-91C1-BE41986985CE}" Directory_="bin_Dir" Attributes="256" KeyPath="spdb5_mysql.dll"/>
@@ -141,6 +137,9 @@
     <ROW Component="spdb5_postgresql.dll" ComponentId="{E09FF020-058D-4604-B27A-1A613F87F549}" Directory_="bin_Dir" Attributes="256"/>
     <ROW Component="spdb5_postgresql.dll_1" ComponentId="{05D34209-1255-4A74-BFA1-5E4269CBAF54}" Directory_="bin_Dir" Attributes="256" KeyPath="spdb5_postgresql.dll"/>
     <ROW Component="spdb5_sqlite3.dll" ComponentId="{F361DE13-CAEE-4C69-B74C-8BBAD65E06D7}" Directory_="bin_Dir" Attributes="256" KeyPath="spdb5_sqlite3.dll"/>
+    <ROW Component="spinst.exe" ComponentId="{FC4E808F-A725-4058-8C95-392DBCF1A52E}" Directory_="bin_Dir" Attributes="256" KeyPath="spinst.exe"/>
+    <ROW Component="splitter.exe" ComponentId="{7563B1AC-2625-4A82-AF83-DE14EC392412}" Directory_="bin_2_Dir" Attributes="256" KeyPath="splitter.exe"/>
+    <ROW Component="sptk5.dll" ComponentId="{FDBE6876-89DA-44BF-B3FE-20954BBEF369}" Directory_="bin_Dir" Attributes="256" KeyPath="sptk5.dll"/>
     <ROW Component="sptk_unit_tests.exe" ComponentId="{759F20C9-FD14-4027-BE76-2E3509119097}" Directory_="bin_Dir" Attributes="256" KeyPath="sptk_unit_tests.exe"/>
     <ROW Component="sputil5.dll" ComponentId="{F232D68B-5F25-48B1-8A18-EEC2A0541321}" Directory_="bin_Dir" Attributes="256" KeyPath="sputil5.dll"/>
     <ROW Component="spwsdl5.dll" ComponentId="{055BFE3A-8EF7-47A3-878C-E3D3AF583737}" Directory_="bin_Dir" Attributes="256" KeyPath="spwsdl5.dll"/>
@@ -148,15 +147,15 @@
     <ROW Component="string2md5.exe" ComponentId="{13A53927-35A3-4F3D-9A4D-CCF4F76265CE}" Directory_="bin_1_Dir" Attributes="256"/>
     <ROW Component="syslog_test.exe" ComponentId="{5211CE9A-3A3A-4010-A526-7E723277A2D3}" Directory_="bin_1_Dir" Attributes="256"/>
     <ROW Component="syslog_test.exe_1" ComponentId="{E9BE471F-AD1D-4559-A60B-9234508154AC}" Directory_="bin_1_Dir" Attributes="256" KeyPath="syslog_test.exe"/>
+    <ROW Component="tabs_test.exe" ComponentId="{2905C79D-DB5A-4C12-91A0-AD135A08A0AD}" Directory_="bin_2_Dir" Attributes="256" KeyPath="tabs_test.exe"/>
+    <ROW Component="themes_test.exe" ComponentId="{DE160E4C-E3E0-4C06-A9ED-305FD9F040D1}" Directory_="bin_2_Dir" Attributes="256" KeyPath="themes_test.exe"/>
     <ROW Component="thread_pool_test.exe" ComponentId="{C04E83D1-6E90-454D-A1E3-F8D65D5513F3}" Directory_="bin_1_Dir" Attributes="256"/>
-    <ROW Component="thread_pool_test.exe_1" ComponentId="{5DCBB295-D281-4C39-A7ED-248BF311EDA2}" Directory_="bin_2_Dir" Attributes="256" KeyPath="thread_pool_test.exe"/>
     <ROW Component="thread_rwlock.exe" ComponentId="{F95E756D-2838-4B46-AF09-4678F4DA03AF}" Directory_="bin_1_Dir" Attributes="256"/>
     <ROW Component="thread_test.exe" ComponentId="{A4A15F30-12D1-4D0B-8416-03E867DAA87A}" Directory_="bin_1_Dir" Attributes="256"/>
-    <ROW Component="thread_test.exe_1" ComponentId="{07B3F1BA-8048-4B91-8269-BC48E130D0C9}" Directory_="bin_2_Dir" Attributes="256" KeyPath="thread_test.exe"/>
+    <ROW Component="tree_view.exe" ComponentId="{EF1EA7FC-9A22-49D9-9289-AED11676185D}" Directory_="bin_2_Dir" Attributes="256" KeyPath="tree_view.exe"/>
     <ROW Component="unique_instance.exe" ComponentId="{C6800A98-68DD-4F08-A0C3-79DE3197102A}" Directory_="bin_1_Dir" Attributes="256"/>
     <ROW Component="wsdl2cxx.exe" ComponentId="{CC00EA0B-F64D-40ED-9D7D-528AFC8E2E6E}" Directory_="bin_Dir" Attributes="256"/>
     <ROW Component="wsdl2cxx.exe_1" ComponentId="{EDF0F799-1035-46A8-9415-DE73A72E419B}" Directory_="bin_Dir" Attributes="256" KeyPath="wsdl2cxx.exe"/>
-    <ROW Component="xml2json.exe" ComponentId="{8091E991-56CE-4D55-8866-F35BC8746E0B}" Directory_="bin_Dir" Attributes="256" KeyPath="xml2json.exe"/>
     <ROW Component="zlib.dll" ComponentId="{A7EE9ACC-ED59-457E-AB5C-638BA5E46864}" Directory_="bin_Dir" Attributes="256" KeyPath="zlib.dll"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiFeatsComponent">
@@ -222,72 +221,72 @@
     <ROW File="FieldList.h" Component_="ArchiveFile.h" FileName="FIELDL~1.H|FieldList.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\sptk5\FieldList.h" SelfReg="false"/>
     <ROW File="filedefs.h" Component_="ArchiveFile.h" FileName="filedefs.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\sptk5\filedefs.h" SelfReg="false"/>
     <ROW File="FileLogEngine.h" Component_="ArchiveFile.h" FileName="FILELO~1.H|FileLogEngine.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\sptk5\FileLogEngine.h" SelfReg="false"/>
-    <ROW File="CBox.h" Component_="CBox.h" FileName="CBox.h" Attributes="0" SourcePath="code\sptk5\gui\CBox.h" SelfReg="false"/>
-    <ROW File="CButton.h" Component_="CBox.h" FileName="CButton.h" Attributes="0" SourcePath="code\sptk5\gui\CButton.h" SelfReg="false"/>
-    <ROW File="CButtonGroup.h" Component_="CBox.h" FileName="CBUTTO~1.H|CButtonGroup.h" Attributes="0" SourcePath="code\sptk5\gui\CButtonGroup.h" SelfReg="false"/>
-    <ROW File="CCalendar.h" Component_="CBox.h" FileName="CCALEN~1.H|CCalendar.h" Attributes="0" SourcePath="code\sptk5\gui\CCalendar.h" SelfReg="false"/>
-    <ROW File="CCheckButtons.h" Component_="CBox.h" FileName="CCHECK~1.H|CCheckButtons.h" Attributes="0" SourcePath="code\sptk5\gui\CCheckButtons.h" SelfReg="false"/>
-    <ROW File="CColorSchema.h" Component_="CBox.h" FileName="CCOLOR~1.H|CColorSchema.h" Attributes="0" SourcePath="code\sptk5\gui\CColorSchema.h" SelfReg="false"/>
-    <ROW File="CColumn.h" Component_="CBox.h" FileName="CColumn.h" Attributes="0" SourcePath="code\sptk5\gui\CColumn.h" SelfReg="false"/>
-    <ROW File="CComboBox.h" Component_="CBox.h" FileName="CCOMBO~1.H|CComboBox.h" Attributes="0" SourcePath="code\sptk5\gui\CComboBox.h" SelfReg="false"/>
-    <ROW File="CControl.h" Component_="CBox.h" FileName="CControl.h" Attributes="0" SourcePath="code\sptk5\gui\CControl.h" SelfReg="false"/>
-    <ROW File="CControlList.h" Component_="CBox.h" FileName="CCONTR~1.H|CControlList.h" Attributes="0" SourcePath="code\sptk5\gui\CControlList.h" SelfReg="false"/>
-    <ROW File="CDataControl.h" Component_="CBox.h" FileName="CDATAC~1.H|CDataControl.h" Attributes="0" SourcePath="code\sptk5\gui\CDataControl.h" SelfReg="false"/>
-    <ROW File="CDateControl.h" Component_="CBox.h" FileName="CDATEC~1.H|CDateControl.h" Attributes="0" SourcePath="code\sptk5\gui\CDateControl.h" SelfReg="false"/>
-    <ROW File="CDateIntervalInput.h" Component_="CBox.h" FileName="CDATEI~1.H|CDateIntervalInput.h" Attributes="0" SourcePath="code\sptk5\gui\CDateIntervalInput.h" SelfReg="false"/>
-    <ROW File="CDateTimeInput.h" Component_="CBox.h" FileName="CDATET~1.H|CDateTimeInput.h" Attributes="0" SourcePath="code\sptk5\gui\CDateTimeInput.h" SelfReg="false"/>
-    <ROW File="CDBListView.h" Component_="CBox.h" FileName="CDBLIS~1.H|CDBListView.h" Attributes="0" SourcePath="code\sptk5\gui\CDBListView.h" SelfReg="false"/>
-    <ROW File="CDialog.h" Component_="CBox.h" FileName="CDialog.h" Attributes="0" SourcePath="code\sptk5\gui\CDialog.h" SelfReg="false"/>
-    <ROW File="CDirOpenDialog.h" Component_="CBox.h" FileName="CDIROP~1.H|CDirOpenDialog.h" Attributes="0" SourcePath="code\sptk5\gui\CDirOpenDialog.h" SelfReg="false"/>
-    <ROW File="CDropDownBox.h" Component_="CBox.h" FileName="CDROPD~1.H|CDropDownBox.h" Attributes="0" SourcePath="code\sptk5\gui\CDropDownBox.h" SelfReg="false"/>
-    <ROW File="CEditor.h" Component_="CBox.h" FileName="CEditor.h" Attributes="0" SourcePath="code\sptk5\gui\CEditor.h" SelfReg="false"/>
-    <ROW File="CEditorSpellChecker.h" Component_="CBox.h" FileName="CEDITO~1.H|CEditorSpellChecker.h" Attributes="0" SourcePath="code\sptk5\gui\CEditorSpellChecker.h" SelfReg="false"/>
-    <ROW File="CEvent.h" Component_="CBox.h" FileName="CEvent.h" Attributes="0" SourcePath="code\sptk5\gui\CEvent.h" SelfReg="false"/>
-    <ROW File="CFileDialog.h" Component_="CBox.h" FileName="CFILED~1.H|CFileDialog.h" Attributes="0" SourcePath="code\sptk5\gui\CFileDialog.h" SelfReg="false"/>
-    <ROW File="CFileOpenDialog.h" Component_="CBox.h" FileName="CFILEO~1.H|CFileOpenDialog.h" Attributes="0" SourcePath="code\sptk5\gui\CFileOpenDialog.h" SelfReg="false"/>
-    <ROW File="CFileSaveDialog.h" Component_="CBox.h" FileName="CFILES~1.H|CFileSaveDialog.h" Attributes="0" SourcePath="code\sptk5\gui\CFileSaveDialog.h" SelfReg="false"/>
-    <ROW File="CFloatInput.h" Component_="CBox.h" FileName="CFLOAT~1.H|CFloatInput.h" Attributes="0" SourcePath="code\sptk5\gui\CFloatInput.h" SelfReg="false"/>
-    <ROW File="CFont.h" Component_="CBox.h" FileName="CFont.h" Attributes="0" SourcePath="code\sptk5\gui\CFont.h" SelfReg="false"/>
-    <ROW File="CFontComboBox.h" Component_="CBox.h" FileName="CFONTC~1.H|CFontComboBox.h" Attributes="0" SourcePath="code\sptk5\gui\CFontComboBox.h" SelfReg="false"/>
-    <ROW File="CFrame.h" Component_="CBox.h" FileName="CFrame.h" Attributes="0" SourcePath="code\sptk5\gui\CFrame.h" SelfReg="false"/>
-    <ROW File="CGroup.h" Component_="CBox.h" FileName="CGroup.h" Attributes="0" SourcePath="code\sptk5\gui\CGroup.h" SelfReg="false"/>
-    <ROW File="CHtmlBox.h" Component_="CBox.h" FileName="CHtmlBox.h" Attributes="0" SourcePath="code\sptk5\gui\CHtmlBox.h" SelfReg="false"/>
-    <ROW File="CIcon.h" Component_="CBox.h" FileName="CIcon.h" Attributes="0" SourcePath="code\sptk5\gui\CIcon.h" SelfReg="false"/>
-    <ROW File="CInput.h" Component_="CBox.h" FileName="CInput.h" Attributes="0" SourcePath="code\sptk5\gui\CInput.h" SelfReg="false"/>
-    <ROW File="CIntegerInput.h" Component_="CBox.h" FileName="CINTEG~1.H|CIntegerInput.h" Attributes="0" SourcePath="code\sptk5\gui\CIntegerInput.h" SelfReg="false"/>
-    <ROW File="CLayoutClient.h" Component_="CBox.h" FileName="CLAYOU~1.H|CLayoutClient.h" Attributes="0" SourcePath="code\sptk5\gui\CLayoutClient.h" SelfReg="false"/>
-    <ROW File="CLayoutManager.h" Component_="CBox.h" FileName="CLAYOU~2.H|CLayoutManager.h" Attributes="0" SourcePath="code\sptk5\gui\CLayoutManager.h" SelfReg="false"/>
-    <ROW File="CListView.h" Component_="CBox.h" FileName="CLISTV~1.H|CListView.h" Attributes="0" SourcePath="code\sptk5\gui\CListView.h" SelfReg="false"/>
-    <ROW File="CListViewRows.h" Component_="CBox.h" FileName="CLISTV~2.H|CListViewRows.h" Attributes="0" SourcePath="code\sptk5\gui\CListViewRows.h" SelfReg="false"/>
-    <ROW File="CListViewSelection.h" Component_="CBox.h" FileName="CLISTV~3.H|CListViewSelection.h" Attributes="0" SourcePath="code\sptk5\gui\CListViewSelection.h" SelfReg="false"/>
-    <ROW File="CMemoInput.h" Component_="CBox.h" FileName="CMEMOI~1.H|CMemoInput.h" Attributes="0" SourcePath="code\sptk5\gui\CMemoInput.h" SelfReg="false"/>
-    <ROW File="CMenuBar.h" Component_="CBox.h" FileName="CMenuBar.h" Attributes="0" SourcePath="code\sptk5\gui\CMenuBar.h" SelfReg="false"/>
-    <ROW File="CMessageDialog.h" Component_="CBox.h" FileName="CMESSA~1.H|CMessageDialog.h" Attributes="0" SourcePath="code\sptk5\gui\CMessageDialog.h" SelfReg="false"/>
-    <ROW File="CPasswordInput.h" Component_="CBox.h" FileName="CPASSW~1.H|CPasswordInput.h" Attributes="0" SourcePath="code\sptk5\gui\CPasswordInput.h" SelfReg="false"/>
-    <ROW File="CPhoneNumberInput.h" Component_="CBox.h" FileName="CPHONE~1.H|CPhoneNumberInput.h" Attributes="0" SourcePath="code\sptk5\gui\CPhoneNumberInput.h" SelfReg="false"/>
-    <ROW File="CPngImage.h" Component_="CBox.h" FileName="CPNGIM~1.H|CPngImage.h" Attributes="0" SourcePath="code\sptk5\gui\CPngImage.h" SelfReg="false"/>
-    <ROW File="CPopupWindow.h" Component_="CBox.h" FileName="CPOPUP~1.H|CPopupWindow.h" Attributes="0" SourcePath="code\sptk5\gui\CPopupWindow.h" SelfReg="false"/>
-    <ROW File="CProgressBar.h" Component_="CBox.h" FileName="CPROGR~1.H|CProgressBar.h" Attributes="0" SourcePath="code\sptk5\gui\CProgressBar.h" SelfReg="false"/>
-    <ROW File="CRadioButtons.h" Component_="CBox.h" FileName="CRADIO~1.H|CRadioButtons.h" Attributes="0" SourcePath="code\sptk5\gui\CRadioButtons.h" SelfReg="false"/>
-    <ROW File="CRect.h" Component_="CBox.h" FileName="CRect.h" Attributes="0" SourcePath="code\sptk5\gui\CRect.h" SelfReg="false"/>
-    <ROW File="CScroll.h" Component_="CBox.h" FileName="CScroll.h" Attributes="0" SourcePath="code\sptk5\gui\CScroll.h" SelfReg="false"/>
-    <ROW File="CScrollBar.h" Component_="CBox.h" FileName="CSCROL~1.H|CScrollBar.h" Attributes="0" SourcePath="code\sptk5\gui\CScrollBar.h" SelfReg="false"/>
-    <ROW File="CShapePoint.h" Component_="CBox.h" FileName="CSHAPE~1.H|CShapePoint.h" Attributes="0" SourcePath="code\sptk5\gui\CShapePoint.h" SelfReg="false"/>
-    <ROW File="CSplitter.h" Component_="CBox.h" FileName="CSPLIT~1.H|CSplitter.h" Attributes="0" SourcePath="code\sptk5\gui\CSplitter.h" SelfReg="false"/>
-    <ROW File="CTabImage.h" Component_="CBox.h" FileName="CTABIM~1.H|CTabImage.h" Attributes="0" SourcePath="code\sptk5\gui\CTabImage.h" SelfReg="false"/>
-    <ROW File="CTabs.h" Component_="CBox.h" FileName="CTabs.h" Attributes="0" SourcePath="code\sptk5\gui\CTabs.h" SelfReg="false"/>
-    <ROW File="CThemeColorCollection.h" Component_="CBox.h" FileName="CTHEME~1.H|CThemeColorCollection.h" Attributes="0" SourcePath="code\sptk5\gui\CThemeColorCollection.h" SelfReg="false"/>
-    <ROW File="CThemeImageCollection.h" Component_="CBox.h" FileName="CTHEME~2.H|CThemeImageCollection.h" Attributes="0" SourcePath="code\sptk5\gui\CThemeImageCollection.h" SelfReg="false"/>
-    <ROW File="CThemeImageState.h" Component_="CBox.h" FileName="CTHEME~3.H|CThemeImageState.h" Attributes="0" SourcePath="code\sptk5\gui\CThemeImageState.h" SelfReg="false"/>
-    <ROW File="CThemes.h" Component_="CBox.h" FileName="CThemes.h" Attributes="0" SourcePath="code\sptk5\gui\CThemes.h" SelfReg="false"/>
-    <ROW File="CThemeScrollBar.h" Component_="CBox.h" FileName="CTHEME~4.H|CThemeScrollBar.h" Attributes="0" SourcePath="code\sptk5\gui\CThemeScrollBar.h" SelfReg="false"/>
-    <ROW File="CToolBar.h" Component_="CBox.h" FileName="CToolBar.h" Attributes="0" SourcePath="code\sptk5\gui\CToolBar.h" SelfReg="false"/>
-    <ROW File="CTreeControl.h" Component_="CBox.h" FileName="CTREEC~1.H|CTreeControl.h" Attributes="0" SourcePath="code\sptk5\gui\CTreeControl.h" SelfReg="false"/>
-    <ROW File="CTreeView.h" Component_="CBox.h" FileName="CTREEV~1.H|CTreeView.h" Attributes="0" SourcePath="code\sptk5\gui\CTreeView.h" SelfReg="false"/>
-    <ROW File="CWindow.h" Component_="CBox.h" FileName="CWindow.h" Attributes="0" SourcePath="code\sptk5\gui\CWindow.h" SelfReg="false"/>
-    <ROW File="CWindowShape.h" Component_="CBox.h" FileName="CWINDO~1.H|CWindowShape.h" Attributes="0" SourcePath="code\sptk5\gui\CWindowShape.h" SelfReg="false"/>
-    <ROW File="default_icons.h" Component_="CBox.h" FileName="DEFAUL~1.H|default_icons.h" Attributes="0" SourcePath="code\sptk5\gui\default_icons.h" SelfReg="false"/>
-    <ROW File="sptk_fltk_version.h" Component_="CBox.h" FileName="SPTK_F~1.H|sptk_fltk_version.h" Attributes="0" SourcePath="code\sptk5\gui\sptk_fltk_version.h" SelfReg="false"/>
+    <ROW File="CBox.h" Component_="CBox.h" FileName="CBox.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\sptk5\gui\CBox.h" SelfReg="false"/>
+    <ROW File="CButton.h" Component_="CBox.h" FileName="CButton.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\sptk5\gui\CButton.h" SelfReg="false"/>
+    <ROW File="CButtonGroup.h" Component_="CBox.h" FileName="CBUTTO~1.H|CButtonGroup.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\sptk5\gui\CButtonGroup.h" SelfReg="false"/>
+    <ROW File="CCalendar.h" Component_="CBox.h" FileName="CCALEN~1.H|CCalendar.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\sptk5\gui\CCalendar.h" SelfReg="false"/>
+    <ROW File="CCheckButtons.h" Component_="CBox.h" FileName="CCHECK~1.H|CCheckButtons.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\sptk5\gui\CCheckButtons.h" SelfReg="false"/>
+    <ROW File="CColorSchema.h" Component_="CBox.h" FileName="CCOLOR~1.H|CColorSchema.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\sptk5\gui\CColorSchema.h" SelfReg="false"/>
+    <ROW File="CColumn.h" Component_="CBox.h" FileName="CColumn.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\sptk5\gui\CColumn.h" SelfReg="false"/>
+    <ROW File="CComboBox.h" Component_="CBox.h" FileName="CCOMBO~1.H|CComboBox.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\sptk5\gui\CComboBox.h" SelfReg="false"/>
+    <ROW File="CControl.h" Component_="CBox.h" FileName="CControl.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\sptk5\gui\CControl.h" SelfReg="false"/>
+    <ROW File="CControlList.h" Component_="CBox.h" FileName="CCONTR~1.H|CControlList.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\sptk5\gui\CControlList.h" SelfReg="false"/>
+    <ROW File="CDataControl.h" Component_="CBox.h" FileName="CDATAC~1.H|CDataControl.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\sptk5\gui\CDataControl.h" SelfReg="false"/>
+    <ROW File="CDateControl.h" Component_="CBox.h" FileName="CDATEC~1.H|CDateControl.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\sptk5\gui\CDateControl.h" SelfReg="false"/>
+    <ROW File="CDateIntervalInput.h" Component_="CBox.h" FileName="CDATEI~1.H|CDateIntervalInput.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\sptk5\gui\CDateIntervalInput.h" SelfReg="false"/>
+    <ROW File="CDateTimeInput.h" Component_="CBox.h" FileName="CDATET~1.H|CDateTimeInput.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\sptk5\gui\CDateTimeInput.h" SelfReg="false"/>
+    <ROW File="CDBListView.h" Component_="CBox.h" FileName="CDBLIS~1.H|CDBListView.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\sptk5\gui\CDBListView.h" SelfReg="false"/>
+    <ROW File="CDialog.h" Component_="CBox.h" FileName="CDialog.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\sptk5\gui\CDialog.h" SelfReg="false"/>
+    <ROW File="CDirOpenDialog.h" Component_="CBox.h" FileName="CDIROP~1.H|CDirOpenDialog.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\sptk5\gui\CDirOpenDialog.h" SelfReg="false"/>
+    <ROW File="CDropDownBox.h" Component_="CBox.h" FileName="CDROPD~1.H|CDropDownBox.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\sptk5\gui\CDropDownBox.h" SelfReg="false"/>
+    <ROW File="CEditor.h" Component_="CBox.h" FileName="CEditor.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\sptk5\gui\CEditor.h" SelfReg="false"/>
+    <ROW File="CEditorSpellChecker.h" Component_="CBox.h" FileName="CEDITO~1.H|CEditorSpellChecker.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\sptk5\gui\CEditorSpellChecker.h" SelfReg="false"/>
+    <ROW File="CEvent.h" Component_="CBox.h" FileName="CEvent.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\sptk5\gui\CEvent.h" SelfReg="false"/>
+    <ROW File="CFileDialog.h" Component_="CBox.h" FileName="CFILED~1.H|CFileDialog.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\sptk5\gui\CFileDialog.h" SelfReg="false"/>
+    <ROW File="CFileOpenDialog.h" Component_="CBox.h" FileName="CFILEO~1.H|CFileOpenDialog.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\sptk5\gui\CFileOpenDialog.h" SelfReg="false"/>
+    <ROW File="CFileSaveDialog.h" Component_="CBox.h" FileName="CFILES~1.H|CFileSaveDialog.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\sptk5\gui\CFileSaveDialog.h" SelfReg="false"/>
+    <ROW File="CFloatInput.h" Component_="CBox.h" FileName="CFLOAT~1.H|CFloatInput.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\sptk5\gui\CFloatInput.h" SelfReg="false"/>
+    <ROW File="CFont.h" Component_="CBox.h" FileName="CFont.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\sptk5\gui\CFont.h" SelfReg="false"/>
+    <ROW File="CFontComboBox.h" Component_="CBox.h" FileName="CFONTC~1.H|CFontComboBox.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\sptk5\gui\CFontComboBox.h" SelfReg="false"/>
+    <ROW File="CFrame.h" Component_="CBox.h" FileName="CFrame.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\sptk5\gui\CFrame.h" SelfReg="false"/>
+    <ROW File="CGroup.h" Component_="CBox.h" FileName="CGroup.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\sptk5\gui\CGroup.h" SelfReg="false"/>
+    <ROW File="CHtmlBox.h" Component_="CBox.h" FileName="CHtmlBox.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\sptk5\gui\CHtmlBox.h" SelfReg="false"/>
+    <ROW File="CIcon.h" Component_="CBox.h" FileName="CIcon.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\sptk5\gui\CIcon.h" SelfReg="false"/>
+    <ROW File="CInput.h" Component_="CBox.h" FileName="CInput.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\sptk5\gui\CInput.h" SelfReg="false"/>
+    <ROW File="CIntegerInput.h" Component_="CBox.h" FileName="CINTEG~1.H|CIntegerInput.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\sptk5\gui\CIntegerInput.h" SelfReg="false"/>
+    <ROW File="CLayoutClient.h" Component_="CBox.h" FileName="CLAYOU~1.H|CLayoutClient.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\sptk5\gui\CLayoutClient.h" SelfReg="false"/>
+    <ROW File="CLayoutManager.h" Component_="CBox.h" FileName="CLAYOU~2.H|CLayoutManager.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\sptk5\gui\CLayoutManager.h" SelfReg="false"/>
+    <ROW File="CListView.h" Component_="CBox.h" FileName="CLISTV~1.H|CListView.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\sptk5\gui\CListView.h" SelfReg="false"/>
+    <ROW File="CListViewRows.h" Component_="CBox.h" FileName="CLISTV~2.H|CListViewRows.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\sptk5\gui\CListViewRows.h" SelfReg="false"/>
+    <ROW File="CListViewSelection.h" Component_="CBox.h" FileName="CLISTV~3.H|CListViewSelection.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\sptk5\gui\CListViewSelection.h" SelfReg="false"/>
+    <ROW File="CMemoInput.h" Component_="CBox.h" FileName="CMEMOI~1.H|CMemoInput.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\sptk5\gui\CMemoInput.h" SelfReg="false"/>
+    <ROW File="CMenuBar.h" Component_="CBox.h" FileName="CMenuBar.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\sptk5\gui\CMenuBar.h" SelfReg="false"/>
+    <ROW File="CMessageDialog.h" Component_="CBox.h" FileName="CMESSA~1.H|CMessageDialog.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\sptk5\gui\CMessageDialog.h" SelfReg="false"/>
+    <ROW File="CPasswordInput.h" Component_="CBox.h" FileName="CPASSW~1.H|CPasswordInput.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\sptk5\gui\CPasswordInput.h" SelfReg="false"/>
+    <ROW File="CPhoneNumberInput.h" Component_="CBox.h" FileName="CPHONE~1.H|CPhoneNumberInput.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\sptk5\gui\CPhoneNumberInput.h" SelfReg="false"/>
+    <ROW File="CPngImage.h" Component_="CBox.h" FileName="CPNGIM~1.H|CPngImage.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\sptk5\gui\CPngImage.h" SelfReg="false"/>
+    <ROW File="CPopupWindow.h" Component_="CBox.h" FileName="CPOPUP~1.H|CPopupWindow.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\sptk5\gui\CPopupWindow.h" SelfReg="false"/>
+    <ROW File="CProgressBar.h" Component_="CBox.h" FileName="CPROGR~1.H|CProgressBar.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\sptk5\gui\CProgressBar.h" SelfReg="false"/>
+    <ROW File="CRadioButtons.h" Component_="CBox.h" FileName="CRADIO~1.H|CRadioButtons.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\sptk5\gui\CRadioButtons.h" SelfReg="false"/>
+    <ROW File="CRect.h" Component_="CBox.h" FileName="CRect.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\sptk5\gui\CRect.h" SelfReg="false"/>
+    <ROW File="CScroll.h" Component_="CBox.h" FileName="CScroll.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\sptk5\gui\CScroll.h" SelfReg="false"/>
+    <ROW File="CScrollBar.h" Component_="CBox.h" FileName="CSCROL~1.H|CScrollBar.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\sptk5\gui\CScrollBar.h" SelfReg="false"/>
+    <ROW File="CShapePoint.h" Component_="CBox.h" FileName="CSHAPE~1.H|CShapePoint.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\sptk5\gui\CShapePoint.h" SelfReg="false"/>
+    <ROW File="CSplitter.h" Component_="CBox.h" FileName="CSPLIT~1.H|CSplitter.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\sptk5\gui\CSplitter.h" SelfReg="false"/>
+    <ROW File="CTabImage.h" Component_="CBox.h" FileName="CTABIM~1.H|CTabImage.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\sptk5\gui\CTabImage.h" SelfReg="false"/>
+    <ROW File="CTabs.h" Component_="CBox.h" FileName="CTabs.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\sptk5\gui\CTabs.h" SelfReg="false"/>
+    <ROW File="CThemeColorCollection.h" Component_="CBox.h" FileName="CTHEME~1.H|CThemeColorCollection.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\sptk5\gui\CThemeColorCollection.h" SelfReg="false"/>
+    <ROW File="CThemeImageCollection.h" Component_="CBox.h" FileName="CTHEME~2.H|CThemeImageCollection.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\sptk5\gui\CThemeImageCollection.h" SelfReg="false"/>
+    <ROW File="CThemeImageState.h" Component_="CBox.h" FileName="CTHEME~3.H|CThemeImageState.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\sptk5\gui\CThemeImageState.h" SelfReg="false"/>
+    <ROW File="CThemes.h" Component_="CBox.h" FileName="CThemes.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\sptk5\gui\CThemes.h" SelfReg="false"/>
+    <ROW File="CThemeScrollBar.h" Component_="CBox.h" FileName="CTHEME~4.H|CThemeScrollBar.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\sptk5\gui\CThemeScrollBar.h" SelfReg="false"/>
+    <ROW File="CToolBar.h" Component_="CBox.h" FileName="CToolBar.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\sptk5\gui\CToolBar.h" SelfReg="false"/>
+    <ROW File="CTreeControl.h" Component_="CBox.h" FileName="CTREEC~1.H|CTreeControl.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\sptk5\gui\CTreeControl.h" SelfReg="false"/>
+    <ROW File="CTreeView.h" Component_="CBox.h" FileName="CTREEV~1.H|CTreeView.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\sptk5\gui\CTreeView.h" SelfReg="false"/>
+    <ROW File="CWindow.h" Component_="CBox.h" FileName="CWindow.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\sptk5\gui\CWindow.h" SelfReg="false"/>
+    <ROW File="CWindowShape.h" Component_="CBox.h" FileName="CWINDO~1.H|CWindowShape.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\sptk5\gui\CWindowShape.h" SelfReg="false"/>
+    <ROW File="default_icons.h" Component_="CBox.h" FileName="DEFAUL~1.H|default_icons.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\sptk5\gui\default_icons.h" SelfReg="false"/>
+    <ROW File="sptk_fltk_version.h" Component_="CBox.h" FileName="SPTK_F~1.H|sptk_fltk_version.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\sptk5\gui\sptk_fltk_version.h" SelfReg="false"/>
     <ROW File="HomeDirectory.h" Component_="ArchiveFile.h" FileName="HOMEDI~1.H|HomeDirectory.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\sptk5\HomeDirectory.h" SelfReg="false"/>
     <ROW File="JWT.h" Component_="ArchiveFile.h" FileName="JWT.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\sptk5\JWT.h" SelfReg="false"/>
     <ROW File="LogEngine.h" Component_="ArchiveFile.h" FileName="LOGENG~1.H|LogEngine.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\sptk5\LogEngine.h" SelfReg="false"/>
@@ -332,8 +331,6 @@
     <ROW File="Printer.h" Component_="ArchiveFile.h" FileName="Printer.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\sptk5\Printer.h" SelfReg="false"/>
     <ROW File="ReadBuffer.h" Component_="ArchiveFile.h" FileName="READBU~1.H|ReadBuffer.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\sptk5\ReadBuffer.h" SelfReg="false"/>
     <ROW File="RegularExpression.h" Component_="ArchiveFile.h" FileName="REGULA~1.H|RegularExpression.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\sptk5\RegularExpression.h" SelfReg="false"/>
-    <ROW File="sptkconfig.h.cmake" Component_="ArchiveFile.h" FileName="SPTK-C~1.CMA|sptk-config.h.cmake" Attributes="0" SourcePath="code\sptk5\sptk-config.h.cmake" SelfReg="false"/>
-    <ROW File="sptkconfig.h.win" Component_="ArchiveFile.h" FileName="SPTK-C~1.WIN|sptk-config.h.win" Attributes="0" SourcePath="code\sptk5\sptk-config.h.win" SelfReg="false"/>
     <ROW File="sptk.h" Component_="ArchiveFile.h" FileName="sptk.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\sptk5\sptk.h" SelfReg="false"/>
     <ROW File="StopWatch.h" Component_="ArchiveFile.h" FileName="STOPWA~1.H|StopWatch.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\sptk5\Stopwatch.h" SelfReg="false"/>
     <ROW File="String.h" Component_="ArchiveFile.h" FileName="String.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\sptk5\String.h" SelfReg="false"/>
@@ -414,25 +411,17 @@
     <ROW File="sputil5.dll" Component_="sputil5.dll" FileName="sputil5.dll" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\bin\sputil5.dll" SelfReg="false"/>
     <ROW File="spwsdl5.dll" Component_="spwsdl5.dll" FileName="spwsdl5.dll" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\bin\spwsdl5.dll" SelfReg="false"/>
     <ROW File="wsdl2cxx.exe" Component_="wsdl2cxx.exe_1" FileName="wsdl2cxx.exe" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\bin\wsdl2cxx.exe" SelfReg="false" DigSign="true"/>
-    <ROW File="xml2json.exe" Component_="xml2json.exe" FileName="xml2json.exe" Attributes="0" SourcePath="code\w64\utilities\Release\xml2json.exe" SelfReg="false" DigSign="true"/>
-    <ROW File="event_provider.h" Component_="event_provider.h" FileName="EVENT_~1.H|event_provider.h" Attributes="0" SourcePath="code\events.w32\event_provider.h" SelfReg="false"/>
-    <ROW File="event_provider.rc" Component_="event_provider.h" FileName="EVENT_~1.RC|event_provider.rc" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\share\sptk5\resources\event_provider.rc" SelfReg="false"/>
-    <ROW File="MSG00409.bin" Component_="event_provider.h" FileName="MSG00409.bin" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\share\sptk5\resources\MSG00409.bin" SelfReg="false"/>
     <ROW File="gtest.dll" Component_="gtest.dll" FileName="gtest.dll" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\bin\gtest.dll" SelfReg="false"/>
     <ROW File="gtest_main.dll" Component_="gtest_main.dll" FileName="GTEST_~1.DLL|gtest_main.dll" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\bin\gtest_main.dll" SelfReg="false"/>
     <ROW File="sptk_unit_tests.exe" Component_="sptk_unit_tests.exe" FileName="SPTK_U~1.EXE|sptk_unit_tests.exe" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\bin\sptk_unit_tests.exe" SelfReg="false" DigSign="true"/>
-    <ROW File="libmariadb.dll" Component_="libmariadb.dll" FileName="LIBMAR~1.DLL|libmariadb.dll" Attributes="0" SourcePath="..\..\Program Files\MariaDB\MariaDB Connector C 64-bit\lib\libmariadb.dll" SelfReg="false"/>
-    <ROW File="caching_sha2_password.dll" Component_="caching_sha2_password.dll" FileName="CACHIN~1.DLL|caching_sha2_password.dll" Attributes="0" SourcePath="..\..\Program Files\MariaDB\MariaDB Connector C 64-bit\lib\plugin\caching_sha2_password.dll" SelfReg="false"/>
-    <ROW File="mysql_clear_password.dll" Component_="mysql_clear_password.dll" FileName="MYSQL_~1.DLL|mysql_clear_password.dll" Attributes="0" SourcePath="..\..\Program Files\MariaDB\MariaDB Connector C 64-bit\lib\plugin\mysql_clear_password.dll" SelfReg="false"/>
-    <ROW File="sha256_password.dll" Component_="sha256_password.dll" FileName="SHA256~1.DLL|sha256_password.dll" Attributes="0" SourcePath="..\..\Program Files\MariaDB\MariaDB Connector C 64-bit\lib\plugin\sha256_password.dll" SelfReg="false"/>
-    <ROW File="libcrypto3x64.dll" Component_="libcrypto3x64.dll" FileName="LIBCRY~1.DLL|libcrypto-3-x64.dll" Attributes="0" SourcePath="..\..\Program Files\OpenSSL-Win64\libcrypto-3-x64.dll" SelfReg="false"/>
-    <ROW File="libssl3x64.dll" Component_="libssl3x64.dll" FileName="LIBSSL~1.DLL|libssl-3-x64.dll" Attributes="0" SourcePath="..\..\Program Files\OpenSSL-Win64\libssl-3-x64.dll" SelfReg="false"/>
-    <ROW File="pcre28.dll" Component_="pcre28.dll" FileName="pcre2-8.dll" Attributes="0" SourcePath="..\..\Program Files\PCRE2\bin\pcre2-8.dll" SelfReg="false"/>
-    <ROW File="libiconv2.dll" Component_="libiconv2.dll" FileName="LIBICO~1.DLL|libiconv-2.dll" Attributes="0" SourcePath="..\..\Program Files\PostgreSQL\18\bin\libiconv-2.dll" SelfReg="false"/>
-    <ROW File="libintl9.dll" Component_="libintl9.dll" FileName="LIBINT~1.DLL|libintl-9.dll" Attributes="0" SourcePath="..\..\Program Files\PostgreSQL\18\bin\libintl-9.dll" SelfReg="false"/>
-    <ROW File="libpq.dll" Component_="libpq.dll" FileName="libpq.dll" Attributes="0" SourcePath="..\..\Program Files\PostgreSQL\18\bin\libpq.dll" SelfReg="false"/>
-    <ROW File="zlib.dll" Component_="zlib.dll" FileName="zlib.dll" Attributes="0" SourcePath="..\..\Program Files\zlib\bin\zlib.dll" SelfReg="false"/>
-    <ROW File="libwinpthread1.dll" Component_="libwinpthread1.dll" FileName="LIBWIN~1.DLL|libwinpthread-1.dll" Attributes="0" SourcePath="..\..\Program Files\PostgreSQL\18\bin\libwinpthread-1.dll" SelfReg="false"/>
+    <ROW File="libcrypto3x64.dll" Component_="libcrypto3x64.dll" FileName="LIBCRY~1.DLL|libcrypto-3-x64.dll" Attributes="0" SourcePath="..\..\..\Program Files\PostgreSQL\18\bin\libcrypto-3-x64.dll" SelfReg="false"/>
+    <ROW File="libssl3x64.dll" Component_="libssl3x64.dll" FileName="LIBSSL~1.DLL|libssl-3-x64.dll" Attributes="0" SourcePath="..\..\..\Program Files\PostgreSQL\18\bin\libssl-3-x64.dll" SelfReg="false"/>
+    <ROW File="pcre28.dll" Component_="pcre28.dll" FileName="pcre2-8.dll" Attributes="0" SourcePath="..\..\..\Program Files\PCRE2\bin\pcre2-8.dll" SelfReg="false"/>
+    <ROW File="libiconv2.dll" Component_="libiconv2.dll" FileName="LIBICO~1.DLL|libiconv-2.dll" Attributes="0" SourcePath="..\..\..\Program Files\PostgreSQL\18\bin\libiconv-2.dll" SelfReg="false"/>
+    <ROW File="libintl9.dll" Component_="libintl9.dll" FileName="LIBINT~1.DLL|libintl-9.dll" Attributes="0" SourcePath="..\..\..\Program Files\PostgreSQL\18\bin\libintl-9.dll" SelfReg="false"/>
+    <ROW File="libpq.dll" Component_="libpq.dll" FileName="libpq.dll" Attributes="0" SourcePath="..\..\..\Program Files\PostgreSQL\18\bin\libpq.dll" SelfReg="false"/>
+    <ROW File="zlib.dll" Component_="zlib.dll" FileName="zlib.dll" Attributes="0" SourcePath="..\..\..\Program Files\zlib\bin\zlib.dll" SelfReg="false"/>
+    <ROW File="libwinpthread1.dll" Component_="libwinpthread1.dll" FileName="LIBWIN~1.DLL|libwinpthread-1.dll" Attributes="0" SourcePath="..\..\..\Program Files\PostgreSQL\18\bin\libwinpthread-1.dll" SelfReg="false"/>
     <ROW File="mycert.pem" Component_="mycert.pem" FileName="mycert.pem" Attributes="0" SourcePath="..\..\..\ProgramData\SPTK\test_ssl_keys\mycert.pem" SelfReg="false"/>
     <ROW File="showcert.sh" Component_="mycert.pem" FileName="showcert.sh" Attributes="0" SourcePath="..\..\..\ProgramData\SPTK\test_ssl_keys\showcert.sh" SelfReg="false"/>
     <ROW File="test.cert" Component_="mycert.pem" FileName="TEST~1.CER|test.cert" Attributes="0" SourcePath="..\..\..\ProgramData\SPTK\test_ssl_keys\test.cert" SelfReg="false"/>
@@ -446,25 +435,7 @@
     <ROW File="ReadWriteMutex.h" Component_="ReadWriteLock.h" FileName="READWR~2.H|ReadWriteMutex.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\sptk5\threads\ReadWriteMutex.h" SelfReg="false"/>
     <ROW File="OrderedMap.h" Component_="OrderedMap.h" FileName="ORDERE~1.H|OrderedMap.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\sptk5\OrderedMap.h" SelfReg="false"/>
     <ROW File="StreamLogEngine.h" Component_="OrderedMap.h" FileName="STREAM~1.H|StreamLogEngine.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\sptk5\StreamLogEngine.h" SelfReg="false"/>
-    <ROW File="gmock.dll" Component_="gmock.dll" FileName="gmock.dll" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\bin\gmock.dll" SelfReg="false"/>
-    <ROW File="gmock_main.dll" Component_="gmock_main.dll" FileName="GMOCK_~1.DLL|gmock_main.dll" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\bin\gmock_main.dll" SelfReg="false"/>
     <ROW File="load_balance.exe" Component_="load_balance.exe" FileName="LOAD_B~1.EXE|load_balance.exe" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\bin\load_balance.exe" SelfReg="false" DigSign="true"/>
-    <ROW File="gmockactions.h" Component_="gmockactions.h" FileName="GMOCK-~1.H|gmock-actions.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\gmock\gmock-actions.h" SelfReg="false"/>
-    <ROW File="gmockcardinalities.h" Component_="gmockactions.h" FileName="GMOCK-~2.H|gmock-cardinalities.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\gmock\gmock-cardinalities.h" SelfReg="false"/>
-    <ROW File="gmockfunctionmocker.h" Component_="gmockactions.h" FileName="GMOCK-~3.H|gmock-function-mocker.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\gmock\gmock-function-mocker.h" SelfReg="false"/>
-    <ROW File="gmockmatchers.h" Component_="gmockactions.h" FileName="GMOCK-~4.H|gmock-matchers.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\gmock\gmock-matchers.h" SelfReg="false"/>
-    <ROW File="gmockmoreactions.h" Component_="gmockactions.h" FileName="GMOCK-~5.H|gmock-more-actions.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\gmock\gmock-more-actions.h" SelfReg="false"/>
-    <ROW File="gmockmorematchers.h" Component_="gmockactions.h" FileName="GMOCK-~6.H|gmock-more-matchers.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\gmock\gmock-more-matchers.h" SelfReg="false"/>
-    <ROW File="gmocknicestrict.h" Component_="gmockactions.h" FileName="GMOCK-~7.H|gmock-nice-strict.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\gmock\gmock-nice-strict.h" SelfReg="false"/>
-    <ROW File="gmockspecbuilders.h" Component_="gmockactions.h" FileName="GMOCK-~8.H|gmock-spec-builders.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\gmock\gmock-spec-builders.h" SelfReg="false"/>
-    <ROW File="gmock.h" Component_="gmockactions.h" FileName="gmock.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\gmock\gmock.h" SelfReg="false"/>
-    <ROW File="gmockgeneratedactions.h" Component_="gmockgeneratedactions.h" FileName="GMOCK-~1.H|gmock-generated-actions.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\gmock\internal\custom\gmock-generated-actions.h" SelfReg="false"/>
-    <ROW File="gmockmatchers.h_1" Component_="gmockgeneratedactions.h" FileName="GMOCK-~2.H|gmock-matchers.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\gmock\internal\custom\gmock-matchers.h" SelfReg="false"/>
-    <ROW File="gmockport.h" Component_="gmockgeneratedactions.h" FileName="GMOCK-~3.H|gmock-port.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\gmock\internal\custom\gmock-port.h" SelfReg="false"/>
-    <ROW File="README.md" Component_="gmockgeneratedactions.h" FileName="README.md" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\gmock\internal\custom\README.md" SelfReg="false"/>
-    <ROW File="gmockinternalutils.h" Component_="gmockinternalutils.h" FileName="GMOCK-~1.H|gmock-internal-utils.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\gmock\internal\gmock-internal-utils.h" SelfReg="false"/>
-    <ROW File="gmockport.h_1" Component_="gmockinternalutils.h" FileName="GMOCK-~2.H|gmock-port.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\gmock\internal\gmock-port.h" SelfReg="false"/>
-    <ROW File="gmockpp.h" Component_="gmockinternalutils.h" FileName="gmock-pp.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\gmock\internal\gmock-pp.h" SelfReg="false"/>
     <ROW File="gtestassertionresult.h" Component_="gtestassertionresult.h" FileName="GTEST-~1.H|gtest-assertion-result.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\gtest\gtest-assertion-result.h" SelfReg="false"/>
     <ROW File="gtestdeathtest.h" Component_="gtestassertionresult.h" FileName="GTEST-~2.H|gtest-death-test.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\gtest\gtest-death-test.h" SelfReg="false"/>
     <ROW File="gtestmatchers.h" Component_="gtestassertionresult.h" FileName="GTEST-~3.H|gtest-matchers.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\gtest\gtest-matchers.h" SelfReg="false"/>
@@ -489,47 +460,60 @@
     <ROW File="gtestport.h_1" Component_="gtestdeathtestinternal.h" FileName="GTEST-~6.H|gtest-port.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\gtest\internal\gtest-port.h" SelfReg="false"/>
     <ROW File="gteststring.h" Component_="gtestdeathtestinternal.h" FileName="GTEST-~7.H|gtest-string.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\gtest\internal\gtest-string.h" SelfReg="false"/>
     <ROW File="gtesttypeutil.h" Component_="gtestdeathtestinternal.h" FileName="GTEST-~8.H|gtest-type-util.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\gtest\internal\gtest-type-util.h" SelfReg="false"/>
-    <ROW File="QueryBuilder.h" Component_="DriverLoaders.h" FileName="QUERYB~1.H|QueryBuilder.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\sptk5\db\QueryBuilder.h" SelfReg="false"/>
-    <ROW File="RunableServerConnection.h" Component_="FastTCPServer.h" FileName="RUNABL~1.H|RunableServerConnection.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\sptk5\net\RunableServerConnection.h" SelfReg="false"/>
-    <ROW File="SocketObjectPool.h" Component_="FastTCPServer.h" FileName="SOCKET~5.H|SocketObjectPool.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\sptk5\net\SocketObjectPool.h" SelfReg="false"/>
-    <ROW File="TCPServer.h" Component_="FastTCPServer.h" FileName="TCPSER~1.H|TCPServer.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\sptk5\net\TCPServer.h" SelfReg="false"/>
-    <ROW File="TCPServerListener.h" Component_="FastTCPServer.h" FileName="TCPSER~3.H|TCPServerListener.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\sptk5\net\TCPServerListener.h" SelfReg="false"/>
     <ROW File="sptkconfig.h" Component_="OrderedMap.h" FileName="SPTK-C~1.H|sptk-config.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\sptk5\sptk-config.h" SelfReg="false"/>
-    <ROW File="IntervalTimer.h" Component_="ReadWriteLock.h" FileName="INTERV~1.H|IntervalTimer.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\sptk5\threads\IntervalTimer.h" SelfReg="false"/>
     <ROW File="JoiningThread.h" Component_="ReadWriteLock.h" FileName="JOININ~1.H|JoiningThread.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\sptk5\threads\JoiningThread.h" SelfReg="false"/>
-    <ROW File="Location.h" Component_="ReadWriteLock.h" FileName="Location.h" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\include\sptk5\threads\Location.h" SelfReg="false"/>
     <ROW File="GTestConfig.cmake" Component_="GTestConfig.cmake" FileName="GTESTC~1.CMA|GTestConfig.cmake" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\lib\cmake\GTest\GTestConfig.cmake" SelfReg="false"/>
     <ROW File="GTestConfigVersion.cmake" Component_="GTestConfig.cmake" FileName="GTESTC~2.CMA|GTestConfigVersion.cmake" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\lib\cmake\GTest\GTestConfigVersion.cmake" SelfReg="false"/>
     <ROW File="GTestTargetsdebug.cmake" Component_="GTestConfig.cmake" FileName="GTESTT~1.CMA|GTestTargets-debug.cmake" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\lib\cmake\GTest\GTestTargets-debug.cmake" SelfReg="false"/>
     <ROW File="GTestTargetsrelease.cmake" Component_="GTestConfig.cmake" FileName="GTESTT~2.CMA|GTestTargets-release.cmake" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\lib\cmake\GTest\GTestTargets-release.cmake" SelfReg="false"/>
     <ROW File="GTestTargetsrelwithdebinfo.cmake" Component_="GTestConfig.cmake" FileName="GTESTT~3.CMA|GTestTargets-relwithdebinfo.cmake" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\lib\cmake\GTest\GTestTargets-relwithdebinfo.cmake" SelfReg="false"/>
     <ROW File="GTestTargets.cmake" Component_="GTestConfig.cmake" FileName="GTESTT~4.CMA|GTestTargets.cmake" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\lib\cmake\GTest\GTestTargets.cmake" SelfReg="false"/>
-    <ROW File="gmock.lib" Component_="gmock.lib" FileName="gmock.lib" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\lib\gmock.lib" SelfReg="false"/>
-    <ROW File="gmock.pdb" Component_="gmock.pdb" FileName="gmock.pdb" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\lib\gmock.pdb" SelfReg="false"/>
-    <ROW File="gmockpdb_debug_postfixNOTFOUND.pdb" Component_="gmock.pdb" FileName="GMOCKP~1.PDB|gmockpdb_debug_postfix-NOTFOUND.pdb" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\lib\gmockpdb_debug_postfix-NOTFOUND.pdb" SelfReg="false"/>
-    <ROW File="gmock_main.lib" Component_="gmock.lib" FileName="GMOCK_~1.LIB|gmock_main.lib" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\lib\gmock_main.lib" SelfReg="false"/>
-    <ROW File="gmock_main.pdb" Component_="gmock.pdb" FileName="GMOCK_~1.PDB|gmock_main.pdb" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\lib\gmock_main.pdb" SelfReg="false"/>
-    <ROW File="gmock_mainpdb_debug_postfixNOTFOUND.pdb" Component_="gmock.pdb" FileName="GMOCK_~2.PDB|gmock_mainpdb_debug_postfix-NOTFOUND.pdb" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\lib\gmock_mainpdb_debug_postfix-NOTFOUND.pdb" SelfReg="false"/>
     <ROW File="gtest.lib" Component_="gmock.lib" FileName="gtest.lib" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\lib\gtest.lib" SelfReg="false"/>
     <ROW File="gtest.pdb" Component_="gmock.pdb" FileName="gtest.pdb" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\lib\gtest.pdb" SelfReg="false"/>
-    <ROW File="gtestpdb_debug_postfixNOTFOUND.pdb" Component_="gmock.pdb" FileName="GTESTP~1.PDB|gtestpdb_debug_postfix-NOTFOUND.pdb" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\lib\gtestpdb_debug_postfix-NOTFOUND.pdb" SelfReg="false"/>
     <ROW File="gtest_main.lib" Component_="gmock.lib" FileName="GTEST_~1.LIB|gtest_main.lib" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\lib\gtest_main.lib" SelfReg="false"/>
     <ROW File="gtest_main.pdb" Component_="gmock.pdb" FileName="GTEST_~1.PDB|gtest_main.pdb" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\lib\gtest_main.pdb" SelfReg="false"/>
-    <ROW File="gtest_mainpdb_debug_postfixNOTFOUND.pdb" Component_="gmock.pdb" FileName="GTEST_~2.PDB|gtest_mainpdb_debug_postfix-NOTFOUND.pdb" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\lib\gtest_mainpdb_debug_postfix-NOTFOUND.pdb" SelfReg="false"/>
     <ROW File="gmock.pc" Component_="gmock.pc" FileName="gmock.pc" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\lib\pkgconfig\gmock.pc" SelfReg="false"/>
     <ROW File="gmock_main.pc" Component_="gmock.pc" FileName="GMOCK_~1.PC|gmock_main.pc" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\lib\pkgconfig\gmock_main.pc" SelfReg="false"/>
     <ROW File="gtest.pc" Component_="gmock.pc" FileName="gtest.pc" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\lib\pkgconfig\gtest.pc" SelfReg="false"/>
     <ROW File="gtest_main.pc" Component_="gmock.pc" FileName="GTEST_~1.PC|gtest_main.pc" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\lib\pkgconfig\gtest_main.pc" SelfReg="false"/>
     <ROW File="spdb5_static.lib" Component_="gmock.lib" FileName="SPDB5_~5.LIB|spdb5_static.lib" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\lib\spdb5_static.lib" SelfReg="false"/>
     <ROW File="odbc_test.exe" Component_="odbc_test.exe_1" FileName="ODBC_T~1.EXE|odbc_test.exe" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\lib\sptk5\bin\odbc_test.exe" SelfReg="false" DigSign="true"/>
-    <ROW File="semaphore.exe" Component_="semaphore.exe_1" FileName="SEMAPH~1.EXE|semaphore.exe" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\lib\sptk5\bin\semaphore.exe" SelfReg="false" DigSign="true"/>
-    <ROW File="thread_pool_test.exe" Component_="thread_pool_test.exe_1" FileName="THREAD~1.EXE|thread_pool_test.exe" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\lib\sptk5\bin\thread_pool_test.exe" SelfReg="false" DigSign="true"/>
-    <ROW File="thread_test.exe" Component_="thread_test.exe_1" FileName="THREAD~2.EXE|thread_test.exe" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\lib\sptk5\bin\thread_test.exe" SelfReg="false" DigSign="true"/>
     <ROW File="sputil5_static.lib" Component_="gmock.lib" FileName="SPUTIL~1.LIB|sputil5_static.lib" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\lib\sputil5_static.lib" SelfReg="false"/>
     <ROW File="spwsdl5_static.lib" Component_="gmock.lib" FileName="SPWSDL~1.LIB|spwsdl5_static.lib" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\lib\spwsdl5_static.lib" SelfReg="false"/>
     <ROW File="eventlog_test.exe" Component_="eventlog_test.exe" FileName="EVENTL~1.EXE|eventlog_test.exe" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\share\sptk5\bin\eventlog_test.exe" SelfReg="false" DigSign="true"/>
     <ROW File="sqlite3_test.exe" Component_="sqlite3_test.exe" FileName="SQLITE~1.EXE|sqlite3_test.exe" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\share\sptk5\bin\sqlite3_test.exe" SelfReg="false" DigSign="true"/>
     <ROW File="syslog_test.exe" Component_="syslog_test.exe_1" FileName="SYSLOG~1.EXE|syslog_test.exe" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\share\sptk5\bin\syslog_test.exe" SelfReg="false" DigSign="true"/>
+    <ROW File="gtest.pdb_1" Component_="gtest.dll" FileName="gtest.pdb" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\bin\gtest.pdb" SelfReg="false"/>
+    <ROW File="gtestpdb_debug_postfixNOTFOUND.pdb_1" Component_="gmockpdb_debug_postfixNOTFOUND.pdb" FileName="GTESTP~1.PDB|gtestpdb_debug_postfix-NOTFOUND.pdb" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\bin\gtestpdb_debug_postfix-NOTFOUND.pdb" SelfReg="false"/>
+    <ROW File="gtest_main.pdb_1" Component_="gtest_main.dll" FileName="GTEST_~1.PDB|gtest_main.pdb" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\bin\gtest_main.pdb" SelfReg="false"/>
+    <ROW File="gtest_mainpdb_debug_postfixNOTFOUN_1_D.pdb" Component_="gmockpdb_debug_postfixNOTFOUND.pdb" FileName="GTEST_~2.PDB|gtest_mainpdb_debug_postfix-NOTFOUND.pdb" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\bin\gtest_mainpdb_debug_postfix-NOTFOUND.pdb" SelfReg="false"/>
+    <ROW File="spinst.exe" Component_="spinst.exe" FileName="spinst.exe" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\bin\spinst.exe" SelfReg="false" DigSign="true"/>
+    <ROW File="sptk5.dll" Component_="sptk5.dll" FileName="sptk5.dll" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\bin\sptk5.dll" SelfReg="false"/>
+    <ROW File="Test.inc" Component_="Foo.inc" FileName="Test.inc" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\bin\Test.inc" SelfReg="false"/>
+    <ROW File="calendar_test.exe" Component_="calendar_test.exe" FileName="CALEND~1.EXE|calendar_test.exe" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\lib\sptk5\bin\calendar_test.exe" SelfReg="false" DigSign="true"/>
+    <ROW File="ceditor_test.exe" Component_="ceditor_test.exe" FileName="CEDITO~1.EXE|ceditor_test.exe" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\lib\sptk5\bin\ceditor_test.exe" SelfReg="false" DigSign="true"/>
+    <ROW File="cgroup_test.exe" Component_="cgroup_test.exe" FileName="CGROUP~1.EXE|cgroup_test.exe" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\lib\sptk5\bin\cgroup_test.exe" SelfReg="false" DigSign="true"/>
+    <ROW File="check_buttons.exe" Component_="check_buttons.exe" FileName="CHECK_~1.EXE|check_buttons.exe" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\lib\sptk5\bin\check_buttons.exe" SelfReg="false" DigSign="true"/>
+    <ROW File="combo_test.exe" Component_="combo_test.exe" FileName="COMBO_~1.EXE|combo_test.exe" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\lib\sptk5\bin\combo_test.exe" SelfReg="false" DigSign="true"/>
+    <ROW File="cscroll_test.exe" Component_="cscroll_test.exe" FileName="CSCROL~1.EXE|cscroll_test.exe" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\lib\sptk5\bin\cscroll_test.exe" SelfReg="false" DigSign="true"/>
+    <ROW File="dialog_test.exe" Component_="dialog_test.exe" FileName="DIALOG~1.EXE|dialog_test.exe" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\lib\sptk5\bin\dialog_test.exe" SelfReg="false" DigSign="true"/>
+    <ROW File="file_dialogs.exe" Component_="file_dialogs.exe" FileName="FILE_D~1.EXE|file_dialogs.exe" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\lib\sptk5\bin\file_dialogs.exe" SelfReg="false" DigSign="true"/>
+    <ROW File="font_combo.exe" Component_="font_combo.exe" FileName="FONT_C~1.EXE|font_combo.exe" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\lib\sptk5\bin\font_combo.exe" SelfReg="false" DigSign="true"/>
+    <ROW File="shaped_window.exe" Component_="shaped_window.exe" FileName="SHAPED~1.EXE|shaped_window.exe" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\lib\sptk5\bin\shaped_window.exe" SelfReg="false" DigSign="true"/>
+    <ROW File="splitter.exe" Component_="splitter.exe" FileName="splitter.exe" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\lib\sptk5\bin\splitter.exe" SelfReg="false" DigSign="true"/>
+    <ROW File="tabs_test.exe" Component_="tabs_test.exe" FileName="TABS_T~1.EXE|tabs_test.exe" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\lib\sptk5\bin\tabs_test.exe" SelfReg="false" DigSign="true"/>
+    <ROW File="themes_test.exe" Component_="themes_test.exe" FileName="THEMES~1.EXE|themes_test.exe" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\lib\sptk5\bin\themes_test.exe" SelfReg="false" DigSign="true"/>
+    <ROW File="tree_view.exe" Component_="tree_view.exe" FileName="TREE_V~1.EXE|tree_view.exe" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\lib\sptk5\bin\tree_view.exe" SelfReg="false" DigSign="true"/>
+    <ROW File="sptk5.lib" Component_="gmock.lib" FileName="sptk5.lib" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\lib\sptk5.lib" SelfReg="false"/>
+    <ROW File="Blue.tar" Component_="Blue.tar" FileName="Blue.tar" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\share\sptk5\Blue.tar" SelfReg="false"/>
+    <ROW File="Dark.tar" Component_="Blue.tar" FileName="Dark.tar" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\share\sptk5\Dark.tar" SelfReg="false"/>
+    <ROW File="Default.tar" Component_="Blue.tar" FileName="Default.tar" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\share\sptk5\Default.tar" SelfReg="false"/>
+    <ROW File="E17.tar" Component_="Blue.tar" FileName="E17.tar" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\share\sptk5\E17.tar" SelfReg="false"/>
+    <ROW File="Flat.tar" Component_="Blue.tar" FileName="Flat.tar" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\share\sptk5\Flat.tar" SelfReg="false"/>
+    <ROW File="Keramic.tar" Component_="Blue.tar" FileName="Keramic.tar" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\share\sptk5\Keramic.tar" SelfReg="false"/>
+    <ROW File="Opera.tar" Component_="Blue.tar" FileName="Opera.tar" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\share\sptk5\Opera.tar" SelfReg="false"/>
+    <ROW File="OSX.tar" Component_="Blue.tar" FileName="OSX.tar" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\share\sptk5\OSX.tar" SelfReg="false"/>
+    <ROW File="OSX_Flat.tar" Component_="Blue.tar" FileName="OSX_Flat.tar" Attributes="0" SourcePath="..\..\..\Program Files\SPTK\share\sptk5\OSX_Flat.tar" SelfReg="false"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.BootstrapperUISequenceComponent">
     <ROW Action="AI_BACKUP_AI_SETUPEXEPATH" Sequence="249"/>
@@ -621,7 +605,6 @@
     <ROW Dialog_="UserExit" Control_="Finish" Event="DoAction" Argument="AI_CleanPrereq" Condition="1" Ordering="103"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiCreateFolderComponent">
-    <ROW Directory_="doc_Dir" Component_="doc" ManualDelete="false"/>
     <ROW Directory_="APPDIR" Component_="APPDIR" ManualDelete="true"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiCustActComponent">
@@ -670,7 +653,6 @@
     <ROW Feature_="SPTK_Feature" Component_="SYSTEM"/>
     <ROW Feature_="SPTK_Feature" Component_="Services"/>
     <ROW Feature_="SPTK_Feature" Component_="TypesSupported"/>
-    <ROW Feature_="SPTK_Feature" Component_="doc"/>
     <ROW Feature_="SPTK_Feature" Component_="spdb5_odbc.dll"/>
     <ROW Feature_="SPTK_Feature" Component_="spdb5_odbc.dll_1"/>
     <ROW Feature_="SPTK_Feature" Component_="spdb5_postgresql.dll"/>
@@ -691,7 +673,6 @@
     <ROW Feature_="SPTK_Feature" Component_="spdb5_sqlite3.dll"/>
     <ROW Feature_="SPTK_Feature" Component_="sputil5.dll"/>
     <ROW Feature_="SPTK_Feature" Component_="spwsdl5.dll"/>
-    <ROW Feature_="SPTK_Feature" Component_="event_provider.h"/>
     <ROW Feature_="C4FE6FD5B7C4D07B3A313E754A9A6A8" Component_="C4FE6FD5B7C4D07B3A313E754A9A6A8"/>
     <ROW Feature_="UnitTests_Feature" Component_="gtest.dll"/>
     <ROW Feature_="UnitTests_Feature" Component_="gtest_main.dll"/>
@@ -702,7 +683,6 @@
     <ROW Feature_="TestPrograms_Feature" Component_="thread_rwlock.exe"/>
     <ROW Feature_="TestPrograms_Feature" Component_="thread_test.exe"/>
     <ROW Feature_="Utilities_Feature" Component_="wsdl2cxx.exe"/>
-    <ROW Feature_="Utilities_Feature" Component_="xml2json.exe"/>
     <ROW Feature_="TestPrograms_Feature" Component_="regexp.exe"/>
     <ROW Feature_="TestPrograms_Feature" Component_="registry.exe"/>
     <ROW Feature_="TestPrograms_Feature" Component_="semaphore.exe"/>
@@ -718,12 +698,8 @@
     <ROW Feature_="Prerequisites" Component_="zlib.dll"/>
     <ROW Feature_="Prerequisites" Component_="libcrypto3x64.dll"/>
     <ROW Feature_="Prerequisites" Component_="libiconv2.dll"/>
-    <ROW Feature_="Prerequisites" Component_="sha256_password.dll"/>
-    <ROW Feature_="Prerequisites" Component_="mysql_clear_password.dll"/>
-    <ROW Feature_="Prerequisites" Component_="libmariadb.dll"/>
     <ROW Feature_="Prerequisites" Component_="libintl9.dll"/>
     <ROW Feature_="Prerequisites" Component_="libssl3x64.dll"/>
-    <ROW Feature_="Prerequisites" Component_="caching_sha2_password.dll"/>
     <ROW Feature_="Prerequisites" Component_="libwinpthread1.dll"/>
     <ROW Feature_="Prerequisites" Component_="pcre28.dll"/>
     <ROW Feature_="UnitTests_Feature" Component_="mycert.pem"/>
@@ -731,12 +707,7 @@
     <ROW Feature_="UnitTests_Feature" Component_="FastTCPServer.h"/>
     <ROW Feature_="UnitTests_Feature" Component_="ReadWriteLock.h"/>
     <ROW Feature_="UnitTests_Feature" Component_="OrderedMap.h"/>
-    <ROW Feature_="UnitTests_Feature" Component_="gmock.dll"/>
-    <ROW Feature_="UnitTests_Feature" Component_="gmock_main.dll"/>
     <ROW Feature_="UnitTests_Feature" Component_="load_balance.exe"/>
-    <ROW Feature_="UnitTests_Feature" Component_="gmockactions.h"/>
-    <ROW Feature_="UnitTests_Feature" Component_="gmockgeneratedactions.h"/>
-    <ROW Feature_="UnitTests_Feature" Component_="gmockinternalutils.h"/>
     <ROW Feature_="UnitTests_Feature" Component_="gtestassertionresult.h"/>
     <ROW Feature_="UnitTests_Feature" Component_="gtestport.h"/>
     <ROW Feature_="UnitTests_Feature" Component_="gtestdeathtestinternal.h"/>
@@ -745,12 +716,28 @@
     <ROW Feature_="UnitTests_Feature" Component_="gmock.pdb"/>
     <ROW Feature_="UnitTests_Feature" Component_="gmock.pc"/>
     <ROW Feature_="UnitTests_Feature" Component_="odbc_test.exe_1"/>
-    <ROW Feature_="UnitTests_Feature" Component_="semaphore.exe_1"/>
-    <ROW Feature_="UnitTests_Feature" Component_="thread_pool_test.exe_1"/>
-    <ROW Feature_="UnitTests_Feature" Component_="thread_test.exe_1"/>
     <ROW Feature_="UnitTests_Feature" Component_="eventlog_test.exe"/>
     <ROW Feature_="UnitTests_Feature" Component_="sqlite3_test.exe"/>
     <ROW Feature_="UnitTests_Feature" Component_="syslog_test.exe_1"/>
+    <ROW Feature_="UnitTests_Feature" Component_="Foo.inc"/>
+    <ROW Feature_="UnitTests_Feature" Component_="gmockpdb_debug_postfixNOTFOUND.pdb"/>
+    <ROW Feature_="UnitTests_Feature" Component_="spinst.exe"/>
+    <ROW Feature_="UnitTests_Feature" Component_="sptk5.dll"/>
+    <ROW Feature_="UnitTests_Feature" Component_="calendar_test.exe"/>
+    <ROW Feature_="UnitTests_Feature" Component_="ceditor_test.exe"/>
+    <ROW Feature_="UnitTests_Feature" Component_="cgroup_test.exe"/>
+    <ROW Feature_="UnitTests_Feature" Component_="check_buttons.exe"/>
+    <ROW Feature_="UnitTests_Feature" Component_="combo_test.exe"/>
+    <ROW Feature_="UnitTests_Feature" Component_="cscroll_test.exe"/>
+    <ROW Feature_="UnitTests_Feature" Component_="dialog_test.exe"/>
+    <ROW Feature_="UnitTests_Feature" Component_="file_dialogs.exe"/>
+    <ROW Feature_="UnitTests_Feature" Component_="font_combo.exe"/>
+    <ROW Feature_="UnitTests_Feature" Component_="shaped_window.exe"/>
+    <ROW Feature_="UnitTests_Feature" Component_="splitter.exe"/>
+    <ROW Feature_="UnitTests_Feature" Component_="tabs_test.exe"/>
+    <ROW Feature_="UnitTests_Feature" Component_="themes_test.exe"/>
+    <ROW Feature_="UnitTests_Feature" Component_="tree_view.exe"/>
+    <ROW Feature_="UnitTests_Feature" Component_="Blue.tar"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiInstExSeqComponent">
     <ROW Action="AI_DOWNGRADE" Condition="AI_NEWERPRODUCTFOUND AND (UILevel &lt;&gt; 5)" Sequence="210"/>
@@ -820,7 +807,7 @@
     <ROW UpgradeCode="[|UpgradeCode]" VersionMin="[|ProductVersion]" Attributes="2" ActionProperty="AI_NEWERPRODUCTFOUND"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.PreReqComponent">
-    <ROW PrereqKey="C4FE6FD5B7C4D07B3A313E754A9A6A8" DisplayName="Visual C++ Redistributable for Visual Studio 2015-2022 x64" VersionMin="14.40" SetupFileUrl="Prerequisites\Visual C++ Redistributable for Visual Studio 2015-2022\VC_redist.x64.exe" Location="0" ExactSize="0" WinNTVersions="Windows 9x/ME/NT/2000/XP/Vista/Windows 7/Windows 8 x86/Windows 8.1 x86/Windows 10 x86" WinNT64Versions="Windows 7 RTM x64, Windows Server 2008 R2 RTM x64" Operator="1" NoUiComLine=" /q /norestart" Options="xf" TargetName="Visual C++ Redistributable for Visual Studio 2015-2022\VC_redist.x64.exe" Feature="C4FE6FD5B7C4D07B3A313E754A9A6A8"/>
+    <ROW PrereqKey="C4FE6FD5B7C4D07B3A313E754A9A6A8" DisplayName="Visual C++ Redistributable for Visual Studio 2015-2022 x64" VersionMin="14.40" SetupFileUrl="..\Prerequisites\Visual C++ Redistributable for Visual Studio 2015-2022\VC_redist.x64.exe" Location="0" ExactSize="0" WinNTVersions="Windows 9x/ME/NT/2000/XP/Vista/Windows 7/Windows 8 x86/Windows 8.1 x86/Windows 10 x86" WinNT64Versions="Windows 7 RTM x64, Windows Server 2008 R2 RTM x64" Operator="1" NoUiComLine=" /q /norestart" Options="xf" TargetName="Visual C++ Redistributable for Visual Studio 2015-2022\VC_redist.x64.exe" Feature="C4FE6FD5B7C4D07B3A313E754A9A6A8"/>
     <ATTRIBUTE name="PrereqsOrder" value="C4FE6FD5B7C4D07B3A313E754A9A6A8"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.PreReqSearchComponent">
