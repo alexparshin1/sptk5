@@ -101,10 +101,9 @@ public:
      */
     [[nodiscard]] Fl_Font font() const
     {
-        if (const auto* theSelectedRow = selectedRow();
-            theSelectedRow)
+        if (const auto* theSelectedRow = selectedRow())
         {
-            return theSelectedRow->argument();
+            return (Fl_Font) theSelectedRow->argument();
         }
         return FL_HELVETICA;
     }

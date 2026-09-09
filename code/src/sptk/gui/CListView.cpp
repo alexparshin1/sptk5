@@ -532,7 +532,7 @@ int CListView::item_compute_height(CPackedStrings* l)
 
     if (cells.size())
     {
-        short colmax = cells.size();
+        short colmax = (short) cells.size();
         if (colmax > static_cast<short>(m_columnList.size()))
         {
             colmax = static_cast<short>(m_columnList.size());
@@ -1315,7 +1315,7 @@ void CListView::key_changed(unsigned index)
     int         keyValue = 0;
     if (t)
     {
-        keyValue = t->argument();
+        keyValue = (int) t->argument();
     }
     fireEvent(CEvent::DATA_CHANGED, keyValue);
 }
@@ -1616,7 +1616,7 @@ void CListView::fill(DataSource& ds, const String& keyFieldName, unsigned record
                 selectedIDs = new int[selectedCount];
                 for (int i = 0; i < selectedCount; i++)
                 {
-                    selectedIDs[i] = m_selection[i].argument();
+                    selectedIDs[i] = (int) m_selection[i].argument();
                 }
             }
             m_selection.clear();
