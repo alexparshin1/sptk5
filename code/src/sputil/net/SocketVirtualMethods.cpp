@@ -254,15 +254,23 @@ void SocketVirtualMethods::openAddressUnlocked(const sockaddr_in& addr, const Op
 
 void SocketVirtualMethods::closeUnlocked()
 {
-    if (m_socketFd != INVALID_SOCKET)
+    // Taken out of the field first, rather than tested and cleared afterwards. Two threads closing
+    // the same socket - which happens routinely, the reactor seeing a hangup while a worker's
+    // write fails - could both pass the test and both call close(). The first frees the descriptor
+    // number and the second lands on whatever the kernel has handed it to since, which on a busy
+    // listener is a connection accepted microseconds ago.
+    //
+    // Hardening, not a fix for anything observed: it was written while hunting a defect that
+    // turned out to be OpenSSL's per-thread error queue (see SSLSocket::sslRead), and this race
+    // was never caught firing. The exchange costs nothing and closes the window.
+    if (const auto socketFd = m_socketFd.exchange(INVALID_SOCKET); socketFd != INVALID_SOCKET)
     {
 #ifndef _WIN32
-        shutdown(m_socketFd, SHUT_RDWR);
-        close(m_socketFd);
+        shutdown(socketFd, SHUT_RDWR);
+        close(socketFd);
 #else
-        closesocket(m_socketFd);
+        closesocket(socketFd);
 #endif
-        m_socketFd = INVALID_SOCKET;
     }
 }
 

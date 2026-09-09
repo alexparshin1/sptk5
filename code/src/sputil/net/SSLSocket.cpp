@@ -637,6 +637,15 @@ SSLSocket::SslOutcome SSLSocket::sslConnect() const
 {
     const scoped_lock lock(m_mutex);
     auto*             ssl = sslHandleLocked();
+    // OpenSSL keeps one error queue per thread, and SSL_get_error() consults it. It is not
+    // emptied by a successful call, so an entry left by an earlier, unrelated connection served
+    // by this same thread is what SSL_get_error() answers with - reporting SSL_ERROR_SSL, and the
+    // previous connection's message, for a call that only wanted a retry. It was found on
+    // 2026-09-09 as a TLS client hanging up abruptly and killing the *next* session that the same
+    // broker thread happened to serve, with "unexpected eof while reading" on a socket whose peer
+    // was still there. The queue must be emptied before every operation whose result is read
+    // through SSL_get_error().
+    ERR_clear_error();
     const auto        result = SSL_connect(ssl);
     return {result, SSL_get_error(ssl, result)};
 }
@@ -645,6 +654,7 @@ SSLSocket::SslOutcome SSLSocket::sslAccept() const
 {
     const scoped_lock lock(m_mutex);
     auto*             ssl = sslHandleLocked();
+    ERR_clear_error();
     const auto        result = SSL_accept(ssl);
     return {result, SSL_get_error(ssl, result)};
 }
@@ -653,6 +663,7 @@ SSLSocket::SslOutcome SSLSocket::sslRead(uint8_t* buffer, const size_t len) cons
 {
     const scoped_lock lock(m_mutex);
     auto*             ssl = sslHandleLocked();
+    ERR_clear_error();
     const auto        result = SSL_read(ssl, buffer, static_cast<int>(len));
     return {result, SSL_get_error(ssl, result)};
 }
@@ -661,6 +672,7 @@ SSLSocket::SslOutcome SSLSocket::sslWrite(const uint8_t* buffer, const size_t le
 {
     const scoped_lock lock(m_mutex);
     auto*             ssl = sslHandleLocked();
+    ERR_clear_error();
     const auto        result = SSL_write(ssl, buffer, static_cast<int>(len));
     return {result, SSL_get_error(ssl, result)};
 }
