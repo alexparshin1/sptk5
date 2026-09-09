@@ -9,7 +9,9 @@
 #   ./build_sptk_windows_ssh.bat sptk5      one of them
 #   ./build_sptk_windows_ssh.bat xmq
 #
-# The machine is alexe@10.1.1.203 (WIN-DEV1); set WIN_HOST to use another. The branch built is
+# The machine is alexe@10.1.1.206 (WIN-DEV2), which is the one that stays on - that is what makes
+# an unattended run possible. WIN-DEV1 at .203 is started on demand; set WIN_HOST to use it, or any
+# other. The branch built is
 # whatever SPTK_VERSION and XMQ_VERSION say here, so a release is driven by editing those two
 # files, not by editing this.
 #
@@ -21,7 +23,7 @@ set -uo pipefail
 
 cd "$(dirname "$0")" || exit 1
 
-host=${WIN_HOST:-alexe@10.1.1.203}
+host=${WIN_HOST:-alexe@10.1.1.206}
 log_dir=${LOG_DIR:-/tmp/windows-build-$(date +%Y-%m-%d-%H%M)}
 mkdir -p "$log_dir"
 

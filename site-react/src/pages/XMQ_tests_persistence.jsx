@@ -1,6 +1,7 @@
 import React, {useState} from "react";
 import Seo from "../components/Seo";
 import "../css/Documentation.css";
+import {LegendMarker, markerFor, SeriesMarker} from "../components/BrokerBenchmark";
 import persistenceUrl from "../xmq_test_results/Persistence.txt";
 
 // One colour per scenario size, warm as the load grows.
@@ -16,9 +17,19 @@ function parsePersistenceResult(text)
         if (line === "" || line.startsWith("Interval") || /^─+$/.test(line))
             continue;
 
-        if (/^Server:/.test(line)) {
-            current = {meta: {}, cpu: {}, dataPoints: []};
-            runs.push(current);
+        // A heading that names a broker exactly is charted; one with anything after the name
+        // ("XMQ (30K, 30-minute run, not charted)") keeps its measurements in the record and stays
+        // off this chart. This page is the capacity series - four session counts - and the
+        // single-size long runs answer a different question; on one chart they read as unrelated
+        // lines.
+        const serverMatch = line.match(/^Server:\s*(.+)$/);
+        if (serverMatch) {
+            if (/^(XMQ|EMQX|Mosquitto|NanoMQ|FlashMQ)$/.test(serverMatch[1].trim())) {
+                current = {meta: {}, cpu: {}, dataPoints: []};
+                runs.push(current);
+            } else {
+                current = null;
+            }
             continue;
         }
         if (!current)
@@ -145,7 +156,10 @@ function LatencyChart({runs, width = 760, height = 360})
     };
 
     const hoverRows = hover === null ? [] : runs
-        .map((r) => ({label: r.label, color: r.color, point: r.dataPoints.find((p) => p.interval === hover)}))
+        .map((r, i) => ({
+            label: r.label, color: r.color, shape: markerFor(i),
+            point: r.dataPoints.find((p) => p.interval === hover)
+        }))
         .filter((r) => r.point);
 
     const tipW = 168;
@@ -193,9 +207,14 @@ function LatencyChart({runs, width = 760, height = 360})
                           points={r.dataPoints.map((p) => `${xScale(p.interval)},${yScale(p.latency)}`).join(" ")}/>
             ))}
 
+            {runs.map((r, i) => r.dataPoints.map((p, j) => (
+                <SeriesMarker key={`${r.label}-${j}`} shape={markerFor(i)}
+                              cx={xScale(p.interval)} cy={yScale(p.latency)} fill={r.color}/>
+            )))}
+
             {hover !== null && hoverRows.map((r) => (
-                <circle key={r.label} cx={xScale(hover)} cy={yScale(r.point.latency)} r="4"
-                        fill={r.color} stroke="#fff" strokeWidth="2"/>
+                <SeriesMarker key={r.label} shape={r.shape} size={11} strokeWidth={2}
+                              cx={xScale(hover)} cy={yScale(r.point.latency)} fill={r.color}/>
             ))}
 
             {hover !== null && hoverRows.length > 0 && (
@@ -223,9 +242,9 @@ function Legend({runs})
 {
     return (
         <div style={{display: "flex", gap: 16, margin: "12px 0 8px", flexWrap: "wrap"}}>
-            {runs.map((r) => (
+            {runs.map((r, i) => (
                 <div key={r.label} style={{display: "flex", alignItems: "center", gap: 4}}>
-                    <span style={{width: 10, height: 10, display: "inline-block", backgroundColor: r.color}}/>
+                    <LegendMarker shape={markerFor(i)} color={r.color} dashed={r.saturated}/>
                     <span>{r.label} {r.saturated && <i>(beyond capacity)</i>}</span>
                 </div>
             ))}
@@ -323,13 +342,10 @@ export default class XMQ_tests_persistence extends React.Component
                         </tr>
                         </thead>
                         <tbody>
-                        {runs.map((r) => (
+                        {runs.map((r, i) => (
                             <tr key={r.label}>
-                                <td>
-                                    <span style={{
-                                        display: "inline-block", width: 10, height: 10,
-                                        backgroundColor: r.color, marginRight: 6
-                                    }}/>
+                                <td style={{whiteSpace: "nowrap"}}>
+                                    <LegendMarker shape={markerFor(i)} color={r.color} dashed={r.saturated}/>
                                     {r.label}
                                 </td>
                                 <td>{(parseInt(r.label, 10) * 2).toLocaleString()}K</td>

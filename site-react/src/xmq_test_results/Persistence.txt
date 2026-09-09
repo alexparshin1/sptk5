@@ -2,7 +2,12 @@ Test requirements:
 - XMQ start_clean is true (with empty Redis DB).
 - XMQ persistence is enabled.
 
-Server:   XMQ (0.9.13, not charted)
+The chart on the website is the capacity series - 10K, 20K, 30K and 40K persistent sessions - and
+a heading naming a broker exactly is what it draws. The single-size 30-minute runs below keep
+their measurements and a heading that leaves them off it: they answer a different question, and
+four sizes plus three long runs on one chart read as seven unrelated lines.
+
+Server:   XMQ
 Version:  0.9.13
 CPU Load: 228% (XMQ)
 CPU Load: 44%  (Redis)
@@ -24,7 +29,7 @@ Interval        Count    Latency       Rate/s
 Average       2999054      257us         9996
 
 
-Server:   XMQ (0.9.13, not charted)
+Server:   XMQ
 Version:  0.9.13
 CPU Load: 415% (XMQ)
 CPU Load: 87%  (Redis)
@@ -46,7 +51,7 @@ Interval        Count    Latency       Rate/s
 Average       5995002      249us        19983
 
 
-Server:   XMQ (0.9.13, not charted)
+Server:   XMQ
 Version:  0.9.13
 CPU Load: 423% (XMQ)
 CPU Load: 85%  (Redis)
@@ -68,7 +73,7 @@ Interval        Count    Latency       Rate/s
 Average       8988965      330us        29963
 
 
-Server:   XMQ (0.9.13, not charted)
+Server:   XMQ
 Version:  0.9.13
 CPU Load: 512% (XMQ)
 CPU Load: 94%  (Redis)
@@ -90,7 +95,7 @@ Interval        Count    Latency       Rate/s
 Average      11979776     1287us        39932
 
 
-Server:   XMQ (superseded, not charted)
+Server:   XMQ (30K, 30-minute run, not charted)
 Version:  0.9.16
 Date:     2026-09-08
 CPU Load: 419% mean / 445% peak
@@ -120,7 +125,7 @@ Average      53990030      317us        29994
   and held 60006 keys once the sessions were up.
 
 
-Server:   FlashMQ
+Server:   FlashMQ (20K, 30-minute run, not charted)
 Version:  1.26.2
 CPU Load: 88% mean / 89% peak
 Max RAM:  211 Mb
@@ -178,7 +183,7 @@ Average      35996185      159us        19997
   max_qos_bytes_pending_per_client 268435456, tcp_nodelay true.
 
 
-Server:   XMQ
+Server:   XMQ (30K, 30-minute run, not charted)
 Version:  0.9.16 (final)
 Date:     2026-09-09
 Interval        Count    Latency       Rate/s
