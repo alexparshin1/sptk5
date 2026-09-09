@@ -210,7 +210,11 @@ function ConnectionsTest({title, test})
         return null;
 
     const {conditions, note, servers} = test;
-    const extraColumns = ["Version", "Port", "Max CPU", "Max RAM"].filter((key) =>
+    // "Port" said only which port of ours the broker happened to listen on - an internal detail of
+    // the test rig, and nothing a reader can use. "Max CPU" was how the first runs recorded it;
+    // every run since samples the whole scenario and records "CPU Load" as mean and peak, so the
+    // column that carried a number now carries the pair.
+    const extraColumns = ["Version", "CPU Load", "Max RAM"].filter((key) =>
         servers.some((s) => s.meta[key] !== undefined && !SKIPPED_META_KEYS.includes(key))
     );
 

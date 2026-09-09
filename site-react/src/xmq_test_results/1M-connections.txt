@@ -3,6 +3,12 @@ Scenario: 1M connections - 1M-Connections-5K-rate.json
           time from connect to CONNACK, and what the broker costs in memory to hold them.
           QoS 1, MQTT 5. First run on AWS 2026-09-08; the bench has run it since 0.9.15.
 Date:     2026-09-08
+
+A heading that names a broker exactly - "Server:   XMQ" - is what the website charts. Headings
+with anything after the name ("XMQ (superseded, not charted)", "EMQX (8 CPU pair, not charted)")
+keep their measurements in this record but stay off the chart, so that each broker draws one line
+from one pair of machines. Nothing is deleted here; the chart is a view, this file is the record.
+
 Server:   AWS c5n.4xlarge, 16 vCPU (8 physical cores x 2 threads), 40Gb RAM, Ubuntu 26.04
 Client:   AWS c5n.4xlarge, 16 vCPU, 40Gb RAM, 30 source IPs, same AZ + cluster placement group
 Client:   xmq_scn 0.9.16
@@ -20,7 +26,7 @@ caps it at 2.09M. Each further secondary IP registered on the ENI is worth anoth
 CPU is not close to being the limit: the broker held a million at a 47% mean.
 
 
-Server:   XMQ
+Server:   XMQ (superseded, not charted)
 Version:  0.9.16
 CPU Load: 47% mean / 104% peak
 Max RAM:  4790 Mb
@@ -85,3 +91,49 @@ Average       1000000      326us         4545
   `fs.nr_open` did not help: the limit is the broker's own, and the fix is one line in
   flashmq.conf. Worth knowing before anyone sizes a host for it. The figure above is from
   the run with `rlimit_nofile 1200000`; both brokers use one descriptor per connection.
+
+
+Server:   XMQ
+Version:  0.9.16 (maps reserved)
+Date:     2026-09-09
+CPU Load: 42% mean / 101% peak
+Max RAM:  4938 Mb
+Interval        Count    Latency       Rate/s
+─────────────────────────────────────────────
+0ms             99999      377us         4999
+20000ms         99999      424us         4999
+40000ms        100000      360us         5000
+60000ms        100000      585us         5000
+80000ms        100000      367us         5000
+100000ms       100001      371us         5000
+120000ms        99999      338us         4999
+140000ms        99622      971us         4981
+160000ms        99970      374us         4998
+180000ms       100030      347us         5001
+200000ms          380      315us           19
+─────────────────────────────────────────────
+Average       1000000      451us         4545
+
+  server CPU   mean 42%, peak 101%   (of 800% available to it)
+  server RSS   4938 Mb peak
+
+  The same broker with one change: the session maps are sized once, from RLIMIT_NOFILE,
+  instead of growing. 451us against 0.9.16's 612us, and the interval that used to cost
+  1762us now costs 347us.
+
+  What that interval was: `ClientSessionManager` holds its sessions in two hash maps behind
+  one exclusive lock, and a hash map that grows rehashes everything it holds while nothing
+  else can touch it. The tables double at 87.5% of a power of two, so somewhere past 900000
+  connections a run stops to move 900000 entries. Reserving up front removes the event
+  rather than making it cheaper. It costs about 2 Mb of resident memory per million slots,
+  because the slot array is untouched memory until entries land in it.
+
+  Found on the bench, not here: thinker11 reproduces this shape closely enough at 1M to
+  test four alternatives for free, and two of them were wrong. Removing every per-session
+  timer event changed nothing, though `TimerEvents::add` is the largest symbol in the
+  broker's profile; and std::unordered_map only moves the peak to its own growth points.
+
+  The 140000ms interval is untouched, and is not the broker's: it is the only interval in
+  any of these runs where the client falls short of its own rate - 99622 of 100000 at
+  4981/s - and it does that under FlashMQ too, on both AWS and the bench. See
+  500K-connections.txt for the same pattern at half the size.

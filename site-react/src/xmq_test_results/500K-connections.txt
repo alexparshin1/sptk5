@@ -8,7 +8,13 @@ MQTT QOS:      1
 
 Note: NanoMQ timed out during the test. Only 395K clients completed connections.
 
-Server:   EMQX
+
+A heading that names a broker exactly - "Server:   XMQ" - is what the website charts. Headings
+with anything after the name ("XMQ (superseded, not charted)", "EMQX (8 CPU pair, not charted)")
+keep their measurements in this record but stay off the chart, so that each broker draws one line
+from one pair of machines. Nothing is deleted here; the chart is a view, this file is the record.
+
+Server:   EMQX (8 CPU pair, not charted)
 Port:     1882
 Host:     8 CPU / 20Gb - the smaller pair, see the divider below
 Max CPU:  272%
@@ -30,7 +36,7 @@ Interval        Count    Latency
 Average        500000      692us
 
 
-Server:   Mosquitto
+Server:   Mosquitto (8 CPU pair, not charted)
 Port:     1883
 Host:     8 CPU / 20Gb - the smaller pair, see the divider below
 Max CPU:  12%
@@ -51,7 +57,7 @@ Interval        Count    Latency
 Average        500000      368us
 
 
-Server:   XMQ
+Server:   XMQ (8 CPU pair, not charted)
 Port:     1884
 Host:     8 CPU / 20Gb - the smaller pair, see the divider below
 Max CPU:  17%
@@ -137,7 +143,7 @@ Average        500000      348us         2272
   where XMQ spends 4.8 Kb.
 
 
-Server:   XMQ
+Server:   XMQ (superseded, not charted)
 Version:  0.9.16
 Date:     2026-09-08
 CPU Load: 30% mean / 105% peak
@@ -193,3 +199,36 @@ Average        500000      717us         2272
   701us, and it pays for them: a 230% mean against XMQ's 30%, peaking at 702%, in 6.8 Gb.
   Close to the 692us it recorded on the smaller pair, which is itself worth noting - this
   scenario does not reward the bigger machine.
+
+
+Server:   XMQ
+Version:  0.9.16 (maps reserved)
+Date:     2026-09-09
+CPU Load: 21% mean / 99% peak
+Max RAM:  2578 Mb
+Interval        Count    Latency       Rate/s
+─────────────────────────────────────────────
+0ms             50000      323us         2500
+20000ms         50000      338us         2500
+40000ms         49999      322us         2499
+60000ms         50001      376us         2500
+80000ms         50000      318us         2500
+100000ms        49988      329us         2499
+120000ms        50012      329us         2500
+140000ms        50000      573us         2500
+160000ms        49999      343us         2499
+180000ms        50001      323us         2500
+─────────────────────────────────────────────
+Average        500000      357us         2500
+
+  server CPU   mean 21%, peak 99%
+  server RSS   2578 Mb peak
+
+  The session maps are sized once from RLIMIT_NOFILE instead of growing. 357us against
+  0.9.16's 378us, and the 180000ms interval - the table doubling past 450000 entries while
+  the lock every connect needs was held - falls from 609us to 323us. The full explanation
+  is in 1M-connections.txt, where the same change is worth 26%: one rehash of half a
+  million entries costs less than one of nine hundred thousand.
+
+  The 140000ms interval stays at 573us, as it does for every broker in this file. That one
+  is the load generator, not the server.
