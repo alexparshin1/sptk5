@@ -10,11 +10,19 @@ if "%~1" == "" (
     set PACKAGE=%~1
 )
 
+REM SRC is what cmake configures; AIP is the Advanced Installer project, and for SPTK the two are
+REM not in the same place. SPTK's tree has three .aip files - msi\sptk5.aip, code\msi\sptk5.aip and
+REM "Simply Powerful Toolkit.aip" at the root - and the last two are the same 91Kb copy while the
+REM first is 119Kb and the one that is kept up to date. Building relative to SRC picked the copy
+REM under code, which is exactly the mistake this script's own comment warns about: it once
+REM published an installer 14 MB smaller than the release before it. Named outright now.
 if %PACKAGE% == sptk5 (
     set SRC=C:\workspace\sptk5\code
+    set AIP=C:\workspace\sptk5\msi\sptk5.aip
     set /p VERSION=<SPTK_VERSION
 ) else (
     set SRC=C:\workspace\xmq
+    set AIP=C:\workspace\xmq\msi\XMQ.aip
     set /p VERSION=<XMQ_VERSION
 )
 
@@ -71,7 +79,7 @@ REM The project at the root of the tree, which is the one that is maintained - 2
 REM prerequisites, against the 236 and none of the copy that used to be built here. Building the
 REM other one quietly published an installer 14 MB smaller than the release before it. There is
 REM one project now; the copy under build.scripts is gone.
-"%ADVINST%" /build "msi/%PACKAGE%.aip" >> build.log 2>&1
+"%ADVINST%" /build "%AIP%" >> build.log 2>&1
 if errorlevel 1 (
     echo "Can't build installer"
     exit /b %errorlevel%
@@ -81,10 +89,11 @@ REM Advanced Installer writes the .msi into a directory named after the project,
 REM not the package name: SPTK's is "Simply Powerful Toolkit-SetupFiles" and XMQ's is its own. It
 REM used to be spelled out here, which is why this script only ever worked for SPTK. Find the
 REM newest .msi under msi\ instead - one build per run produces exactly one.
+for %%p in ("%AIP%") do set "AIP_DIR=%%~dpp"
 set "MSI="
-for /f "delims=" %%f in ('dir /b /s /o-d "msi\*.msi" 2^>nul') do if not defined MSI set "MSI=%%f"
+for /f "delims=" %%f in ('dir /b /s /o-d "%AIP_DIR%*.msi" 2^>nul') do if not defined MSI set "MSI=%%f"
 if not defined MSI (
-    echo "No installer was produced under msi\"
+    echo "No installer was produced beside %AIP%"
     exit /b 1
 )
 for %%f in ("%MSI%") do set "MSI_NAME=%%~nxf"
@@ -99,7 +108,7 @@ if errorlevel 1 (
 )
 echo Installer %MSI_NAME%
 
-for /f "delims=" %%d in ('dir /b /ad "msi\*-SetupFiles" 2^>nul') do rmdir /S /Q "msi\%%d" >> build.log 2>&1
+for /f "delims=" %%d in ('dir /b /ad "%AIP_DIR%*-SetupFiles" 2^>nul') do rmdir /S /Q "%AIP_DIR%%%d" >> build.log 2>&1
 
 echo Computing the checksum
 REM Written in the format "shasum -a 256 -c" reads: the hash, two spaces, the name. Get-FileHash
