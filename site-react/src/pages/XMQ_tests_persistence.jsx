@@ -17,9 +17,19 @@ function parsePersistenceResult(text)
         if (line === "" || line.startsWith("Interval") || /^─+$/.test(line))
             continue;
 
-        if (/^Server:/.test(line)) {
-            current = {meta: {}, cpu: {}, dataPoints: []};
-            runs.push(current);
+        // A heading that names a broker exactly is charted; one with anything after the name
+        // ("XMQ (30K, 30-minute run, not charted)") keeps its measurements in the record and stays
+        // off this chart. This page is the capacity series - four session counts - and the
+        // single-size long runs answer a different question; on one chart they read as unrelated
+        // lines.
+        const serverMatch = line.match(/^Server:\s*(.+)$/);
+        if (serverMatch) {
+            if (/^(XMQ|EMQX|Mosquitto|NanoMQ|FlashMQ)$/.test(serverMatch[1].trim())) {
+                current = {meta: {}, cpu: {}, dataPoints: []};
+                runs.push(current);
+            } else {
+                current = null;
+            }
             continue;
         }
         if (!current)
