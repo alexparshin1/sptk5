@@ -161,6 +161,9 @@ public:
     explicit FastTCPServer(const std::string& serverName, std::shared_ptr<LogEngine> logEngine = nullptr,
                            SocketPoolTriggerMode triggerMode = SocketPoolTriggerMode::LevelTriggered, const size_t maxEvents = 128,
                            int backlog = DEFAULT_LISTEN_BACKLOG, size_t reserveConnections = 0);
+    ///< reserveConnections sizes both maps that hold one entry per connection - the reactor's
+    ///< registration map and the server's own - so that neither rehashes while connections arrive.
+    ///< 0 lets them grow, which is right for a server holding a handful of connections.
 
     /**
      * @brief Destructor.

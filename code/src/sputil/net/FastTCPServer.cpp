@@ -204,6 +204,13 @@ FastTCPServer::FastTCPServer(const std::string& serverName, std::shared_ptr<LogE
           std::chrono::milliseconds(100), triggerMode, maxEvents, reserveConnections)
     , m_backlog(backlog)
 {
+    if (reserveConnections > 0)
+    {
+        // The same reason as the pool's, and the same map growing at the same moments: one entry
+        // per connection, inserted under a write lock that every accept needs.
+        m_connections.reserve(reserveConnections);
+    }
+
     if (m_logEngine)
     {
         m_logger = std::make_shared<Logger>(*m_logEngine);
