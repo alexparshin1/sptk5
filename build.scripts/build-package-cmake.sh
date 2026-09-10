@@ -109,7 +109,14 @@ else
 fi
 
 sh ./distclean.sh
-ulimit -n 16384
+
+# The soft limit only. Plain "ulimit -n N" in bash sets the hard limit too, and a hard limit can
+# never be raised again by an unprivileged process - so this line, asking for 16384, was what made
+# the test step's "ulimit -n 32768" below fail with "Operation not permitted" on every image of
+# every run. The suites then ran with 16384 descriptors instead of the 32768 they ask for, and the
+# refusal went into a log nobody reads. The container starts with a hard limit of 524288, so there
+# is room for both.
+ulimit -Sn 16384
 cmake . $BUILD_OPTIONS -DCMAKE_BUILD_TYPE=Release || exit 1
 
 # Both steps into the log, and stderr with them. Two things were wrong here: only the packaging
@@ -180,7 +187,7 @@ if [ $RUN_TESTS = "true" ]; then
 
     cp /usr/share/zoneinfo/Australia/Melbourne /etc/localtime
 
-    ulimit -n 32768
+    ulimit -Sn 32768
     # "> file 2>&1", not "2>&1 > file": the second form sends stderr to wherever stdout points at
     # the time, which is the console, and only then redirects stdout. Every test's error output was
     # going to the screen while the log recorded only the quiet half.
