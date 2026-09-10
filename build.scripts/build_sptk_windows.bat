@@ -91,7 +91,7 @@ REM used to be spelled out here, which is why this script only ever worked for S
 REM newest .msi under msi\ instead - one build per run produces exactly one.
 for %%p in ("%AIP%") do set "AIP_DIR=%%~dpp"
 set "MSI="
-for /f "delims=" %%f in ('dir /b /s /o-d "%AIP_DIR%*.msi" 2^>nul') do if not defined MSI set "MSI=%%f"
+for /f "delims=" %%f in ('dir /b /s /o-d "%AIP_DIR%*.exe" 2^>nul') do if not defined MSI set "MSI=%%f"
 if not defined MSI (
     echo "No installer was produced beside %AIP%"
     exit /b 1

@@ -14,6 +14,16 @@ fi
 
 # Build scroipt for building either SPTK or XMQ packages in Docker environment
 
+# The status this script will exit with, and it starts as success rather than unset. It used to be
+# assigned only where the test suite runs, so "--no-tests" left it empty: "exit $RC" then became a
+# bare "exit", which returns the status of whatever ran last - the chown at the bottom of the loop,
+# which fails. Every image built with --no-tests therefore reported "BUILD RC=1" to the farm,
+# whether it had built or not, and a genuine failure looked exactly the same.
+#
+# It also has to survive the loop: SPTK and XMQ are built by one invocation, and a per-iteration
+# variable meant SPTK's failing suite was erased by XMQ's passing one.
+RC=0
+
 for PACKAGE in $@; do
 
 echo ═════════════════════════════ $PACKAGE ═══════════════════════════════
@@ -122,8 +132,13 @@ echo ─────────────────────────
 
 OUTPUT_DIR=$BUILD_OUTPUT_DIR/$DOWNLOAD_DIRNAME
 mkdir -p $OUTPUT_DIR || exit 1
-for fname in $(ls *.rpm *.deb)
+# The patterns directly, with a guard, rather than through ls: a glob that matches nothing comes
+# back as itself, and handing that to ls is what printed "cannot access '*.rpm'" in every log a
+# Debian image ever wrote - an error message for the ordinary case of a distribution that packages
+# the other way.
+for fname in *.rpm *.deb
 do
+    [ -f "$fname" ] || continue
     if [ $PACKAGE = "SPTK" ]; then
         name=$(echo $fname | sed -re 's/^SPTK/sptk/;s/-Linux//')
         lcPACKAGE="sptk"
@@ -193,13 +208,14 @@ if [ $RUN_TESTS = "true" ]; then
     # the log is what makes a failure reproducible afterwards - pass it back with
     # --gtest_random_seed=N.
     $suite --gtest_filter=-*Scenario* --gtest_shuffle > /build/logs/${lcPACKAGE}_unit_tests.$OS_TYPE.log 2>&1
-    RC=$?
+    SUITE_RC=$?
 
     # The image is in the name. It used to be ${lcPACKAGE}_failed.log for every image in the run,
     # so nine images left one marker between them and each overwrote the last - a failure on the
     # first eight was erased by a pass on the ninth.
-    if [ $RC != 0 ]; then
+    if [ $SUITE_RC != 0 ]; then
         echo "/build/logs/${lcPACKAGE}_unit_tests.$OS_TYPE.log" > /build/logs/${lcPACKAGE}_failed.$OS_TYPE.log
+        RC=$SUITE_RC
     else
         rm -f /build/logs/${lcPACKAGE}_failed.$OS_TYPE.log
     fi
@@ -208,7 +224,23 @@ fi
 cd $CWD
 sh ./distclean.sh
 sh ./distclean.sh
-chown -R alexeyp SPTK* XMQ*
+
+# The tree this container built in, handed back to the account that runs the farm: the container is
+# root, so everything it wrote belongs to root, and the next run's rsync then fills nothing and
+# exits 0 - nine images failing with no error anywhere.
+#
+# "$CWD", not "SPTK* XMQ*". Those patterns were matched from inside the tree they name, where
+# neither exists, so the chown failed on every run - printing two lines nobody read, leaving the
+# ownership it exists to fix, and handing its own failure to "exit $RC" as the build's result.
+# "|| true" so it can never do that again.
+#
+# By number, taken from a directory the farm owns, and not by the name "alexeyp": the container has
+# a user database of its own, in which that name is a different account. Chowning by it handed the
+# tree to whoever holds that id on the host - which on this farm is a real and unrelated user.
+TREE_OWNER=$(stat -c "%u:%g" /build/git 2>/dev/null)
+if [ -n "$TREE_OWNER" ]; then
+    chown -R "$TREE_OWNER" "$CWD" || true
+fi
 
 done
 
