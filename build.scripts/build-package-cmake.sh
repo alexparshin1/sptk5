@@ -132,8 +132,13 @@ echo ─────────────────────────
 
 OUTPUT_DIR=$BUILD_OUTPUT_DIR/$DOWNLOAD_DIRNAME
 mkdir -p $OUTPUT_DIR || exit 1
-for fname in $(ls *.rpm *.deb)
+# The patterns directly, with a guard, rather than through ls: a glob that matches nothing comes
+# back as itself, and handing that to ls is what printed "cannot access '*.rpm'" in every log a
+# Debian image ever wrote - an error message for the ordinary case of a distribution that packages
+# the other way.
+for fname in *.rpm *.deb
 do
+    [ -f "$fname" ] || continue
     if [ $PACKAGE = "SPTK" ]; then
         name=$(echo $fname | sed -re 's/^SPTK/sptk/;s/-Linux//')
         lcPACKAGE="sptk"
@@ -220,15 +225,22 @@ cd $CWD
 sh ./distclean.sh
 sh ./distclean.sh
 
-# The tree this container built in, handed back to the account that owns /build: the container runs
-# as root, so everything it wrote belongs to root, and the next run's rsync then fills nothing and
+# The tree this container built in, handed back to the account that runs the farm: the container is
+# root, so everything it wrote belongs to root, and the next run's rsync then fills nothing and
 # exits 0 - nine images failing with no error anywhere.
 #
 # "$CWD", not "SPTK* XMQ*". Those patterns were matched from inside the tree they name, where
-# neither exists, so the chown failed on every single run - printing two lines nobody read, leaving
-# the ownership it exists to fix, and handing its own failure to "exit $RC" as the build's result.
+# neither exists, so the chown failed on every run - printing two lines nobody read, leaving the
+# ownership it exists to fix, and handing its own failure to "exit $RC" as the build's result.
 # "|| true" so it can never do that again.
-chown -R alexeyp "$CWD" || true
+#
+# By number, taken from a directory the farm owns, and not by the name "alexeyp": the container has
+# a user database of its own, in which that name is a different account. Chowning by it handed the
+# tree to whoever holds that id on the host - which on this farm is a real and unrelated user.
+TREE_OWNER=$(stat -c "%u:%g" /build/git 2>/dev/null)
+if [ -n "$TREE_OWNER" ]; then
+    chown -R "$TREE_OWNER" "$CWD" || true
+fi
 
 done
 
