@@ -14,6 +14,16 @@ fi
 
 # Build scroipt for building either SPTK or XMQ packages in Docker environment
 
+# The status this script will exit with, and it starts as success rather than unset. It used to be
+# assigned only where the test suite runs, so "--no-tests" left it empty: "exit $RC" then became a
+# bare "exit", which returns the status of whatever ran last - the chown at the bottom of the loop,
+# which fails. Every image built with --no-tests therefore reported "BUILD RC=1" to the farm,
+# whether it had built or not, and a genuine failure looked exactly the same.
+#
+# It also has to survive the loop: SPTK and XMQ are built by one invocation, and a per-iteration
+# variable meant SPTK's failing suite was erased by XMQ's passing one.
+RC=0
+
 for PACKAGE in $@; do
 
 echo ═════════════════════════════ $PACKAGE ═══════════════════════════════
@@ -193,13 +203,14 @@ if [ $RUN_TESTS = "true" ]; then
     # the log is what makes a failure reproducible afterwards - pass it back with
     # --gtest_random_seed=N.
     $suite --gtest_filter=-*Scenario* --gtest_shuffle > /build/logs/${lcPACKAGE}_unit_tests.$OS_TYPE.log 2>&1
-    RC=$?
+    SUITE_RC=$?
 
     # The image is in the name. It used to be ${lcPACKAGE}_failed.log for every image in the run,
     # so nine images left one marker between them and each overwrote the last - a failure on the
     # first eight was erased by a pass on the ninth.
-    if [ $RC != 0 ]; then
+    if [ $SUITE_RC != 0 ]; then
         echo "/build/logs/${lcPACKAGE}_unit_tests.$OS_TYPE.log" > /build/logs/${lcPACKAGE}_failed.$OS_TYPE.log
+        RC=$SUITE_RC
     else
         rm -f /build/logs/${lcPACKAGE}_failed.$OS_TYPE.log
     fi
@@ -208,7 +219,16 @@ fi
 cd $CWD
 sh ./distclean.sh
 sh ./distclean.sh
-chown -R alexeyp SPTK* XMQ*
+
+# The tree this container built in, handed back to the account that owns /build: the container runs
+# as root, so everything it wrote belongs to root, and the next run's rsync then fills nothing and
+# exits 0 - nine images failing with no error anywhere.
+#
+# "$CWD", not "SPTK* XMQ*". Those patterns were matched from inside the tree they name, where
+# neither exists, so the chown failed on every single run - printing two lines nobody read, leaving
+# the ownership it exists to fix, and handing its own failure to "exit $RC" as the build's result.
+# "|| true" so it can never do that again.
+chown -R alexeyp "$CWD" || true
 
 done
 
