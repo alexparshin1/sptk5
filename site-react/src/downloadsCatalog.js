@@ -44,20 +44,20 @@ function validDirectories(sptkVersion)
     return sptkVersion.directories.filter((entry) => entry && entry.directory && Array.isArray(entry.files));
 }
 
-// Directories that never hold an XMQ package - the source code archives - belong to SPTK
-// alone. They are not an operating system to choose, and are listed with every XMQ version
-// built from that SPTK release.
-function operatingSystemsWithXmq(downloads)
+const BINARY_PACKAGE = /\.(deb|rpm|pkg|exe|msi)$/i;
+
+// Whether a directory holds packages for an operating system, as opposed to the source code
+// archives that belong to SPTK alone and are listed with every operating system.
+//
+// Decided by what the directory holds, not by what it is missing. The rule used to be "no XMQ
+// package here, so it must be the source code" - and a directory of SPTK .rpm files for which XMQ
+// simply had not built, oraclelinux-9 and oraclelinux-10, answered to that description. They were
+// then shown under the source-code heading whatever operating system was chosen: pick Ubuntu, and
+// below the .deb files came two tables of Oracle Linux .rpm files, offered as though they were the
+// source code.
+function holdsBinaryPackages(entry)
 {
-    const operatingSystems = new Set();
-    for (const sptkVersion of downloads) {
-        for (const entry of validDirectories(sptkVersion)) {
-            if (entry.files.some((file) => xmqFileVersion(file.file))) {
-                operatingSystems.add(entry.directory.os_dir);
-            }
-        }
-    }
-    return operatingSystems;
+    return entry.files.some((file) => BINARY_PACKAGE.test(file.file));
 }
 
 // Keeps the operating system order of the download endpoint, which lists the known systems in
@@ -94,7 +94,6 @@ export function buildXmqReleases(downloads)
     for (const sptkVersion of downloads) {
         sptkVersionIndex[sptkVersion.sptk_version] = sptkVersion;
     }
-    const osWithXmq = operatingSystemsWithXmq(downloads);
 
     const releaseIndex = {};
     for (const sptkVersion of downloads) {
@@ -125,7 +124,7 @@ export function buildXmqReleases(downloads)
         const primaryVersion = sptkVersionIndex[release.sptkVersion];
         for (const entry of validDirectories(primaryVersion)) {
             const osDir = entry.directory.os_dir;
-            if (!osWithXmq.has(osDir)) {
+            if (!holdsBinaryPackages(entry)) {
                 // The source code of the SPTK release, offered whatever the operating system
                 release.sourceEntries.push({
                     sptkVersion: release.sptkVersion,
