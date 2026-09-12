@@ -222,7 +222,7 @@ NOTES
   sequential - two brokers competing for the same cores would corrupt both results.
 
 
-Server:   XMQ
+Server:   XMQ (superseded, not charted)
 Version:  0.9.16 (final)
 Date:     2026-09-09
 Interval        Count    Latency       Rate/s
@@ -256,3 +256,45 @@ Average      74997660     3175us       249992
   CPU and RSS were not sampled for this set - the runs were driven by
   run_scenario_set.sh, which does not start a sampler, and no one started one beside it.
 
+Server:   XMQ
+Version:  0.9.16
+Date:     2026-09-12
+Interval        Count    Latency       Rate/s
+─────────────────────────────────────────────
+0ms           7500000     1926us       250000
+30000ms       7500000     1919us       250000
+60000ms       7500000     1932us       250000
+90000ms       7500000     1949us       250000
+120000ms      7500000     1925us       250000
+150000ms      7499980     1897us       249999
+180000ms      7500020     1899us       250000
+210000ms      7500000     1895us       250000
+240000ms      7500000     1895us       250000
+270000ms      7498002     1888us       249933
+─────────────────────────────────────────────
+Average      74998002     1912us       249993
+  interval median 1909us over 8 samples (first and last dropped), range 1895-1949us
+
+  1909us, against 3175us in the run above - the same broker, the same instance, the same scenario.
+  What changed is send_threads and receive_threads: 3 here, 8 there. Three is what the 0.9.16
+  template ships, so this is the figure an untouched installation produces; the 8 had been sitting
+  in that instance's /etc/xmq since a fan-out experiment on 2026-08-11, and every earlier XMQ figure
+  in this file was taken at it.
+
+  At eight threads this broker did not merely run slower. Measured the same day, three interleaved
+  runs a side: 8 threads gave 11.0s, 9.3s and 7.4s of latency at 229-236k/s, delivering 68.8-70.9
+  million of the 75 million messages sent; 2 threads gave 1788, 1791 and 1808us at the full rate
+  with nothing lost; 3 threads gave 1756, 1743 and 1773us. The published 3175 was the low draw of
+  the collapsing arm, not a level the broker held.
+
+  The interval-to-interval drift is gone with it. The run above climbs 2693 -> 3287us over three
+  minutes and settles 21% above where it started; this one is flat, and if anything falls slightly:
+  1926 at the first interval, 1888 at the last. So that drift was the same fault, seen from inside a
+  single run.
+
+  Run to run, this scenario is now steady to about 2% - three runs the previous day, at the same
+  setting, gave an interval median of 1811us against 1909us here, with the instance stopped and
+  started in between. The 27% spread this file used to warn about was the collapsing arm, not the
+  scenario.
+
+  For comparison, FlashMQ on this instance is 2126us.

@@ -167,7 +167,7 @@ Average      89974412      191us        49985
   CPU and RSS not sampled for this run.
 
 
-Server:   XMQ
+Server:   XMQ (superseded, not charted)
 Version:  0.9.16 (final)
 Date:     2026-09-09
 Interval        Count    Latency       Rate/s
@@ -191,3 +191,28 @@ Average      89971506      214us        49984
   CPU and RSS were not sampled for this set - the runs were driven by
   run_scenario_set.sh, which does not start a sampler, and no one started one beside it.
 
+Server:   XMQ
+Version:  0.9.16
+Date:     2026-09-11
+Interval        Count    Latency       Rate/s
+─────────────────────────────────────────────
+0ms           8999987      211us        49999
+180000ms      9000002      213us        50000
+360000ms      8999998      212us        49999
+540000ms      8999999      212us        49999
+720000ms      9000000      213us        50000
+900000ms      9000004      212us        50000
+1080000ms     9000000      213us        50000
+1260000ms     9000000      213us        50000
+1440000ms     8999997      213us        49999
+1620000ms     8974484      212us        49858
+─────────────────────────────────────────────
+Average      89974471      212us        49985
+  interval median 213us over 8 samples (first and last dropped), range 212-213us
+
+  Measured with send_threads and receive_threads at 3, which is what the 0.9.16 template ships and
+  therefore what an untouched installation runs. The instance had been carrying 8/8 since a fan-out
+  experiment on 2026-08-11, and every earlier figure in this file was taken at that setting - see
+  the Fan-Out record for what it cost there. The broker was a 0.9.17 build, whose only difference
+  from 0.9.16 is the plumbing that lets these two settings say "auto"; with a number given, the code
+  is the same, and the branch diff is eleven files, none of which touch delivery or receive.

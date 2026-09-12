@@ -58,16 +58,17 @@ export default class XMQ_tests_fanout extends React.Component
                     <h4>Reading the results</h4>
                     <ul>
                         <li>
-                            <b>Read the spread before reading the numbers.</b> This scenario varies
-                            by 27% from run to run on identical software: three runs of one build,
-                            the broker restarted before each, gave 3.11, 3.22 and 3.34&nbsp;ms, and
-                            three of the build before it gave 3.38, 3.08 and 2.66&nbsp;ms. A single
-                            figure here carries about that much uncertainty, and differences
-                            smaller than it mean nothing at all.
+                            <b>The numbers here are steady, and they did not use to be.</b> This
+                            scenario once varied by 27% from run to run on identical software, and
+                            that turned out to be a symptom rather than a property: the broker was
+                            configured with eight send threads on an eight-core machine, which is
+                            one per core, and at that setting it loses messages instead of merely
+                            slowing down. At the three threads its own template ships, three runs
+                            agree to about 2%.
                         </li>
                         <li>
-                            <b>FlashMQ is the fastest of the four</b> at 2.13&nbsp;ms, with XMQ at
-                            3.18&nbsp;ms and EMQX at 4.04&nbsp;ms. All three hold the full 250,000
+                            <b>XMQ is the fastest of the four</b> at 1.91&nbsp;ms, with FlashMQ at
+                            2.13&nbsp;ms and EMQX at 4.04&nbsp;ms. All three hold the full 250,000
                             messages a second, so this is a comparison of latency and efficiency
                             rather than of capacity.
                         </li>
