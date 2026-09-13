@@ -152,6 +152,31 @@ do
     else
         name=$(echo $fname | sed -re 's/^XMQ/xmq/;s/-Linux//')
         lcPACKAGE="xmq"
+
+        # Acceptance, first layer: what this package will do to a machine that already runs XMQ -
+        # a live file under etc/xmq, a configuration template readable by all, a declared conffile,
+        # a path the previous release had and this one silently drops. Read with this image's own
+        # dpkg-deb or rpm, against the previous release's list kept in the XMQ tree.
+        #
+        # The marker and the log are named xmq_package_failed and xmq_package_unit_tests on purpose:
+        # build_all.sh reports every *_failed.* marker and derives the log's name by replacing
+        # "_failed." with "_unit_tests.", so these two names make a failed inspection show up in the
+        # night's summary, pointing at the right log, without that script knowing about it. A
+        # separate marker, because the unit-test step removes xmq_failed when its suite passes.
+        INSPECT=packages/inspect_package.py
+        BASELINE=packages/baseline/$DOWNLOAD_DIRNAME.json
+        INSPECT_LOG=/build/logs/xmq_package_unit_tests.$OS_TYPE.log
+        if [ -f "$INSPECT" ]; then
+            INSPECT_ARGS="--expected-removals packages/baseline/expected-removals.txt --expected-dependencies packages/baseline/expected-dependencies.txt"
+            [ -f "$BASELINE" ] && INSPECT_ARGS="$INSPECT_ARGS --baseline $BASELINE"
+            if python3 "$INSPECT" "$fname" $INSPECT_ARGS > "$INSPECT_LOG" 2>&1; then
+                rm -f /build/logs/xmq_package_failed.$OS_TYPE.log
+            else
+                echo "$INSPECT_LOG" > /build/logs/xmq_package_failed.$OS_TYPE.log
+                RC=1
+            fi
+            tail -1 "$INSPECT_LOG"
+        fi
     fi
     mv $fname $OUTPUT_DIR/$name
     # The checksum of what people actually download, beside it, in the format "shasum -a 256 -c"
