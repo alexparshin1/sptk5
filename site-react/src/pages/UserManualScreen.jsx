@@ -372,6 +372,75 @@ sudo sysctl --system`}</pre>
 
             <pre className="userManualCode">{`./preflight.sh                          # check this host as a client
 ./preflight.sh -H broker -r server -p 1883   # check a remote server host`}</pre>
+
+            <h5 id="receive-steering">Receive packet steering on a single-queue network card</h5>
+
+            <p>
+                A network card with one receive queue delivers every incoming packet to one CPU, and
+                the kernel runs the whole IP and TCP receive path there. Under heavy load that CPU
+                reaches 100% while the others idle, the card starts dropping frames, and clients
+                retransmit into backoff until the server closes their sessions for a keep-alive
+                timeout - although every one of them was sending. On a test host with such a card, a
+                100,000 messages a second run lost 255,891 frames a second this way and never
+                finished. Linux receive packet steering (RPS) spreads the work over other CPUs, and
+                with it the losses fell to zero and the run completed.
+            </p>
+
+            <p>
+                XMQ checks this at start-up. When a network interface its listeners use has a single
+                receive queue, no steering, and the machine has more than two CPUs, the log says so
+                and links here. Enable RPS when all three of these hold:
+            </p>
+
+            <ul>
+                <li>
+                    <b>The card has one receive queue.</b> <code>ls /sys/class/net/eth0/queues/</code>
+                    lists only <code>rx-0</code>. Cards with several queues already spread their
+                    interrupts across CPUs and do not need RPS.
+                </li>
+                <li>
+                    <b>One CPU is pinned under load.</b> While clients are connected and busy,
+                    <code>mpstat -P ALL 1</code> shows <code>%soft</code> near 100 on one CPU.
+                    Checking after the load has stopped shows nothing.
+                </li>
+                <li>
+                    <b>The card is dropping frames.</b> The drop counters in
+                    <code>ethtool -S eth0</code> - <code>rx_no_buffer_count</code>,
+                    <code>rx_missed_errors</code> or <code>rx_fifo_errors</code>, depending on the
+                    driver - grow while the load runs.
+                </li>
+            </ul>
+
+            <p>
+                With only the first condition, leave it off: moving packets between CPUs costs a
+                little at low rates. To enable it, write a mask of the CPUs to use, and size the flow
+                tables so that each packet goes to the CPU where its socket is read:
+            </p>
+
+            <pre className="userManualCode">{`IF=eth0
+echo 70    | sudo tee /sys/class/net/$IF/queues/rx-0/rps_cpus      # hex mask: CPUs 4, 5 and 6
+echo 32768 | sudo tee /proc/sys/net/core/rps_sock_flow_entries
+echo 32768 | sudo tee /sys/class/net/$IF/queues/rx-0/rps_flow_cnt`}</pre>
+
+            <p>
+                Choose CPUs that are idle under load, not the one that receives the card's interrupt
+                (<code>grep eth0 /proc/interrupts</code> shows which), and on the card's NUMA node. The
+                settings do not survive a reboot. Keep them with a sysctl file and a udev rule:
+            </p>
+
+            <pre className="userManualCode">{`# /etc/sysctl.d/60-rfs.conf
+net.core.rps_sock_flow_entries = 32768
+
+# /etc/udev/rules/60-rps.rules
+ACTION=="add", SUBSYSTEM=="net", KERNEL=="eth0", ATTR{queues/rx-0/rps_cpus}="70", ATTR{queues/rx-0/rps_flow_cnt}="32768"`}</pre>
+
+            <p>
+                Other systems have their own equivalents, which XMQ does not check. On FreeBSD it is
+                netisr: <code>net.isr.maxthreads</code> and <code>net.isr.bindthreads</code> in
+                <code>/boot/loader.conf</code>, with <code>net.isr.dispatch=deferred</code>. On Windows
+                it is receive side scaling, set with <code>Set-NetAdapterRss</code>, and available only
+                when the card's driver supports several queues.
+            </p>
         </div>;
     }
 
