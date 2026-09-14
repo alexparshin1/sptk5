@@ -36,7 +36,25 @@ SET(VERSION "${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}")
 PROJECT(SPTK
         VERSION ${VERSION}
         LANGUAGES CXX C)
-SET(SOVERSION "5")
+# The soname carries the whole version: libsputil5.so.5.6.11, not libsputil5.so.5. An application
+# loads exactly the SPTK it was built with or fails to start, and two releases can be installed side
+# by side. A shorter soname would promise ABI compatibility across the releases that share it, and
+# SPTK does not keep that promise inside a patch series: 5.6.9 to 5.6.10 removed six exported symbols
+# from libsputil5, a FastTCPServer constructor among them. With libsputil5.so.5 an application built
+# against 5.6.10 loaded 5.6.9 without complaint and died on an undefined symbol at the first call.
+SET(SOVERSION "${VERSION}")
+
+# DT_RPATH, not DT_RUNPATH, for every binary this project links. The toolchains default to RUNPATH,
+# and RUNPATH is searched after LD_LIBRARY_PATH, so any environment could replace the SPTK a library
+# was installed beside; RPATH is searched first. RPATH also covers the whole dependency tree where
+# RUNPATH covers only direct dependencies, and it is what dlopen consults when libspdb5 opens a
+# database driver. Measured on thinker10: with LD_LIBRARY_PATH naming another copy, a RUNPATH binary
+# loaded that copy and an RPATH binary did not.
+IF (UNIX AND NOT APPLE)
+    STRING(APPEND CMAKE_SHARED_LINKER_FLAGS " -Wl,--disable-new-dtags")
+    STRING(APPEND CMAKE_MODULE_LINKER_FLAGS " -Wl,--disable-new-dtags")
+    STRING(APPEND CMAKE_EXE_LINKER_FLAGS " -Wl,--disable-new-dtags")
+ENDIF ()
 
 IF (NOT CMAKE_BUILD_TYPE)
     SET(CMAKE_BUILD_TYPE Release)

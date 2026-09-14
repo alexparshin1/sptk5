@@ -90,7 +90,11 @@ void DatabaseConnectionPool::load()
     if (!handle)
         throw SystemException("Cannot load library " + driverFileName);
 #else
-    const String driverFileName = String("libspdb5_") + driverNameLC + String(".so");
+    // By the full soname, which carries the SPTK version: the driver that matches this libspdb5 and
+    // no other. The unversioned libspdb5_<driver>.so is a development link - an installation that
+    // has two SPTK releases in one directory, or none of the development files, would either load
+    // whichever release that link happens to point at or fail to find a driver that is there.
+    const String driverFileName = String("libspdb5_") + driverNameLC + String(".so.") + String(SPTK_DRIVER_SONAME_VERSION);
 
     auto* handle = static_cast<DriverHandle>(dlopen(driverFileName.c_str(), RTLD_NOW));
     if (handle == nullptr)
