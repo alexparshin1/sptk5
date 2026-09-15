@@ -46,6 +46,7 @@
 #include <atomic>
 #include <cstdint>
 #include <mutex>
+#include <shared_mutex>
 
 namespace sptk {
 template<typename T>
@@ -84,7 +85,7 @@ concept is_socket_readable = std::is_integral_v<T> || std::is_floating_point_v<T
  * back to taking m_mutex exclusively, as everything did before.
  *
  * The protected *Unlocked() family is the same set of operations with no locking; it exists so
- * that these methods can call one another without re-entering the lock. ReadWriteMutex is not
+ * that these methods can call one another without re-entering the lock. The mutex is not
  * recursive, so any code running under the lock - including every override in a derived class -
  * must call the *Unlocked() variant, never the public one.
  *
@@ -132,7 +133,7 @@ public:
     {
         // Exclusive: this changes the descriptor's flags and the cached mode, and must not
         // interleave with open()/attach(), which set both.
-        const WriteLock lock(m_mutex);
+        const std::unique_lock lock(m_mutex);
         setBlockingModeUnlocked(blockingMode);
     }
 
@@ -144,7 +145,7 @@ public:
         // Exclusive despite being a query: SSLSocket's override pumps the record layer with a
         // zero-length SSL_read() to find out what is buffered, so it advances the SSL session
         // and must not run alongside a read() or write().
-        const WriteLock lock(m_mutex);
+        const std::unique_lock lock(m_mutex);
         return getSocketBytesUnlocked();
     }
 
@@ -155,7 +156,7 @@ public:
      */
     void attach(const SocketType socketHandle, const bool accept)
     {
-        const WriteLock lock(m_mutex);
+        const std::unique_lock lock(m_mutex);
         return attachUnlocked(socketHandle, accept);
     }
 
@@ -166,7 +167,7 @@ public:
      */
     SocketType detach()
     {
-        const WriteLock lock(m_mutex);
+        const std::unique_lock lock(m_mutex);
         return detachUnlocked();
     }
 
@@ -176,7 +177,7 @@ public:
      */
     void host(const Host& host)
     {
-        const WriteLock lock(m_mutex);
+        const std::unique_lock lock(m_mutex);
         setHostUnlocked(host);
     }
 
@@ -185,7 +186,7 @@ public:
      */
     [[nodiscard]] Host host() const
     {
-        const ReadLock lock(m_mutex);
+        const std::shared_lock lock(m_mutex);
         return getHostUnlocked();
     }
 
@@ -200,7 +201,7 @@ public:
     void open(const Host& host = Host(), const OpenMode openMode = OpenMode::CONNECT, const bool blockingMode = true,
               const std::chrono::milliseconds& timeoutMS = std::chrono::milliseconds(0), const char* clientBindAddress = nullptr)
     {
-        const WriteLock lock(m_mutex);
+        const std::unique_lock lock(m_mutex);
         openUnlocked(host, openMode, blockingMode, timeoutMS, clientBindAddress);
     }
 
@@ -216,7 +217,7 @@ public:
               const bool blockingMode = true, const std::chrono::milliseconds& timeoutMS = std::chrono::milliseconds(0),
               const char* clientBindAddress = nullptr)
     {
-        const WriteLock lock(m_mutex);
+        const std::unique_lock lock(m_mutex);
         openUnlocked(address, openMode, blockingMode, timeoutMS, clientBindAddress);
     }
 
@@ -228,7 +229,7 @@ public:
      */
     void bind(const char* address, const uint32_t portNumber, const bool reusePort = false)
     {
-        const WriteLock lock(m_mutex);
+        const std::unique_lock lock(m_mutex);
         bindUnlocked(address, portNumber, reusePort);
     }
 
@@ -241,7 +242,7 @@ public:
     void listen(const uint16_t portNumber = 0, const bool reusePort = true,
                 const int backlog = DEFAULT_LISTEN_BACKLOG)
     {
-        const WriteLock lock(m_mutex);
+        const std::unique_lock lock(m_mutex);
         listenUnlocked(portNumber, reusePort, backlog);
     }
 
@@ -255,7 +256,7 @@ public:
         // on the very thread this call has to interrupt. Safe without the lock - see
         // shutdownUnlocked().
         shutdownUnlocked();
-        const WriteLock lock(m_mutex);
+        const std::unique_lock lock(m_mutex);
         closeUnlocked();
     }
 
@@ -265,7 +266,7 @@ public:
      */
     [[nodiscard]] bool active() const
     {
-        const ReadLock lock(m_mutex);
+        const std::shared_lock lock(m_mutex);
         return activeUnlocked();
     }
 
@@ -275,7 +276,7 @@ public:
      */
     void setOption(const int level, const int option, const int value) const
     {
-        const WriteLock lock(m_mutex);
+        const std::unique_lock lock(m_mutex);
         setOptionUnlocked(level, option, value);
     }
 
@@ -286,7 +287,7 @@ public:
      */
     void getOption(const int level, const int option, int& value) const
     {
-        const ReadLock lock(m_mutex);
+        const std::shared_lock lock(m_mutex);
         getOptionUnlocked(level, option, value);
     }
 
@@ -301,13 +302,13 @@ public:
     {
         if (!fullDuplexIO())
         {
-            const WriteLock lock(m_mutex);
+            const std::unique_lock lock(m_mutex);
             return readUnlocked(buffer, size, from);
         }
         // Shared on the state, exclusive on this direction: another reader waits, a writer does
         // not. The shared lock is still what keeps open()/close() from pulling the descriptor
         // out from under the recv().
-        const ReadLock        stateLock(m_mutex);
+        const std::shared_lock stateLock(m_mutex);
         const std::lock_guard directionLock(m_readMutex);
         return readUnlocked(buffer, size, from);
     }
@@ -331,10 +332,10 @@ public:
     {
         if (!fullDuplexIO())
         {
-            const WriteLock lock(m_mutex);
+            const std::unique_lock lock(m_mutex);
             return recvAvailableUnlocked(buffer, size);
         }
-        const ReadLock        stateLock(m_mutex);
+        const std::shared_lock stateLock(m_mutex);
         const std::lock_guard directionLock(m_readMutex);
         return recvAvailableUnlocked(buffer, size);
     }
@@ -367,10 +368,10 @@ public:
     {
         if (!fullDuplexIO())
         {
-            const WriteLock lock(m_mutex);
+            const std::unique_lock lock(m_mutex);
             return readUnlocked(reinterpret_cast<uint8_t*>(&value), sizeof(T), from);
         }
-        const ReadLock        stateLock(m_mutex);
+        const std::shared_lock stateLock(m_mutex);
         const std::lock_guard directionLock(m_readMutex);
         return readUnlocked(reinterpret_cast<uint8_t*>(&value), sizeof(T), from);
     }
@@ -388,12 +389,12 @@ public:
     {
         if (!fullDuplexIO())
         {
-            const WriteLock lock(m_mutex);
+            const std::unique_lock lock(m_mutex);
             return writeUnlocked(buffer, size, peer);
         }
         // See read(): writers serialise against each other so that two partial sends cannot
         // interleave in the stream, but a reader on the same socket runs unimpeded.
-        const ReadLock        stateLock(m_mutex);
+        const std::shared_lock stateLock(m_mutex);
         const std::lock_guard directionLock(m_writeMutex);
         return writeUnlocked(buffer, size, peer);
     }
@@ -420,7 +421,7 @@ public:
      */
     [[nodiscard]] bool readyToRead(const std::chrono::milliseconds& timeout)
     {
-        const WriteLock lock(m_mutex);
+        const std::unique_lock lock(m_mutex);
         return readyToReadUnlocked(timeout);
     }
 
@@ -430,7 +431,7 @@ public:
      */
     [[nodiscard]] virtual bool readyToWrite(const std::chrono::milliseconds& timeout)
     {
-        const WriteLock lock(m_mutex);
+        const std::unique_lock lock(m_mutex);
         return readyToWriteUnlocked(timeout);
     }
 
@@ -442,7 +443,7 @@ public:
     {
         // Shared: m_blockingMode is a plain bool, so reading it while another thread is inside
         // blockingMode(bool) or open() would otherwise be a data race.
-        const ReadLock lock(m_mutex);
+        const std::shared_lock lock(m_mutex);
         return getBlockingModeUnlocked();
     }
 
@@ -508,7 +509,7 @@ public:
     }
 
 protected:
-    ReadWriteMutex& getMutex() const
+    std::shared_mutex& getMutex() const
     {
         return m_mutex;
     }
@@ -551,7 +552,12 @@ protected:
     }
 
 private:
-    mutable ReadWriteMutex m_mutex;         ///< Mutex that protects host data.
+    // A std::shared_mutex and not SPTK's ReadWriteMutex, which is 152 bytes to its 56: the extra
+    // is two condition variables, and they are there for upgrading a shared lock to an exclusive
+    // one, which this class never does - nor does anything else in either tree. A broker holds one
+    // of these per connection, so the 96 bytes are worth more here than a capability nobody asks
+    // for. ReadWriteMutex stays where it is used for its own sake.
+    mutable std::shared_mutex m_mutex;      ///< Mutex that protects host data.
     mutable std::mutex     m_readMutex;     ///< Serialises readers when I/O is full duplex.
     mutable std::mutex     m_writeMutex;    ///< Serialises writers when I/O is full duplex.
     std::atomic<uint64_t>  m_poolToken {0}; ///< Reactor registration token, 0 when not registered.

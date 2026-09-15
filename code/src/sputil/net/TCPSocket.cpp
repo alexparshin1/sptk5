@@ -99,7 +99,7 @@ bool TCPSocket::accept(SocketType& clientSocketFD, sockaddr_storage& clientInfo,
         return false;
     }
 
-    const WriteLock lock(getMutex());
+    const std::unique_lock lock(getMutex());
 
     if (!activeUnlocked())
     {
