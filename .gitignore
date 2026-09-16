@@ -13,3 +13,7 @@
 /code/bin
 docker/opt/
 docker/oracle.install/
+
+# The farm keeps its keys on the machine. A private key was committed here once, in 09592dd5.
+build.scripts/ssh/
+build.scripts/save/
