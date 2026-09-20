@@ -187,19 +187,8 @@ bool FastTcpServerListener::acceptConnection(const chrono::milliseconds& timeout
     return false;
 }
 
-size_t FastTCPServer::reactorCount()
-{
-    static const size_t count = []
-    {
-        const char* const asked = getenv("SPTK_REACTORS");
-        const auto        value = asked != nullptr ? strtoul(asked, nullptr, 10) : 1UL;
-        return value < 1 ? size_t {1} : static_cast<size_t>(value);
-    }();
-    return count;
-}
-
 FastTCPServer::FastTCPServer(const std::string& serverName, std::shared_ptr<LogEngine> logEngine, SocketPoolTriggerMode triggerMode, const size_t maxEvents,
-                             const int backlog, const size_t reserveConnections)
+                             const int backlog, const size_t reserveConnections, const size_t reactors)
     : m_logEngine(std::move(logEngine))
     , m_backlog(backlog)
 {
@@ -208,7 +197,7 @@ FastTCPServer::FastTCPServer(const std::string& serverName, std::shared_ptr<LogE
     // round-robin in all but name. Sharding the reactor was tried in July 2026 with the handoff
     // queue still in place and lost 25%; this exists to try it the other way round, which is why it
     // is an environment variable and not a setting anybody has to live with.
-    const auto shards = reactorCount();
+    const auto shards = reactors < 1 ? size_t {1} : reactors;
     m_reactors.reserve(shards);
     for (size_t shard = 0; shard < shards; ++shard)
     {
@@ -564,7 +553,8 @@ void FastTCPServer::tuneSocket(const STCPSocket& socket)
     socket->blockingMode(false);
 }
 
-void FastTCPServer::watchConnection(const shared_ptr<ServerConnection>& connection, const bool rearm)
+void FastTCPServer::watchConnection(const shared_ptr<ServerConnection>& connection, const bool rearm,
+                                    const size_t reactor)
 {
     const auto socket = connection->getSocket();
     if (!socket)
@@ -581,7 +571,8 @@ void FastTCPServer::watchConnection(const shared_ptr<ServerConnection>& connecti
 
     try
     {
-        reactorFor(socket).add(socket, connection, rearm);
+        connection->setReactor(reactor % m_reactors.size());
+        reactorAt(connection->reactor()).add(socket, connection, rearm);
     }
     catch (const Exception& e)
     {
@@ -600,7 +591,7 @@ void FastTCPServer::unwatchConnection(const shared_ptr<ServerConnection>& connec
 
     try
     {
-        reactorFor(socket).remove(socket);
+        reactorAt(connection->reactor()).remove(socket);
     }
     catch (const Exception&)
     {
@@ -628,7 +619,7 @@ void FastTCPServer::closeConnection(const shared_ptr<ServerConnection>& connecti
 
     try
     {
-        reactorFor(socket).remove(socket);
+        reactorAt(connection->reactor()).remove(socket);
     }
     catch (const Exception&)
     {
@@ -661,7 +652,7 @@ void FastTCPServer::closeAllConnections()
         }
         try
         {
-            reactorFor(socket).remove(socket);
+            reactorAt(connection->reactor()).remove(socket);
         }
         catch (const Exception&)
         {

@@ -162,7 +162,8 @@ public:
      */
     explicit FastTCPServer(const std::string& serverName, std::shared_ptr<LogEngine> logEngine = nullptr,
                            SocketPoolTriggerMode triggerMode = SocketPoolTriggerMode::LevelTriggered, const size_t maxEvents = 128,
-                           int backlog = DEFAULT_LISTEN_BACKLOG, size_t reserveConnections = 0);
+                           int backlog = DEFAULT_LISTEN_BACKLOG, size_t reserveConnections = 0,
+                           size_t reactors = 1);
     ///< reserveConnections sizes both maps that hold one entry per connection - the reactor's
     ///< registration map and the server's own - so that neither rehashes while connections arrive.
     ///< 0 lets them grow, which is right for a server holding a handful of connections.
@@ -308,7 +309,9 @@ public:
      * @param connection        Connection to monitor.
      * @param rearm             Rearm connection (OneShot mode only).
      */
-    void watchConnection(const std::shared_ptr<ServerConnection>& connection, bool rearm = false);
+    /// @param reactor  Which reactor should watch it. The caller decides and the caller remembers;
+    ///                  everything here does is keep them and hand the socket to the one named.
+    void watchConnection(const std::shared_ptr<ServerConnection>& connection, bool rearm = false, size_t reactor = 0);
 
     /**
      * @brief Stop monitoring a connection for input events without closing it.
@@ -380,21 +383,12 @@ private:
     /// without anything having to remember the assignment.
     std::vector<std::unique_ptr<SocketEvents<ServerConnection>>> m_reactors;
 
-    /// The reactor a descriptor belongs to. Descriptors are handed out lowest-free-first, so this
-    /// is round-robin in all but name.
-    SocketEvents<ServerConnection>& reactorFor(SocketType descriptor) const
+    /// The reactor at that index, wrapped round if the caller asked for one that is not there.
+    SocketEvents<ServerConnection>& reactorAt(size_t reactor) const
     {
-        return *m_reactors[static_cast<size_t>(descriptor) % m_reactors.size()];
+        return *m_reactors[reactor % m_reactors.size()];
     }
 
-    /// The same, for the places that hold the socket rather than its descriptor.
-    SocketEvents<ServerConnection>& reactorFor(const std::shared_ptr<TCPSocket>& socket) const
-    {
-        return reactorFor(socket->fd());
-    }
-
-    /// How many to make, read once from the environment.
-    static size_t reactorCount();
     std::shared_ptr<SSLKeys>                                                 m_keys;                ///< Server SSL keys.
     std::map<Host, Listeners, HostCompare>                                   m_listeners;           ///< Server listeners.
     SocketEventCallback<ServerConnection>                                    m_socketEventCallback; ///< Optional socket event callback.

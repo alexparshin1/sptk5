@@ -132,6 +132,19 @@ public:
         return m_serial;
     }
 
+    /// Which reactor watches this connection. Written once, by watchConnection, before the socket
+    /// is handed to it; read when it is taken out. No lock: the write happens before the reactor
+    /// can report anything about this connection, and the reads come after.
+    size_t reactor() const
+    {
+        return m_reactor;
+    }
+
+    void setReactor(size_t reactor)
+    {
+        m_reactor = reactor;
+    }
+
     static std::tuple<std::string, uint16_t> parseAddress(const sockaddr_in* connectionAddress);
 
     /**
@@ -147,6 +160,7 @@ public:
     uint16_t port() const;
 
 private:
+    size_t             m_reactor {0};      ///< Which reactor watches it; set by watchConnection.
     mutable std::mutex m_mutex;            ///< Mutex that protects internal data.
     FastTCPServer*     m_server {nullptr}; ///< Parent server object.
     STCPSocket         m_socket;           ///< Connection socket.
