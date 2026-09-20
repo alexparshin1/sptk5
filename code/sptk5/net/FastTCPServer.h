@@ -44,6 +44,8 @@
 #include <sptk5/net/SSLKeys.h>
 #include <sptk5/net/ServerConnection.h>
 #include <sptk5/net/SocketEvents.h>
+#include <memory>
+#include <vector>
 #include <sptk5/threads/Flag.h>
 #include <sptk5/threads/JoiningThread.h>
 #include <sptk5/threads/Thread.h>
@@ -319,7 +321,7 @@ public:
      */
     SocketPoolTriggerMode getTriggerMode() const
     {
-        return m_socketEvents.getTriggerMode();
+        return m_reactors.front()->getTriggerMode();
     }
 
 protected:
@@ -373,7 +375,26 @@ private:
     std::unordered_map<ServerConnection*, std::shared_ptr<ServerConnection>> m_connections;         ///< Connections.
     std::shared_ptr<LogEngine>                                               m_logEngine;           ///< Optional log engine.
     std::shared_ptr<Logger>                                                  m_logger;              ///< Optional logger.
-    SocketEvents<ServerConnection>                                           m_socketEvents;        ///< Socket events reactor.
+    /// The reactors. One by default; SPTK_REACTORS asks for more, each its own thread with its own
+    /// epoll. A socket belongs to the one its descriptor picks, so add and remove agree on which
+    /// without anything having to remember the assignment.
+    std::vector<std::unique_ptr<SocketEvents<ServerConnection>>> m_reactors;
+
+    /// The reactor a descriptor belongs to. Descriptors are handed out lowest-free-first, so this
+    /// is round-robin in all but name.
+    SocketEvents<ServerConnection>& reactorFor(SocketType descriptor) const
+    {
+        return *m_reactors[static_cast<size_t>(descriptor) % m_reactors.size()];
+    }
+
+    /// The same, for the places that hold the socket rather than its descriptor.
+    SocketEvents<ServerConnection>& reactorFor(const std::shared_ptr<TCPSocket>& socket) const
+    {
+        return reactorFor(socket->fd());
+    }
+
+    /// How many to make, read once from the environment.
+    static size_t reactorCount();
     std::shared_ptr<SSLKeys>                                                 m_keys;                ///< Server SSL keys.
     std::map<Host, Listeners, HostCompare>                                   m_listeners;           ///< Server listeners.
     SocketEventCallback<ServerConnection>                                    m_socketEventCallback; ///< Optional socket event callback.

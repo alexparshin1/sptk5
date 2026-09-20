@@ -187,23 +187,45 @@ bool FastTcpServerListener::acceptConnection(const chrono::milliseconds& timeout
     return false;
 }
 
+size_t FastTCPServer::reactorCount()
+{
+    static const size_t count = []
+    {
+        const char* const asked = getenv("SPTK_REACTORS");
+        const auto        value = asked != nullptr ? strtoul(asked, nullptr, 10) : 1UL;
+        return value < 1 ? size_t {1} : static_cast<size_t>(value);
+    }();
+    return count;
+}
+
 FastTCPServer::FastTCPServer(const std::string& serverName, std::shared_ptr<LogEngine> logEngine, SocketPoolTriggerMode triggerMode, const size_t maxEvents,
                              const int backlog, const size_t reserveConnections)
     : m_logEngine(std::move(logEngine))
-    , m_socketEvents(
-          serverName,
-          [this](const std::weak_ptr<ServerConnection>& weakConnection, SocketEventType type)
-          {
-              // The reactor delivers a weak_ptr; lock it here and keep the downstream
-              // socketEventCallback(shared_ptr) interface unchanged.
-              if (const auto connection = weakConnection.lock())
-              {
-                  socketEventCallback(connection, type);
-              }
-          },
-          std::chrono::milliseconds(100), triggerMode, maxEvents, reserveConnections)
     , m_backlog(backlog)
 {
+    // One reactor unless asked for more. Each is a thread with its own epoll, and a socket belongs
+    // to the one its descriptor picks - descriptors are handed out lowest-free-first, so that is
+    // round-robin in all but name. Sharding the reactor was tried in July 2026 with the handoff
+    // queue still in place and lost 25%; this exists to try it the other way round, which is why it
+    // is an environment variable and not a setting anybody has to live with.
+    const auto shards = reactorCount();
+    m_reactors.reserve(shards);
+    for (size_t shard = 0; shard < shards; ++shard)
+    {
+        m_reactors.push_back(std::make_unique<SocketEvents<ServerConnection>>(
+            shards == 1 ? serverName : serverName + "-" + std::to_string(shard),
+            [this](const std::weak_ptr<ServerConnection>& weakConnection, SocketEventType type)
+            {
+                // The reactor delivers a weak_ptr; lock it here and keep the downstream
+                // socketEventCallback(shared_ptr) interface unchanged.
+                if (const auto connection = weakConnection.lock())
+                {
+                    socketEventCallback(connection, type);
+                }
+            },
+            std::chrono::milliseconds(100), triggerMode, maxEvents, reserveConnections / shards));
+    }
+
     if (reserveConnections > 0)
     {
         // The same reason as the pool's, and the same map growing at the same moments: one entry
@@ -559,7 +581,7 @@ void FastTCPServer::watchConnection(const shared_ptr<ServerConnection>& connecti
 
     try
     {
-        m_socketEvents.add(socket, connection, rearm);
+        reactorFor(socket).add(socket, connection, rearm);
     }
     catch (const Exception& e)
     {
@@ -578,7 +600,7 @@ void FastTCPServer::unwatchConnection(const shared_ptr<ServerConnection>& connec
 
     try
     {
-        m_socketEvents.remove(socket);
+        reactorFor(socket).remove(socket);
     }
     catch (const Exception&)
     {
@@ -606,7 +628,7 @@ void FastTCPServer::closeConnection(const shared_ptr<ServerConnection>& connecti
 
     try
     {
-        m_socketEvents.remove(socket);
+        reactorFor(socket).remove(socket);
     }
     catch (const Exception&)
     {
@@ -639,7 +661,7 @@ void FastTCPServer::closeAllConnections()
         }
         try
         {
-            m_socketEvents.remove(socket);
+            reactorFor(socket).remove(socket);
         }
         catch (const Exception&)
         {
