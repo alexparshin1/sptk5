@@ -332,9 +332,13 @@ INCLUDE_DIRECTORIES(${SPTK_SOURCE_DIR})
 
 # The build tree too, for the one generated header: sptk5/sptk-config.h is written into
 # <build>/sptk5 rather than into the sources, and is included as <sptk5/sptk-config.h> like any
-# other. Listed after the source directory only because nothing in the sources shadows it - the
-# tracked copy was deleted when the header moved here.
-INCLUDE_DIRECTORIES(${CMAKE_BINARY_DIR})
+# other.
+#
+# BEFORE, so that this build's copy wins over one of the same name in the sources. An in-source
+# build leaves exactly that behind, ignored by git and so invisible, and it used to win: 5.6.13
+# built in code/Debug compiled Version.cpp against a 5.6.12 header left in code/sptk5, reported
+# itself as 5.6.12, and every XMQ extension built against it refused to start.
+INCLUDE_DIRECTORIES(BEFORE ${CMAKE_BINARY_DIR})
 
 SET(SPTK_INCLUDE_DIR ${SPTK_SOURCE_DIR}/sptk5)
 
@@ -780,6 +784,9 @@ IF (FLTK_FLAG AND BUILD_INSTALLER)
 ENDIF ()
 
 FILE(GLOB includeFiles "${CMAKE_CURRENT_SOURCE_DIR}/sptk5/*.h")
+# The generated header is installed from the build tree below. A stale copy an in-source build left
+# in the sources would otherwise be installed too - and fail the install once it is removed.
+LIST(FILTER includeFiles EXCLUDE REGEX "/sptk-config\\.h$")
 INSTALL(FILES ${includeFiles} DESTINATION include/sptk5 COMPONENT core)
 
 # Installed separately: the glob above no longer reaches it, now that it is generated into the
