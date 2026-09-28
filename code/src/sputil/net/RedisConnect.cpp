@@ -48,6 +48,24 @@
 using namespace std;
 using namespace sptk;
 
+namespace {
+
+// Wakes a thread blocked in recv() on the socket. close() cannot do it: it takes the socket's lock
+// exclusively, and a full-duplex recv() holds that lock shared for as long as it blocks.
+void shutdownSocket(const TCPSocket& socket)
+{
+    if (const auto fd = socket.fd(); fd != INVALID_SOCKET)
+    {
+#ifdef _WIN32
+        ::shutdown(fd, SD_BOTH);
+#else
+        ::shutdown(fd, SHUT_RDWR);
+#endif
+    }
+}
+
+} // namespace
+
 vector<Variant> RedisConnect::connect(const string& host, const uint16_t port,
                                       const string& username, const string& password, const string& clientName)
 {
@@ -100,12 +118,23 @@ bool RedisConnect::isConnected() const
 
 void RedisConnect::disconnect()
 {
-    scoped_lock lock(m_mutex);
-    if (m_socket->active())
     {
-        m_socket->close();
+        scoped_lock lock(m_mutex);
+        if (m_socket->active())
+        {
+            m_socket->close();
+        }
+        m_reader.reset();
     }
-    m_reader.reset();
+
+    // Only woken here, not joined: this may run on the reader's own thread, from a callback. The
+    // reader fails what is still unanswered and exits; the writer replaces the connection on its
+    // next use, if there is anything to connect to by then.
+    const scoped_lock lock(m_asyncSocketMutex);
+    if (m_asyncSocket)
+    {
+        shutdownSocket(*m_asyncSocket);
+    }
 }
 
 void RedisConnect::flush()
@@ -597,8 +626,13 @@ RedisConnect::KeysAndValues RedisConnect::getValues(const vector<string>& keys)
 
 void RedisConnect::appendRequest(const RedisCommand& command)
 {
-    m_sendBuffer.append(24, "*{}\r\n", command.count());
-    m_sendBuffer.append(command);
+    appendRequest(m_sendBuffer, command);
+}
+
+void RedisConnect::appendRequest(Buffer& buffer, const RedisCommand& command)
+{
+    buffer.append(24, "*{}\r\n", command.count());
+    buffer.append(command);
 }
 
 void RedisConnect::sendRequest(const RedisCommand& command)
@@ -784,8 +818,10 @@ RedisConnect::~RedisConnect()
     {
         m_workerStop = true;
         m_taskQueue.wakeup();
+        m_inFlightChanged.notify_all();
         m_worker.join();
     }
+    stopAsyncConnection();
 }
 
 void RedisConnect::startWorker()
@@ -806,23 +842,19 @@ void RedisConnect::startWorker()
               });
 }
 
-void RedisConnect::runBatch(const vector<AsyncTask>& batch)
+void RedisConnect::runBatch(vector<AsyncTask>& batch)
 {
-    // Pipeline consecutive single-command tasks, but flush before each self-contained task so that
-    // operations are still executed in submission order (see asyncOperationsAreOrdered test).
-    vector<size_t> pipelined;
-    pipelined.reserve(batch.size());
-
-    for (size_t i = 0; i < batch.size(); ++i)
+    for (auto& task: batch)
     {
-        if (batch[i].selfContained)
+        if (task.selfContained)
         {
-            flushPipeline(batch, pipelined);
-            pipelined.clear();
-
+            // A self-contained task does its own round trip on m_socket. Everything submitted before
+            // it has to be answered first, so that operations still happen in submission order (see
+            // the asyncOperationsAreOrdered test).
+            waitForInFlight(0);
             try
             {
-                batch[i].selfContained();
+                task.selfContained();
             }
             catch (const Exception& e)
             {
@@ -831,87 +863,433 @@ void RedisConnect::runBatch(const vector<AsyncTask>& batch)
                 reportAsyncError(e);
             }
             taskCompleted();
+            continue;
+        }
+
+        if (!ensureAsyncConnection())
+        {
+            reportAsyncError(RedisConnectException("Not connected"));
+            taskCompleted();
+            continue;
+        }
+
+        bool accepted = false;
+        {
+            unique_lock lock(m_inFlightMutex);
+            if (m_inFlight.size() >= MaxInFlight)
+            {
+                // Bounded, so that a stalled Redis costs memory up to a limit, not without one.
+                lock.unlock();
+                waitForInFlight(MaxInFlight - 1);
+                lock.lock();
+            }
+            // Registered before the request is sent, so the reader always finds the handler of
+            // the reply it has just parsed. Refused once the connection has failed: the reader has
+            // already failed everything registered, and nothing would answer this one.
+            if (!m_asyncBroken)
+            {
+                m_inFlight.push_back({std::move(task.onReply), true});
+                accepted = true;
+            }
+        }
+
+        if (accepted)
+        {
+            appendRequest(m_asyncSendBuffer, *task.command);
         }
         else
         {
-            pipelined.push_back(i);
+            reportAsyncError(RedisConnectException("Redis connection lost"));
+            taskCompleted();
         }
     }
 
-    flushPipeline(batch, pipelined);
+    sendAsyncRequests();
 }
 
-void RedisConnect::flushPipeline(const vector<AsyncTask>& batch, const vector<size_t>& indices)
+bool RedisConnect::ensureAsyncConnection()
 {
-    if (indices.empty())
+    {
+        const scoped_lock lock(m_inFlightMutex);
+        if (m_asyncSocket && !m_asyncBroken)
+        {
+            return true;
+        }
+    }
+
+    // The previous connection failed, or there never was one.
+    stopAsyncConnection();
+
+    URL redisUrl;
+    {
+        const scoped_lock lock(m_mutex);
+        if (!m_socket->active())
+        {
+            return false;
+        }
+        redisUrl = m_redisUrl;
+    }
+
+    try
+    {
+        const auto& [host, port] = redisUrl.hostAndPort();
+        auto socket = make_shared<TCPSocket>();
+        socket->host(Host(host, port));
+        socket->open();
+        socket->setOption(IPPROTO_TCP, TCP_NODELAY, 1);
+
+        // The same handshake connect() makes, answered first on this connection.
+        RedisCommand hello("HELLO", "3");
+        if (!redisUrl.username().empty() && !redisUrl.password().empty())
+        {
+            hello.emplace_back("AUTH");
+            hello.emplace_back(redisUrl.username());
+            hello.emplace_back(redisUrl.password());
+        }
+        if (!redisUrl.path().empty())
+        {
+            hello.emplace_back("SETNAME");
+            hello.emplace_back(redisUrl.path());
+        }
+
+        {
+            const scoped_lock lock(m_inFlightMutex);
+            m_asyncBroken = false;
+            m_inFlight.push_back({{}, false});
+        }
+        {
+            const scoped_lock lock(m_asyncSocketMutex);
+            m_asyncSocket = socket;
+        }
+        m_asyncSendBuffer.bytes(0);
+        appendRequest(m_asyncSendBuffer, hello);
+        m_asyncReader = JoiningThread([this, socket]
+                                      {
+                                          readReplies(socket);
+                                      });
+        return true;
+    }
+    catch (const Exception& e)
+    {
+        reportAsyncError(e);
+        const scoped_lock lock(m_inFlightMutex);
+        m_inFlight.clear();
+        return false;
+    }
+}
+
+void RedisConnect::stopAsyncConnection()
+{
+    shared_ptr<TCPSocket> socket;
+    {
+        const scoped_lock lock(m_asyncSocketMutex);
+        socket = std::move(m_asyncSocket);
+    }
+    if (socket)
+    {
+        shutdownSocket(*socket);
+    }
+    m_asyncReader.join();
+    if (socket)
+    {
+        socket->close();
+    }
+    m_asyncSendBuffer.bytes(0);
+}
+
+void RedisConnect::sendAsyncRequests()
+{
+    if (m_asyncSendBuffer.empty())
     {
         return;
     }
 
-    vector<vector<Variant>> replies(indices.size());
-    vector<bool>            succeeded(indices.size(), false);
-    vector<string>          errors(indices.size()); ///< Failure message per task; set when !succeeded.
-
+    shared_ptr<TCPSocket> socket;
     {
-        scoped_lock lock(m_mutex);
-        if (m_socket->active())
-        {
-            // Send every queued request in a single write, then read one reply per request.
-            m_sendBuffer.bytes(0);
-            for (const auto index: indices)
-            {
-                appendRequest(*batch[index].command);
-            }
-            m_socket->write(m_sendBuffer);
+        const scoped_lock lock(m_asyncSocketMutex);
+        socket = m_asyncSocket;
+    }
 
-            for (size_t k = 0; k < indices.size(); ++k)
-            {
-                try
-                {
-                    readResponse(replies[k]);
-                    succeeded[k] = true;
-                }
-                catch (const Exception& e)
-                {
-                    // An error reply for this command was consumed; keep reading the remaining
-                    // replies so the response stream stays aligned with the pipelined requests.
-                    errors[k] = e.what();
-                }
-            }
-        }
-        else
+    try
+    {
+        if (!socket)
         {
-            for (auto& error: errors)
+            throw RedisConnectException("Not connected");
+        }
+        socket->write(m_asyncSendBuffer);
+    }
+    catch (const Exception&)
+    {
+        // The reader owns failing what is unanswered, including these: it finds the connection
+        // shut down and fails every command registered for it.
+        if (socket)
+        {
+            shutdownSocket(*socket);
+        }
+    }
+    m_asyncSendBuffer.bytes(0);
+}
+
+void RedisConnect::waitForInFlight(const size_t maxRemaining)
+{
+    sendAsyncRequests();
+
+    unique_lock lock(m_inFlightMutex);
+    m_inFlightChanged.wait(lock, [this, maxRemaining]
+                           {
+                               return m_inFlight.size() <= maxRemaining || m_asyncBroken || m_workerStop;
+                           });
+}
+
+void RedisConnect::readReplies(const shared_ptr<TCPSocket>& socket)
+{
+    constexpr size_t readSize = 64 * 1024;
+
+    Buffer          stream;
+    size_t          parsed = 0;
+    string          failure = "Redis connection closed";
+    vector<Variant> reply;
+    string          error;
+
+    struct Parsed
+    {
+        vector<Variant> reply;
+        string          error;
+    };
+    vector<Parsed> complete;
+
+    try
+    {
+        while (true)
+        {
+            stream.reserve(stream.bytes() + readSize);
+            const auto received = socket->read(stream.data() + stream.bytes(), readSize);
+            if (received == 0)
             {
-                error = "Not connected";
+                break;
+            }
+            stream.bytes(stream.bytes() + received);
+
+            const string_view data(stream.c_str(), stream.bytes());
+            while (true)
+            {
+                reply.clear();
+                error.clear();
+                if (!parseReply(data, parsed, reply, error))
+                {
+                    break;
+                }
+                complete.push_back({std::move(reply), std::move(error)});
+            }
+
+            if (!complete.empty())
+            {
+                // One lock for everything this read completed, not one per reply.
+                vector<InFlightCommand> commands;
+                commands.reserve(complete.size());
+                {
+                    const scoped_lock lock(m_inFlightMutex);
+                    if (m_inFlight.size() < complete.size())
+                    {
+                        throw RedisConnectException("Redis sent a reply to no request");
+                    }
+                    for (size_t i = 0; i < complete.size(); ++i)
+                    {
+                        commands.push_back(std::move(m_inFlight.front()));
+                        m_inFlight.pop_front();
+                    }
+                }
+                m_inFlightChanged.notify_all();
+
+                for (size_t i = 0; i < complete.size(); ++i)
+                {
+                    auto& command = commands[i];
+                    if (!complete[i].error.empty())
+                    {
+                        reportAsyncError(RedisConnectException(complete[i].error));
+                    }
+                    else if (command.onReply)
+                    {
+                        try
+                        {
+                            command.onReply(complete[i].reply);
+                        }
+                        catch (const Exception&)
+                        {
+                            // A failing callback must not prevent completion bookkeeping for this or later tasks.
+                        }
+                    }
+                    if (command.counted)
+                    {
+                        taskCompleted();
+                    }
+                }
+                complete.clear();
+            }
+
+            // Keep only the start of a reply that has not fully arrived yet.
+            if (parsed != 0)
+            {
+                const auto remaining = stream.bytes() - parsed;
+                memmove(stream.data(), stream.data() + parsed, remaining);
+                stream.bytes(remaining);
+                parsed = 0;
             }
         }
     }
-
-    // Invoke callbacks outside the connection lock, then mark each task complete. Completion is
-    // signaled per task only after its callback returns, preserving waitForAsyncCompletion semantics.
-    for (size_t k = 0; k < indices.size(); ++k)
+    catch (const Exception& e)
     {
-        if (succeeded[k])
+        failure = e.what();
+    }
+
+    failInFlight(failure);
+}
+
+void RedisConnect::failInFlight(const string& reason)
+{
+    deque<InFlightCommand> failed;
+    {
+        const scoped_lock lock(m_inFlightMutex);
+        m_asyncBroken = true;
+        failed.swap(m_inFlight);
+    }
+    m_inFlightChanged.notify_all();
+
+    for (const auto& command: failed)
+    {
+        // Nobody is waiting for these once the object is being destroyed; the destructor drops
+        // queued operations, and reporting each one would only fill the log on shutdown.
+        if (!m_workerStop)
         {
-            if (const auto& onReply = batch[indices[k]].onReply)
+            reportAsyncError(RedisConnectException(reason));
+        }
+        if (command.counted)
+        {
+            taskCompleted();
+        }
+    }
+}
+
+bool RedisConnect::parseReply(const string_view data, size_t& position, vector<Variant>& results, string& error)
+{
+    const auto lineEnd = data.find("\r\n", position);
+    if (lineEnd == string_view::npos)
+    {
+        return false;
+    }
+
+    const auto       type = data[position];
+    const string_view payload = data.substr(position + 1, lineEnd - position - 1);
+    auto             next = lineEnd + 2;
+
+    const auto readCount = [&payload]
+    {
+        int64_t count {0};
+        from_chars(payload.data(), payload.data() + payload.size(), count);
+        return count;
+    };
+
+    switch (type)
+    {
+        case '+': // Simple String
+            results.emplace_back(payload);
+            break;
+
+        case '-': // Error
+            error = payload;
+            break;
+
+        case ':': {
+            // Integer - int, as readResponse() delivers it
+            int value {0};
+            from_chars(payload.data(), payload.data() + payload.size(), value);
+            results.emplace_back(value);
+            break;
+        }
+
+        case '=':   // Verbatim String (RESP3)
+        case '$':   // Bulk String
+        case '!': { // Blob Error (RESP3)
+            const auto length = readCount();
+            if (length == -1)
             {
-                try
+                results.emplace_back(); // Null
+                break;
+            }
+            if (data.size() < next + static_cast<size_t>(length) + 2)
+            {
+                return false;
+            }
+            auto value = data.substr(next, static_cast<size_t>(length));
+            next += static_cast<size_t>(length) + 2;
+            if (type == '!')
+            {
+                error = value.empty() ? "Redis error" : string(value);
+                break;
+            }
+            // See readResponse(): the "txt:" style format marker of a verbatim string is dropped.
+            if (constexpr size_t formatMarkerLength = 4;
+                type == '=' && value.size() >= formatMarkerLength && value[3] == ':')
+            {
+                value.remove_prefix(formatMarkerLength);
+            }
+            results.emplace_back(Buffer(value.data(), value.size()));
+            break;
+        }
+
+        case '*':   // Array
+        case '~': { // Set (RESP3)
+            const auto count = readCount();
+            if (count == -1)
+            {
+                results.emplace_back();
+                break;
+            }
+            for (int64_t i = 0; i < count; ++i)
+            {
+                if (!parseReply(data, next, results, error))
                 {
-                    onReply(replies[k]);
-                }
-                catch (const Exception&)
-                {
-                    // A failing callback must not prevent completion bookkeeping for this or later tasks.
+                    return false;
                 }
             }
+            break;
         }
-        else
-        {
-            reportAsyncError(RedisConnectException(errors[k]));
+
+        case '%': { // Map (RESP3)
+            const auto count = readCount();
+            for (int64_t i = 0; i < count * 2; ++i)
+            {
+                if (!parseReply(data, next, results, error))
+                {
+                    return false;
+                }
+            }
+            break;
         }
-        taskCompleted();
+
+        case '(': // Big number (RESP3), delivered as text - it may not fit an integer
+            results.emplace_back(string(payload));
+            break;
+
+        case '_': // Null (RESP3)
+            results.emplace_back();
+            break;
+
+        case '#': // Boolean (RESP3)
+            results.emplace_back(payload == "t");
+            break;
+
+        case ',': // Double (RESP3) - strtod for the reason given in readResponse()
+            results.emplace_back(strtod(string(payload).c_str(), nullptr));
+            break;
+
+        default:
+            // The stream cannot be realigned after this; the reader fails the connection.
+            throw RedisConnectException("Unknown response type: " + string(1, type));
     }
+
+    position = next;
+    return true;
 }
 
 void RedisConnect::enqueue(function<void()> task)

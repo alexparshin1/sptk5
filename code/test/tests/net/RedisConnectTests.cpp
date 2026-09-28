@@ -1639,4 +1639,120 @@ TEST_F(RedisConnectTests, infoFollowedByConfigGet)
     EXPECT_EQ(value.asString(), m_redis.getValue(key).asString());
 }
 
+// The writer does not wait for replies, so many more commands than the in-flight limit are
+// outstanding at once. Every one has to complete, and in the order it was submitted: INCR answers
+// 1, 2, 3... only if nothing was reordered or lost.
+TEST_F(RedisConnectTests, asyncManyCommandsInFlightCompleteInOrder)
+{
+    const string key = "test:async_in_flight_counter";
+    (void) m_redis.deleteKeys({key});
+
+    constexpr int count = 20000;
+    atomic_int    completed {0};
+    atomic_bool   ordered {true};
+    for (int i = 0; i < count; ++i)
+    {
+        m_redis.incrementKeyAsync(key, [i, &completed, &ordered](const int64_t value)
+                                  {
+                                      if (value != i + 1)
+                                      {
+                                          ordered = false;
+                                      }
+                                      ++completed;
+                                  });
+    }
+
+    ASSERT_TRUE(m_redis.waitForAsyncCompletion(30s));
+    EXPECT_EQ(count, completed.load());
+    EXPECT_TRUE(ordered.load());
+
+    (void) m_redis.deleteKeys({key});
+}
+
+// A reply larger than one read from the socket arrives in pieces; the reader has to keep the part
+// it has and finish the reply when the rest comes, without losing the replies around it.
+TEST_F(RedisConnectTests, asyncLargeReplySpansReads)
+{
+    const string largeKey = "test:async_large_value";
+    const string smallKey = "test:async_large_neighbour";
+
+    string largeValue(3 * 1024 * 1024 + 17, ' ');
+    for (size_t i = 0; i < largeValue.size(); ++i)
+    {
+        largeValue[i] = static_cast<char>('a' + i % 26);
+    }
+    m_redis.setValue(largeKey, Variant(largeValue));
+
+    promise<string> before;
+    promise<string> large;
+    promise<string> after;
+    auto            beforeFuture = before.get_future();
+    auto            largeFuture = large.get_future();
+    auto            afterFuture = after.get_future();
+
+    m_redis.setValueAsync(smallKey, Variant("neighbour"));
+    m_redis.getValueAsync(smallKey, [&before](const Variant& value)
+                          {
+                              before.set_value(value.asString());
+                          });
+    m_redis.getValueAsync(largeKey, [&large](const Variant& value)
+                          {
+                              large.set_value(value.asString());
+                          });
+    m_redis.getValueAsync(smallKey, [&after](const Variant& value)
+                          {
+                              after.set_value(value.asString());
+                          });
+
+    ASSERT_EQ(future_status::ready, afterFuture.wait_for(10s));
+    EXPECT_EQ("neighbour", beforeFuture.get());
+    EXPECT_EQ(largeValue, largeFuture.get());
+    EXPECT_EQ("neighbour", afterFuture.get());
+
+    (void) m_redis.deleteKeys({largeKey, smallKey});
+}
+
+// Disconnecting with commands still unanswered must not leave anyone waiting: each one either
+// completed or was reported to the error handler, exactly once. After connecting again the
+// asynchronous operations work as before.
+TEST_F(RedisConnectTests, asyncCommandsSettleOnDisconnectAndWorkAfterReconnect)
+{
+    const string key = "test:async_disconnect_counter";
+    (void) m_redis.deleteKeys({key});
+
+    constexpr int count = 5000;
+    atomic_int    completed {0};
+    atomic_int    failed {0};
+    m_redis.setAsyncErrorHandler([&failed](const Exception&)
+                                 {
+                                     ++failed;
+                                 });
+
+    for (int i = 0; i < count; ++i)
+    {
+        m_redis.incrementKeyAsync(key, [&completed](int64_t)
+                                  {
+                                      ++completed;
+                                  });
+    }
+    m_redis.disconnect();
+
+    ASSERT_TRUE(m_redis.waitForAsyncCompletion(10s)) << "Commands were left unanswered by a disconnect";
+    EXPECT_EQ(count, completed.load() + failed.load());
+
+    m_redis.setAsyncErrorHandler({});
+    ASSERT_NO_THROW(m_redis.connect(RedisHost, 6379));
+
+    promise<int64_t> resultPromise;
+    auto             resultFuture = resultPromise.get_future();
+    m_redis.incrementKeyAsync(key, [&resultPromise](const int64_t value)
+                              {
+                                  resultPromise.set_value(value);
+                              });
+    ASSERT_EQ(future_status::ready, resultFuture.wait_for(5s)) << "Asynchronous operations did not resume after reconnecting";
+    EXPECT_GT(resultFuture.get(), 0);
+
+    (void) m_redis.deleteKeys({key});
+}
+
 } // namespace sptk

@@ -46,6 +46,7 @@
 #include "sptk5/threads/SynchronizedQueue.h"
 
 #include <condition_variable>
+#include <deque>
 #include <functional>
 #include <list>
 #include <memory>
@@ -441,8 +442,33 @@ private:
         std::function<void()>                      selfContained; ///< Performs its own I/O; set => not pipelined.
     };
 
-    /// Maximum number of pipelined requests sent before reading their replies.
+    /// Maximum number of queued operations the writer takes in one go.
     static constexpr size_t MaxPipelineBatch = 256;
+
+    /// A command sent on the asynchronous connection and not yet answered.
+    struct InFlightCommand
+    {
+        std::function<void(std::vector<Variant>&)> onReply;       ///< Reply handler; empty for the handshake.
+        bool                                       counted {true}; ///< Counts toward m_pendingTasks; the handshake does not.
+    };
+
+    /// Commands sent and not yet answered before the writer waits for the reader to catch up.
+    static constexpr size_t MaxInFlight = 8192;
+
+    /**
+     * Pipelined commands travel on a connection of their own. The writer (m_worker) sends them as
+     * they are queued and never waits for a reply; m_asyncReader parses the reply stream and
+     * completes m_inFlight in order. The synchronous methods keep m_socket, so they never interleave
+     * with that stream.
+     */
+    std::shared_ptr<TCPSocket>  m_asyncSocket;     ///< Replaced by the writer only; guarded by m_asyncSocketMutex.
+    std::mutex                  m_asyncSocketMutex;
+    Buffer                      m_asyncSendBuffer; ///< Writer thread only.
+    JoiningThread               m_asyncReader;     ///< Parses the replies arriving on m_asyncSocket.
+    std::mutex                  m_inFlightMutex;   ///< Guards m_inFlight and m_asyncBroken.
+    std::condition_variable     m_inFlightChanged; ///< Signaled when replies complete commands or the connection fails.
+    std::deque<InFlightCommand> m_inFlight;        ///< Sent and not yet answered, in sending order.
+    bool                        m_asyncBroken {false}; ///< The asynchronous connection failed; commands are refused until it is replaced.
 
     SynchronizedQueue<AsyncTask> m_taskQueue;         ///< Queue of pending asynchronous operations.
     JoiningThread                m_worker;            ///< Worker thread executing queued operations.
@@ -472,17 +498,57 @@ private:
     void enqueueCommand(RedisCommand command, std::function<void(std::vector<Variant>&)> onReply);
 
     /**
-     * @brief Executes a batch of queued tasks, pipelining consecutive single-command operations.
+     * @brief Sends a batch of queued tasks: commands go out without waiting for their replies, and a
+     * self-contained task first waits until everything sent before it has been answered.
      * @param batch Tasks popped from the queue, in submission order.
      */
-    void runBatch(const std::vector<AsyncTask>& batch);
+    void runBatch(std::vector<AsyncTask>& batch);
 
     /**
-     * @brief Sends a run of pipelined requests in one write, reads their replies, and dispatches callbacks.
-     * @param batch   The batch being processed.
-     * @param indices Indices into @p batch of the consecutive pipelined tasks to flush, in order.
+     * @brief Opens the asynchronous connection if there is none or the last one failed. Writer thread.
+     * @return False if there is nothing to connect to (not connected) or connecting failed.
      */
-    void flushPipeline(const std::vector<AsyncTask>& batch, const std::vector<size_t>& indices);
+    bool ensureAsyncConnection();
+
+    /**
+     * @brief Closes the asynchronous connection and waits for its reader to finish.
+     */
+    void stopAsyncConnection();
+
+    /**
+     * @brief Writes the requests accumulated in m_asyncSendBuffer. Writer thread.
+     */
+    void sendAsyncRequests();
+
+    /**
+     * @brief Sends what is buffered, then waits until at most @p maxRemaining commands are unanswered.
+     */
+    void waitForInFlight(size_t maxRemaining);
+
+    /**
+     * @brief Reader thread: parses replies from @p socket and completes the in-flight commands.
+     */
+    void readReplies(const std::shared_ptr<TCPSocket>& socket);
+
+    /**
+     * @brief Refuses further commands on the asynchronous connection and fails every unanswered one.
+     */
+    void failInFlight(const std::string& reason);
+
+    /**
+     * @brief Parses one complete RESP reply from a stream.
+     * @param data      Received bytes.
+     * @param position  Where the reply starts; advanced past it when it is complete.
+     * @param results   Receives the reply's values, as readResponse() would produce them.
+     * @param error     Receives the text of an error reply, if the reply is one.
+     * @return False if @p data does not yet hold the whole reply; @p position is then unchanged.
+     */
+    static bool parseReply(std::string_view data, size_t& position, std::vector<Variant>& results, std::string& error);
+
+    /**
+     * @brief Appends a Redis command to @p buffer.
+     */
+    static void appendRequest(Buffer& buffer, const RedisCommand& command);
 
     /**
      * @brief Marks a queued task as completed and wakes any waiters.
