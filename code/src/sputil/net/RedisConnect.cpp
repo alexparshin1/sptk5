@@ -1566,16 +1566,47 @@ void RedisConnect::scanAsync(const string& pattern, size_t limit, ResultCallback
             });
 }
 
+namespace {
+
+/// Reply handler for a command that answers with one integer - a count - as DEL, SADD and SREM do.
+function<void(vector<Variant>&)> countReply(const char* commandName, RedisConnect::ResultCallback<size_t> callback)
+{
+    return [commandName, callback = std::move(callback)](const vector<Variant>& results)
+    {
+        if (results.empty())
+        {
+            throw RedisConnectException(string("Unexpected empty response from ") + commandName + " command");
+        }
+        if (callback)
+        {
+            callback(static_cast<size_t>(results[0].asInt64()));
+        }
+    };
+}
+
+} // namespace
+
 void RedisConnect::deleteKeysAsync(const vector<string>& keys, ResultCallback<size_t> callback)
 {
-    enqueue([this, keys, callback = std::move(callback)]
-            {
-                const auto result = deleteKeys(keys);
-                if (callback)
+    if (keys.empty())
+    {
+        // Nothing to send, but the answer still comes from the worker, in queue order, as it did.
+        enqueue([callback = std::move(callback)]
                 {
-                    callback(result);
-                }
-            });
+                    if (callback)
+                    {
+                        callback(0);
+                    }
+                });
+        return;
+    }
+
+    // Pipelined, not self-contained: a self-contained task waits for everything in flight and then
+    // makes a round trip of its own, which stalls every command queued behind it - and with
+    // appendfsync always, each such round trip also waits for the disk.
+    RedisCommand command("DEL");
+    command.emplace_back(keys);
+    enqueueCommand(std::move(command), countReply("DEL", std::move(callback)));
 }
 
 void RedisConnect::incrementKeyAsync(const string& key, ResultCallback<int64_t> callback)
@@ -1596,14 +1627,22 @@ void RedisConnect::incrementKeyAsync(const string& key, ResultCallback<int64_t> 
 
 void RedisConnect::addSetMembersAsync(const string& key, const vector<string>& members, ResultCallback<size_t> callback)
 {
-    enqueue([this, key, members, callback = std::move(callback)]
-            {
-                const auto result = addSetMembers(key, members);
-                if (callback)
+    if (members.empty())
+    {
+        enqueue([callback = std::move(callback)]
                 {
-                    callback(result);
-                }
-            });
+                    if (callback)
+                    {
+                        callback(0);
+                    }
+                });
+        return;
+    }
+
+    // Pipelined - see deleteKeysAsync().
+    RedisCommand command("SADD", key);
+    command.emplace_back(members);
+    enqueueCommand(std::move(command), countReply("SADD", std::move(callback)));
 }
 
 void RedisConnect::getSetMembersAsync(const string& key, ResultCallback<vector<string>> callback)
@@ -1646,14 +1685,22 @@ void RedisConnect::isSetMemberAsync(const string& key, const string& member, Res
 
 void RedisConnect::deleteSetMembersAsync(const string& key, const vector<string>& members, ResultCallback<size_t> callback)
 {
-    enqueue([this, key, members, callback = std::move(callback)]
-            {
-                const auto result = deleteSetMembers(key, members);
-                if (callback)
+    if (members.empty())
+    {
+        enqueue([callback = std::move(callback)]
                 {
-                    callback(result);
-                }
-            });
+                    if (callback)
+                    {
+                        callback(0);
+                    }
+                });
+        return;
+    }
+
+    // Pipelined - see deleteKeysAsync().
+    RedisCommand command("SREM", key);
+    command.emplace_back(members);
+    enqueueCommand(std::move(command), countReply("SREM", std::move(callback)));
 }
 
 void RedisConnect::renameKeyAsync(const string& oldKey, const string& newKey, CompletionCallback callback)
