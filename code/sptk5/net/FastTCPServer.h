@@ -102,6 +102,15 @@ public:
     void stop();
 
     /**
+     * @brief Ask the listener to stop, without waiting for its thread.
+     *
+     * A server stops all its listeners by asking each and then joining each, so that their
+     * threads wind down together: stopped one after another, every listener's poll timeout was
+     * waited out in turn - half a second for five listeners, on every server stop.
+     */
+    void requestStop();
+
+    /**
      * @brief Wait until the listener thread has started.
      * @param timeout           Maximum time to wait.
      */

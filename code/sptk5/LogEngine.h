@@ -218,7 +218,7 @@ protected:
     };
 
     void          threadFunction();
-    ProcessResult processNextMessage();
+    ProcessResult processNextMessage(std::chrono::milliseconds wait = std::chrono::milliseconds(100));
 
     /**
      * Log a message

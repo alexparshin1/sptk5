@@ -79,7 +79,9 @@ LogEngine::~LogEngine()
         const lock_guard lock(m_mutex);
         m_terminated = true;
     }
-    m_messages.wakeup();
+    // A real item rather than wakeup(): the waiting pop_front() returns at once and the thread sees
+    // it is to stop, where waking the queue without an item left it to its timeout.
+    m_messages.push_back(nullptr);
     if (m_saveMessageThread.joinable())
     {
         m_saveMessageThread.join();
@@ -192,7 +194,10 @@ void LogEngine::threadFunction()
 
     try
     {
-        while (processNextMessage() == ProcessResult::Ok) {}
+        // Whatever is still queued, without waiting for more: the last pass used to wait out the
+        // whole poll timeout on an empty queue - 100 ms of every log engine's shutdown, and a server
+        // stops several.
+        while (processNextMessage(std::chrono::milliseconds(0)) == ProcessResult::Ok) {}
         close();
     }
     catch (const Exception& e)
@@ -202,13 +207,18 @@ void LogEngine::threadFunction()
 }
 
 
-LogEngine::ProcessResult LogEngine::processNextMessage()
+LogEngine::ProcessResult LogEngine::processNextMessage(const std::chrono::milliseconds wait)
 {
     Logger::UMessage message = nullptr;
-    if (!m_messages.pop_front(message, 100ms))
+    if (!m_messages.pop_front(message, wait))
     {
         flush();
         return ProcessResult::NoMoreMessages;
+    }
+    if (!message)
+    {
+        // The wake-up queued when the engine stops, not a message.
+        return ProcessResult::Ok;
     }
 
     for (auto attempt = 0; attempt < 3; ++attempt)
@@ -261,7 +271,9 @@ void LogEngine::terminate()
 {
     m_terminated = true;
 
-    m_messages.wakeup();
+    // A real item rather than wakeup(): the waiting pop_front() returns at once and the thread sees
+    // it is to stop, where waking the queue without an item left it to its timeout.
+    m_messages.push_back(nullptr);
     if (m_saveMessageThread.joinable())
     {
         m_saveMessageThread.join();

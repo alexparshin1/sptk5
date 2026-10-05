@@ -129,9 +129,17 @@ Host FastTcpServerListener::host() const
     return m_listenerSocket.host();
 }
 
+void FastTcpServerListener::requestStop()
+{
+    // The flag only. The socket is not touched here: its lock is held by the listener thread for
+    // the whole of its poll, so asking the socket anything waited that poll out - listener after
+    // listener, which is the very wait this is meant to run side by side.
+    terminate();
+}
+
 void FastTcpServerListener::stop()
 {
-    terminate();
+    requestStop();
     if (m_listenerSocket.active())
     {
         m_listenerSocket.close();
@@ -351,6 +359,14 @@ void FastTCPServer::stop()
 
     {
         const scoped_lock lock(m_mutex);
+        // All asked first, then all waited for, so the listeners' threads wind down together.
+        for (const auto& listeners: m_listeners | views::values)
+        {
+            for (const auto& listener: listeners)
+            {
+                listener->requestStop();
+            }
+        }
         for (const auto& listeners: m_listeners | views::values)
         {
             for (const auto& listener: listeners)
