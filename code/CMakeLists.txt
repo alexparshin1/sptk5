@@ -209,7 +209,9 @@ IF (WIN32)
             -D_CRT_SECURE_NO_WARNINGS
             -DGTEST_LANG_CXX11=1
     )
-    ADD_COMPILE_OPTIONS(/wd4275 /std:c++20 /W3 /arch:AVX2)
+    # /MP: the Visual Studio generator runs projects side by side, but compiles the files of one
+    # project one at a time unless told otherwise - and the libraries here are a few large projects.
+    ADD_COMPILE_OPTIONS(/wd4275 /std:c++20 /W3 /arch:AVX2 /MP)
     LINK_LIBRARIES(wsock32 ole32 uuid comctl32 ws2_32 winhttp crypt32 secur32 shlwapi bcrypt)
 ELSE ()
     IF (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
