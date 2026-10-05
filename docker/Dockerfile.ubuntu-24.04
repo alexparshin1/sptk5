@@ -8,7 +8,7 @@ RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 RUN apt -y update
 RUN apt -y full-upgrade
 
-RUN apt -y install apt-utils gcc g++ cmake git
+RUN apt -y install apt-utils gcc g++ cmake git ccache
 
 # 24.04 is the one image whose default compiler is GCC 13, where the others have 14 or newer.
 # The archive carries 14, so it is installed and made the default: the point of this image is

@@ -10,7 +10,7 @@ RUN echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selectio
 RUN apt -y update
 RUN apt -y full-upgrade
 
-RUN apt -y install apt-utils dialog gcc g++ cmake git
+RUN apt -y install apt-utils dialog gcc g++ cmake git ccache
 RUN apt -y install mc libpcre2-dev unixodbc unixodbc-dev postgresql-client libpq-dev mariadb-server libmariadb-dev sqlite3 libsqlite3-dev
 RUN apt -y install libfltk1.3 libfltk1.3-dev aspell libaspell-dev rsync make libxext-dev libpng-dev libjpeg-dev 
 RUN apt -y install build-essential devscripts debhelper

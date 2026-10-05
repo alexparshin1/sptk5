@@ -41,6 +41,8 @@ COPY oracle.oci.install/usr /usr
 RUN  ldconfig
 
 RUN dnf -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm
+# The farm builds with ccache, kept on the host between runs; it comes from EPEL here.
+RUN dnf -y install ccache
 RUN dnf -y install mosquitto procps
 # The default nodejs module on EL9 is 16, out of support since 2023 and carrying npm 8 - the last
 # npm that drops privileges to the owner of its working directory when run as root. With /build

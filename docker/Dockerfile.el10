@@ -23,6 +23,8 @@ COPY oracle.oci.install/usr /usr
 RUN  ldconfig
 
 RUN dnf -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-10.noarch.rpm
+# The farm builds with ccache, kept on the host between runs; it comes from EPEL here.
+RUN dnf -y install ccache
 RUN dnf -y install mosquitto procps
 RUN dnf -y install nodejs
 RUN dnf -y install fltk fltk-devel libXext-devel

@@ -8,7 +8,7 @@ RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 RUN apt -y update
 RUN apt -y full-upgrade
 
-RUN apt -y install apt-utils gcc g++ cmake git
+RUN apt -y install apt-utils gcc g++ cmake git ccache
 RUN apt -y install mc libpcre2-dev unixodbc unixodbc-dev postgresql libpq-dev mariadb-server libmariadb-dev sqlite3 libsqlite3-dev
 RUN apt -y install libfltk1.3 libfltk1.3-dev aspell libaspell-dev rsync make libxext-dev
 RUN apt -y install build-essential devscripts debhelper
