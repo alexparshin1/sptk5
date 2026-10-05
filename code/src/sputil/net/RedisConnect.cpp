@@ -37,6 +37,8 @@
 */
 
 #include "sptk5/net/RedisConnect.h"
+
+#include <algorithm>
 #include "sptk5/Base64.h"
 #include "sptk5/Printer.h"
 
@@ -64,6 +66,42 @@ void shutdownSocket(const TCPSocket& socket)
     }
 }
 
+/**
+ * @brief The database a connection's path names, as in redis://host:6379/2.
+ *
+ * A path that is a number is the database the connection selects; any other path is, as it always
+ * was, the name the connection gives itself.
+ *
+ * @return the database number, or -1 when the path is not one.
+ */
+int databaseOf(const string& path)
+{
+    const string_view number = !path.empty() && path.front() == '/' ? string_view(path).substr(1) : string_view(path);
+    if (number.empty() || number.size() > 5 || !ranges::all_of(number, [](const char c) { return isdigit(static_cast<unsigned char>(c)) != 0; }))
+    {
+        return -1;
+    }
+    return stoi(string(number));
+}
+
+/// The HELLO a connection opens with, naming the client unless the path names a database instead.
+RedisCommand helloCommand(const string& username, const string& password, const string& path)
+{
+    RedisCommand hello("HELLO", "3");
+    if (!username.empty() && !password.empty())
+    {
+        hello.emplace_back("AUTH");
+        hello.emplace_back(username);
+        hello.emplace_back(password);
+    }
+    if (!path.empty() && databaseOf(path) < 0)
+    {
+        hello.emplace_back("SETNAME");
+        hello.emplace_back(path);
+    }
+    return hello;
+}
+
 } // namespace
 
 vector<Variant> RedisConnect::connect(const string& host, const uint16_t port,
@@ -83,23 +121,16 @@ vector<Variant> RedisConnect::connect(const string& host, const uint16_t port,
     m_socket->setOption(IPPROTO_TCP, TCP_NODELAY, 1);
     m_reader = make_unique<SocketReader>(m_socket);
 
-    RedisCommand command("HELLO", "3");
-
-    if (!username.empty() && !password.empty())
-    {
-        command.emplace_back("AUTH");
-        command.emplace_back(username);
-        command.emplace_back(password);
-    }
-
-    if (!clientName.empty())
-    {
-        command.emplace_back("SETNAME");
-        command.emplace_back(clientName);
-    }
-
     vector<Variant> results;
-    executeCommand(command, results);
+    executeCommand(helloCommand(username, password, clientName), results);
+
+    // Every command after this one runs in the selected database - which is what lets several users
+    // of one server, test runs among them, keep apart, FLUSHDB included.
+    if (const auto database = databaseOf(clientName); database >= 0)
+    {
+        vector<Variant> selected;
+        executeCommand(RedisCommand("SELECT", to_string(database)), selected);
+    }
 
     return results;
 }
@@ -938,24 +969,19 @@ bool RedisConnect::ensureAsyncConnection()
         socket->open();
         socket->setOption(IPPROTO_TCP, TCP_NODELAY, 1);
 
-        // The same handshake connect() makes, answered first on this connection.
-        RedisCommand hello("HELLO", "3");
-        if (!redisUrl.username().empty() && !redisUrl.password().empty())
-        {
-            hello.emplace_back("AUTH");
-            hello.emplace_back(redisUrl.username());
-            hello.emplace_back(redisUrl.password());
-        }
-        if (!redisUrl.path().empty())
-        {
-            hello.emplace_back("SETNAME");
-            hello.emplace_back(redisUrl.path());
-        }
+        // The same handshake connect() makes, answered first on this connection - the database
+        // included, or the asynchronous writes would land in database 0.
+        const auto hello = helloCommand(redisUrl.username(), redisUrl.password(), redisUrl.path());
+        const auto database = databaseOf(redisUrl.path());
 
         {
             const scoped_lock lock(m_inFlightMutex);
             m_asyncBroken = false;
             m_inFlight.push_back({{}, false});
+            if (database >= 0)
+            {
+                m_inFlight.push_back({{}, false});
+            }
         }
         {
             const scoped_lock lock(m_asyncSocketMutex);
@@ -963,6 +989,10 @@ bool RedisConnect::ensureAsyncConnection()
         }
         m_asyncSendBuffer.bytes(0);
         appendRequest(m_asyncSendBuffer, hello);
+        if (database >= 0)
+        {
+            appendRequest(m_asyncSendBuffer, RedisCommand("SELECT", to_string(database)));
+        }
         m_asyncReader = JoiningThread([this, socket]
                                       {
                                           readReplies(socket);

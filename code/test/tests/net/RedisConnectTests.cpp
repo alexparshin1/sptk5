@@ -1756,3 +1756,48 @@ TEST_F(RedisConnectTests, asyncCommandsSettleOnDisconnectAndWorkAfterReconnect)
 }
 
 } // namespace sptk
+
+namespace sptk {
+
+/**
+ * A connection whose URL path is a number works in that database - its synchronous commands and its
+ * asynchronous ones alike - and leaves database 0 alone. Several users of one server, test runs
+ * among them, keep apart this way, each FLUSHDB clearing only its own database.
+ */
+TEST_F(RedisConnectTests, urlPathSelectsDatabase)
+{
+    const string key = "test:database";
+    RedisConnect inDatabase2;
+    ASSERT_NO_THROW(inDatabase2.connect(URL("redis://" + RedisHost + ":6379/2")));
+
+    inDatabase2.setValue(key, Variant("in database 2"));
+    EXPECT_EQ("in database 2", inDatabase2.getValue(key).asString());
+    EXPECT_TRUE(m_redis.getValue(key).isNull()) << "A write to database 2 landed in database 0";
+
+    const string asyncKey = "test:database:async";
+    promise<void> written;
+    auto          writtenFuture = written.get_future();
+    inDatabase2.setValueAsync(asyncKey, Variant("async in database 2"), [&written] { written.set_value(); });
+    ASSERT_EQ(future_status::ready, writtenFuture.wait_for(5s));
+    EXPECT_EQ("async in database 2", inDatabase2.getValue(asyncKey).asString());
+    EXPECT_TRUE(m_redis.getValue(asyncKey).isNull()) << "An asynchronous write ignored the database";
+
+    (void) inDatabase2.deleteKeys({key, asyncKey});
+    inDatabase2.disconnect();
+}
+
+/**
+ * A path that is not a number is still the client name, as it always was.
+ */
+TEST_F(RedisConnectTests, urlPathThatIsNotANumberNamesTheClient)
+{
+    RedisConnect named;
+    ASSERT_NO_THROW(named.connect(URL("redis://" + RedisHost + ":6379/sptk-test-client")));
+    const string key = "test:named";
+    named.setValue(key, Variant("in database 0"));
+    EXPECT_EQ("in database 0", m_redis.getValue(key).asString());
+    (void) named.deleteKeys({key});
+    named.disconnect();
+}
+
+} // namespace sptk
