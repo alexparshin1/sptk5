@@ -43,6 +43,8 @@
 #include "../wepoll/wepoll.h"
 #else
 #include <sys/epoll.h>
+#include <sys/eventfd.h>
+#include <unistd.h>
 #endif
 
 using SocketEvent = epoll_event;
@@ -65,6 +67,31 @@ void SocketPool::open()
     {
         throw SystemException("Can't create epoll");
     }
+
+#ifndef _WIN32
+    // Token 0 is never given to a socket, so an event carrying it is the wake-up and nothing else.
+    m_wakeFd = eventfd(0, EFD_NONBLOCK | EFD_CLOEXEC);
+    if (m_wakeFd != -1)
+    {
+        epoll_event event {.events = EPOLLIN, .data = {.u64 = 0}};
+        if (epoll_ctl(m_pool, EPOLL_CTL_ADD, m_wakeFd, &event) == -1)
+        {
+            ::close(m_wakeFd);
+            m_wakeFd = -1;
+        }
+    }
+#endif
+}
+
+void SocketPool::wakeUp() const
+{
+#ifndef _WIN32
+    if (m_wakeFd != -1)
+    {
+        const uint64_t one = 1;
+        (void) ::write(m_wakeFd, &one, sizeof(one));
+    }
+#endif
 }
 
 void SocketPool::close()
@@ -77,6 +104,11 @@ void SocketPool::close()
         epoll_close(m_pool);
 #else
         ::close(m_pool);
+        if (m_wakeFd != -1)
+        {
+            ::close(m_wakeFd);
+            m_wakeFd = -1;
+        }
 #endif
         m_pool = INVALID_EPOLL;
     }
@@ -152,6 +184,16 @@ void SocketPool::dispatchEvents(Buffer& eventsBuffer)
     for (size_t i = 0; i < eventCount; ++i)
     {
         auto& [event, data] = events[i];
+
+#ifndef _WIN32
+        if (data.u64 == 0)
+        {
+            // The wake-up: drained, so a level-triggered poll does not report it again.
+            uint64_t count = 0;
+            (void) ::read(m_wakeFd, &count, sizeof(count));
+            continue;
+        }
+#endif
 
         const SocketEventType eventType {
             .m_data = (event & EPOLLIN) != 0,

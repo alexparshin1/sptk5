@@ -151,6 +151,15 @@ public:
     void close();
 
     /**
+     * @brief Make a waitForEvents() in progress return now rather than at its timeout.
+     *
+     * For stopping the thread that polls: without it, that thread notices it is to stop only when
+     * its poll times out. Safe from any thread. On Windows, where the poll watches sockets only,
+     * it does nothing and the timeout remains the bound.
+     */
+    void wakeUp() const;
+
+    /**
      * @return true if the socket pool is active.
      */
     [[nodiscard]] bool active() const;
@@ -199,6 +208,9 @@ private:
 #else
     SocketType m_pool {INVALID_SOCKET};
 #endif // _WIN32
+#ifdef __linux__
+    int m_wakeFd {-1}; ///< eventfd that wakeUp() writes, watched under token 0, which no socket gets.
+#endif
 
     mutable std::mutex    m_mutex;               ///< Mutex for thread-safe operations.
     int                   m_maxEvents;           ///< Maximum number of socket events per poll.

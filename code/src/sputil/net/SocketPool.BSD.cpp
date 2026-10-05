@@ -84,6 +84,19 @@ void SocketPool::open()
     {
         throw SystemException("Can't create kqueue");
     }
+
+    // The wake-up: a user event under token 0, which no socket is given, so dispatching it finds
+    // no registration and does nothing. EV_CLEAR resets it once reported.
+    SocketEvent event {};
+    EV_SET(&event, 0, EVFILT_USER, EV_ADD | EV_CLEAR, 0, 0, tokenToUData(0));
+    kevent(m_pool, &event, 1, nullptr, 0, nullptr);
+}
+
+void SocketPool::wakeUp() const
+{
+    SocketEvent event {};
+    EV_SET(&event, 0, EVFILT_USER, 0, NOTE_TRIGGER, 0, tokenToUData(0));
+    kevent(m_pool, &event, 1, nullptr, 0, nullptr);
 }
 
 void SocketPool::close()
@@ -175,6 +188,10 @@ void SocketPool::dispatchEvents(Buffer& eventsBuffer)
     for (size_t i = 0; i < eventCount; ++i)
     {
         const auto& event = events[i];
+        if (event.filter == EVFILT_USER)
+        {
+            continue; // The wake-up.
+        }
 
         const SocketEventType eventType {
             .m_data = event.data > 0,

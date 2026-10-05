@@ -57,7 +57,7 @@ void WSServerThread::threadFunction()
     while (!terminated())
     {
         if (shared_ptr<WSConnection> connection;
-            m_connectionQueue.pop_front(connection, 1s))
+            m_connectionQueue.pop_front(connection, 1s) && connection)
         {
             connection->execute();
             if (connection->getSocket()->socketBytes() > 4)
@@ -113,6 +113,9 @@ void WSServerThreads::terminate()
     for (const auto& thread: m_threads)
     {
         thread->terminate();
+        // No connection: wakes the thread at once, where it otherwise noticed only when its wait
+        // timed out - up to a second of every server stop.
+        thread->queue(nullptr);
     }
 
     for (const auto& thread: m_threads)

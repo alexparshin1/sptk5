@@ -99,6 +99,8 @@ public:
     void stop()
     {
         terminate();
+        // Out of the poll at once, rather than when it times out.
+        SocketObjectPool<T>::wakeUp();
         join();
     }
 
