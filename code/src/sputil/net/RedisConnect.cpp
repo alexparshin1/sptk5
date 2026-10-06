@@ -1187,16 +1187,20 @@ void RedisConnect::failInFlight(const string& reason)
 
     for (const auto& command: failed)
     {
+        // Only the commands someone queued. The connection's own handshake (HELLO, SELECT) is
+        // not one of them: a connection lost before it was answered was reported as one more
+        // failed command - 5001 reports for 5000 commands.
+        if (!command.counted)
+        {
+            continue;
+        }
         // Nobody is waiting for these once the object is being destroyed; the destructor drops
         // queued operations, and reporting each one would only fill the log on shutdown.
         if (!m_workerStop)
         {
             reportAsyncError(RedisConnectException(reason));
         }
-        if (command.counted)
-        {
-            taskCompleted();
-        }
+        taskCompleted();
     }
 }
 
