@@ -375,18 +375,39 @@ WSSSLConnection::WSSSLConnection(FastTCPServer& server, SocketType connectionSoc
                                  const std::shared_ptr<Thread>& workerThread)
     : WSConnection(server, addr, services, logEngine, options, workerThread)
 {
-    if (options.encrypted)
+    try
     {
-        const auto& sslKeys = server.getSSLKeys();
-        const auto  sslSocket = make_shared<SSLSocket>();
-        sslSocket->loadKeys(*sslKeys);
-        setSocket(sslSocket);
+        if (options.encrypted)
+        {
+            const auto& sslKeys = server.getSSLKeys();
+            if (!sslKeys)
+            {
+                throw Exception("SSL connection can't be created as server has no SSL keys configured");
+            }
+            const auto sslSocket = make_shared<SSLSocket>();
+            sslSocket->loadKeys(*sslKeys);
+            setSocket(sslSocket);
+        }
+        else
+        {
+            setSocket(make_shared<TCPSocket>());
+        }
+        getSocket()->attach(connectionSocket, true);
     }
-    else
+    catch (...)
     {
-        setSocket(make_shared<TCPSocket>());
+        // The handle is closed exactly once: by the socket that took it, or here if none did -
+        // the caller does not close it (see FastTCPServer::createConnection()).
+        if (const auto socket = getSocket(); !socket || socket->fd() != connectionSocket)
+        {
+#ifdef _WIN32
+            closesocket(connectionSocket);
+#else
+            ::close(connectionSocket);
+#endif
+        }
+        throw;
     }
-    getSocket()->attach(connectionSocket, true);
 }
 
 [[maybe_unused]] bool WSConnection::isHangup() const

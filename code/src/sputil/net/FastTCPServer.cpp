@@ -464,23 +464,38 @@ STCPSocket FastTCPServer::createConnectionSocket(const ServerConnection::Type co
 {
     STCPSocket socket;
 
-    if (connectionType == ServerConnection::Type::SSL)
+    try
     {
-        const auto sslSocket = make_shared<SSLSocket>();
-        const auto keys = getSSLKeys();
-        if (!keys)
+        if (connectionType == ServerConnection::Type::SSL)
         {
-            throw Exception("SSL connection can't be created as server has no SSL keys configured");
+            const auto sslSocket = make_shared<SSLSocket>();
+            socket = sslSocket;
+            const auto keys = getSSLKeys();
+            if (!keys)
+            {
+                throw Exception("SSL connection can't be created as server has no SSL keys configured");
+            }
+            sslSocket->loadKeys(*keys);
+            // Performs the server-side TLS handshake (blocking) on the accepted socket.
+            sslSocket->attach(connectionSocket, true);
         }
-        sslSocket->loadKeys(*keys);
-        // Performs the server-side TLS handshake (blocking) on the accepted socket.
-        sslSocket->attach(connectionSocket, true);
-        socket = sslSocket;
+        else
+        {
+            socket = make_shared<TCPSocket>();
+            socket->attach(connectionSocket, false);
+        }
     }
-    else
+    catch (...)
     {
-        socket = make_shared<TCPSocket>();
-        socket->attach(connectionSocket, false);
+        // The handle is closed exactly once, here or by the socket object that took it - a failed
+        // TLS handshake is the common case, and by then the socket object owns it. Callers used to
+        // close it again: on Linux a second close() of a number another thread may have been given
+        // in between, on Windows a CRT _close() of a socket, which ends the process outright.
+        if (!socket || socket->fd() != connectionSocket)
+        {
+            closeSocketHandle(connectionSocket);
+        }
+        throw;
     }
     return socket;
 }
@@ -521,8 +536,9 @@ void FastTCPServer::buildConnection(const ServerConnection::Type connectionType,
     }
     catch (const Exception& e)
     {
+        // Not closed here: createConnection() has the handle, and closes it when it fails (see
+        // createConnectionSocket()). Closing it again could close a socket accepted since.
         log(LogPriority::Error, e.what());
-        closeSocketHandle(connectionFD);
         return;
     }
 

@@ -238,6 +238,10 @@ public:
      *
      * The default implementation wraps the accepted socket in a FastServerConnection.
      * Applications may override to create a custom ServerConnection-derived object.
+     *
+     * The handle is this function's from the moment it is called: it either ends up owned by the
+     * returned connection or is closed, also when the function throws. createConnectionSocket()
+     * keeps that promise for the socket it builds.
      * @param connectionType    Incoming connection type.
      * @param connectionSocket  Already accepted incoming connection's socket handle.
      * @param peer              Incoming connection address.
