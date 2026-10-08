@@ -116,23 +116,38 @@ vector<Variant> RedisConnect::connect(const string& host, const uint16_t port,
 
     m_redisUrl = URL("redis", host, port, username, password, clientName);
 
-    m_socket->host(Host(host, port));
-    m_socket->open();
-    m_socket->setOption(IPPROTO_TCP, TCP_NODELAY, 1);
-    m_reader = make_unique<SocketReader>(m_socket);
-
-    vector<Variant> results;
-    executeCommand(helloCommand(username, password, clientName), results);
-
-    // Every command after this one runs in the selected database - which is what lets several users
-    // of one server, test runs among them, keep apart, FLUSHDB included.
-    if (const auto database = databaseOf(clientName); database >= 0)
+    try
     {
-        vector<Variant> selected;
-        executeCommand(RedisCommand("SELECT", to_string(database)), selected);
-    }
+        m_socket->host(Host(host, port));
+        m_socket->open();
+        m_socket->setOption(IPPROTO_TCP, TCP_NODELAY, 1);
+        m_reader = make_unique<SocketReader>(m_socket);
 
-    return results;
+        vector<Variant> results;
+        executeCommand(helloCommand(username, password, clientName), results);
+
+        // Every command after this one runs in the selected database - which is what lets several users
+        // of one server, test runs among them, keep apart, FLUSHDB included.
+        if (const auto database = databaseOf(clientName); database >= 0)
+        {
+            vector<Variant> selected;
+            executeCommand(RedisCommand("SELECT", to_string(database)), selected);
+        }
+
+        return results;
+    }
+    catch (...)
+    {
+        // The connection attempt failed (e.g. the handshake was rejected). Leave the object
+        // disconnected rather than half-initialised: a lingering active socket would make the
+        // next connect() refuse with "Already connected".
+        m_reader.reset();
+        if (m_socket->active())
+        {
+            m_socket->close();
+        }
+        throw;
+    }
 }
 
 std::vector<Variant> RedisConnect::connect(const URL& connectURL)
@@ -607,6 +622,7 @@ std::string RedisConnect::toString() const
 
 URL RedisConnect::getRedisUrl() const
 {
+    scoped_lock lock(m_mutex);
     return m_redisUrl;
 }
 
@@ -850,6 +866,19 @@ RedisConnect::~RedisConnect()
         m_workerStop = true;
         m_taskQueue.wakeup();
         m_inFlightChanged.notify_all();
+
+        // Shut the asynchronous connection down before joining the worker: the worker may be
+        // blocked in a write() to a stalled server (a full send buffer), which only shutdown()
+        // can interrupt. stopAsyncConnection() below runs only after the join, so it is too late
+        // to help here.
+        {
+            const scoped_lock lock(m_asyncSocketMutex);
+            if (m_asyncSocket)
+            {
+                shutdownSocket(*m_asyncSocket);
+            }
+        }
+
         m_worker.join();
     }
     stopAsyncConnection();
@@ -1140,13 +1169,22 @@ void RedisConnect::readReplies(const shared_ptr<TCPSocket>& socket)
                     }
                     else if (command.onReply)
                     {
+                        // A failing reply handler - a reply that does not parse, or the caller's own
+                        // callback throwing - goes to the error handler, as a failed command does: the
+                        // callback is not called, and a caller waiting for it is told why instead of
+                        // waiting out its timeout. Nor may it prevent completion bookkeeping for this or
+                        // later tasks, or end the reader: anything else thrown would leave this thread.
                         try
                         {
                             command.onReply(complete[i].reply);
                         }
-                        catch (const Exception&)
+                        catch (const Exception& e)
                         {
-                            // A failing callback must not prevent completion bookkeeping for this or later tasks.
+                            reportAsyncError(e);
+                        }
+                        catch (const std::exception& e)
+                        {
+                            reportAsyncError(RedisConnectException(e.what()));
                         }
                     }
                     if (command.counted)
@@ -1423,14 +1461,42 @@ void RedisConnect::getValueAsync(const string& key, ResultCallback<Variant> call
 
 void RedisConnect::getValuesAsync(const vector<string>& keys, ResultCallback<KeysAndValues> callback)
 {
-    enqueue([this, keys, callback = std::move(callback)]
-            {
-                const auto result = getValues(keys);
-                if (callback)
+    if (keys.empty())
+    {
+        // Nothing to send, but the answer still comes from the worker, in queue order, as it did.
+        enqueue([callback = std::move(callback)]
                 {
-                    callback(result);
-                }
-            });
+                    if (callback)
+                    {
+                        callback({});
+                    }
+                });
+        return;
+    }
+
+    // Pipelined - see deleteKeysAsync(). MGET answers one value per key, in the same order, so
+    // the reply is folded back into a map keyed by the request keys.
+    RedisCommand command("MGET");
+    command.emplace_back(keys);
+
+    enqueueCommand(std::move(command),
+                   [keys, callback = std::move(callback)](vector<Variant>& results)
+                   {
+                       if (keys.size() != results.size())
+                       {
+                           throw RedisConnectException("Keys and results do not match");
+                       }
+                       KeysAndValues output;
+                       output.reserve(keys.size());
+                       for (size_t i = 0; i < results.size(); ++i)
+                       {
+                           output.try_emplace(keys[i], std::move(results[i]));
+                       }
+                       if (callback)
+                       {
+                           callback(output);
+                       }
+                   });
 }
 
 void RedisConnect::setValueAsync(const string& key, const Variant& value, CompletionCallback callback)
@@ -1450,14 +1516,35 @@ void RedisConnect::setValueAsync(const string& key, const Variant& value, Comple
 
 void RedisConnect::setValuesAsync(const KeysAndValues& keysAndValues, CompletionCallback callback)
 {
-    enqueue([this, keysAndValues, callback = std::move(callback)]
-            {
-                setValues(keysAndValues);
-                if (callback)
+    if (keysAndValues.empty())
+    {
+        // Nothing to send, but the answer still comes from the worker, in queue order, as it did.
+        enqueue([callback = std::move(callback)]
                 {
-                    callback();
-                }
-            });
+                    if (callback)
+                    {
+                        callback();
+                    }
+                });
+        return;
+    }
+
+    // Pipelined - see deleteKeysAsync().
+    RedisCommand command("MSET");
+    for (const auto& [key, value]: keysAndValues)
+    {
+        command.emplace_back(key);
+        command.emplace_back(value);
+    }
+
+    enqueueCommand(std::move(command),
+                   [callback = std::move(callback)](vector<Variant>&)
+                   {
+                       if (callback)
+                       {
+                           callback();
+                       }
+                   });
 }
 
 void RedisConnect::setHashValueAsync(const string& hash, const string& key, const Variant& value, CompletionCallback callback)
@@ -1549,26 +1636,67 @@ void RedisConnect::getHashValueAsync(const string& hash, const string& key, Resu
 
 void RedisConnect::getHashValuesAsync(const string& hash, const vector<string>& keys, ResultCallback<KeysAndValues> callback)
 {
-    enqueue([this, hash, keys, callback = std::move(callback)]
-            {
-                const auto result = getHashValues(hash, keys);
-                if (callback)
+    if (keys.empty())
+    {
+        // Nothing to send, but the answer still comes from the worker, in queue order, as it did.
+        enqueue([callback = std::move(callback)]
                 {
-                    callback(result);
-                }
-            });
+                    if (callback)
+                    {
+                        callback({});
+                    }
+                });
+        return;
+    }
+
+    // Pipelined - see deleteKeysAsync(). HMGET answers one value per key, in the same order.
+    RedisCommand command("HMGET", hash);
+    command.emplace_back(keys);
+
+    enqueueCommand(std::move(command),
+                   [keys, callback = std::move(callback)](vector<Variant>& results)
+                   {
+                       if (keys.size() != results.size())
+                       {
+                           throw RedisConnectException("Keys and results do not match");
+                       }
+                       KeysAndValues output;
+                       output.reserve(keys.size());
+                       for (size_t i = 0; i < results.size(); ++i)
+                       {
+                           output.try_emplace(keys[i], std::move(results[i]));
+                       }
+                       if (callback)
+                       {
+                           callback(output);
+                       }
+                   });
 }
 
 void RedisConnect::getHashValuesAsync(const string& hash, ResultCallback<KeysAndValues> callback)
 {
-    enqueue([this, hash, callback = std::move(callback)]
-            {
-                const auto result = getHashValues(hash);
-                if (callback)
-                {
-                    callback(result);
-                }
-            });
+    // Pipelined - see deleteKeysAsync(). HGETALL answers as a flat key, value, key, value... list.
+    RedisCommand command("HGETALL", hash);
+
+    enqueueCommand(std::move(command),
+                   [callback = std::move(callback)](vector<Variant>& results)
+                   {
+                       if (!callback)
+                       {
+                           return;
+                       }
+                       if (results.size() % 2 != 0)
+                       {
+                           throw RedisConnectException("Unexpected odd number of elements in HGETALL response");
+                       }
+                       KeysAndValues output;
+                       output.reserve(results.size() / 2);
+                       for (size_t i = 0; i + 1 < results.size(); i += 2)
+                       {
+                           output[results[i].asString()] = std::move(results[i + 1]);
+                       }
+                       callback(output);
+                   });
 }
 
 void RedisConnect::deleteHashKeysAsync(const string& hash, const vector<string>& keys, CompletionCallback callback)

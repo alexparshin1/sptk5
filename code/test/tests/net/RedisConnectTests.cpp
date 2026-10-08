@@ -1335,6 +1335,74 @@ TEST_F(RedisConnectTests, asyncGetHashValues)
     (void) m_redis.deleteKeys({hash});
 }
 
+TEST_F(RedisConnectTests, asyncSetValuesAndGetValues)
+{
+    const RedisConnect::KeysAndValues testValues = {
+        {"test:async_mset_one", 120},
+        {"test:async_mset_two", 230},
+        {"test:async_mset_three", 3500}};
+
+    promise<void> written;
+    auto          writtenFuture = written.get_future();
+    m_redis.setValuesAsync(testValues, [&written]
+                           {
+                               written.set_value();
+                           });
+    ASSERT_EQ(future_status::ready, writtenFuture.wait_for(5s));
+
+    vector<string> keys;
+    for (const auto& key: views::keys(testValues))
+    {
+        keys.push_back(key);
+    }
+
+    promise<RedisConnect::KeysAndValues> resultPromise;
+    auto                                 resultFuture = resultPromise.get_future();
+    m_redis.getValuesAsync(keys, [&resultPromise](const RedisConnect::KeysAndValues& result)
+                           {
+                               resultPromise.set_value(result);
+                           });
+
+    ASSERT_EQ(future_status::ready, resultFuture.wait_for(5s));
+    auto values = resultFuture.get();
+    ASSERT_EQ(testValues.size(), values.size());
+    for (const auto& [key, value]: testValues)
+    {
+        EXPECT_EQ(value.asString(), values[key].asString());
+    }
+
+    (void) m_redis.deleteKeys(keys);
+}
+
+TEST_F(RedisConnectTests, asyncGetHashValuesByKeys)
+{
+    const string                      hash = "test:async_hmget_hash";
+    const RedisConnect::KeysAndValues testValues = {
+        {"field1", "value1"},
+        {"field2", 12345},
+        {"field3", "value3"}};
+
+    (void) m_redis.deleteKeys({hash});
+    m_redis.setHashValues(hash, testValues);
+
+    promise<RedisConnect::KeysAndValues> resultPromise;
+    auto                                 resultFuture = resultPromise.get_future();
+    m_redis.getHashValuesAsync(hash, {"field1", "field2", "field3"},
+                               [&resultPromise](const RedisConnect::KeysAndValues& result)
+                               {
+                                   resultPromise.set_value(result);
+                               });
+
+    ASSERT_EQ(future_status::ready, resultFuture.wait_for(5s));
+    auto values = resultFuture.get();
+    ASSERT_EQ(3u, values.size());
+    EXPECT_EQ("value1", values["field1"].asString());
+    EXPECT_EQ(12345, values["field2"].asInteger());
+    EXPECT_EQ("value3", values["field3"].asString());
+
+    (void) m_redis.deleteKeys({hash});
+}
+
 TEST_F(RedisConnectTests, asyncWaitForCompletion)
 {
     constexpr auto count = 200;
@@ -1447,6 +1515,42 @@ TEST_F(RedisConnectTests, asyncErrorHandlerInvokedOnSelfContainedFailure)
     ASSERT_EQ(future_status::ready, errorFuture.wait_for(5s));
     EXPECT_FALSE(errorFuture.get().empty());
     EXPECT_FALSE(resultCalled);
+
+    m_redis.setAsyncErrorHandler({});
+    (void) m_redis.deleteKeys({key});
+}
+
+TEST_F(RedisConnectTests, asyncErrorHandlerInvokedWhenReplyHandlerThrows)
+{
+    // A pipelined reply whose handling throws - here the caller's own callback, with a standard
+    // exception rather than an sptk one - must reach the error handler, and the connection must go
+    // on answering: the reader thread survives it.
+    const string key = "test:async_error_reply_handler";
+    m_redis.setValue(key, Variant("value"));
+
+    promise<string> errorPromise;
+    auto            errorFuture = errorPromise.get_future();
+    m_redis.setAsyncErrorHandler([&errorPromise](const Exception& e)
+                                 {
+                                     errorPromise.set_value(e.what());
+                                 });
+
+    m_redis.getValuesAsync({key}, [](const RedisConnect::KeysAndValues&)
+                           {
+                               throw runtime_error("callback failed");
+                           });
+
+    ASSERT_EQ(future_status::ready, errorFuture.wait_for(5s));
+    EXPECT_NE(string::npos, errorFuture.get().find("callback failed"));
+
+    promise<Variant> valuePromise;
+    auto             valueFuture = valuePromise.get_future();
+    m_redis.getValueAsync(key, [&valuePromise](const Variant& value)
+                          {
+                              valuePromise.set_value(value);
+                          });
+    ASSERT_EQ(future_status::ready, valueFuture.wait_for(5s));
+    EXPECT_EQ("value", valueFuture.get().asString());
 
     m_redis.setAsyncErrorHandler({});
     (void) m_redis.deleteKeys({key});
