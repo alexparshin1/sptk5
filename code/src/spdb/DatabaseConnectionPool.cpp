@@ -173,7 +173,10 @@ SPoolDatabaseConnection DatabaseConnectionPool::createConnection()
     SPoolDatabaseConnection connection;
     if (m_connections.size() < m_maxConnections && m_pool.empty())
     {
-        connection = SPoolDatabaseConnection(m_createConnection(toString().c_str(), m_connectionTimeout.count()),
+        // Seconds, which is what the drivers are given and what they are named after: the pool's own
+        // timeout is in milliseconds, and it was being passed on as it stood.
+        connection = SPoolDatabaseConnection(
+            m_createConnection(toString().c_str(), chrono::duration_cast<chrono::seconds>(m_connectionTimeout).count()),
                                              [this](PoolDatabaseConnection* conn)
                                              {
                                                  try

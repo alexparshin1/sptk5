@@ -230,12 +230,22 @@ String PostgreSQLConnection::nativeConnectionString() const
         port = to_string(connString.portNumber());
     }
 
+    // The connect timeout, in seconds, which is what libpq wants. A value in the URL comes first,
+    // since that is the one a configuration sets; otherwise the timeout the connection was created
+    // with is used, which was being passed to the connector and then never applied.
+    auto connectTimeoutSeconds = connString.parameter("connect_timeout");
+    if (connectTimeoutSeconds.empty() && connectTimeout().count() > 0)
+    {
+        connectTimeoutSeconds = to_string(connectTimeout().count());
+    }
+
     const string result =
         csParam("dbname", connString.databaseName()) +
         csParam("host", connString.hostName()) +
         csParam("user", connString.userName()) +
         csParam("password", connString.password()) +
-        csParam("port", port);
+        csParam("port", port) +
+        csParam("connect_timeout", connectTimeoutSeconds);
 
     return result;
 }
