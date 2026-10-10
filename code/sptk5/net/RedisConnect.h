@@ -140,9 +140,20 @@ public:
     /**
      * @brief Connects to Redis server.
      * @param connectURL URL containing host, port, username, password, and client name.
+     *                   connect_timeout and read_timeout parameters name those timeouts in seconds.
      * @return Server information.
      */
     std::vector<Variant> connect(const URL& connectURL);
+
+    /**
+     * @brief How long a synchronous command waits for the server's answer before it throws.
+     *
+     * Applies to the current connection and to every later one; 10 seconds unless set, or named
+     * as read_timeout in the URL. A server the network has lost sends nothing, not even a refusal,
+     * and without this a command waited for as long as TCP kept retrying - minutes.
+     * @param timeout Time to wait; zero waits for as long as the system does.
+     */
+    void setReadTimeout(std::chrono::milliseconds timeout);
 
     /**
      * @brief Check if the connection is active.
@@ -427,6 +438,7 @@ private:
     Buffer                        m_readBuffer;            ///< Read buffer.
     bool                          m_inTransaction {false}; ///< If true then transaction is started.
     URL                           m_redisUrl;              ///< Redis connection information.
+    std::chrono::milliseconds     m_readTimeout {std::chrono::seconds(10)}; ///< See setReadTimeout().
 
     /**
      * @brief A single queued asynchronous operation.

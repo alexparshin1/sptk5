@@ -48,6 +48,13 @@
 #include <ranges>
 #include <thread>
 
+#ifndef _WIN32
+#include <arpa/inet.h>
+#include <netinet/in.h>
+#include <sys/socket.h>
+#include <unistd.h>
+#endif
+
 using namespace sptk;
 using namespace std;
 
@@ -1334,6 +1341,53 @@ TEST_F(RedisConnectTests, asyncGetHashValues)
 
     (void) m_redis.deleteKeys({hash});
 }
+
+#ifndef _WIN32
+/**
+ * A server that accepts the connection and never answers - what a Redis the network has lost looks
+ * like from here: no refusal, no reply. A synchronous command must give up after its read timeout;
+ * it used to wait in recv() for as long as TCP kept retrying.
+ */
+TEST(RedisConnectReadTimeout, commandToASilentServerTimesOut)
+{
+    const int listener = ::socket(AF_INET, SOCK_STREAM, 0);
+    ASSERT_GE(listener, 0);
+    sockaddr_in address {};
+    address.sin_family = AF_INET;
+    address.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+    ASSERT_EQ(0, ::bind(listener, reinterpret_cast<sockaddr*>(&address), sizeof(address)));
+    ASSERT_EQ(0, ::listen(listener, 4)); // the kernel completes the handshake; nobody reads or writes
+    socklen_t length = sizeof(address);
+    ASSERT_EQ(0, ::getsockname(listener, reinterpret_cast<sockaddr*>(&address), &length));
+    const auto port = ntohs(address.sin_port);
+
+    // Detached rather than std::async: when the read does not time out, the thread never ends, and
+    // the future of std::async would hang the whole test run in its destructor instead of failing.
+    auto       result = make_shared<promise<chrono::steady_clock::duration>>();
+    auto       attempt = result->get_future();
+    thread([port, result]
+           {
+               RedisConnect redis;
+               const auto   started = chrono::steady_clock::now();
+               try
+               {
+                   redis.connect(URL(format("redis://127.0.0.1:{}?read_timeout=1", port)));
+                   result->set_value(chrono::steady_clock::duration::max());
+               }
+               catch (const Exception&)
+               {
+                   result->set_value(chrono::steady_clock::now() - started);
+               }
+           })
+        .detach();
+
+    ASSERT_EQ(future_status::ready, attempt.wait_for(10s)) << "the HELLO to a silent server never gave up";
+    const auto waited = attempt.get();
+    EXPECT_NE(chrono::steady_clock::duration::max(), waited) << "a silent server answered the HELLO";
+    EXPECT_LT(waited, 5s);
+    ::close(listener);
+}
+#endif
 
 TEST_F(RedisConnectTests, asyncSetValuesAndGetValues)
 {

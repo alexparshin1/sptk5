@@ -52,6 +52,26 @@ using namespace sptk;
 
 namespace {
 
+// How long recv() on the socket may wait for data before it fails. A blocking read otherwise waits
+// for as long as TCP keeps retrying, which on a peer the network has lost is minutes.
+void applyReadTimeout(const TCPSocket& socket, const chrono::milliseconds timeout)
+{
+    const auto fd = socket.fd();
+    if (fd == INVALID_SOCKET)
+    {
+        return;
+    }
+#ifdef _WIN32
+    const DWORD milliseconds = static_cast<DWORD>(timeout.count());
+    (void) ::setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, reinterpret_cast<const char*>(&milliseconds), sizeof(milliseconds));
+#else
+    timeval value {};
+    value.tv_sec = static_cast<time_t>(timeout.count() / 1000);
+    value.tv_usec = static_cast<suseconds_t>((timeout.count() % 1000) * 1000);
+    (void) ::setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, &value, sizeof(value));
+#endif
+}
+
 // Wakes a thread blocked in recv() on the socket. close() cannot do it: it takes the socket's lock
 // exclusively, and a full-duplex recv() holds that lock shared for as long as it blocks.
 void shutdownSocket(const TCPSocket& socket)
@@ -122,6 +142,7 @@ vector<Variant> RedisConnect::connect(const string& host, const uint16_t port,
         m_socket->host(Host(host, port));
         m_socket->open(Host(host, port), Socket::OpenMode::CONNECT, true, connectTimeout);
         m_socket->setOption(IPPROTO_TCP, TCP_NODELAY, 1);
+        applyReadTimeout(*m_socket, m_readTimeout);
         m_reader = make_unique<SocketReader>(m_socket);
 
         vector<Variant> results;
@@ -158,12 +179,27 @@ std::vector<Variant> RedisConnect::connect(const URL& connectURL)
     // A connect timeout may be named in the URL, in seconds. Without one the socket waits out the
     // system's own, which for a server that cannot be reached is minutes.
     auto connectTimeout = chrono::milliseconds(0);
-    if (const auto& params = connectURL.params(); params.has("connect_timeout"))
+    const auto& params = connectURL.params();
+    if (params.has("connect_timeout"))
     {
         connectTimeout = chrono::seconds(params.get("connect_timeout").toInt());
     }
+    if (params.has("read_timeout"))
+    {
+        setReadTimeout(chrono::seconds(params.get("read_timeout").toInt()));
+    }
 
     return connect(host, port, connectURL.username(), connectURL.password(), connectURL.path(), connectTimeout);
+}
+
+void RedisConnect::setReadTimeout(const chrono::milliseconds timeout)
+{
+    scoped_lock lock(m_mutex);
+    m_readTimeout = timeout;
+    if (m_socket->active())
+    {
+        applyReadTimeout(*m_socket, timeout);
+    }
 }
 
 bool RedisConnect::isConnected() const
