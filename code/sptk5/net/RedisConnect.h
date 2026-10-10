@@ -128,11 +128,14 @@ public:
      * @param username Optional username.
      * @param password Optional password.
      * @param clientName Optional client name.
+     * @param connectTimeout Time to wait for the connection; zero waits as the system does. A
+     *                       connect_timeout in the URL names it in seconds.
      * @return Server information.
      */
     std::vector<Variant> connect(const std::string& host, uint16_t port = 6379,
                                  const std::string& username = "", const std::string& password = "",
-                                 const std::string& clientName = "");
+                                 const std::string& clientName = "",
+                                 const std::chrono::milliseconds connectTimeout = std::chrono::milliseconds(0));
 
     /**
      * @brief Connects to Redis server.

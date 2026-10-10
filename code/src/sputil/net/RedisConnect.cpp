@@ -105,7 +105,8 @@ RedisCommand helloCommand(const string& username, const string& password, const 
 } // namespace
 
 vector<Variant> RedisConnect::connect(const string& host, const uint16_t port,
-                                      const string& username, const string& password, const string& clientName)
+                                      const string& username, const string& password, const string& clientName,
+                                      const chrono::milliseconds connectTimeout)
 {
     scoped_lock lock(m_mutex);
 
@@ -119,7 +120,7 @@ vector<Variant> RedisConnect::connect(const string& host, const uint16_t port,
     try
     {
         m_socket->host(Host(host, port));
-        m_socket->open();
+        m_socket->open(Host(host, port), Socket::OpenMode::CONNECT, true, connectTimeout);
         m_socket->setOption(IPPROTO_TCP, TCP_NODELAY, 1);
         m_reader = make_unique<SocketReader>(m_socket);
 
@@ -153,7 +154,16 @@ vector<Variant> RedisConnect::connect(const string& host, const uint16_t port,
 std::vector<Variant> RedisConnect::connect(const URL& connectURL)
 {
     const auto& [host, port] = connectURL.hostAndPort();
-    return connect(host, port, connectURL.username(), connectURL.password(), connectURL.path());
+
+    // A connect timeout may be named in the URL, in seconds. Without one the socket waits out the
+    // system's own, which for a server that cannot be reached is minutes.
+    auto connectTimeout = chrono::milliseconds(0);
+    if (const auto& params = connectURL.params(); params.has("connect_timeout"))
+    {
+        connectTimeout = chrono::seconds(params.get("connect_timeout").toInt());
+    }
+
+    return connect(host, port, connectURL.username(), connectURL.password(), connectURL.path(), connectTimeout);
 }
 
 bool RedisConnect::isConnected() const
