@@ -174,4 +174,17 @@ TEST(CommandLineTests,printHelp)
     commandLine->printHelp(terminalWidth);
 }
 
+TEST(CommandLineTests,emptyValueIsAValue)
+{
+    const auto                commandLine = createTestCommandLine();
+    vector<const char*>       args = {"testapp", "connect", "--description", "", "--verbose"};
+
+    commandLine->init(args.size(), args.data());
+
+    EXPECT_TRUE(commandLine->hasOption("description"));
+    EXPECT_STREQ("", commandLine->getOptionValue("description").c_str());
+    EXPECT_STREQ("true", commandLine->getOptionValue("verbose").c_str()) << "the option after the empty value was taken as the value";
+    EXPECT_EQ(static_cast<size_t>(1), commandLine->arguments().size());
+}
+
 } // namespace sptk_test

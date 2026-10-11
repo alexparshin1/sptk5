@@ -389,6 +389,14 @@ Strings CommandLine::preprocessArguments(const vector<const char*>& argv)
     String  quotedString;
     for (auto& arg: args)
     {
+        // An empty argument - "" in the shell - is a value: an empty message, an empty name. Dropped
+        // with the empty results of a quoted string still being gathered, it left its option to take
+        // the next argument as its value instead.
+        if (arg.empty() && quote.empty())
+        {
+            arguments.push_back(arg);
+            continue;
+        }
         if (const String digestedArg = preprocessArgument(arg, quote, quotedString);
             !digestedArg.empty())
         {
