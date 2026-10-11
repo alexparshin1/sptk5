@@ -73,7 +73,7 @@ TEST(StopwatchTests, resetElapsedTime)
 {
     Stopwatch stopWatch;
     stopWatch.start();
-    this_thread::sleep_for(chrono::milliseconds(20));
+    this_thread::sleep_for(chrono::milliseconds(200));
     stopWatch.stop();
 
     stopWatch.start();
@@ -81,12 +81,12 @@ TEST(StopwatchTests, resetElapsedTime)
     stopWatch.stop();
     const auto secondMs = stopWatch.milliseconds();
 
-    // A second start() must reset the elapsed time rather than accumulate on top of the
-    // first interval - if it accumulated, secondMs would be at least ~35ms (20ms + 15ms).
-    // Comparing directly against the first interval's measurement is flaky under scheduler
-    // jitter, since two independently-measured short sleeps can vary in either order.
+    // A second start() must reset the elapsed time rather than accumulate on top of the first
+    // interval: accumulated, secondMs would be at least 215 ms. The first interval is long so that
+    // the second, however late a loaded machine wakes it - a farm VM took over 50 ms for a 15 ms
+    // sleep - stays below it.
     EXPECT_GE(secondMs, 15.0);
-    EXPECT_LT(secondMs, 50.0);
+    EXPECT_LT(secondMs, 200.0);
 }
 
 } // namespace sptk_test
