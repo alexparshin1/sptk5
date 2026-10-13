@@ -79,6 +79,12 @@ SSLContext::SSLContext(const String& cipherList, const bool tlsOnly)
     }
 
     SSL_CTX_set_mode(m_ctx.get(), SSL_MODE_ENABLE_PARTIAL_WRITE);
+#ifdef SSL_OP_ENABLE_KTLS
+    // Records encrypted and decrypted by the kernel where it can (Linux with the tls module
+    // loaded, FreeBSD 13+). Elsewhere, or when the cipher or kernel does not allow it, OpenSSL
+    // does it as before: the option asks, it does not require.
+    SSL_CTX_set_options(m_ctx.get(), SSL_OP_ENABLE_KTLS);
+#endif
     if (SSL_CTX_set_session_id_context(m_ctx.get(), bit_cast<const unsigned char*>(&s_server_session_id_context),
                                        sizeof s_server_session_id_context) == 0)
     {
