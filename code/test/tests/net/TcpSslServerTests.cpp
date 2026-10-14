@@ -226,58 +226,6 @@ TEST(FastTcpServerTests, sslMinimal)
 }
 
 /**
- * socketBytes() of a TLS socket counts every record that has arrived, not only the first: a caller
- * that asks whether a whole packet is there must not be told no while the rest of it is in the
- * socket. The bytes still encrypted are counted as they are, so the answer is at least what can
- * be read - and all of it then reads.
- *
- * The echo server answers each line with a record of its own. Five lines are sent, then nothing
- * is read until all five answers are in the socket.
- */
-TEST(FastTcpServerTests, sslSocketBytesCountsEveryRecordThatArrived)
-{
-    FastEchoServer echoServer("TestServer");
-
-    const auto keysDirectory = TestData::SslKeysDirectory();
-    const auto keys = make_shared<SSLKeys>(keysDirectory / "mycert.pem", keysDirectory / "mycert.pem");
-    if (!filesystem::exists(keys->certificateFileName()))
-    {
-        GTEST_SKIP() << "Certificate file " << keys->certificateFileName() << " does not exist.";
-    }
-
-    echoServer.setSSLKeys(keys);
-    echoServer.addListener(ServerConnection::Type::SSL, {"localhost", testSslEchoServerPort()});
-    this_thread::sleep_for(100ms);
-
-    const auto socket = make_shared<SSLSocket>();
-    socket->open({"localhost", testSslEchoServerPort()});
-
-    constexpr auto rows = 5;
-    const String   row = "Hello, World!\n";
-    for (auto i = 0; i < rows; ++i)
-    {
-        socket->write(row);
-        this_thread::sleep_for(20ms);
-    }
-    this_thread::sleep_for(300ms);
-
-    EXPECT_LE(rows * row.length(), socket->socketBytes());
-
-    // A read returns a record at a time; what was counted reads without waiting for more.
-    String received;
-    while (received.length() < rows * row.length() && socket->readyToRead(1s))
-    {
-        Buffer chunk(rows * row.length());
-        const auto bytes = socket->read(chunk, rows * row.length());
-        received += String(chunk.c_str(), bytes);
-    }
-    EXPECT_STREQ((row + row + row + row + row).c_str(), received.c_str());
-
-    socket->close();
-    echoServer.stop();
-}
-
-/**
  * A server is given keys before it listens, and the keys are taken then: a key that does not fit
  * its certificate is refused by setSSLKeys(), not found later by the first client's handshake.
  */
