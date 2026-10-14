@@ -78,7 +78,10 @@ SSLContext::SSLContext(const String& cipherList, const bool tlsOnly)
         throwError("Can't set cipher list");
     }
 
-    SSL_CTX_set_mode(m_ctx.get(), SSL_MODE_ENABLE_PARTIAL_WRITE);
+    // SSL_MODE_RELEASE_BUFFERS: a connection holds its read and write buffers - some 34 KB between
+    // them - only while it has a record in them, and gives them back when it is idle. A broker
+    // with many connections that each carry a message now and then holds mostly idle ones.
+    SSL_CTX_set_mode(m_ctx.get(), SSL_MODE_ENABLE_PARTIAL_WRITE | SSL_MODE_RELEASE_BUFFERS);
     if (SSL_CTX_set_session_id_context(m_ctx.get(), bit_cast<const unsigned char*>(&s_server_session_id_context),
                                        sizeof s_server_session_id_context) == 0)
     {
