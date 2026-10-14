@@ -380,12 +380,21 @@ String SSLSocket::sslGetErrorString(const String& function, const int32_t openSS
 
 size_t SSLSocket::getSocketBytesUnlocked() const
 {
-    if (Socket::getSocketBytesUnlocked() > 0)
+    // What is decrypted, and what is still on the socket. OpenSSL holds one decrypted record at a
+    // time and decrypts the next only when this one is read, so the records behind it cannot be
+    // counted as plaintext - and counting only the first told a caller waiting for a whole packet
+    // that it had not arrived while the rest of it was in the socket. An edge-triggered caller then
+    // waited for the next packet to come, and a CONNACK read like this was taken as no answer.
+    //
+    // The bytes on the socket are counted as they are, encrypted: a record's plaintext is shorter
+    // than the record. So this is what can be read, at most, once the records that have started to
+    // arrive are complete - a read of it waits for no more than the rest of a record in flight.
+    if (sslPending() == 0 && Socket::getSocketBytesUnlocked() > 0)
     {
         uint8_t dummy = 0;
         sslRead(&dummy, 0);
     }
-    return static_cast<uint32_t>(sslPending());
+    return static_cast<size_t>(sslPending()) + Socket::getSocketBytesUnlocked();
 }
 
 bool SSLSocket::readyToReadUnlocked(const chrono::milliseconds& timeout)
