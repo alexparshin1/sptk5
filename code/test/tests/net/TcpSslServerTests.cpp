@@ -276,3 +276,21 @@ TEST(FastTcpServerTests, sslSocketBytesCountsEveryRecordThatArrived)
     socket->close();
     echoServer.stop();
 }
+
+/**
+ * A server is given keys before it listens, and the keys are taken then: a key that does not fit
+ * its certificate is refused by setSSLKeys(), not found later by the first client's handshake.
+ */
+TEST(FastTcpServerTests, sslKeysThatDoNotFitAreRefusedBeforeListening)
+{
+    FastEchoServer echoServer("TestServer");
+
+    const auto keysDirectory = TestData::SslKeysDirectory();
+    if (!filesystem::exists(keysDirectory / "mycert.pem") || !filesystem::exists(keysDirectory / "test.key"))
+    {
+        GTEST_SKIP() << "Test keys are not in " << keysDirectory;
+    }
+
+    EXPECT_NO_THROW(echoServer.setSSLKeys(make_shared<SSLKeys>(keysDirectory / "mycert.pem", keysDirectory / "mycert.pem")));
+    EXPECT_THROW(echoServer.setSSLKeys(make_shared<SSLKeys>(keysDirectory / "test.key", keysDirectory / "mycert.pem")), Exception);
+}

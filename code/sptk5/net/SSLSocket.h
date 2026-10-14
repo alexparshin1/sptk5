@@ -69,7 +69,10 @@ public:
 	 * @param cipherList		Optional cipher list.
      * @param tlsOnly           The TLS only mode.
      */
-    explicit SSLSocket(String cipherList = "HIGH:!aNULL:!kRSA:!PSK:!SRP:!MD5:!RC4", bool tlsOnly = false);
+    /// The ciphers a socket uses when it is given none.
+    static constexpr const char* DefaultCipherList = "HIGH:!aNULL:!kRSA:!PSK:!SRP:!MD5:!RC4";
+
+    explicit SSLSocket(String cipherList = DefaultCipherList, bool tlsOnly = false);
 
     /**
      * @brief Destructor.

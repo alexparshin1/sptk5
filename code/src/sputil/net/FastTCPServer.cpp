@@ -36,6 +36,7 @@
 */
 
 #include <sptk5/net/FastTCPServer.h>
+#include <sptk5/net/CachedSSLContext.h>
 #include <sptk5/net/SSLSocket.h>
 
 #include <filesystem>
@@ -450,6 +451,14 @@ void FastTCPServer::setSSLKeys(shared_ptr<SSLKeys> sslKeys)
     if (sslKeys && !filesystem::exists(sslKeys->certificateFileName()))
     {
         throw Exception("Can't find certificate file: " + sslKeys->certificateFileName().string());
+    }
+    if (sslKeys)
+    {
+        // The context the accepted sockets will use, built now: the keys read, the certificate and
+        // the key checked against each other, the authorities loaded. A key that does not fit is
+        // found here, before a listener opens, rather than by the first client to connect - and
+        // that client's handshake does not pay for building it.
+        (void) CachedSSLContext::get(*sslKeys, SSLSocket::DefaultCipherList, false);
     }
     m_keys = std::move(sslKeys);
 }
