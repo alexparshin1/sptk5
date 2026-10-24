@@ -89,7 +89,7 @@ void SocketPool::wakeUp() const
     if (m_wakeFd != -1)
     {
         const uint64_t one = 1;
-        (void) ::write(m_wakeFd, &one, sizeof(one));
+        [[maybe_unused]] auto unused = ::write(m_wakeFd, &one, sizeof(one));
     }
 #endif
 }
@@ -190,7 +190,7 @@ void SocketPool::dispatchEvents(Buffer& eventsBuffer)
         {
             // The wake-up: drained, so a level-triggered poll does not report it again.
             uint64_t count = 0;
-            (void) ::read(m_wakeFd, &count, sizeof(count));
+            [[maybe_unused]] auto unused = ::read(m_wakeFd, &count, sizeof(count));
             continue;
         }
 #endif
