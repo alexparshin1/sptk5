@@ -188,19 +188,27 @@ TEST(TimerTests, repeatCancel) /* NOLINT */
     atomic_int totalEvents(0);
 
     const Timer timer;
+    Semaphore   firedEnough;
 
-    vector<STimerEvent> createdEvents;
-    const auto          event = timer.repeat(10ms,
-                                    [&totalEvents]
+    // Waiting for the events rather than counting them after a fixed sleep: on a loaded machine
+    // - the FreeBSD build VM, for one - a 100 ms sleep can run 20 ms long, and the same timer then
+    // delivers twelve events where a bare count expects nine plus or minus two. What this test is
+    // about is that cancel stops a repeating event, not that the scheduler is punctual.
+    const auto event = timer.repeat(10ms,
+                                    [&totalEvents, &firedEnough]
                                     {
-                                        ++totalEvents;
+                                        if (++totalEvents == 9)
+                                        {
+                                            firedEnough.post();
+                                        }
                                     });
 
-    this_thread::sleep_for(100ms);
-    EXPECT_NEAR(9, totalEvents, 2);
+    ASSERT_TRUE(firedEnough.wait_for(2s)) << "the repeat fired " << totalEvents << " times in 2 s";
     event->cancel();
 
-    this_thread::sleep_for(1ms);
+    // Let a callback already in flight finish before the count is reset, then watch for anything
+    // the canceled event still delivers.
+    this_thread::sleep_for(20ms);
     totalEvents = 0;
 
     this_thread::sleep_for(100ms);
