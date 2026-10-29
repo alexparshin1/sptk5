@@ -70,9 +70,13 @@ namespace sptk {
  */
 struct SocketEventType
 {
-    bool m_data : 1;   ///< Socket has data available to read.
-    bool m_hangup : 1; ///< Peer closed connection.
-    bool m_error : 1;  ///< Connection error.
+    bool m_data : 1;     ///< Socket has data available to read.
+    bool m_hangup : 1;   ///< Peer closed connection.
+    bool m_error : 1;    ///< Connection error.
+    bool m_writable : 1; ///< Socket became writable: for a non-blocking connect, it completed.
+                         ///< Reported only for sockets registered with watchWrite, and the caller
+                         ///< has to re-arm without it once it has the answer, or a level-triggered
+                         ///< pool reports writability for as long as the socket stays writable.
 };
 
 #ifdef _WIN32
@@ -180,7 +184,7 @@ protected:
      * @param token             Opaque per-registration token to pass to the callback function.
      * @param rearmOneShot      Re-arm the one-shot event that is already watched. Only used in EdgeTriggered mode.
      */
-    void addSocket(SocketType socketFd, uint64_t token, bool rearmOneShot = false) const;
+    void addSocket(SocketType socketFd, uint64_t token, bool rearmOneShot = false, bool watchWrite = false) const;
 
     /**
      * @brief Remove the socket from the monitored pool.
@@ -286,7 +290,8 @@ public:
      * @param userData          User data to pass to the callback function.
      * @param rearmOneShot      Re-arm an already-watched one-shot socket (EPOLL_CTL_MOD) instead of adding it.
      */
-    void add(const std::shared_ptr<Socket>& socket, const std::shared_ptr<T>& userData, const bool rearmOneShot = false)
+    void add(const std::shared_ptr<Socket>& socket, const std::shared_ptr<T>& userData, const bool rearmOneShot = false,
+             const bool watchWrite = false)
     {
         if (!socket)
         {
@@ -332,7 +337,7 @@ public:
 
         try
         {
-            addSocket(fd, token, rearmInPlace);
+            addSocket(fd, token, rearmInPlace, watchWrite);
         }
         catch (...)
         {
@@ -354,7 +359,7 @@ public:
      * epoll_ctl(MOD) syscall. In OneShot mode this runs once per request, on worker threads.
      * @param socket            Socket previously added to this pool.
      */
-    void rearm(const std::shared_ptr<Socket>& socket)
+    void rearm(const std::shared_ptr<Socket>& socket, const bool watchWrite = false)
     {
         if (!socket)
         {
@@ -373,7 +378,7 @@ public:
             throw Exception("SocketObjectPool::rearm(): socket is not registered");
         }
 
-        addSocket(fd, token, true);
+        addSocket(fd, token, true, watchWrite);
     }
 
     /**

@@ -114,9 +114,14 @@ void SocketPool::close()
     }
 }
 
-void SocketPool::addSocket(const SocketType socketFd, const uint64_t token, const bool rearmOneShot) const
+void SocketPool::addSocket(const SocketType socketFd, const uint64_t token, const bool rearmOneShot, const bool watchWrite) const
 {
-    SocketEvent event {.events = EPOLLIN | EPOLLHUP | EPOLLRDHUP | EPOLLERR, .data = {.u64 = token}};
+    auto events = static_cast<uint32_t>(EPOLLIN | EPOLLHUP | EPOLLRDHUP | EPOLLERR);
+    if (watchWrite)
+    {
+        events |= EPOLLOUT;
+    }
+    SocketEvent event {.events = events, .data = {.u64 = token}};
     switch (m_triggerMode)
     {
         using enum SocketPoolTriggerMode;
@@ -199,6 +204,7 @@ void SocketPool::dispatchEvents(Buffer& eventsBuffer)
             .m_data = (event & EPOLLIN) != 0,
             .m_hangup = (event & (EPOLLHUP | EPOLLRDHUP)) != 0,
             .m_error = (event & EPOLLERR) != 0,
+            .m_writable = (event & EPOLLOUT) != 0,
         };
 
         onEvent(data.u64, eventType);

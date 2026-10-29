@@ -110,7 +110,7 @@ void SocketPool::close()
     }
 }
 
-void SocketPool::addSocket(const SocketType socketFd, const uint64_t token, const bool rearmOneShot) const
+void SocketPool::addSocket(const SocketType socketFd, const uint64_t token, const bool rearmOneShot, const bool watchWrite) const
 {
     // kqueue has no separate "modify" opcode: EV_ADD both registers a new filter and
     // re-arms a OneShot filter the kernel already auto-deleted after it fired, so
@@ -138,6 +138,19 @@ void SocketPool::addSocket(const SocketType socketFd, const uint64_t token, cons
     {
         processError(errno, "add socket to SocketEvents");
     }
+
+    // kqueue keeps read and write interest in separate filters. A non-blocking connect completes
+    // through writability, and there is no other way to learn of it: the peer sends nothing until
+    // the client has spoken.
+    if (watchWrite)
+    {
+        SocketEvent writeEvent {};
+        EV_SET(&writeEvent, socketFd, EVFILT_WRITE, eventFlags, 0, 0, tokenToUData(token));
+        if (kevent(m_pool, &writeEvent, 1, nullptr, 0, nullptr) == -1)
+        {
+            processError(errno, "add socket write interest to SocketEvents");
+        }
+    }
 }
 
 void SocketPool::removeSocket(const SocketType socketFd) const
@@ -153,6 +166,9 @@ void SocketPool::removeSocket(const SocketType socketFd) const
     // Ignore errors: a OneShot filter is auto-removed by the kernel once it fires, so
     // deleting it again (ENOENT) is expected, not a failure - mirrors epoll_ctl(DEL)
     // being best-effort in the Linux/Windows implementation.
+    kevent(m_pool, &event, 1, nullptr, 0, nullptr);
+
+    EV_SET(&event, socketFd, EVFILT_WRITE, EV_DELETE, 0, 0, nullptr);
     kevent(m_pool, &event, 1, nullptr, 0, nullptr);
 }
 
@@ -193,10 +209,12 @@ void SocketPool::dispatchEvents(Buffer& eventsBuffer)
             continue; // The wake-up.
         }
 
+        const auto writable = event.filter == EVFILT_WRITE;
         const SocketEventType eventType {
-            .m_data = event.data > 0,
+            .m_data = !writable && event.data > 0,
             .m_hangup = (event.flags & EV_EOF) != 0,
             .m_error = (event.flags & EV_ERROR) != 0,
+            .m_writable = writable && (event.flags & EV_EOF) == 0,
         };
 
         onEvent(tokenFromUData(event.udata), eventType);
