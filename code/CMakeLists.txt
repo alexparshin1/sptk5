@@ -31,6 +31,13 @@ set(CMAKE_INSTALL_MESSAGE NEVER)
 # The version is read from VERSION.txt, beside this file - one line to change on a release instead of
 # the three SET() lines it replaces, which a release script had to edit in step with each other.
 FILE(STRINGS "${CMAKE_CURRENT_SOURCE_DIR}/VERSION.txt" SPTK_VERSION_LINE LIMIT_COUNT 1)
+# CMake tracks the files it has read as configure dependencies in only some cases; a plain
+# FILE(STRINGS) is not one of them. Without this line, checking out a release that differs only in
+# VERSION.txt - which is what every SPTK release does - leaves the configured version alone, and
+# `make install` installs the headers of the release before it. Measured on theater and thinker11:
+# a `git checkout 5.6.17 && make install` installed 5.6.16, and XMQ then refused the build with
+# "found 5.6.16 ... and exactly 5.6.17 is required".
+SET_PROPERTY(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/VERSION.txt")
 STRING(REPLACE "." ";" SPTK_VERSION_PARTS "${SPTK_VERSION_LINE}")
 LIST(GET SPTK_VERSION_PARTS 0 VERSION_MAJOR)
 LIST(GET SPTK_VERSION_PARTS 1 VERSION_MINOR)
