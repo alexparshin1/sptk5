@@ -442,6 +442,95 @@ TEST(MySQLConnectionTests,queryParameters)
     testQueryParameters("MySQL");
 }
 
+/**
+ * A TEXT parameter in the middle of a long parameter list.
+ *
+ * Found in XMQ: a row was updated with twenty parameters, the fourteenth of which was a ~300 byte
+ * JSON document in a TEXT column. The server received bytes that were not the document - it refused
+ * them as invalid text ("Incorrect string value"), and PostgreSQL, which accepts more, had been
+ * storing them quietly. The same value passed on its own, and a value of the same length built on
+ * the spot passed too, so the fault is in how the parameter is bound, not in the value.
+ */
+TEST(MySQLConnectionTests, textParameterAmongManyOthersKeepsItsValue)
+{
+    const auto connectionString = DatabaseTests::tests().connectionString("mysql");
+    if (connectionString.empty())
+    {
+        GTEST_SKIP() << "MySQL connection is not defined";
+    }
+
+    DatabaseConnectionPool pool(connectionString.toString());
+    const DatabaseConnection connection = pool.getConnection();
+    DatabaseTests::dropTable(connection, "sptk_wide_params");
+
+    {
+        Query create(connection,
+                     "CREATE TABLE sptk_wide_params (id int NOT NULL PRIMARY KEY,"
+                     " s1 varchar(64), s2 varchar(64), s3 varchar(64), s4 varchar(64), s5 varchar(64),"
+                     " s6 varchar(64), s7 varchar(64), s8 varchar(64), s9 varchar(64), s10 varchar(1024),"
+                     " n1 int, n2 int, n3 int, payload text, n4 int, n5 int, n6 int, n7 int, n8 int)");
+        create.exec();
+    }
+
+    // The size the failure had: long enough that a wrong length reads past the end of it.
+    String document("{\"log_to\":\"xmq_server.log\",\"keep_logs\":7,\"min_log_level\":\"INFO\",\"log_level\":{");
+    for (int i = 0; i < 9; ++i)
+    {
+        document.append("\"subject").append(to_string(i)).append("\":\"INFO\",");
+    }
+    document.append("\"subject9\":\"INFO\"");
+    document.append(String(296 - document.size(), ' '));
+    document.append("}");
+    ASSERT_EQ(297u, document.size()) << "the document is meant to be the length the failure had";
+
+    // A row to update, so that the statement is an UPDATE and not an INSERT.
+    {
+        Query insert(connection, "INSERT INTO sptk_wide_params (id, payload) VALUES (:id, :payload)");
+        insert.param("id") = 1;
+        insert.param("payload") = String("initial");
+        insert.exec();
+    }
+
+    Query update(connection,
+                 "UPDATE sptk_wide_params SET s1 = :s1, s2 = :s2, s3 = :s3, s4 = :s4, s5 = :s5,"
+                 " s6 = :s6, s7 = :s7, s8 = :s8, s9 = :s9, s10 = :s10, n1 = :n1, n2 = :n2, n3 = :n3,"
+                 " payload = :payload, n4 = :n4, n5 = :n5, n6 = :n6, n7 = :n7, n8 = :n8"
+                 " WHERE id = :id");
+    for (int i = 1; i <= 10; ++i)
+    {
+        update.param("s" + to_string(i)) = "value-" + to_string(i);
+    }
+    for (int i = 1; i <= 8; ++i)
+    {
+        update.param("n" + to_string(i)) = i;
+    }
+    update.param("payload") = document;
+    update.param("id") = 1;
+
+    EXPECT_NO_THROW(update.exec()) << "the server refused the text parameter as invalid";
+
+    Query read(connection, "SELECT LENGTH(payload) AS len, payload FROM sptk_wide_params WHERE id = 1");
+    read.open();
+    ASSERT_FALSE(read.eof());
+    const auto storedLength = read["len"].asInteger();
+    const auto stored = read["payload"].asString();
+    read.close();
+
+    EXPECT_EQ(static_cast<int64_t>(document.size()), storedLength) << "the server holds a different number of bytes";
+
+    // The first byte that differs, so a truncated or shifted value says where it went wrong instead
+    // of only that it did.
+    size_t firstDifference = 0;
+    while (firstDifference < stored.size() && firstDifference < document.size() &&
+           stored[firstDifference] == document[firstDifference])
+    {
+        ++firstDifference;
+    }
+    EXPECT_EQ(document.size(), firstDifference) << "the stored value differs from byte " << firstDifference;
+
+    EXPECT_EQ(document, stored) << "the text parameter did not reach the server unchanged";
+}
+
 TEST(MySQLConnectionTests,dates)
 {
     testQueryDateAndTimestamp("MySQL");

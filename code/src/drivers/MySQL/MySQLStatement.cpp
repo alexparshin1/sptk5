@@ -689,7 +689,13 @@ bool MySQLStatement::bindVarCharField(MYSQL_BIND& bind, MySQLStatementField* fie
 {
     auto fieldSizeChanged = false;
 
-    if (field->isNull() || field->bufferSize() < dataLength)
+    // The length MySQL was told it could write into the buffer it was given - not the size the
+    // buffer can hold. They are different after an earlier row enlarged it: the statement keeps the
+    // length it was bound with, so a longer value arrives truncated while the buffer has room, and
+    // the row would then be reported at its full length with the tail never written.
+    const auto boundBytes = static_cast<size_t>(bind.buffer_length);
+
+    if (field->isNull() || field->bufferSize() < dataLength || boundBytes < dataLength)
     {
         if (field->isNull())
         {
@@ -697,11 +703,12 @@ bool MySQLStatement::bindVarCharField(MYSQL_BIND& bind, MySQLStatementField* fie
         }
         else
         {
-            /// Fetch truncated, enlarge buffer and fetch again
-            field->checkSize(dataLength);
+            /// Fetch truncated, enlarge buffer and fetch again. One byte more than the data: the
+            /// terminator below is written past it.
+            field->checkSize(static_cast<size_t>(dataLength) + 1);
         }
         bind.buffer = field->get<Buffer>().data();
-        bind.buffer_length = (unsigned long) field->bufferSize();
+        bind.buffer_length = static_cast<unsigned long>(field->bufferSize());
         if (mysql_stmt_fetch_column(statement(), &bind, static_cast<unsigned>(fieldIndex), 0) != 0)
         {
             throwMySQLError();
