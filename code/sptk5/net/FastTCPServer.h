@@ -258,10 +258,14 @@ public:
 
     /**
      * @brief Allow or deny an incoming connection.
-     * The peer parameter is the incoming connection address.
+     * The peer parameter is the incoming connection address; listenerHost is the local
+     * host and port of the listener the connection arrived on, so that a per-listener
+     * policy (such as an IP allow list) can decide without another syscall.
+     * @param peer              Incoming connection address.
+     * @param listenerHost      Listener's own host and port.
      * @return true if the connection is allowed.
      */
-    virtual bool allowConnection(const sockaddr_in* /*peer*/)
+    virtual bool allowConnection(const sockaddr_in* /*peer*/, const Host& /*listenerHost*/)
     {
         return true;
     }
@@ -395,7 +399,8 @@ private:
     /**
      * @brief Accept an incoming connection (called by the listener thread).
      */
-    void acceptIncoming(ServerConnection::Type connectionType, SocketType connectionFD, const sockaddr_in& peer);
+    void acceptIncoming(ServerConnection::Type connectionType, SocketType connectionFD, const sockaddr_in& peer,
+                        const Host& listenerHost);
 
     /**
      * @brief A connection accepted but not yet built, because the client has not spoken.

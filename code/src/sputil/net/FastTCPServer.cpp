@@ -178,7 +178,8 @@ bool FastTcpServerListener::acceptConnection(const chrono::milliseconds& timeout
                 // Backlog drained (EWOULDBLOCK/EAGAIN) or transient error: stop draining.
                 break;
             }
-            m_server.acceptIncoming(m_connectionType, connectionFD, *bit_cast<const sockaddr_in*>(&connectionStorage));
+            m_server.acceptIncoming(m_connectionType, connectionFD, *bit_cast<const sockaddr_in*>(&connectionStorage),
+                                    m_listenerSocket.host());
             acceptedAny = true;
         }
         return acceptedAny;
@@ -509,9 +510,10 @@ STCPSocket FastTCPServer::createConnectionSocket(const ServerConnection::Type co
     return socket;
 }
 
-void FastTCPServer::acceptIncoming(const ServerConnection::Type connectionType, const SocketType connectionFD, const sockaddr_in& peer)
+void FastTCPServer::acceptIncoming(const ServerConnection::Type connectionType, const SocketType connectionFD,
+                                   const sockaddr_in& peer, const Host& listenerHost)
 {
-    if (!allowConnection(&peer))
+    if (!allowConnection(&peer, listenerHost))
     {
         closeSocketHandle(connectionFD);
         return;
