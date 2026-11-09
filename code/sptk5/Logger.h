@@ -71,7 +71,7 @@ public:
     /**
      * @brief Log message
      */
-    struct Message
+    struct SP_EXPORT Message
     {
         DateTime    timestamp {"now"}; ///< Message timestamp.
         LogPriority priority;          ///< Message priority.
