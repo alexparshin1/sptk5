@@ -386,7 +386,7 @@ void FastTCPServer::addListener(const ServerConnection::Type connectionType, con
 {
     const scoped_lock lock(m_mutex);
 
-    if (connectionType == ServerConnection::Type::SSL && !m_keys)
+    if (ServerConnection::isEncrypted(connectionType) && !m_keys)
     {
         throw Exception("Cannot add SSL listener: server SSL keys are not set");
     }
@@ -476,7 +476,7 @@ STCPSocket FastTCPServer::createConnectionSocket(const ServerConnection::Type co
 
     try
     {
-        if (connectionType == ServerConnection::Type::SSL)
+        if (ServerConnection::isEncrypted(connectionType))
         {
             const auto sslSocket = make_shared<SSLSocket>();
             socket = sslSocket;
@@ -523,7 +523,7 @@ void FastTCPServer::acceptIncoming(const ServerConnection::Type connectionType, 
     // which is the listener's accept loop, and a client that says nothing would hold it there.
     // Handed to the waiter instead. Unencrypted connections are built here as they always were -
     // there is no handshake to block on, and this is the path that has to stay quick.
-    if (connectionType == ServerConnection::Type::SSL && !hasInput(connectionFD))
+    if (ServerConnection::isEncrypted(connectionType) && !hasInput(connectionFD))
     {
         {
             const scoped_lock lock(m_pendingMutex);

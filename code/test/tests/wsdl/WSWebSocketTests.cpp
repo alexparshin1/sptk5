@@ -318,6 +318,26 @@ TEST(SPTK_WebSocketsHandshake, negotiatesTheFirstCommonSubprotocol)
     ASSERT_TRUE(ws::negotiateSubprotocol(headers, {"something-else"}).empty());
 }
 
+TEST(SPTK_WebSocketsHandshake, buildsTheUpgradeReplyWithoutAProtocolWhenNoneWasAgreed)
+{
+    const auto reply = ws::upgradeResponse(ws::acceptKey("dGhlIHNhbXBsZSBub25jZQ=="), {});
+
+    ASSERT_TRUE(reply.starts_with("HTTP/1.1 101 Switching Protocols\r\n"));
+    ASSERT_NE(reply.find("Sec-WebSocket-Accept: s3pPLMBiTxaQ9kYGzzhZRbK+xOo=\r\n"), std::string::npos);
+    // No subprotocol agreed means no header at all, not an empty one: a client reads an empty
+    // header as a protocol of its own choosing and then refuses every frame it receives.
+    ASSERT_EQ(reply.find("Sec-WebSocket-Protocol"), std::string::npos);
+    ASSERT_TRUE(reply.ends_with("\r\n\r\n"));
+}
+
+TEST(SPTK_WebSocketsHandshake, buildsTheUpgradeReplyWithTheAgreedProtocol)
+{
+    const auto reply = ws::upgradeResponse("accept", "mqtt");
+
+    ASSERT_NE(reply.find("Sec-WebSocket-Protocol: mqtt\r\n"), std::string::npos);
+    ASSERT_TRUE(reply.ends_with("\r\n\r\n"));
+}
+
 //
 // The byte stream over frames.
 //

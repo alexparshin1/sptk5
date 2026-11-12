@@ -68,8 +68,24 @@ public:
     enum class Type
     {
         TCP,
-        SSL
+        SSL,
+        /// Plain WebSocket over TCP: the listener accepts an HTTP upgrade and then frames.
+        WS,
+        /// WebSocket over TLS.
+        WSS
     };
+
+    /**
+     * @brief Whether a connection of this type is encrypted on the wire.
+     *
+     * A WebSocket connection carries TLS underneath the framing, so WSS is as encrypted as SSL and
+     * the socket it is built on is the same. Anything deciding which socket class to create, or
+     * whether keys are needed, asks this rather than comparing against SSL alone.
+     */
+    [[nodiscard]] static constexpr bool isEncrypted(const Type type)
+    {
+        return type == Type::SSL || type == Type::WSS;
+    }
 
     using Function = std::function<void(ServerConnection& socket)>;
 
@@ -145,6 +161,23 @@ public:
      * @return Incoming connection port number.
      */
     uint16_t port() const;
+
+    /**
+     * @brief What the listener this connection arrived on serves.
+     *
+     * A connection's type is the listener's, not a property of the bytes: a WebSocket client is
+     * accepted by a WebSocket listener and stays one, even before its upgrade request arrives.
+     */
+    [[nodiscard]] Type type() const
+    {
+        return m_type;
+    }
+
+    /// @brief Whether this connection is encrypted on the wire.
+    [[nodiscard]] bool isEncrypted() const
+    {
+        return isEncrypted(m_type);
+    }
 
 private:
     mutable std::mutex m_mutex;            ///< Mutex that protects internal data.

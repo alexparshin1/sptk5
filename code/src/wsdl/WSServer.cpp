@@ -72,7 +72,7 @@ WSServer::~WSServer()
 
 shared_ptr<ServerConnection> WSServer::createConnection(ServerConnection::Type connectionType, SocketType connectionSocket, const sockaddr_in* peer)
 {
-    m_options.encrypted = connectionType == ServerConnection::Type::SSL;
+    m_options.encrypted = ServerConnection::isEncrypted(connectionType);
 
     auto assignedThread = nextThread();
 

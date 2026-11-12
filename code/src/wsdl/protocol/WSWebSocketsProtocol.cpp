@@ -372,17 +372,27 @@ String negotiateSubprotocol(const HttpHeaders& headers, const Strings& supported
     return {};
 }
 
-void writeUpgradeResponse(Socket& socket, const String& accept, const String& subprotocol)
+String upgradeResponse(const String& accept, const String& subprotocol)
 {
-    socket.write(String("HTTP/1.1 101 Switching Protocols\r\n"));
-    socket.write(String("Upgrade: websocket\r\n"));
-    socket.write(String("Connection: Upgrade\r\n"));
-    socket.write(String("Sec-WebSocket-Accept: ") + accept + "\r\n");
+    String response = "HTTP/1.1 101 Switching Protocols\r\n"
+                      "Upgrade: websocket\r\n"
+                      "Connection: Upgrade\r\n"
+                      "Sec-WebSocket-Accept: ";
+    response += accept;
+    response += "\r\n";
     if (!subprotocol.empty())
     {
-        socket.write(String("Sec-WebSocket-Protocol: ") + subprotocol + "\r\n");
+        response += "Sec-WebSocket-Protocol: ";
+        response += subprotocol;
+        response += "\r\n";
     }
-    socket.write(String("\r\n"));
+    response += "\r\n";
+    return response;
+}
+
+void writeUpgradeResponse(Socket& socket, const String& accept, const String& subprotocol)
+{
+    socket.write(upgradeResponse(accept, subprotocol));
 }
 } // namespace sptk::ws
 

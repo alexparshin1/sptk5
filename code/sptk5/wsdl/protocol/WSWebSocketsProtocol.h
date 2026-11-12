@@ -198,6 +198,18 @@ SP_EXPORT String acceptKey(const String& clientKey);
 SP_EXPORT String negotiateSubprotocol(const HttpHeaders& headers, const Strings& supported);
 
 /**
+ * @brief Builds the 101 Switching Protocols reply.
+ *
+ * Returned rather than written, because a server that owns its own connection model may want to
+ * queue the reply with the rest of its output instead of writing it from the thread that parsed
+ * the request.
+ *
+ * @param accept            Sec-WebSocket-Accept value.
+ * @param subprotocol       Subprotocol to confirm, or empty for none.
+ */
+SP_EXPORT String upgradeResponse(const String& accept, const String& subprotocol);
+
+/**
  * @brief Writes the 101 Switching Protocols reply.
  * @param socket            Connection socket.
  * @param accept            Sec-WebSocket-Accept value.
