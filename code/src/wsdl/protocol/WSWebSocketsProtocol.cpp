@@ -36,176 +36,355 @@
 */
 
 #include "sptk5/wsdl/protocol/WSWebSocketsProtocol.h"
+#include "sptk5/wsdl/protocol/WSWebSocketStream.h"
+
 #include <sptk5/Base64.h>
+
+#include <array>
+#include <chrono>
+#include <cstring>
+#include <random>
 
 using namespace std;
 using namespace sptk;
 
-static constexpr int finalBitMask(0x80);
+namespace {
+constexpr uint8_t finalBitMask = 0x80;
+constexpr uint8_t reservedBitsMask = 0x70;
+constexpr uint8_t opcodeBitMask = 0x0F;
+constexpr uint8_t maskedBitMask = 0x80;
+constexpr uint8_t payloadLengthBitMask = 0x7F;
+constexpr uint8_t lengthIsTwoBytes = 126;
+constexpr uint8_t lengthIsEightBytes = 127;
+constexpr size_t  maskLength = 4;
 
-const Buffer& WSWebSocketsMessage::payload() const
+/// The GUID that RFC 6455 appends to the client's key before hashing it.
+constexpr const char* webSocketsGuid = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
+
+bool isControlOpcode(WSWebSocketsMessage::OpCode opcode)
 {
-    return m_payload;
+    return static_cast<uint8_t>(opcode) >= 0x8;
 }
 
-namespace {
-uint64_t ntoh64(uint64_t data)
+bool isKnownOpcode(uint8_t opcode)
 {
-    enum class VarType
+    switch (opcode)
     {
-        u32,
-        u64
-    };
+        case 0x0:
+        case 0x1:
+        case 0x2:
+        case 0x8:
+        case 0x9:
+        case 0xA:
+            return true;
+        default:
+            return false;
+    }
+}
 
-    struct IntConvert
+uint16_t readBigEndian16(const uint8_t* data)
+{
+    return static_cast<uint16_t>((static_cast<uint16_t>(data[0]) << 8) | data[1]);
+}
+
+uint64_t readBigEndian64(const uint8_t* data)
+{
+    uint64_t value = 0;
+    for (size_t i = 0; i < 8; ++i)
     {
-        VarType type;
-        union
+        value = (value << 8) | data[i];
+    }
+    return value;
+}
+
+/// A fresh mask for every frame: RFC 6455 requires it to be unpredictable, and reusing one lets an
+/// observer recover the payload by comparing frames.
+array<uint8_t, maskLength> randomMask()
+{
+    static thread_local mt19937 generator(random_device{}());
+    static thread_local uniform_int_distribution<int> distribution(0, 255);
+    array<uint8_t, maskLength> mask {};
+    for (auto& byte: mask)
+    {
+        byte = static_cast<uint8_t>(distribution(generator));
+    }
+    return mask;
+}
+
+void appendFrameHeader(Buffer& output, uint64_t payloadLength, WSWebSocketsMessage::OpCode opcode, bool finalMessage,
+                       const uint8_t* maskKey)
+{
+    uint8_t header[2 + 8 + maskLength];
+    size_t  headerLength = 0;
+
+    header[headerLength++] =
+        static_cast<uint8_t>((finalMessage ? finalBitMask : 0) | (static_cast<uint8_t>(opcode) & opcodeBitMask));
+
+    const auto maskBit = maskKey == nullptr ? uint8_t(0) : maskedBitMask;
+    if (payloadLength < lengthIsTwoBytes)
+    {
+        header[headerLength++] = static_cast<uint8_t>(maskBit | static_cast<uint8_t>(payloadLength));
+    }
+    else if (payloadLength <= 0xFFFF)
+    {
+        header[headerLength++] = static_cast<uint8_t>(maskBit | lengthIsTwoBytes);
+        header[headerLength++] = static_cast<uint8_t>(payloadLength >> 8);
+        header[headerLength++] = static_cast<uint8_t>(payloadLength & 0xFF);
+    }
+    else
+    {
+        header[headerLength++] = static_cast<uint8_t>(maskBit | lengthIsEightBytes);
+        for (int shift = 56; shift >= 0; shift -= 8)
         {
-            uint64_t           m_uint64;
-            array<uint32_t, 2> m_uint32;
-        } variant;
-    };
+            header[headerLength++] = static_cast<uint8_t>((payloadLength >> shift) & 0xFF);
+        }
+    }
 
-    IntConvert input = {};
-    IntConvert output = {};
+    if (maskKey != nullptr)
+    {
+        memcpy(header + headerLength, maskKey, maskLength);
+        headerLength += maskLength;
+    }
 
-    input.variant.m_uint64 = data;
-
-    output.variant.m_uint32[0] = ntohl(input.variant.m_uint32[1]);
-    output.variant.m_uint32[1] = ntohl(input.variant.m_uint32[0]);
-
-    return output.variant.m_uint64;
+    output.append(header, headerLength);
 }
 } // namespace
 
-void WSWebSocketsMessage::decode(const char* incomingData)
+size_t WSWebSocketsMessage::decode(const uint8_t* data, size_t available)
 {
-    constexpr int  maskedBitMask(0x80);
-    constexpr int  opcodeBitMask(0xF);
-    constexpr int  payloadLengthBitMask(0x7F);
-    constexpr char lengthIsTwoBytes(126);
-    constexpr char lengthIsEightBytes(127);
-    constexpr int  eightBytes(8);
+    m_payload.reset();
+    m_status = 0;
+    m_masked = false;
+    m_declaredPayloadLength = 0;
 
-    const auto* ptr = reinterpret_cast<const uint8_t*>(incomingData);
-
-    m_finalMessage = (static_cast<int>(*ptr) & finalBitMask) != 0;
-    m_opcode = static_cast<OpCode>((int) *ptr & opcodeBitMask);
-
-    ++ptr;
-    const bool masked = (static_cast<int>(*ptr) & maskedBitMask) != 0;
-    auto       payloadLength = static_cast<uint64_t>((int) *ptr & payloadLengthBitMask);
-    switch (payloadLength)
+    if (available < 2)
     {
-        case lengthIsTwoBytes:
-            ++ptr;
-            payloadLength = ntohs(*(const uint16_t*) ptr);
-            ptr += 2;
-            break;
-        case lengthIsEightBytes:
-            ++ptr;
-            payloadLength = ntoh64(*(const uint64_t*) ptr);
-            ptr += eightBytes;
-            break;
-        default:
-            ++ptr;
-            break;
+        return 0;
     }
 
-    m_payload.reserve(payloadLength);
-    m_payload.bytes(payloadLength);
-
-    if (masked)
+    const uint8_t first = data[0];
+    if ((first & reservedBitsMask) != 0)
     {
-        array<uint8_t, 4> mask {};
-        memcpy(mask.data(), ptr, sizeof(mask));
-        ptr += 4;
-        auto*             dest = m_payload.data();
-        array<uint8_t, 2> statusCodeBuffer = {};
-        size_t            j = 0;
-        for (uint64_t i = 0; i < payloadLength; ++i)
+        throw Exception("WebSockets frame has reserved bits set, which this implementation never negotiates");
+    }
+
+    const uint8_t opcodeValue = first & opcodeBitMask;
+    if (!isKnownOpcode(opcodeValue))
+    {
+        throw Exception("WebSockets frame has an unknown opcode " + to_string(opcodeValue));
+    }
+
+    m_opcode = static_cast<OpCode>(opcodeValue);
+    m_finalMessage = (first & finalBitMask) != 0;
+    m_masked = (data[1] & maskedBitMask) != 0;
+
+    if (isControlOpcode(m_opcode) && !m_finalMessage)
+    {
+        throw Exception("WebSockets control frame may not be fragmented");
+    }
+
+    uint64_t payloadLength = data[1] & payloadLengthBitMask;
+    size_t   offset = 2;
+    if (payloadLength == lengthIsTwoBytes)
+    {
+        if (available < offset + 2)
         {
-            const auto unmaskedByte = static_cast<uint8_t>((int) ptr[i] ^ mask[i % 4]);
-            if (m_opcode == OpCode::CONNECTION_CLOSE && i < 2)
+            return 0;
+        }
+        payloadLength = readBigEndian16(data + offset);
+        offset += 2;
+    }
+    else if (payloadLength == lengthIsEightBytes)
+    {
+        if (available < offset + 8)
+        {
+            return 0;
+        }
+        payloadLength = readBigEndian64(data + offset);
+        offset += 8;
+        if (payloadLength > maxPayloadLength)
+        {
+            throw Exception("WebSockets frame declares a payload longer than 2^63-1 bytes");
+        }
+    }
+
+    if (isControlOpcode(m_opcode))
+    {
+        if (payloadLength > maxControlPayloadLength)
+        {
+            throw Exception("WebSockets control frame carries more than 125 bytes");
+        }
+        if (m_opcode == OpCode::CONNECTION_CLOSE && payloadLength == 1)
+        {
+            throw Exception("WebSockets close frame carries a status code of one byte");
+        }
+    }
+
+    const size_t headerLength = offset + (m_masked ? maskLength : 0);
+    m_declaredPayloadLength = payloadLength;
+    if (available < headerLength || payloadLength > available - headerLength)
+    {
+        // The frame is still arriving. Nothing is consumed, so the caller keeps the bytes.
+        return 0;
+    }
+
+    const auto* payload = data + headerLength;
+    m_payload.set(payload, static_cast<size_t>(payloadLength));
+
+    if (m_masked)
+    {
+        const uint8_t* maskKey = data + offset;
+        for (size_t i = 0; i < payloadLength; ++i)
+        {
+            m_payload[i] ^= maskKey[i % maskLength];
+        }
+    }
+
+    if (m_opcode == OpCode::CONNECTION_CLOSE && payloadLength >= 2)
+    {
+        m_status = readBigEndian16(m_payload.data());
+
+        // A close frame's status code is not part of what a caller reads as the close reason, so
+        // the payload is left holding the text alone. Control payloads are at most 125 bytes,
+        // which is what makes a stack copy reasonable here.
+        uint8_t reason[maxControlPayloadLength];
+        const size_t reasonLength = static_cast<size_t>(payloadLength) - 2;
+        memcpy(reason, m_payload.data() + 2, reasonLength);
+        m_payload.set(reason, reasonLength);
+    }
+
+    return headerLength + static_cast<size_t>(payloadLength);
+}
+
+void WSWebSocketsMessage::encodeHeader(uint64_t payloadLength, OpCode opcode, bool finalMessage, Buffer& output)
+{
+    if (isControlOpcode(opcode))
+    {
+        if (!finalMessage)
+        {
+            throw Exception("WebSockets control frame may not be fragmented");
+        }
+        if (payloadLength > maxControlPayloadLength)
+        {
+            throw Exception("WebSockets control frame carries more than 125 bytes");
+        }
+    }
+    if (payloadLength > maxPayloadLength)
+    {
+        throw Exception("WebSockets payload is longer than 2^63-1 bytes");
+    }
+    appendFrameHeader(output, payloadLength, opcode, finalMessage, nullptr);
+}
+
+void WSWebSocketsMessage::encode(const uint8_t* payload, size_t length, OpCode opcode, bool finalMessage,
+                                 Buffer& output, bool masked)
+{
+    if (isControlOpcode(opcode))
+    {
+        if (!finalMessage)
+        {
+            throw Exception("WebSockets control frame may not be fragmented");
+        }
+        if (length > maxControlPayloadLength)
+        {
+            throw Exception("WebSockets control frame carries more than 125 bytes");
+        }
+    }
+
+    if (!masked)
+    {
+        appendFrameHeader(output, length, opcode, finalMessage, nullptr);
+        output.append(payload, length);
+        return;
+    }
+
+    const auto mask = randomMask();
+    appendFrameHeader(output, length, opcode, finalMessage, mask.data());
+
+    const size_t start = output.bytes();
+    output.append(payload, length);
+    for (size_t i = 0; i < length; ++i)
+    {
+        output[start + i] ^= mask[i % maskLength];
+    }
+}
+
+void WSWebSocketsMessage::encode(const String& payload, OpCode opcode, bool finalMessage, Buffer& output, bool masked)
+{
+    encode(reinterpret_cast<const uint8_t*>(payload.c_str()), payload.size(), opcode, finalMessage, output, masked);
+}
+
+namespace sptk::ws {
+String acceptKey(const String& clientKey)
+{
+    const String combined = clientKey + webSocketsGuid;
+
+    constexpr size_t digestLength = 20;
+    Buffer          digest(digestLength);
+    SHA1(reinterpret_cast<const unsigned char*>(combined.c_str()), combined.length(),
+         reinterpret_cast<unsigned char*>(digest.data()));
+
+    Buffer encoded;
+    Base64::encode(encoded, Buffer(digest.data(), digestLength));
+    return {encoded.c_str(), encoded.bytes()};
+}
+
+String negotiateSubprotocol(const HttpHeaders& headers, const Strings& supported)
+{
+    const auto header = headers.find("Sec-WebSocket-Protocol");
+    if (header == headers.end())
+    {
+        return {};
+    }
+
+    // The client sends a comma-separated list in order of preference.
+    Strings requested;
+    for (const auto& token: String(header->second).split(","))
+    {
+        const auto trimmed = token.trim();
+        if (!trimmed.empty())
+        {
+            requested.push_back(trimmed);
+        }
+    }
+
+    if (requested.empty())
+    {
+        return {};
+    }
+
+    if (supported.empty())
+    {
+        // A server with no opinion echoes the client's first choice, which is what a demo does.
+        return requested.front();
+    }
+
+    for (const auto& offered: requested)
+    {
+        for (const auto& candidate: supported)
+        {
+            if (offered == candidate)
             {
-                statusCodeBuffer[i] = unmaskedByte;
-                continue;
+                return offered;
             }
-            dest[j] = unmaskedByte;
-            ++j;
-        }
-        m_payload.bytes(j);
-        if (m_opcode == OpCode::CONNECTION_CLOSE)
-        {
-            m_status = ntohs(*(const uint16_t*) statusCodeBuffer.data());
         }
     }
-    else
-    {
-        if (m_opcode == OpCode::CONNECTION_CLOSE)
-        {
-            m_status = ntohs(*(const uint16_t*) ptr);
-            ptr += 2;
-            payloadLength -= 2;
-        }
-        m_payload.set(ptr, payloadLength);
-    }
+    return {};
 }
 
-void WSWebSocketsMessage::encode(const String& payload, OpCode opcode, bool finalMessage, Buffer& output)
+void writeUpgradeResponse(Socket& socket, const String& accept, const String& subprotocol)
 {
-    output.reset(payload.length() + 10);
-
-    auto* ptr = output.data();
-
-    *ptr = static_cast<int>(opcode) & 0xF;
-    if (finalMessage)
+    socket.write(String("HTTP/1.1 101 Switching Protocols\r\n"));
+    socket.write(String("Upgrade: websocket\r\n"));
+    socket.write(String("Connection: Upgrade\r\n"));
+    socket.write(String("Sec-WebSocket-Accept: ") + accept + "\r\n");
+    if (!subprotocol.empty())
     {
-        *ptr = static_cast<uint8_t>((int) *ptr | finalBitMask);
+        socket.write(String("Sec-WebSocket-Protocol: ") + subprotocol + "\r\n");
     }
-
-    ++ptr;
-
-    if (payload.length() < 126)
-    {
-        *ptr = static_cast<uint8_t>(payload.length());
-        ++ptr;
-    }
-    else if (payload.length() <= 32767)
-    {
-        *(uint16_t*) ptr = htons(static_cast<uint16_t>(payload.length()));
-        ptr += 2;
-    }
-    else
-    {
-        *(uint64_t*) ptr = payload.length();
-        ptr += 8;
-    }
-
-    output.bytes(ptr - output.data());
-    output.append(payload);
+    socket.write(String("\r\n"));
 }
-
-WSWebSocketsMessage::OpCode WSWebSocketsMessage::opcode() const
-{
-    return m_opcode;
-}
-
-void WSWebSocketsMessage::opcode(OpCode code)
-{
-    m_opcode = code;
-}
-
-uint32_t WSWebSocketsMessage::statusCode() const
-{
-    return m_status;
-}
-
-bool WSWebSocketsMessage::isFinal() const
-{
-    return m_finalMessage;
-}
+} // namespace sptk::ws
 
 WSWebSocketsProtocol::WSWebSocketsProtocol(const shared_ptr<TCPSocket>& socket, const HttpHeaders& headers)
     : WSProtocol(socket, headers)
@@ -214,92 +393,25 @@ WSWebSocketsProtocol::WSWebSocketsProtocol(const shared_ptr<TCPSocket>& socket, 
 
 RequestInfo WSWebSocketsProtocol::process()
 {
-    constexpr size_t          shaBufferLength(20);
-    constexpr chrono::seconds thirtySeconds(30);
-    constexpr int             connectionTerminatedCode(1000);
-
     RequestInfo requestInfo;
     try
     {
-        const String clientKey = headers()["Sec-WebSocket-Key"];
-        if (const String socketVersion = headers()["Sec-WebSocket-Version"];
-            clientKey.empty() || socketVersion != "13")
+        const String clientKey = header("Sec-WebSocket-Key");
+        const String version = header("Sec-WebSocket-Version");
+        if (clientKey.empty() || version.trim() != "13")
         {
             throw Exception(
                 "WebSocket protocol is missing or has invalid Sec-WebSocket-Key or Sec-WebSocket-Version headers");
         }
 
-        const String websocketProtocol = headers()["Sec-WebSocket-Protocol"];
-
-        // Generate server response key from client key
-        String responseKey = clientKey + "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
-        Buffer obuf(shaBufferLength);
-        SHA1((const unsigned char*) responseKey.c_str(), responseKey.length(), obuf.data());
-        const Buffer responseKeySHA(obuf.data(), shaBufferLength);
-        Buffer       responseKeyEncoded;
-        Base64::encode(responseKeyEncoded, responseKeySHA);
-        responseKey = responseKeyEncoded.c_str();
-
-        socket().write("HTTP/1.1 101 Switching Protocols\r\n");
-        socket().write("Upgrade: websocket\r\n");
-        socket().write("Connection: Upgrade\r\n");
-        socket().write("Sec-WebSocket-Accept: " + responseKey + "\r\n");
-        if (!websocketProtocol.empty())
-        {
-            socket().write("Sec-WebSocket-Protocol: " + websocketProtocol + "\r\n");
-        }
-        socket().write("\r\n");
-
-        bool connectionCloseRequestReplied = false;
-        bool clientClosedConnection = false;
-        while (!clientClosedConnection)
-        {
-            if (!socket().readyToRead(thirtySeconds))
-            {
-                continue;
-            }
-
-            const size_t available = socket().socketBytes();
-            if (available == 0)
-            {
-                clientClosedConnection = true;
-                continue;
-            }
-
-            Buffer message;
-            if (socket().read(message, available) != available)
-            {
-                throw Exception("Incomplete read");
-            }
-
-            WSWebSocketsMessage msg;
-            msg.decode(message.c_str());
-
-            if (msg.opcode() == WSWebSocketsMessage::OpCode::CONNECTION_CLOSE)
-            {
-                replyCloseConnectionRequest(static_cast<uint16_t>(msg.statusCode()), "Connection closed by client request");
-                connectionCloseRequestReplied = true;
-                break;
-            }
-
-            COUT(static_cast<int>(msg.opcode()) << ": " << msg.payload().c_str());
-
-            WSWebSocketsMessage::encode("Hello", WSWebSocketsMessage::OpCode::TEXT, true, message);
-            socket().write(message);
-
-            WSWebSocketsMessage::encode("World", WSWebSocketsMessage::OpCode::TEXT, true, message);
-            socket().write(message);
-        }
-
-        if (!connectionCloseRequestReplied)
-        {
-            replyCloseConnectionRequest(connectionTerminatedCode, "Connection terminated");
-        }
+        ws::writeUpgradeResponse(socket(), ws::acceptKey(clientKey), ws::negotiateSubprotocol(headers(), {}));
+        echoLoop();
     }
     catch (const Exception& e)
     {
         const string text(
-            "<html><head><title>Error processing request</title></head><body>" + e.message() + "</body></html>\n");
+            "<html><head><title>Error processing request</title></head><body>" + string(e.message()) +
+            "</body></html>\n");
         socket().write("HTTP/1.1 400 Bad Request\n");
         socket().write("Content-Type: text/html; charset=utf-8\n");
         socket().write("Content-length: " + to_string(text.length()) + "\n\n");
@@ -310,14 +422,78 @@ RequestInfo WSWebSocketsProtocol::process()
     return requestInfo;
 }
 
+void WSWebSocketsProtocol::echoLoop()
+{
+    constexpr auto pollTimeout = chrono::seconds(30);
+
+    WSWebSocketStream stream;
+    Buffer            chunk;
+
+    auto flush = [this, &stream]() {
+        while (stream.hasOutput())
+        {
+            const size_t sent = socket().write(stream.output());
+            if (sent == 0)
+            {
+                break;
+            }
+            stream.consumeOutput(sent);
+        }
+    };
+
+    while (!stream.closeReceived())
+    {
+        if (!socket().readyToRead(pollTimeout))
+        {
+            continue;
+        }
+
+        const size_t available = socket().socketBytes();
+        if (available == 0)
+        {
+            break;
+        }
+
+        const size_t received = socket().read(chunk, available);
+        if (received == 0)
+        {
+            break;
+        }
+
+        stream.feed(chunk.data(), received);
+
+        // Echo every complete message back. Binary on the way out, whatever the client sent: this
+        // is a transport demo, and a client that needs text framing is not what it is for.
+        while (stream.available() > 0)
+        {
+            Buffer message;
+            message.reserve(stream.available());
+            const size_t length = stream.read(message.data(), stream.available());
+            message.bytes(length);
+            if (length > 0)
+            {
+                stream.write(message.data(), message.bytes());
+            }
+        }
+
+        flush();
+    }
+
+    stream.close(1000);
+    flush();
+}
+
 void WSWebSocketsProtocol::replyCloseConnectionRequest(uint16_t statusCode, const String& closeReason)
 {
-    Buffer message;
+    constexpr size_t maxReasonLength = WSWebSocketsMessage::maxControlPayloadLength - 2;
 
-    String reply("  ");
-    *(uint16_t*) reply.data() = htons(statusCode);
-    reply.append(closeReason);
-    WSWebSocketsMessage::encode(reply, WSWebSocketsMessage::OpCode::CONNECTION_CLOSE, true, message);
+    Buffer payload;
+    payload.append(static_cast<uint8_t>(statusCode >> 8));
+    payload.append(static_cast<uint8_t>(statusCode & 0xFF));
+    payload.append(closeReason.c_str(), min(closeReason.size(), maxReasonLength));
 
-    socket().write(message);
+    Buffer frame;
+    WSWebSocketsMessage::encode(payload.data(), payload.bytes(), WSWebSocketsMessage::OpCode::CONNECTION_CLOSE, true,
+                                frame);
+    socket().write(frame);
 }

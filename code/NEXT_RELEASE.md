@@ -1,5 +1,12 @@
 # Next synchronized SPTK / XMQ release
 
+## A WebSockets transport that a server can build on
+
+- Rewrite the frame codec. `WSWebSocketsMessage::encode()` wrote no length marker for payloads of 126 bytes or more, and wrote the 64-bit length in host byte order, so a server could send only frames under 126 bytes; `decode()` read lengths and payloads through unaligned casts, and had no bound to check them against. Both now follow RFC 6455, take the bytes received as an explicit limit, and report "not complete yet" rather than assuming a whole frame arrived.
+- Add `WSWebSocketStream`, a byte stream over frames: partial frames, several frames in one read, fragmentation with control frames interleaved, ping answered, close echoed once, text validated as UTF-8, and a configurable message limit. It touches no socket, so it is tested without a network and works over TCP or TLS.
+- Add `ws::acceptKey()`, `ws::negotiateSubprotocol()` and `ws::writeUpgradeResponse()`, so a server with its own connection loop can answer the upgrade without owning an instance of the WSDL protocol class.
+- `WSWebSocketsProtocol::process()` now runs on the stream and echoes what it receives, instead of replying "Hello" and "World" to every frame.
+
 ## SPTK 5.6.13: allocation-free `BufferStorage` move construction
 
 - Replace the `malloc(1)` used to reset the source in `BufferStorage(BufferStorage&&)` with a null empty state. Move assignment already uses that state.
