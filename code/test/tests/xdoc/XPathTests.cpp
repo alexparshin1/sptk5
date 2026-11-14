@@ -52,6 +52,33 @@ static const String testXML4("<AAA><BBB>1</BBB><BBB>2</BBB><BBB>3</BBB><BBB>4</B
 static const String testXML5(R"(<AAA><BBB>1</BBB><BBB id="002">2</BBB><BBB id="003">3</BBB><BBB>4</BBB></AAA>)");
 namespace sptk {
 
+TEST(XDocumentTests, xpathLiteralJsonNames)
+{
+    Document document;
+    for (const auto& name : vector<String>{"a+b", "*", "a/b", "a//b", "a[b]", "both'\"quotes", "", "roles"})
+        document.root()->pushValue(name, "value", Node::Type::Text);
+    document.root()->pushValue("a", "wrong", Node::Type::Text);
+    for (const auto& name : vector<String>{"a+b", "*", "a/b", "a//b", "a[b]", "both'\"quotes", "", "roles"})
+    {
+        const auto nodes = document.root()->select(Node::childXPath({name}));
+        ASSERT_EQ(1, nodes.size()) << name;
+        EXPECT_EQ(name, nodes.front()->getQualifiedName());
+    }
+    EXPECT_THROW((void) document.root()->select("/a+b"), Exception);
+    EXPECT_THROW((void) document.root()->select("/roles/"), Exception);
+    EXPECT_THROW((void) document.root()->select("/"), Exception);
+}
+
+TEST(XDocumentTests, xpathJsonChildPathDoesNotSearchDescendants)
+{
+    Document document;
+    document.load(String(R"({"nested":{"iss":"wrong"},"realm_access":{"roles":["Operators"]}})"));
+    EXPECT_TRUE(document.root()->select(Node::childXPath({"iss"})).empty());
+    const auto nodes = document.root()->select(Node::childXPath({"realm_access", "roles"}));
+    ASSERT_EQ(1, nodes.size());
+    EXPECT_EQ(Node::Type::Array, nodes.front()->type());
+}
+
 TEST(XDocumentTests, select)
 {
     Document document;

@@ -62,6 +62,7 @@ String HttpConnect::responseHeader(const String& headerName) const
 int HttpConnect::getResponse(Buffer& output, const chrono::milliseconds& readTimeout)
 {
     m_reader = make_shared<HttpReader>(m_socket, output, HttpReader::ReadMode::RESPONSE);
+    m_reader->setReadLimits(m_maxHeaderBytes, m_maxBodyBytes);
     const auto deadline = chrono::steady_clock::now() + readTimeout;
     m_reader->setReadDeadline(deadline);
     while (m_reader->getReaderState() < HttpReader::State::COMPLETED)
@@ -164,9 +165,25 @@ int HttpConnect::cmd_get(const String& pageName, const HttpParams& requestParame
     const Strings headers = makeHeaders("GET", pageName, requestParameters, authorization);
     const String  command = headers.join("\r\n") + "\r\n\r\n";
 
-    sendCommand(command);
-
-    return getResponse(output, timeout);
+    const auto deadline = chrono::steady_clock::now() + timeout;
+    m_socket->setIoDeadline(deadline);
+    try
+    {
+        sendCommand(command);
+        const auto remaining = chrono::duration_cast<chrono::milliseconds>(
+            deadline - chrono::steady_clock::now());
+        if (remaining.count() <= 0)
+            throw TimeoutException("HTTP request deadline exceeded");
+        const auto status = getResponse(output, remaining);
+        m_socket->setIoDeadline(nullopt);
+        return status;
+    }
+    catch (...)
+    {
+        m_socket->close();
+        m_socket->setIoDeadline(nullopt);
+        throw;
+    }
 }
 
 namespace {

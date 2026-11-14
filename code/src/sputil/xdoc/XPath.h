@@ -58,6 +58,7 @@ class SP_EXPORT XPathElement
 {
 public:
     String    elementName;                   ///< Node name, or '*'
+    bool      literalName {false};           ///< Match elementName literally, including '*'.
     String    criteria;                      ///< Criteria
     XPathAxis axis {XPathAxis::CHILD};       ///< Axis
     String    attributeName;                 ///< Attribute name (optional)

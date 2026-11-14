@@ -38,6 +38,7 @@
 #include "sptk5/xdoc/Document.h"
 #include <gtest/gtest.h>
 #include <sptk5/xdoc/Node.h>
+#include <limits>
 
 using namespace std;
 using namespace sptk;
@@ -51,6 +52,39 @@ static const String testXmlDocument(
     "</customer>"
     "</xml>");
 namespace sptk {
+
+TEST(XDocumentTests, strictNodeValues)
+{
+    auto node = Node::createNode("value");
+    node->set(String("12"));
+    EXPECT_EQ(String("12"), *node->textValue());
+    EXPECT_FALSE(node->integerValue());
+    node->set(12.75);
+    EXPECT_EQ(12, *node->integerValue());
+    EXPECT_FALSE(node->textValue());
+    node->set(-12.75);
+    EXPECT_EQ(-12, *node->integerValue());
+    node->set(std::numeric_limits<int64_t>::max());
+    EXPECT_EQ(std::numeric_limits<int64_t>::max(), *node->integerValue());
+    node->set(std::numeric_limits<int64_t>::min());
+    EXPECT_EQ(std::numeric_limits<int64_t>::min(), *node->integerValue());
+    for (const auto value : {0x1p63, -0x1p64, std::numeric_limits<double>::infinity(),
+                             std::numeric_limits<double>::quiet_NaN()})
+    {
+        node->set(value);
+        EXPECT_FALSE(node->integerValue());
+    }
+    node->set(true);
+    EXPECT_FALSE(node->integerValue());
+    EXPECT_FALSE(node->textValue());
+
+    Document document;
+    document.load(String(R"({"list":["Operators",7,null,true,"Readers"],"single":"Operators"})"));
+    EXPECT_EQ((std::vector<String>{"Operators", "Readers"}),
+              document.root()->findFirst("list")->textValues());
+    EXPECT_EQ((std::vector<String>{"Operators"}),
+              document.root()->findFirst("single")->textValues());
+}
 
 TEST(XDocumentTests,typeRegexp)
 {

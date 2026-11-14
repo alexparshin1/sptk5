@@ -40,6 +40,7 @@
 #include <atomic>
 #include <mutex>
 #include <chrono>
+#include <optional>
 #include <sptk5/DateTime.h>
 #include <sptk5/Exception.h>
 #include <sptk5/net/Host.h>
@@ -381,6 +382,11 @@ protected:
      * @returns the number of bytes written to the socket.
      */
     virtual size_t writeUnlocked(const uint8_t* buffer, size_t size, const sockaddr* peer);
+
+    /** Bound internal waits by the current absolute I/O deadline; throws when expired. */
+    std::chrono::milliseconds ioWaitTimeout(const std::chrono::milliseconds& timeout) const;
+    std::optional<std::chrono::steady_clock::time_point> m_ioDeadline;
+    bool m_deadlineSavedBlockingMode {false};
 
     /**
      * @brief Get socket domain type.

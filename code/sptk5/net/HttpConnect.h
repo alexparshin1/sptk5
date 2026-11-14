@@ -156,6 +156,13 @@ public:
      */
     explicit HttpConnect(std::shared_ptr<TCPSocket> socket);
 
+    /** Set response limits before issuing commands; zero means unlimited. */
+    void setResponseLimits(size_t maxHeaderBytes, size_t maxBodyBytes)
+    {
+        m_maxHeaderBytes = maxHeaderBytes;
+        m_maxBodyBytes = maxBodyBytes;
+    }
+
     /**
      * @brief Returns the HTTP request headers.
      *
@@ -293,6 +300,8 @@ protected:
     int getResponse(Buffer& output, const std::chrono::milliseconds& timeout);
 
 private:
+    size_t m_maxHeaderBytes {0};
+    size_t m_maxBodyBytes {0};
     std::shared_ptr<HttpReader> m_reader;         ///< HTTP reader.
     std::shared_ptr<TCPSocket>  m_socket;         ///< External socket.
     HttpHeaders                 m_requestHeaders; ///< HTTP request headers.

@@ -40,6 +40,8 @@
 #include "sptk5/net/HttpReader.h"
 #include <sptk5/Brotli.h>
 #include <sptk5/ZLib.h>
+#include <limits>
+#include <charconv>
 
 using namespace std;
 using namespace sptk;
@@ -58,7 +60,7 @@ HttpReader::HttpReader(const shared_ptr<TCPSocket>& socket, Buffer& output, cons
 bool HttpReader::readStatus()
 {
     String status;
-    while (readLine(status) < 3)
+    while (readBoundedLine(status) < 3)
     {
         if (status.empty())
         {
@@ -88,10 +90,38 @@ bool HttpReader::readStatus()
     return true;
 }
 
+void HttpReader::setReadLimits(const size_t maxHeaderBytes, const size_t maxBodyBytes)
+{
+    m_maxHeaderBytes = maxHeaderBytes;
+    m_maxBodyBytes = maxBodyBytes;
+}
+
+size_t HttpReader::readBoundedLine(String& line)
+{
+    if (!m_maxHeaderBytes)
+        return readLine(line);
+    line.clear();
+    for (;;)
+    {
+        if (m_headerBytes >= m_maxHeaderBytes)
+            throw Exception("HTTP header limit exceeded");
+        const auto timeout = nextReadTimeout();
+        if (timeout.count() <= 0 || !readyToRead(timeout))
+            throw TimeoutException("HTTP header read timeout");
+        uint8_t byte = 0;
+        if (read(&byte, 1) != 1)
+            throw Exception("Truncated HTTP header");
+        ++m_headerBytes;
+        if (byte == '\n')
+            return line.size();
+        line.push_back(static_cast<char>(byte));
+    }
+}
+
 bool HttpReader::readHttpRequest()
 {
     String request;
-    readLine(request);
+    readBoundedLine(request);
     if (request.empty())
     {
         return false;
@@ -112,6 +142,7 @@ void HttpReader::readHttpHeaders()
 {
 
     clear();
+    m_headerBytes = 0;
 
     if (m_readMode == ReadMode::RESPONSE)
     {
@@ -133,7 +164,7 @@ void HttpReader::readHttpHeaders()
     {
         String header;
 
-        readLine(header);
+        readBoundedLine(header);
         header = trim(header);
 
         if (header.empty())
@@ -144,7 +175,13 @@ void HttpReader::readHttpHeaders()
         if (const auto pos = header.find(':');
             pos != string::npos)
         {
-            m_httpHeaders[header.substr(0, pos)] = trim(header.substr(pos + 1));
+            const auto name = header.substr(0, pos);
+            const auto value = trim(header.substr(pos + 1));
+            if (const auto existing = m_httpHeaders.find(name);
+                existing != m_httpHeaders.end() &&
+                (lowerCase(name) == "content-length" || lowerCase(name) == "transfer-encoding"))
+                throw Exception("Duplicate HTTP framing header");
+            m_httpHeaders[name] = value;
         }
     }
 
@@ -154,13 +191,30 @@ void HttpReader::readHttpHeaders()
     auto itor = m_httpHeaders.find("content-length");
     if (itor != m_httpHeaders.end())
     {
-        m_contentLength = static_cast<size_t>(string2int(itor->second));
+        const auto& text = itor->second;
+        const auto parsed = from_chars(text.data(), text.data() + text.size(), m_contentLength);
+        if (text.empty() || parsed.ec != errc{} || parsed.ptr != text.data() + text.size())
+            throw Exception("Invalid HTTP Content-Length");
+        if (m_maxBodyBytes && m_contentLength > m_maxBodyBytes)
+            throw Exception("HTTP body limit exceeded");
+    }
+
+    if (m_maxBodyBytes)
+    {
+        const auto encoding = m_httpHeaders.find("content-encoding");
+        if (encoding != m_httpHeaders.end() && !encoding->second.empty() &&
+            encoding->second.toLowerCase() != "identity")
+            throw Exception("Compressed HTTP responses are not supported with a body limit");
     }
 
     itor = m_httpHeaders.find("transfer-encoding");
     if (itor != m_httpHeaders.end())
     {
-        m_contentIsChunked = itor->second.find("chunked") != string::npos;
+        if (m_httpHeaders.find("content-length") != m_httpHeaders.end())
+            throw Exception("Ambiguous HTTP message framing");
+        if (itor->second.toLowerCase() != "chunked")
+            throw Exception("Unsupported HTTP Transfer-Encoding");
+        m_contentIsChunked = true;
     }
 
     if ((m_requestType == "POST" || m_requestType == "PUT") && !(m_contentLength > 0 || m_contentIsChunked))
@@ -192,9 +246,14 @@ chrono::milliseconds clampTimeout(const optional<chrono::steady_clock::time_poin
 }
 
 size_t readAndAppend(SocketReader& socketReader, Buffer& output, const size_t bytesToRead,
-                     const optional<chrono::steady_clock::time_point>& deadline)
+                     const optional<chrono::steady_clock::time_point>& deadline,
+                     const size_t maxBodyBytes)
 {
-    Buffer buffer(bytesToRead);
+    if (maxBodyBytes && (output.bytes() > maxBodyBytes ||
+                        bytesToRead > maxBodyBytes - output.bytes()))
+        throw Exception("HTTP body limit exceeded");
+    const auto readSize = min(bytesToRead, size_t(16384));
+    Buffer buffer(readSize);
 
     if (const auto timeout = clampTimeout(deadline);
         timeout.count() <= 0 || !socketReader.readyToRead(timeout))
@@ -202,10 +261,10 @@ size_t readAndAppend(SocketReader& socketReader, Buffer& output, const size_t by
         throw TimeoutException("Timeout reading from connection");
     }
 
-    auto readBytes = socketReader.read(buffer, bytesToRead);
+    auto readBytes = socketReader.read(buffer, readSize);
     if (readBytes == 0)
     { // 0 bytes case is a workaround for OpenSSL
-        readBytes = static_cast<int>(socketReader.read(buffer, bytesToRead));
+        readBytes = static_cast<int>(socketReader.read(buffer, readSize));
     }
 
     output.append(buffer);
@@ -213,7 +272,8 @@ size_t readAndAppend(SocketReader& socketReader, Buffer& output, const size_t by
 }
 
 size_t readChunk(SocketReader& socketReader, Buffer& m_output,
-                 const optional<chrono::steady_clock::time_point>& deadline)
+                 const optional<chrono::steady_clock::time_point>& deadline,
+                 const size_t maxBodyBytes)
 {
     // Starting next chunk
     String chunkSizeStr;
@@ -225,25 +285,82 @@ size_t readChunk(SocketReader& socketReader, Buffer& m_output,
             throw TimeoutException("Timeout reading next chunk");
         }
 
-        if (socketReader.readLine(chunkSizeStr) > 0)
+        uint8_t byte = 0;
+        while (true)
         {
-            chunkSizeStr = trim(chunkSizeStr);
+            if (chunkSizeStr.size() >= 128)
+                throw Exception("HTTP chunk header limit exceeded");
+            const auto timeout = clampTimeout(deadline);
+            if (timeout.count() <= 0 || !socketReader.readyToRead(timeout) ||
+                socketReader.read(&byte, 1) != 1)
+                throw TimeoutException("Truncated HTTP chunk header");
+            if (byte == '\n')
+                break;
+            chunkSizeStr.push_back(static_cast<char>(byte));
         }
+        chunkSizeStr = trim(chunkSizeStr);
     }
 
     errno = 0;
-    const auto chunkSize = static_cast<size_t>(strtol(chunkSizeStr.c_str(), nullptr, 16));
-    if (errno != 0)
+    char* end = nullptr;
+    const auto parsedSize = strtoull(chunkSizeStr.c_str(), &end, 16);
+    if (errno != 0 || chunkSizeStr.empty() || !isxdigit(static_cast<unsigned char>(chunkSizeStr[0])) ||
+        end == chunkSizeStr.c_str() || (*end != '\0' && *end != ';') ||
+        parsedSize > std::numeric_limits<size_t>::max())
     {
         throw Exception("Strange chunk size: '" + chunkSizeStr + "'");
     }
+    const auto chunkSize = static_cast<size_t>(parsedSize);
 
     if (chunkSize == 0)
     {
+        // Consume trailers, including their terminating empty line, rather than leaving bytes
+        // to be mistaken for the next response on a persistent connection.
+        size_t trailerBytes = 0;
+        size_t lineBytes = 0;
+        uint8_t previous = 0;
+        for (;;)
+        {
+            if (++trailerBytes > 64 * 1024)
+                throw Exception("HTTP trailer limit exceeded");
+            uint8_t byte = 0;
+            const auto timeout = clampTimeout(deadline);
+            if (timeout.count() <= 0 || !socketReader.readyToRead(timeout) ||
+                socketReader.read(&byte, 1) != 1)
+                throw Exception("Truncated HTTP trailers");
+            if (byte == '\n')
+            {
+                if (previous != '\r')
+                    throw Exception("Invalid HTTP trailer terminator");
+                if (lineBytes == 1)
+                    break;
+                lineBytes = 0;
+            }
+            else
+                ++lineBytes;
+            previous = byte;
+        }
         return 0;
     } // Last chunk
 
-    return readAndAppend(socketReader, m_output, chunkSize, deadline);
+    size_t received = 0;
+    while (received < chunkSize)
+    {
+        const auto count = readAndAppend(socketReader, m_output, chunkSize - received,
+                                         deadline, maxBodyBytes);
+        if (!count)
+            throw Exception("Truncated HTTP chunk");
+        received += count;
+    }
+    for (const uint8_t expected : {'\r', '\n'})
+    {
+        uint8_t byte = 0;
+        const auto timeout = clampTimeout(deadline);
+        if (timeout.count() <= 0 || !socketReader.readyToRead(timeout) ||
+            socketReader.read(&byte, 1) != 1 || byte != expected)
+            throw Exception("Invalid HTTP chunk terminator");
+    }
+    return received;
 }
 } // namespace
 
@@ -252,6 +369,8 @@ void HttpReader::readDataChunk(bool& done)
     auto bytesToRead = availableBytes();
     if (bytesToRead == 0)
     {
+        if (m_contentIsChunked || (m_contentLength > m_contentReceivedLength))
+            throw Exception("Truncated HTTP body");
         done = true;
         return;
     }
@@ -272,7 +391,10 @@ void HttpReader::readDataChunk(bool& done)
 
     if (!m_contentIsChunked)
     {
-        const auto readBytes = static_cast<int>(readAndAppend(*this, m_output, bytesToRead, m_readDeadline));
+        const auto readBytes = static_cast<int>(readAndAppend(*this, m_output, bytesToRead,
+                                                              m_readDeadline, m_maxBodyBytes));
+        if (readBytes == 0 && m_contentLength > m_contentReceivedLength)
+            throw Exception("Truncated HTTP body");
         m_contentReceivedLength += readBytes;
         if (m_contentLength > 0 && m_contentReceivedLength >= m_contentLength)
         { // No more data
@@ -281,12 +403,13 @@ void HttpReader::readDataChunk(bool& done)
     }
     else
     {
-        const auto chunkSize = readChunk(*this, m_output, m_readDeadline);
+        const auto chunkSize = readChunk(*this, m_output, m_readDeadline, m_maxBodyBytes);
         m_contentReceivedLength += chunkSize;
         done = chunkSize == 0; // 0 means last chunk
     }
 
-    if (!done)
+    if (!done && m_httpHeaders.find("content-length") == m_httpHeaders.end() && !m_contentIsChunked &&
+        !m_maxBodyBytes)
     {
         const auto readBytes = static_cast<int>(availableBytes());
         if (readBytes == 0 && m_output.bytes() > 13)
@@ -308,6 +431,8 @@ void HttpReader::readDataChunk(bool& done)
 
 bool HttpReader::readData()
 {
+    if (m_httpHeaders.find("content-length") != m_httpHeaders.end() && m_contentLength == 0)
+        return true;
     auto done {false};
     while (!done)
     {

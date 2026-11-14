@@ -592,9 +592,20 @@ constexpr auto CONNECTION_CLOSED = POLLRDHUP | POLLHUP;
 #endif
 #endif
 
+chrono::milliseconds SocketVirtualMethods::ioWaitTimeout(const chrono::milliseconds& timeout) const
+{
+    if (!m_ioDeadline)
+        return timeout;
+    const auto remaining = chrono::duration_cast<chrono::milliseconds>(
+        *m_ioDeadline - chrono::steady_clock::now());
+    if (remaining.count() <= 0)
+        throw TimeoutException("Socket I/O deadline exceeded");
+    return timeout.count() < 0 ? remaining : min(timeout, remaining);
+}
+
 bool SocketVirtualMethods::readyToReadUnlocked(const chrono::milliseconds& timeout)
 {
-    const auto timeoutMS = static_cast<int>(timeout.count());
+    const auto timeoutMS = static_cast<int>(ioWaitTimeout(timeout).count());
 
     if (m_socketFd == INVALID_SOCKET)
     {
@@ -646,7 +657,7 @@ bool SocketVirtualMethods::readyToReadUnlocked(const chrono::milliseconds& timeo
 
 bool SocketVirtualMethods::readyToWriteUnlocked(const chrono::milliseconds& timeout)
 {
-    const auto timeoutMS = static_cast<int>(timeout.count());
+    const auto timeoutMS = static_cast<int>(ioWaitTimeout(timeout).count());
 
     // A closed socket is never ready, and asking the OS about it is worse than useless:
     // WSAPoll() on INVALID_SOCKET falls into the error branch below and reports an unrelated
@@ -748,6 +759,7 @@ size_t SocketVirtualMethods::sendUnlocked(const uint8_t* buffer, const size_t le
 {
     while (true)
     {
+        (void) ioWaitTimeout(0ms);
 #ifdef _WIN32
         auto res = send(m_socketFd, bit_cast<char*>(buffer), static_cast<int32_t>(len), 0);
 #else

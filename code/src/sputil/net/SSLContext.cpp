@@ -102,6 +102,29 @@ SSL_CTX* SSLContext::handle() const
     return m_ctx.get();
 }
 
+void SSLContext::configureClientTrust(const String& caFile)
+{
+    const scoped_lock lock(m_mutex);
+    // Replace, rather than augment, trust that may have been loaded with client credentials.
+    // A custom CA must not silently keep trusting every CA in the system store.
+    auto* store = X509_STORE_new();
+    if (!store)
+        throwError("Can't create client CA store");
+    SSL_CTX_set_cert_store(m_ctx.get(), store); // context takes ownership
+    if (SSL_CTX_set_min_proto_version(m_ctx.get(), TLS1_2_VERSION) != 1)
+        throwError("Can't set minimum client TLS version");
+    if (caFile.empty())
+    {
+        if (SSL_CTX_set_default_verify_paths(m_ctx.get()) != 1)
+            throwError("Can't load system CA store");
+    }
+    else if (SSL_CTX_load_verify_locations(m_ctx.get(), caFile.c_str(), nullptr) != 1)
+    {
+        throwError("Can't load client CA file " + caFile);
+    }
+    SSL_CTX_set_verify(m_ctx.get(), SSL_VERIFY_PEER, nullptr);
+}
+
 int SSLContext::passwordReplyCallback(char* replyBuffer, const int replySize, int /*rwflag*/, void* userdata)
 {
     if (replySize <= 0 || replyBuffer == nullptr || userdata == nullptr)

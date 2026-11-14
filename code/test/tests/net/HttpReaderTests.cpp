@@ -42,6 +42,7 @@
 #include <sptk5/Buffer.h>
 #include <sptk5/net/FastTCPServer.h>
 #include <sptk5/net/HttpReader.h>
+#include <sptk5/net/HttpConnect.h>
 #include <sptk5/net/TCPSocket.h>
 
 #include <chrono>
@@ -61,9 +62,11 @@ uint16_t getHttpReaderTestPort()
 class FixedResponseServer : public FastTCPServer
 {
 public:
-    FixedResponseServer(uint16_t port, String response)
+    FixedResponseServer(uint16_t port, String response,
+                        chrono::milliseconds delay = chrono::milliseconds(0))
         : FastTCPServer("HttpReader FixedResponseServer")
         , m_response(std::move(response))
+        , m_delay(delay)
     {
         addListener(ServerConnection::Type::TCP, {"127.0.0.1", port});
     }
@@ -85,6 +88,7 @@ public:
         const auto socket = createConnectionSocket(connectionType, connectionSocket);
         try
         {
+            std::this_thread::sleep_for(m_delay);
             socket->write(m_response);
         }
         catch (const exception& exception)
@@ -98,10 +102,60 @@ public:
 
 private:
     String m_response;
+    chrono::milliseconds m_delay;
 };
 
 } // namespace
 namespace sptk {
+
+TEST(HttpReaderTests, getDeadlineBoundsSlowResponseAndClosesSocket)
+{
+    const auto port = getHttpReaderTestPort();
+    FixedResponseServer server(port, "HTTP/1.1 200 OK\r\nContent-Length: 2\r\n\r\nOK",
+                               chrono::milliseconds(400));
+    const auto socket = make_shared<TCPSocket>();
+    socket->open({"127.0.0.1", port});
+    HttpConnect connection(socket);
+    connection.setResponseLimits(1024, 32);
+    Buffer output;
+    const auto started = chrono::steady_clock::now();
+    EXPECT_THROW((void) connection.cmd_get("/", HttpParams(), output, nullptr,
+                                           chrono::milliseconds(80)), Exception);
+    EXPECT_LT(chrono::steady_clock::now() - started, chrono::milliseconds(300));
+    EXPECT_FALSE(socket->active());
+}
+
+TEST(HttpReaderTests, responseLimitsRejectOversizedInput)
+{
+    const vector<String> responses {
+        "HTTP/1.1 200 OK\r\nContent-Length: 1000000000\r\n\r\n",
+        "HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\n\r\n10000000\r\n",
+        "HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\n\r\n-1\r\n",
+        "HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\n\r\nxyz\r\n",
+        "HTTP/1.1 200 OK\r\nContent-Length: 8\r\n\r\nshort",
+        "HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\n\r\n8\r\nshort",
+        "HTTP/1.1 200 OK\r\nContent-Length: -1\r\n\r\n",
+        "HTTP/1.1 200 OK\r\nContent-Length: 2junk\r\n\r\nOK",
+        "HTTP/1.1 200 OK\r\nContent-Length: 2\r\nContent-Length: 3\r\n\r\nOK",
+        "HTTP/1.1 200 OK\r\nContent-Length: 2\r\nTransfer-Encoding: chunked\r\n\r\n",
+        "HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\n\r\n2\r\nOKxx0\r\n\r\n",
+        "HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\n\r\n0\r\n",
+        "HTTP/1.1 200 OK\r\nX-Large: " + String(300, 'x') + "\r\n\r\n",
+        "HTTP/1.1 200 OK\r\nContent-Encoding: gzip\r\nContent-Length: 1\r\n\r\nx"
+    };
+    for (const auto& response : responses)
+    {
+        const auto port = getHttpReaderTestPort();
+        FixedResponseServer server(port, response);
+        const auto socket = make_shared<TCPSocket>();
+        socket->open({"127.0.0.1", port});
+        Buffer output;
+        HttpReader reader(socket, output, HttpReader::ReadMode::RESPONSE);
+        reader.setReadLimits(256, 32);
+        EXPECT_THROW(reader.readAll(chrono::seconds(2)), Exception);
+        EXPECT_LE(output.bytes(), 32);
+    }
+}
 
 TEST(HttpReaderTests, responseContentLengthReadsBodyAndHeaders)
 {
@@ -120,6 +174,7 @@ TEST(HttpReaderTests, responseContentLengthReadsBodyAndHeaders)
 
     Buffer     out;
     HttpReader reader(socket, out, HttpReader::ReadMode::RESPONSE);
+    reader.setReadLimits(1024, 32);
 
     const auto status = reader.readAll(chrono::seconds(2));
     EXPECT_EQ(status, 200);
@@ -151,6 +206,7 @@ TEST(HttpReaderTests, responseChunkedReadsAllChunks)
 
     Buffer     out;
     HttpReader reader(socket, out, HttpReader::ReadMode::RESPONSE);
+    reader.setReadLimits(1024, 32);
 
     const auto status = reader.readAll(chrono::seconds(2));
     EXPECT_EQ(status, 200);

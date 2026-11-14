@@ -40,6 +40,7 @@
 #include <sptk5/Variant.h>
 #include <sptk5/xdoc/Attributes.h>
 #include <sptk5/xdoc/NodeName.h>
+#include <optional>
 
 namespace sptk::xdoc {
 
@@ -205,6 +206,19 @@ public:
      */
     int64_t getInteger(const NodeName& name = "") const;
 
+    /** Read this node only when it is text; never coerce another JSON type. */
+    std::optional<String> textValue() const;
+
+    /** Read a finite numeric value within int64_t range, truncating fractions toward zero.
+     * Returns nullopt for a different node type or an out-of-range value.
+     */
+    std::optional<int64_t> integerValue() const;
+
+    /** Return this text as one item, or the text members of an array (other items ignored).
+     * Other node types return an empty vector.
+     */
+    std::vector<String> textValues() const;
+
     /**
      * @brief Get node value as boolean.
      * @param name             Optional node name.
@@ -287,6 +301,12 @@ public:
      * @return.
      */
     SNode findFirst(const NodeName& name, SearchMode searchMode = SearchMode::Recursive) const;
+
+    /** Build a child-only XPath from literal qualified node names, safely quoting JSON names
+     * containing XPath syntax. The resulting path starts at the node select() is called on.
+     * An empty list is rejected.
+     */
+    static String childXPath(const std::vector<String>& names);
 
     /**
      * @brief Get parent node.

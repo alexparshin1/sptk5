@@ -140,6 +140,12 @@ public:
     [[nodiscard]] std::string toString() const;
 
     /**
+     * HTTP origin-form target (path and query, without fragment or credentials).
+     * Preserves the original query bytes until params() is modified.
+     */
+    [[nodiscard]] std::string requestTarget() const;
+
+    /**
      * @brief Set URL path.
      * @param path URL path.
      */
@@ -155,6 +161,10 @@ private:
     std::string m_hostAndPort; ///< URL host and port.
     std::string m_path;        ///< URL path.
     HttpParams  m_params;      ///< URL params.
+    std::string m_rawQuery;    ///< Original query, without '?'.
+    std::string m_encodedParams; ///< Encoded params snapshot for detecting edits.
+    std::string m_fragment;    ///< Fragment including '#', if supplied.
+    bool m_hasQuery {false};
 };
 
 /**

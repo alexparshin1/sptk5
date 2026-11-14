@@ -43,6 +43,34 @@ using namespace sptk;
 using namespace xdoc;
 
 namespace {
+string parseNameLiteral(const string& expression)
+{
+    if (expression.size() >= 2 && (expression.front() == '\'' || expression.front() == '"') &&
+        expression.back() == expression.front() &&
+        expression.find(expression.front(), 1) == expression.size() - 1)
+        return expression.substr(1, expression.size() - 2);
+    if (!expression.starts_with("concat(") || !expression.ends_with(")"))
+        throw Exception("Invalid XPath name literal");
+    string result;
+    size_t pos = 7;
+    while (pos < expression.size() - 1)
+    {
+        const char quote = expression[pos++];
+        if (quote != '\'' && quote != '"')
+            throw Exception("Invalid XPath concat literal");
+        const auto end = expression.find(quote, pos);
+        if (end == string::npos)
+            throw Exception("Unterminated XPath literal");
+        result += expression.substr(pos, end - pos);
+        pos = end + 1;
+        if (pos == expression.size() - 1)
+            return result;
+        if (expression[pos++] != ',')
+            throw Exception("Invalid XPath concat separator");
+    }
+    throw Exception("Invalid XPath concat literal");
+}
+
 void makeCriteria(XPathElement& pathElement)
 {
     static const RegularExpression matchAttribute(R"(@(?<attribute>[\w\-_:]+)=['"]?(?<value>.*)['"]?)");
@@ -71,8 +99,14 @@ void makeCriteria(XPathElement& pathElement)
 
 void parsePathElement(const string& pathElementStr, XPathElement& pathElement)
 {
+    if (pathElementStr.starts_with("*[name()=") && pathElementStr.ends_with("]"))
+    {
+        pathElement.elementName = parseNameLiteral(pathElementStr.substr(9, pathElementStr.size() - 10));
+        pathElement.literalName = true;
+        return;
+    }
     static const RegularExpression matchPathElement(
-        R"((?<type>(descendant|parent)::)?(?<element>([\w\-_:]+|\*))(?<option>\[.*\])?)");
+        R"(\A(?<type>(descendant|parent)::)?(?<element>([\w\-_:]+|\*))(?<option>\[.*\])?\z)");
 
     const auto matches = matchPathElement.m(pathElementStr);
     if (!matches)
@@ -154,7 +188,7 @@ bool NodeSearchAlgorithms::matchPathElementAttribute(const SNode& thisNode, cons
 bool NodeSearchAlgorithms::matchPathElement(const SNode& thisNode, const XPathElement& pathElement,
                                             const String& starPointer)
 {
-    if (!pathElement.elementName.empty() && pathElement.elementName != starPointer &&
+    if ((pathElement.literalName || (!pathElement.elementName.empty() && pathElement.elementName != starPointer)) &&
         thisNode->getQualifiedName() != pathElement.elementName)
     {
         return false;
@@ -244,7 +278,7 @@ void NodeSearchAlgorithms::matchNode(const SNode& thisNode, Node::Vector& nodes,
     if (pathPosition == static_cast<int>(pathElements.size()))
     {
         if (const XPathElement& pathElement = pathElements[static_cast<size_t>(pathPosition - 1)];
-            !pathElement.elementName.empty())
+            pathElement.literalName || !pathElement.elementName.empty())
         {
             nodes.push_back(thisNode);
         }
@@ -262,17 +296,81 @@ void NodeSearchAlgorithms::select(Node::Vector& nodes, const SNode& start, Strin
         xpath = "//" + xpath;
     }
 
-    xpath = xpath.replace("\\/\\/", "/descendant::");
-
-    const char* ptr = xpath[0] == '/' ? xpath.c_str() + 1 : xpath.c_str();
-
-    Strings              pathElementStrs(ptr, "/");
-    vector<XPathElement> pathElements(pathElementStrs.size());
-    for (size_t i = 0; i < pathElements.size(); ++i)
+    vector<XPathElement> pathElements;
+    size_t position = 1;
+    bool descendant = false;
+    if (position < xpath.size() && xpath[position] == '/')
     {
-        parsePathElement(pathElementStrs[i], pathElements[i]);
+        descendant = true;
+        ++position;
     }
+    while (position < xpath.size())
+    {
+        const auto begin = position;
+        char quote = 0;
+        for (; position < xpath.size(); ++position)
+        {
+            const char c = xpath[position];
+            if (quote)
+            {
+                if (c == quote) quote = 0;
+            }
+            else if (c == '\'' || c == '"') quote = c;
+            else if (c == '/') break;
+        }
+        if (quote || position == begin)
+            throw Exception("Invalid XPath component");
+        XPathElement element;
+        parsePathElement(xpath.substr(begin, position - begin), element);
+        if (descendant) element.axis = XPathAxis::DESCENDANT;
+        pathElements.push_back(std::move(element));
+        descendant = false;
+        if (position < xpath.size())
+        {
+            ++position;
+            if (position < xpath.size() && xpath[position] == '/')
+            {
+                descendant = true;
+                ++position;
+            }
+            if (position == xpath.size())
+                throw Exception("Empty XPath component");
+        }
+    }
+    if (pathElements.empty())
+        throw Exception("Empty XPath");
 
     const String starPointer("*");
     NodeSearchAlgorithms::matchNode(start, nodes, pathElements, -1, starPointer);
+}
+
+String Node::childXPath(const std::vector<String>& names)
+{
+    if (names.empty())
+        throw Exception("Child XPath requires at least one name");
+    String result;
+    for (const auto& name : names)
+    {
+        result += "/*[name()=";
+        if (name.find('\'') == string::npos)
+            result += "'" + name + "'";
+        else if (name.find('"') == string::npos)
+            result += "\"" + name + "\"";
+        else
+        {
+            result += "concat(";
+            size_t begin = 0;
+            for (;;)
+            {
+                const auto end = name.find('\'', begin);
+                result += "'" + name.substr(begin, end == string::npos ? end : end - begin) + "'";
+                if (end == string::npos) break;
+                result += ",\"'\",";
+                begin = end + 1;
+            }
+            result += ")";
+        }
+        result += "]";
+    }
+    return result;
 }

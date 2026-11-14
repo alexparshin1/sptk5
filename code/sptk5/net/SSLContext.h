@@ -76,6 +76,14 @@ public:
     void loadKeys(const SSLKeys& keys);
 
     /**
+     * Configure a private client context to verify the peer against a custom CA file, or the
+     * system trust store when caFile is empty. Requires TLS 1.2 or newer.
+     * Call before creating SSL sessions; never apply to a shared cached context.
+     * Hostname/IP verification must additionally be configured on each SSL session.
+     */
+    void configureClientTrust(const String& caFile = "");
+
+    /**
      * @brief Returns the SSL context handle.
      */
     [[nodiscard]] SSL_CTX* handle() const;

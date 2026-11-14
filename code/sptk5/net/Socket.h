@@ -138,6 +138,25 @@ public:
     }
 
     /**
+     * Bound subsequent synchronous I/O by an absolute deadline. Requires an open, exclusively
+     * used socket. Enables nonblocking OS I/O while set; clearing restores the previous mode.
+     * Configure after open(), before starting I/O. Not intended for reactor-managed sockets.
+     */
+    void setIoDeadline(const std::optional<std::chrono::steady_clock::time_point>& deadline)
+    {
+        const std::unique_lock lock(m_mutex);
+        if (deadline)
+        {
+            if (!m_ioDeadline)
+                m_deadlineSavedBlockingMode = getBlockingModeUnlocked();
+            setBlockingModeUnlocked(false);
+        }
+        else if (m_ioDeadline && activeUnlocked())
+            setBlockingModeUnlocked(m_deadlineSavedBlockingMode);
+        m_ioDeadline = deadline;
+    }
+
+    /**
      * @brief Returns the number of bytes available in the socket.
      */
     [[nodiscard]] size_t socketBytes() const

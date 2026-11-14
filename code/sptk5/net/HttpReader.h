@@ -123,6 +123,13 @@ public:
     void setReadDeadline(const std::optional<std::chrono::steady_clock::time_point>& deadline);
 
     /**
+     * Bound headers and encoded body before allocation. Zero preserves the legacy unlimited
+     * behavior. With a body limit, compressed responses are refused (not decompressed unbounded).
+     * Configure before reading.
+     */
+    void setReadLimits(size_t maxHeaderBytes, size_t maxBodyBytes);
+
+    /**
      * @brief Read data that can be read completely.
      */
     void readStream();
@@ -161,6 +168,10 @@ public:
     String getRequestURL() const;
 
 private:
+    size_t m_maxHeaderBytes {0};
+    size_t m_maxBodyBytes {0};
+    size_t m_headerBytes {0};
+    size_t readBoundedLine(String& line);
     ReadMode                                             m_readMode;                                                           ///< Read mode.
     State                                                m_readerState {State::READY};                                         ///< State of the reader.
     mutable std::mutex                                   m_mutex;                                                              ///< Mutex that protects internal data.

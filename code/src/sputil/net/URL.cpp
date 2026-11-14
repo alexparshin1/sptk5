@@ -41,6 +41,8 @@
 
 #include <format>
 #include <sstream> // libc++
+#include <charconv>
+#include <algorithm>
 
 using namespace std;
 using namespace sptk;
@@ -52,71 +54,60 @@ URL::URL(const string& url)
         return;
     }
 
-    static const RegularExpression matchUrl(R"(^((\w+)://)?(([^:]+)(:\S*)?@)?([\w:\-\.\[\]]+)?(/[^?\s]*)?(\?\S+)?$)");
-
-    try
+    if (any_of(url.begin(), url.end(), [](unsigned char c) { return c <= 0x20 || c == 0x7f; }))
+        throw Exception("Invalid URL: whitespace or control character");
+    string source = url;
+    // SPTK also parses database connection strings, whose legacy passwords may contain '#'.
+    // Delimit query/fragment after userinfo, not inside those credentials.
+    const auto schemeEnd = source.find("://");
+    const auto authorityStart = schemeEnd == string::npos ? 0 : schemeEnd + 3;
+    const auto pathStart = source.find('/', authorityStart);
+    const auto at = source.find('@', authorityStart);
+    const auto suffixStart = at != string::npos && (pathStart == string::npos || at < pathStart)
+                                 ? at + 1 : authorityStart;
+    if (const auto fragment = source.find('#', suffixStart); fragment != string::npos)
     {
-        const auto matches = matchUrl.m(url);
-        if (!matchUrl.m(url))
-        {
-            throw Exception("Wrong URL format");
-        }
-
-        const auto& groups = matches.groups();
-
-        if (groups.size() <= 1)
-        {
-            throw Exception("No hostname, IP address, or path");
-        }
-        m_protocol = groups[1].value;
-
-        if (groups.size() <= 3)
-        {
-            throw Exception("No hostname or IP address");
-        }
-        m_username = groups[3].value;
-
-        if (groups.size() <= 4)
-        {
-            throw Exception("No hostname or IP address");
-        }
-        if (const auto password = groups[4].value;
-            !password.empty())
-        {
-            m_password = password.substr(1);
-        }
-
-        if (groups.size() <= 5)
-        {
-            throw Exception("No hostname or IP address");
-        }
-        m_hostAndPort = groups[5].value;
-
-        if (groups.size() <= 6)
-        {
-            return;
-        }
-        m_path = groups[6].value;
-
-        if (groups.size() <= 7)
-        {
-            return;
-        }
-
-        if (const auto params = groups[7].value;
-            !params.empty())
-        {
-            if (const Buffer buffer(params.substr(1));
-                !buffer.empty())
-            {
-                m_params.decode(buffer);
-            }
-        }
+        m_fragment = source.substr(fragment);
+        source.erase(fragment);
     }
-    catch (const Exception& e)
+    if (const auto query = source.find('?', suffixStart); query != string::npos)
     {
-        throw Exception(format("Invalid URL: {}", e.what()));
+        m_hasQuery = true;
+        m_rawQuery = source.substr(query + 1);
+        source.erase(query);
+        if (!m_rawQuery.empty())
+            m_params.decode(Buffer(m_rawQuery));
+        Buffer encoded;
+        m_params.encode(encoded);
+        m_encodedParams.assign(encoded.c_str(), encoded.bytes());
     }
+    if (const auto scheme = source.find("://"); scheme != string::npos)
+    {
+        m_protocol = source.substr(0, scheme);
+        if (m_protocol.empty() || !isalpha(static_cast<unsigned char>(m_protocol.front())) ||
+            any_of(m_protocol.begin(), m_protocol.end(), [](unsigned char c)
+                   { return !isalnum(c) && c != '+' && c != '-' && c != '.'; }))
+            throw Exception("Invalid URL scheme");
+        source.erase(0, scheme + 3);
+    }
+    const auto slash = source.find('/');
+    auto authority = source.substr(0, slash);
+    m_path = slash == string::npos ? "" : source.substr(slash);
+    if (const auto at = authority.find('@'); at != string::npos)
+    {
+        const auto credentials = authority.substr(0, at);
+        if (authority.find('@', at + 1) != string::npos)
+            throw Exception("Invalid URL credentials");
+        const auto colon = credentials.find(':');
+        m_username = credentials.substr(0, colon);
+        if (colon != string::npos)
+            m_password = credentials.substr(colon + 1);
+        authority.erase(0, at + 1);
+    }
+    m_hostAndPort = authority;
+    if (!m_protocol.empty() && authority.empty())
+        throw Exception("Invalid URL: missing host");
+    (void) hostAndPort(); // Validate port before any narrowing conversion.
 }
 
 URL::URL(const std::string& protocol, const std::string& host, const uint16_t port, const std::string& username, const std::string& password, const std::string& path)
@@ -149,63 +140,69 @@ string URL::toString() const
 
     str << m_hostAndPort;
 
-    if (!m_path.empty())
-    {
-        str << m_path;
-    }
-
-    if (!m_params.empty())
-    {
-        Buffer buffer;
-        m_params.encode(buffer);
-        str << "?" << buffer.c_str();
-    }
+    auto target = requestTarget();
+    // requestTarget supplies '/' for HTTP, while serialization preserves an absent input path.
+    if (m_path.empty() && target.starts_with("/"))
+        target.erase(0, 1);
+    str << target << m_fragment;
 
     return str.str();
 }
 
 std::tuple<string, uint16_t> URL::hostAndPort() const
 {
-    static const RegularExpression matchHostAndPort(R"(^(\S+):(\d+)$)");
-    const auto                     colonCount = ranges::count(m_hostAndPort, ':');
-    if (colonCount == 0)
-    {
-        // No port specified, return default port 0.
-        return std::make_tuple(m_hostAndPort, static_cast<uint16_t>(0));
-    }
-
-    if (colonCount == 1)
-    {
-        // Hostname or IPv4 address and port.
-        const auto matches = matchHostAndPort.m(m_hostAndPort);
-        if (matches.empty())
-        {
-            throw Exception("Invalid IP address");
-        }
-        return std::make_tuple(matches[0].value, static_cast<uint16_t>(stoi(matches[1].value)));
-    }
-
     string   host = m_hostAndPort;
-    uint16_t port = 0;
-    if (m_hostAndPort.starts_with("["))
+    string portText;
+    bool explicitPort = false;
+    if (host.starts_with("["))
     {
-        // IPv6 address with port.
-        const auto matches = matchHostAndPort.m(m_hostAndPort);
-        if (matches.empty())
+        const auto close = host.find(']');
+        if (close == string::npos || close == 1)
+            throw Exception("Invalid bracketed URL host");
+        const auto suffix = host.substr(close + 1);
+        host = host.substr(1, close - 1);
+        if (host.find(':') == string::npos)
+            throw Exception("Bracketed URL host must be IPv6");
+        if (!suffix.empty())
         {
-            throw Exception("Invalid IPv6 address");
+            if (suffix.front() != ':')
+                throw Exception("Invalid URL port separator");
+            explicitPort = true;
+            portText = suffix.substr(1);
         }
-
-        host = matches[0].value;
-        port = static_cast<uint16_t>(stoi(matches[1].value));
     }
-
-    if (host.starts_with("[") && host.ends_with("]"))
+    else if (ranges::count(host, ':') == 1)
     {
-        host = host.substr(1, host.length() - 2);
+        const auto colon = host.find(':');
+        portText = host.substr(colon + 1);
+        host.erase(colon);
+        explicitPort = true;
     }
+    if (host.find_first_of("[]@/?#\\") != string::npos ||
+        any_of(host.begin(), host.end(), [](unsigned char c) { return c <= 0x20 || c == 0x7f; }))
+        throw Exception("Invalid URL host");
+    unsigned int port = 0;
+    if (explicitPort)
+    {
+        const auto parsed = from_chars(portText.data(), portText.data() + portText.size(), port);
+        if (host.empty() || portText.empty() || parsed.ec != errc{} ||
+            parsed.ptr != portText.data() + portText.size() || port == 0 || port > 65535)
+            throw Exception("Invalid URL port");
+    }
+    return {host, static_cast<uint16_t>(port)};
+}
 
-    return std::make_tuple(host, port);
+string URL::requestTarget() const
+{
+    string target = m_path.empty() ? "/" : m_path;
+    Buffer encoded;
+    m_params.encode(encoded);
+    const string current(encoded.c_str(), encoded.bytes());
+    if (m_hasQuery && current == m_encodedParams)
+        target += "?" + m_rawQuery;
+    else if (!m_params.empty())
+        target += "?" + current;
+    return target;
 }
 
 string URL::location() const

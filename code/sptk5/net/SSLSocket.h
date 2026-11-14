@@ -99,6 +99,13 @@ public:
      */
     [[maybe_unused]] void setSNIHostName(const String& sniHostName);
 
+    /**
+     * Enable verified client TLS for subsequent connections. peerName is the DNS name or IP
+     * expected in the certificate, without IPv6 brackets. Empty caFile selects system trust.
+     * Uses a private context, not the shared server-context cache. Configure before opening.
+     */
+    void configureClientVerification(const String& peerName, const String& caFile = "");
+
 protected:
     /**
      * @brief Reads and writes share the SSL session here, so they may not overlap.
@@ -243,6 +250,8 @@ private:
     String             m_sniHostName;          ///< SNI host name (optional).
     String             m_cipherList;           ///< Cipher List.
     bool               m_tlsOnly {false};      ///< TLS only mode.
+    String             m_verifiedPeerName;     ///< Expected client peer identity.
+    String             m_clientCaFile;         ///< Empty means system trust.
 
     bool tryConnectUnlocked(const DateTime& timeoutAt);
 

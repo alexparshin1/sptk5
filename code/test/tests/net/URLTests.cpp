@@ -183,4 +183,27 @@ TEST(URLTests,rejectsTrailingJunk) /* NOLINT */
     EXPECT_ANY_THROW(URL("https://www.test.com/path ???"));
 }
 
+TEST(URLTests, strictPortsAndBracketedIpv6)
+{
+    for (const auto* url : {"https://host:65536/", "https://host:0/", "https://host:-1/",
+                            "https://host:/", "https://host:12x/", "https://[::1/",
+                            "https://[::1]junk/", "https://host/\r\nInjected:yes"})
+        EXPECT_THROW((void) URL(url), Exception) << url;
+    EXPECT_EQ(URL("https://[::1]/").hostAndPort(), std::make_tuple(std::string("::1"), uint16_t(0)));
+    EXPECT_EQ(URL("https://[::1]:65535/").hostAndPort(),
+              std::make_tuple(std::string("::1"), uint16_t(65535)));
+}
+
+TEST(URLTests, requestTargetPreservesRawQueryAndExcludesFragment)
+{
+    URL url("https://host/path?x=%2f&x=%2F&space=a+b&empty=&flag#fragment");
+    EXPECT_EQ("/path?x=%2f&x=%2F&space=a+b&empty=&flag", url.requestTarget());
+    EXPECT_EQ("https://host/path?x=%2f&x=%2F&space=a+b&empty=&flag#fragment", url.toString());
+    EXPECT_EQ("/?x=%2f", URL("https://host?x=%2f").requestTarget());
+    EXPECT_EQ("/?", URL("https://host?").requestTarget());
+    EXPECT_EQ("/", URL("https://host#fragment").requestTarget());
+    url.params()["new"] = "value";
+    EXPECT_NE(std::string::npos, url.requestTarget().find("new=value"));
+}
+
 } // namespace sptk_test

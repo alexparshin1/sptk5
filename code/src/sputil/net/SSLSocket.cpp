@@ -41,6 +41,7 @@
 
 // These two #includes must be after SSLContext.h, or it breaks Windows compilation
 #include <openssl/err.h>
+#include <openssl/x509v3.h>
 #include <sptk5/net/CachedSSLContext.h>
 
 #include "sptk5/SystemException.h"
@@ -174,11 +175,35 @@ void SSLSocket::loadKeys(const SSLKeys& keys)
 
 void SSLSocket::initContextAndSocket()
 {
-    m_sslContext = CachedSSLContext::get(m_keys, m_cipherList, m_tlsOnly);
+    if (m_verifiedPeerName.empty())
+        m_sslContext = CachedSSLContext::get(m_keys, m_cipherList, m_tlsOnly);
+    else
+    {
+        m_sslContext = make_shared<SSLContext>(m_cipherList, true);
+        if (!m_keys.empty())
+            m_sslContext->loadKeys(m_keys);
+        m_sslContext->configureClientTrust(m_clientCaFile);
+    }
 
     sslNew();
 
-    if (!m_sniHostName.empty())
+    if (!m_verifiedPeerName.empty())
+    {
+        const scoped_lock lock(m_mutex);
+        auto* parameters = SSL_get0_param(m_ssl);
+        // OpenSSL recognizes both IPv4 and IPv6 literals; they require IP SAN matching rather
+        // than DNS matching and must not be sent as an SNI hostname.
+        if (X509_VERIFY_PARAM_set1_ip_asc(parameters, m_verifiedPeerName.c_str()) != 1)
+        {
+            ERR_clear_error();
+            X509_VERIFY_PARAM_set_hostflags(parameters, X509_CHECK_FLAG_NO_PARTIAL_WILDCARDS);
+            if (SSL_set1_host(m_ssl, m_verifiedPeerName.c_str()) != 1 ||
+                SSL_set_tlsext_host_name(m_ssl, m_verifiedPeerName.c_str()) != 1)
+                throw Exception("Can't configure TLS peer hostname verification");
+        }
+    }
+
+    if (m_verifiedPeerName.empty() && !m_sniHostName.empty())
     {
         if (const auto result = sslSetExtHostName();
             !result)
@@ -186,6 +211,17 @@ void SSLSocket::initContextAndSocket()
             throwSSLError("SSL_set_tlsext_host_name", result);
         }
     }
+}
+
+void SSLSocket::configureClientVerification(const String& peerName, const String& caFile)
+{
+    if (fd() != INVALID_SOCKET)
+        throw Exception("Can't configure verification on an opened socket");
+    if (peerName.empty() || peerName.find('\0') != String::npos ||
+        caFile.find('\0') != String::npos)
+        throw Exception("Invalid TLS peer name or CA path");
+    m_verifiedPeerName = peerName;
+    m_clientCaFile = caFile;
 }
 
 void SSLSocket::openUnlocked(const Host& _host, const OpenMode openMode, const bool _blockingMode,
@@ -199,11 +235,22 @@ void SSLSocket::openUnlocked(const Host& _host, const OpenMode openMode, const b
 void SSLSocket::openUnlocked(const sockaddr_in& address, const OpenMode openMode, const bool _blockingMode,
                              const milliseconds& timeout, const char* clientBindAddress)
 {
+    const auto deadline = steady_clock::now() + timeout;
     initContextAndSocket();
 
     TCPSocket::openUnlocked(address, openMode, _blockingMode, timeout, clientBindAddress);
 
-    sslConnectUnlocked(_blockingMode, timeout);
+    auto remaining = timeout;
+    if (timeout.count() > 0)
+    {
+        remaining = duration_cast<milliseconds>(deadline - steady_clock::now());
+        if (remaining.count() <= 0)
+        {
+            closeUnlocked();
+            throw TimeoutException("TLS connection deadline exceeded");
+        }
+    }
+    sslConnectUnlocked(_blockingMode, remaining);
 }
 
 bool SSLSocket::tryConnectUnlocked(const DateTime& timeoutAt)
@@ -450,6 +497,7 @@ size_t SSLSocket::recvUnlocked(uint8_t* buffer, const size_t len)
 
     for (;;)
     {
+        (void) ioWaitTimeout(0ms);
         const auto [result, errorCode] = sslRead(buffer, len);
         if (result >= 0)
         {
@@ -506,6 +554,7 @@ size_t SSLSocket::sendUnlocked(const uint8_t* buffer, const size_t len)
     auto        totalLen = static_cast<uint32_t>(len);
     for (;;)
     {
+        (void) ioWaitTimeout(0ms);
         size_t writeLen = totalLen;
         if (totalLen > WRITE_BLOCK)
         {

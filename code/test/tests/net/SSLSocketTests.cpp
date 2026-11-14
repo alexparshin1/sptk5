@@ -46,6 +46,26 @@ using namespace sptk;
 using namespace chrono;
 namespace sptk {
 
+TEST(SSLSocketTests,clientVerificationRejectsEmptyIdentity)
+{
+    SSLSocket socket;
+    EXPECT_THROW(socket.configureClientVerification(""), Exception);
+    EXPECT_NO_THROW(socket.configureClientVerification("localhost"));
+    EXPECT_NO_THROW(socket.configureClientVerification("127.0.0.1"));
+    EXPECT_NO_THROW(socket.configureClientVerification("::1"));
+}
+
+TEST(SSLSocketTests,clientTrustIsPrivateAndRequiresTls12)
+{
+    SSLContext client(SSLSocket::DefaultCipherList);
+    SSLContext other(SSLSocket::DefaultCipherList);
+    EXPECT_NO_THROW(client.configureClientTrust());
+    EXPECT_EQ(SSL_VERIFY_PEER, SSL_CTX_get_verify_mode(client.handle()));
+    EXPECT_EQ(TLS1_2_VERSION, SSL_CTX_get_min_proto_version(client.handle()));
+    EXPECT_EQ(SSL_VERIFY_NONE, SSL_CTX_get_verify_mode(other.handle()));
+    EXPECT_THROW(client.configureClientTrust("/nonexistent/sptk-test-ca.pem"), Exception);
+}
+
 TEST(SSLSocketTests,connect)
 {
     const auto    keyFile = TestData::SslKeysDirectory() / "test.key";

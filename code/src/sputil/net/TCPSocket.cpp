@@ -55,6 +55,7 @@ TCPSocket::~TCPSocket()
 void TCPSocket::openUnlocked(const Host& host, const OpenMode openMode, const bool _blockingMode,
                              const chrono::milliseconds& timeout, const char* clientBindAddress)
 {
+    const auto deadline = chrono::steady_clock::now() + timeout;
     if (!host.hostname().empty())
     {
         setHostUnlocked(host);
@@ -73,7 +74,16 @@ void TCPSocket::openUnlocked(const Host& host, const OpenMode openMode, const bo
     {
         sockaddr_in addr = {};
         getHostUnlocked().getAddress(addr);
-        openUnlocked(addr, openMode, _blockingMode, timeout, clientBindAddress);
+        auto remaining = timeout;
+        if (timeout.count() > 0)
+        {
+            // The platform resolver is synchronous. Account for the time it consumed, but do not
+            // turn an exhausted budget into zero (which means an unlimited connection timeout).
+            remaining = chrono::duration_cast<chrono::milliseconds>(deadline - chrono::steady_clock::now());
+            if (remaining.count() <= 0)
+                throw TimeoutException("Connection deadline exceeded during name resolution");
+        }
+        openUnlocked(addr, openMode, _blockingMode, remaining, clientBindAddress);
     }
 }
 
@@ -135,6 +145,7 @@ size_t TCPSocket::readUnlocked(uint8_t* destination, const size_t size, sockaddr
 {
     for (;;)
     {
+        (void) ioWaitTimeout(0ms);
         const auto receivedBytes = recvUnlocked(destination, size);
         if (receivedBytes != RECV_RETRY)
         {

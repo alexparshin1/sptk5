@@ -41,6 +41,7 @@
 #include "sptk5/Printer.h"
 
 #include <sptk5/xdoc/ExportJSON.h>
+#include <cmath>
 #include <sptk5/xdoc/ExportXML.h>
 #include <sptk5/xdoc/ImportXML.h>
 
@@ -245,6 +246,38 @@ double Node::getNumber(const NodeName& name) const
     }
 
     return 0;
+}
+
+std::optional<String> Node::textValue() const
+{
+    if (type() != Type::Text)
+        return std::nullopt;
+    return getString();
+}
+
+std::optional<int64_t> Node::integerValue() const
+{
+    if (type() != Type::Number)
+        return std::nullopt;
+    if (m_value.dataType() == VariantDataType::VAR_INT ||
+        m_value.dataType() == VariantDataType::VAR_INT64)
+        return m_value.asInt64();
+    const auto value = getNumber();
+    if (!std::isfinite(value) || value < -0x1p63 || value >= 0x1p63)
+        return std::nullopt;
+    return static_cast<int64_t>(value);
+}
+
+std::vector<String> Node::textValues() const
+{
+    if (const auto value = textValue())
+        return {*value};
+    std::vector<String> result;
+    if (type() == Type::Array)
+        for (const auto& child : nodes())
+            if (const auto value = child->textValue())
+                result.push_back(*value);
+    return result;
 }
 
 int64_t Node::getInteger(const NodeName& name) const
