@@ -211,7 +211,9 @@ TEST(JWTTests,decodeWithExpectedAlgorithmRejectsHeaderConfusion)
 
     JWT verifier;
     EXPECT_THROW(verifier.decode(encoded.str().c_str(), key, JWT::Algorithm::RS256), Exception);
-    EXPECT_NO_THROW(verifier.decode(encoded.str().c_str(), key, JWT::Algorithm::HS256));
+    xdoc::Document header;
+    EXPECT_NO_THROW(verifier.decode(encoded.str().c_str(), key, &header));
+    EXPECT_EQ("HS256", header.root()->findFirst("alg", xdoc::SearchMode::ImmediateChild)->getString());
 }
 
 TEST(JWTTests,decodeClaimsLargerThanOneKilobyte)

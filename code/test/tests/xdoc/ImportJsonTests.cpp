@@ -146,4 +146,17 @@ TEST(XDocumentTests, importJsonDecodesSurrogatePairs)
     EXPECT_EQ(String("\xF0\x9F\x98\x80"), node->getValue().asString());
 }
 
+TEST(XDocumentTests, importJsonLimitsNestingDepth)
+{
+    constexpr size_t maxDepth = 32;
+    xdoc::Document document;
+
+    const auto accepted = std::string(maxDepth, '[') + "0" + std::string(maxDepth, ']');
+    EXPECT_NO_THROW(Node::importJson(document.root(), Buffer(accepted)));
+
+    const auto rejected = std::string(maxDepth + 1, '[') + "0" +
+                          std::string(maxDepth + 1, ']');
+    EXPECT_THROW(Node::importJson(document.root(), Buffer(rejected)), Exception);
+}
+
 } // namespace sptk

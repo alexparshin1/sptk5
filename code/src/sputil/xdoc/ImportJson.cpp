@@ -57,9 +57,12 @@ bool readJsonBoolean(const char* json, const char*& readPosition);
 
 double readJsonNumber(const char* json, const char*& readPosition);
 
-void readArrayData(const SNode& parent, const char* json, const char*& readPosition);
+constexpr size_t MAX_JSON_NESTING_DEPTH = 32;
 
-void readObjectData(const SNode& parent, const char* json, const char*& readPosition, bool objectIsAttributes);
+void readArrayData(const SNode& parent, const char* json, const char*& readPosition, size_t depth);
+
+void readObjectData(const SNode& parent, const char* json, const char*& readPosition,
+                    bool objectIsAttributes, size_t depth);
 
 String decode(const String& text);
 
@@ -128,11 +131,11 @@ void Node::importJson(const SNode& jsonElement, const Buffer& jsonStr)
     {
         case '{':
             jsonElement->type(Type::Object);
-            readObjectData(jsonElement, json, pos, false);
+            readObjectData(jsonElement, json, pos, false, 1);
             break;
         case '[':
             jsonElement->type(Type::Array);
-            readArrayData(jsonElement, json, pos);
+            readArrayData(jsonElement, json, pos, 1);
             break;
         default:
             throwUnexpectedCharacterError(*pos, 0, json, pos - json);
@@ -278,8 +281,12 @@ void readJsonNull(const char* json, const char*& readPosition)
     skipSpaces(json, readPosition);
 }
 
-void readArrayData(const SNode& parent, const char* json, const char*& readPosition)
+void readArrayData(const SNode& parent, const char* json, const char*& readPosition, const size_t depth)
 {
+    if (depth > MAX_JSON_NESTING_DEPTH)
+    {
+        throwError("Maximum JSON nesting depth exceeded", json, readPosition - json);
+    }
     if (*readPosition != '[')
     {
         throwUnexpectedCharacterError(*readPosition, '[', json, readPosition - json);
@@ -305,11 +312,12 @@ void readArrayData(const SNode& parent, const char* json, const char*& readPosit
 
             case '[':
 
-                readArrayData(parent->pushNode("", Node::Type::Array), json, readPosition);
+                readArrayData(parent->pushNode("", Node::Type::Array), json, readPosition, depth + 1);
                 break;
 
             case '{':
-                readObjectData(parent->pushNode("", Node::Type::Object), json, readPosition, false);
+                readObjectData(parent->pushNode("", Node::Type::Object), json, readPosition, false,
+                               depth + 1);
                 break;
 
             case '0':
@@ -349,8 +357,13 @@ void readArrayData(const SNode& parent, const char* json, const char*& readPosit
 
 const char* readBoolean(const SNode& parent, const char* json, const char*& readPosition, bool objectIsAttributes, const String& elementName);
 const char* readNumber(const SNode& parent, const char* json, const char*& readPosition, bool objectIsAttributes, const String& elementName);
-void        readObjectData(const SNode& parent, const char* json, const char*& readPosition, const bool objectIsAttributes)
+void readObjectData(const SNode& parent, const char* json, const char*& readPosition,
+                    const bool objectIsAttributes, const size_t depth)
 {
+    if (depth > MAX_JSON_NESTING_DEPTH)
+    {
+        throwError("Maximum JSON nesting depth exceeded", json, readPosition - json);
+    }
     if (*readPosition != '{')
     {
         throwUnexpectedCharacterError(*readPosition, '{', json, readPosition - json);
@@ -390,12 +403,12 @@ void        readObjectData(const SNode& parent, const char* json, const char*& r
 
             case '[':
                 readArrayData(parent->pushNode(elementName, Node::Type::Array),
-                              json, readPosition);
+                              json, readPosition, depth + 1);
                 break;
 
             case '{':
                 readObjectData(elementIsAttributes ? parent : parent->pushNode(elementName, Node::Type::Object),
-                               json, readPosition, elementIsAttributes);
+                               json, readPosition, elementIsAttributes, depth + 1);
                 break;
 
             case '0':

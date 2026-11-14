@@ -156,6 +156,19 @@ public:
     void decode(const char* token, const String& _key, Algorithm expectedAlgorithm);
 
     /**
+     * Decode a token and return its protected header as an xdoc document.
+     * Supplying the header output does not change the JWT object's layout or ABI.
+     */
+    void decode(const char* token, const String& _key, xdoc::Document* decodedHeader);
+
+    /**
+     * Decode a token and optionally return its protected header as an xdoc document while pinning
+     * the expected algorithm.
+     */
+    void decode(const char* token, const String& _key, Algorithm expectedAlgorithm,
+                xdoc::Document* decodedHeader);
+
+    /**
          * Export token to stream
          * @param output            Output stream
          * @param pretty            If true, produce formatted output

@@ -383,6 +383,7 @@ static void jwt_b64_decode_json(xdoc::Document& dest, const Buffer& src)
 {
     Buffer decodedData;
     jwt_b64_decode(decodedData, src.c_str());
+    dest.clear();
     dest.load(decodedData);
 }
 
@@ -451,13 +452,14 @@ static void jwt_parse_body(JWT* jwt, const Buffer& body)
     jwt_b64_decode_json(jwt->grants, body);
 }
 
-static void jwt_verify_head(JWT* jwt, const Buffer& head, const JWT::Algorithm expectedAlgorithm)
+static void jwt_verify_head(JWT* jwt, xdoc::Document& header, const Buffer& head,
+                            const JWT::Algorithm expectedAlgorithm)
 {
-    xdoc::Document jsdoc;
-    jwt_b64_decode_json(jsdoc, head);
-    const auto& node = jsdoc.root();
+    jwt_b64_decode_json(header, head);
+    const auto& node = header.root();
 
-    String val = JWT::get_js_string(node, "alg");
+    const auto algNode = node->findFirst("alg", xdoc::SearchMode::ImmediateChild);
+    String val = algNode && algNode->type() == xdoc::Node::Type::Text ? algNode->getString() : String{};
     jwt->alg = JWT::str_alg(val.c_str());
     if (jwt->alg == JWT::Algorithm::INVAL)
     {
@@ -471,7 +473,8 @@ static void jwt_verify_head(JWT* jwt, const Buffer& head, const JWT::Algorithm e
     if (jwt->alg != JWT::Algorithm::NONE)
     {
         /* If alg is not NONE, there may be a typ. */
-        val = JWT::get_js_string(node, "typ");
+        const auto typNode = node->findFirst("typ", xdoc::SearchMode::ImmediateChild);
+        val = typNode && typNode->type() == xdoc::Node::Type::Text ? typNode->getString() : String{};
         if (!val.empty() && val != "JWT")
         {
             throw Exception("Invalid algorithm name");
@@ -493,6 +496,17 @@ void JWT::decode(const char* token, const String& _key)
 }
 
 void JWT::decode(const char* token, const String& _key, const Algorithm expectedAlgorithm)
+{
+    decode(token, _key, expectedAlgorithm, nullptr);
+}
+
+void JWT::decode(const char* token, const String& _key, xdoc::Document* decodedHeader)
+{
+    decode(token, _key, Algorithm::INVAL, decodedHeader);
+}
+
+void JWT::decode(const char* token, const String& _key, const Algorithm expectedAlgorithm,
+                 xdoc::Document* decodedHeader)
 {
     if (token == nullptr)
         throw Exception("Invalid JWT data");
@@ -517,7 +531,8 @@ void JWT::decode(const char* token, const String& _key, const Algorithm expected
         this->key = _key;
     }
 
-    jwt_verify_head(this, head, expectedAlgorithm);
+    xdoc::Document localHeader;
+    jwt_verify_head(this, decodedHeader ? *decodedHeader : localHeader, head, expectedAlgorithm);
     if ((alg == Algorithm::NONE) != (sig.bytes() == 0))
         throw Exception("JWT signature does not match its algorithm");
     jwt_parse_body(this, body);
