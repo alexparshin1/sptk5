@@ -794,7 +794,7 @@ void RedisConnect::readResponse(std::vector<Variant>& results, Variant* cursor)
 
         case ':': {
             // Integer
-            int value {0};
+            int64_t value {0};
             std::from_chars(payload.data(), payload.data() + payload.size(), value);
             results.emplace_back(value);
             return;
@@ -1318,8 +1318,8 @@ bool RedisConnect::parseReply(const string_view data, size_t& position, vector<V
             break;
 
         case ':': {
-            // Integer - int, as readResponse() delivers it
-            int value {0};
+            // Integer - int64_t, as readResponse() delivers it
+            int64_t value {0};
             from_chars(payload.data(), payload.data() + payload.size(), value);
             results.emplace_back(value);
             break;
