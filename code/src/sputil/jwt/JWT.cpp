@@ -42,6 +42,7 @@
 #include <sptk5/Base64.h>
 #include <sptk5/JWT.h>
 #include <sstream> // libc++
+#include <string_view>
 
 using namespace std;
 using namespace sptk;
@@ -337,49 +338,52 @@ void JWT::exportTo(ostream& output, const bool pretty) const
 
 void sptk::jwt_b64_decode(Buffer& destination, const char* src)
 {
-    /* Decode based on RFC-4648 URI safe encoding. */
-    const auto len = strlen(src);
-    Buffer     newData_buffer(len + 4);
-    auto*      newData = bit_cast<char*>(newData_buffer.data());
+    if (src == nullptr)
+        throw Exception("Invalid base64url data");
 
-    size_t index = 0;
-    for (; index < len; ++index)
+    const std::string_view encoded(src);
+    if (encoded.size() % 4 == 1)
+        throw Exception("Invalid base64url data");
+
+    const auto sextet = [](const char value) -> int
     {
-        switch (src[index])
-        {
-            case '-':
-                newData[index] = '+';
-                break;
-            case '_':
-                newData[index] = '/';
-                break;
-            default:
-                newData[index] = src[index];
-        }
+        if (value >= 'A' && value <= 'Z') return value - 'A';
+        if (value >= 'a' && value <= 'z') return value - 'a' + 26;
+        if (value >= '0' && value <= '9') return value - '0' + 52;
+        if (value == '-') return 62;
+        if (value == '_') return 63;
+        return -1;
+    };
+
+    std::string standard;
+    standard.reserve(encoded.size() + 3);
+    for (const char value : encoded)
+    {
+        const auto decoded = sextet(value);
+        if (decoded < 0)
+            throw Exception("Invalid base64url data");
+        standard.push_back(value == '-' ? '+' : value == '_' ? '/' : value);
     }
 
-    if (auto trailingIndex = 4 - index % 4;
-        trailingIndex < 4)
-    {
-        while (--trailingIndex)
-        {
-            newData[index] = '=';
-            ++index;
-        }
-    }
-    newData[index] = '\0';
+    // RFC 4648 requires unused low bits in the last sextet to be zero. Reject alternate encodings
+    // of the same bytes rather than inheriting the permissive SPTK Base64 decoder's behavior.
+    if (encoded.size() % 4 == 2 && (sextet(encoded.back()) & 0x0f) != 0)
+        throw Exception("Invalid base64url data");
+    if (encoded.size() % 4 == 3 && (sextet(encoded.back()) & 0x03) != 0)
+        throw Exception("Invalid base64url data");
 
-    Base64::decode(destination, newData);
+    while (standard.size() % 4 != 0)
+        standard.push_back('=');
+    const Buffer standardBuffer(reinterpret_cast<const uint8_t*>(standard.data()), standard.size());
+    Base64::decode(destination, standardBuffer);
 }
 
 
 static void jwt_b64_decode_json(xdoc::Document& dest, const Buffer& src)
 {
-    constexpr size_t bufferSize {1024};
-    Buffer           decodedData(bufferSize);
-    Base64::decode(decodedData, src);
-
-    dest.load(decodedData.c_str());
+    Buffer decodedData;
+    jwt_b64_decode(decodedData, src.c_str());
+    dest.load(decodedData);
 }
 
 void sptk::jwt_base64uri_encode(Buffer& buffer)
@@ -447,7 +451,7 @@ static void jwt_parse_body(JWT* jwt, const Buffer& body)
     jwt_b64_decode_json(jwt->grants, body);
 }
 
-static void jwt_verify_head(JWT* jwt, const Buffer& head)
+static void jwt_verify_head(JWT* jwt, const Buffer& head, const JWT::Algorithm expectedAlgorithm)
 {
     xdoc::Document jsdoc;
     jwt_b64_decode_json(jsdoc, head);
@@ -458,6 +462,10 @@ static void jwt_verify_head(JWT* jwt, const Buffer& head)
     if (jwt->alg == JWT::Algorithm::INVAL)
     {
         throw Exception("Invalid algorithm.");
+    }
+    if (expectedAlgorithm != JWT::Algorithm::INVAL && jwt->alg != expectedAlgorithm)
+    {
+        throw Exception("JWT algorithm does not match the expected algorithm");
     }
 
     if (jwt->alg != JWT::Algorithm::NONE)
@@ -481,38 +489,25 @@ static void jwt_verify_head(JWT* jwt, const Buffer& head)
 
 void JWT::decode(const char* token, const String& _key)
 {
-    struct Part
-    {
-        const char* data;
-        size_t      length;
-    };
+    decode(token, _key, Algorithm::INVAL);
+}
 
-    vector<Part> parts(3);
-
-    size_t      index = 0;
-    const char* data = token;
-    while (data != nullptr && index < 3)
-    {
-        parts[index].data = data;
-        const char* end = strchr(data, '.');
-        if (end == nullptr)
-        {
-            parts[index].length = strlen(data);
-            break;
-        }
-        parts[index].length = end - data;
-        data = end + 1;
-        ++index;
-    }
-
-    if (index < 2)
-    {
+void JWT::decode(const char* token, const String& _key, const Algorithm expectedAlgorithm)
+{
+    if (token == nullptr)
         throw Exception("Invalid JWT data");
-    }
+    const char* firstDot = strchr(token, '.');
+    const char* secondDot = firstDot ? strchr(firstDot + 1, '.') : nullptr;
+    if (firstDot == nullptr || secondDot == nullptr || firstDot == token ||
+        secondDot == firstDot + 1 || strchr(secondDot + 1, '.') != nullptr)
+        throw Exception("Invalid JWT data");
 
-    Buffer       head(bit_cast<const uint8_t*>(parts[0].data), parts[0].length);
-    const Buffer body(bit_cast<const uint8_t*>(parts[1].data), parts[1].length);
-    const Buffer sig(bit_cast<const uint8_t*>(parts[2].data), parts[2].length);
+    const auto headLength = static_cast<size_t>(firstDot - token);
+    const auto bodyLength = static_cast<size_t>(secondDot - firstDot - 1);
+    const auto signatureLength = strlen(secondDot + 1);
+    Buffer head(bit_cast<const uint8_t*>(token), headLength);
+    const Buffer body(bit_cast<const uint8_t*>(firstDot + 1), bodyLength);
+    const Buffer sig(bit_cast<const uint8_t*>(secondDot + 1), signatureLength);
 
     // Now that we have everything split up, let's check out the header.
 
@@ -522,7 +517,9 @@ void JWT::decode(const char* token, const String& _key)
         this->key = _key;
     }
 
-    jwt_verify_head(this, head);
+    jwt_verify_head(this, head, expectedAlgorithm);
+    if ((alg == Algorithm::NONE) != (sig.bytes() == 0))
+        throw Exception("JWT signature does not match its algorithm");
     jwt_parse_body(this, body);
 
     // Check the signature if the key is provided.

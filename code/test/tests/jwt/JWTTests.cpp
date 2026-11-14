@@ -202,6 +202,48 @@ TEST(JWTTests,decodeHs256)
     EXPECT_NO_THROW(jwt.decode(tokenStream.str().c_str(), key256)) << "Failed jwt_decode()";
 }
 
+TEST(JWTTests,decodeWithExpectedAlgorithmRejectsHeaderConfusion)
+{
+    const String key("test-secret-0123456789");
+    JWT         signer = makeTestJwt(JWT::Algorithm::HS256, key);
+    stringstream encoded;
+    signer.encode(encoded);
+
+    JWT verifier;
+    EXPECT_THROW(verifier.decode(encoded.str().c_str(), key, JWT::Algorithm::RS256), Exception);
+    EXPECT_NO_THROW(verifier.decode(encoded.str().c_str(), key, JWT::Algorithm::HS256));
+}
+
+TEST(JWTTests,decodeClaimsLargerThanOneKilobyte)
+{
+    const String key("test-secret-0123456789");
+    const String largeClaim(4096, 'x');
+    JWT          signer = makeTestJwt(JWT::Algorithm::HS256, key);
+    signer.set("large", largeClaim);
+    stringstream encoded;
+    signer.encode(encoded);
+
+    JWT verifier;
+    ASSERT_NO_THROW(verifier.decode(encoded.str().c_str(), key, JWT::Algorithm::HS256));
+    EXPECT_EQ(largeClaim, static_cast<String>(verifier.get("large")));
+}
+
+TEST(JWTTests,base64urlDecoderRejectsNonCanonicalInput)
+{
+    Buffer decoded;
+    EXPECT_THROW(jwt_b64_decode(decoded, "YQ=="), Exception);
+    EXPECT_THROW(jwt_b64_decode(decoded, "YR"), Exception); // Nonzero unused low bits.
+    EXPECT_THROW(jwt_b64_decode(decoded, "Y!"), Exception);
+    EXPECT_NO_THROW(jwt_b64_decode(decoded, "YQ"));
+}
+
+TEST(JWTTests,decodeRejectsExtraSegments)
+{
+    const char* token = "eyJhbGciOiJub25lIn0.eyJzdWIiOiJhbGljZSJ9..extra";
+    JWT         verifier;
+    EXPECT_THROW(verifier.decode(token), Exception);
+}
+
 
 TEST(JWTTests,decodeHs384)
 {

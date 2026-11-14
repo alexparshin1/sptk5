@@ -149,6 +149,13 @@ public:
     void decode(const char* token, const String& _key = "");
 
     /**
+     * Decode and verify a token whose algorithm is fixed by the caller.
+     * The untrusted token header must name exactly expectedAlgorithm before any signature
+     * verification is attempted.
+     */
+    void decode(const char* token, const String& _key, Algorithm expectedAlgorithm);
+
+    /**
          * Export token to stream
          * @param output            Output stream
          * @param pretty            If true, produce formatted output

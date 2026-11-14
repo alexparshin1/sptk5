@@ -43,6 +43,7 @@
 #include <cstring>
 
 #include <openssl/bio.h>
+#include <openssl/crypto.h>
 #include <openssl/evp.h>
 #include <openssl/hmac.h>
 #include <openssl/pem.h>
@@ -113,11 +114,9 @@ void JWT::sign_sha_hmac(Buffer& out, const char* str) const
 
 void JWT::verify_sha_hmac(const char* head, const char* sig) const
 {
-    array<unsigned char, EVP_MAX_MD_SIZE> res {};
-    unsigned int                          res_len = 0;
+    array<unsigned char, EVP_MAX_MD_SIZE> expected {};
+    unsigned int                          expectedLength = 0;
     const EVP_MD*                         algorithm = nullptr;
-    int                                   len = 0;
-    Buffer                                readBuf;
 
     switch (this->alg)
     {
@@ -135,48 +134,15 @@ void JWT::verify_sha_hmac(const char* head, const char* sig) const
             throw Exception("Invalid verify algorithm");
     }
 
-    bool matches = false;
+    if (HMAC(algorithm, key.c_str(), static_cast<int>(key.length()),
+             reinterpret_cast<const unsigned char*>(head), static_cast<int>(strlen(head)),
+             expected.data(), &expectedLength) == nullptr)
+        throw Exception("HMAC computation failed");
 
-    auto* b64 = BIO_new(BIO_f_base64());
-    if (b64 == nullptr)
-    {
-        throw Exception("Can't allocate memory");
-    }
-
-    auto* bmem = BIO_new(BIO_s_mem());
-    if (bmem == nullptr)
-    {
-        BIO_free(b64);
-        throw Exception("Can't allocate memory");
-    }
-
-    BIO_push(b64, bmem);
-    BIO_set_flags(b64, BIO_FLAGS_BASE64_NO_NL);
-
-    HMAC(algorithm, key.c_str(), static_cast<int>(key.length()),
-         reinterpret_cast<const unsigned char*>(head), static_cast<int>(strlen(head)), res.data(), &res_len);
-
-    BIO_write(b64, res.data(), static_cast<int>(res_len));
-
-    (void) BIO_flush(b64);
-
-    len = BIO_pending(bmem);
-    if (len >= 0)
-    {
-        readBuf.reserve(static_cast<size_t>(len) + 1);
-        len = BIO_read(bmem, readBuf.data(), len);
-        readBuf.bytes(static_cast<size_t>(len));
-        readBuf[len] = 0;
-
-        jwt_base64uri_encode(readBuf);
-
-        /* And now... */
-        matches = strcmp(readBuf.c_str(), sig) == 0;
-    }
-
-    BIO_free_all(b64);
-
-    if (!matches)
+    Buffer supplied;
+    jwt_b64_decode(supplied, sig);
+    if (supplied.bytes() != expectedLength ||
+        CRYPTO_memcmp(supplied.data(), expected.data(), expectedLength) != 0)
     {
         throw Exception("Signature doesn't match");
     }
