@@ -106,6 +106,13 @@ public:
      */
     void configureClientVerification(const String& peerName, const String& caFile = "");
 
+    /**
+     * A PEM copy of the peer certificate followed by its supplied chain, or empty if absent.
+     * This is not a trust decision: callers must verify the chain and its intended purpose.
+     * No OpenSSL objects escape the socket lock.
+     */
+    [[nodiscard]] String peerCertificateChainPem() const;
+
 protected:
     /**
      * @brief Reads and writes share the SSL session here, so they may not overlap.

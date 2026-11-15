@@ -41,6 +41,7 @@
 
 // These two #includes must be after SSLContext.h, or it breaks Windows compilation
 #include <openssl/err.h>
+#include <openssl/pem.h>
 #include <openssl/x509v3.h>
 #include <sptk5/net/CachedSSLContext.h>
 
@@ -50,6 +51,41 @@
 using namespace std;
 using namespace sptk;
 using namespace chrono;
+
+String SSLSocket::peerCertificateChainPem() const
+{
+    const lock_guard lock(m_mutex);
+    if (!m_ssl)
+    {
+        return {};
+    }
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
+    unique_ptr<X509, decltype(&X509_free)> leaf(SSL_get1_peer_certificate(m_ssl), X509_free);
+#else
+    unique_ptr<X509, decltype(&X509_free)> leaf(SSL_get_peer_certificate(m_ssl), X509_free);
+#endif
+    if (!leaf)
+    {
+        return {};
+    }
+    unique_ptr<BIO, decltype(&BIO_free)> output(BIO_new(BIO_s_mem()), BIO_free);
+    if (!output || PEM_write_bio_X509(output.get(), leaf.get()) != 1)
+    {
+        throw Exception("Cannot copy peer certificate");
+    }
+    const auto chain = SSL_get_peer_cert_chain(m_ssl);
+    for (int i = 0; chain && i < sk_X509_num(chain); ++i)
+    {
+        const auto certificate = sk_X509_value(chain, i);
+        if (X509_cmp(certificate, leaf.get()) != 0 && PEM_write_bio_X509(output.get(), certificate) != 1)
+        {
+            throw Exception("Cannot copy peer certificate chain");
+        }
+    }
+    char* data = nullptr;
+    const auto size = BIO_get_mem_data(output.get(), &data);
+    return String(data, static_cast<size_t>(size));
+}
 
 // OpenSSL library initialization
 class CSSLLibraryLoader
