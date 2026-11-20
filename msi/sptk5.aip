@@ -11,10 +11,10 @@
     <ROW Property="ARPURLINFOABOUT" Value="http://www.sptk.net"/>
     <ROW Property="Manufacturer" Value="Alexey Parshin"/>
     <ROW Property="MsiLogging" MultiBuildValue="DefaultBuild:vp"/>
-    <ROW Property="ProductCode" Value="1033:{3A3AE338-9B8D-4D40-9F10-F6C0FAC83B89} " Type="16"/>
+    <ROW Property="ProductCode" Value="1033:{8F89A25D-3781-4B09-B067-5B4FF20C22C3} " Type="16"/>
     <ROW Property="ProductLanguage" Value="1033"/>
     <ROW Property="ProductName" Value="SPTK"/>
-    <ROW Property="ProductVersion" Value="5.6.21" Options="32"/>
+    <ROW Property="ProductVersion" Value="5.6.22" Options="32"/>
     <ROW Property="SecureCustomProperties" Value="OLDPRODUCTS;AI_NEWERPRODUCTFOUND;AI_SETUPEXEPATH;SETUPEXEDIR"/>
     <ROW Property="UpgradeCode" Value="{7DE1367E-A155-4C2D-8B6A-922D34EF53C7}"/>
     <ROW Property="WindowsType9X" MultiBuildValue="DefaultBuild:Windows 9x/ME" ValueLocId="-"/>
