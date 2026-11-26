@@ -100,7 +100,8 @@ MySQLStatement::MySQLStatement(MySQLConnection* connection, String sql, bool aut
 {
     if (autoPrepare)
     {
-        auto* stmt = mysql_stmt_init(bit_cast<MYSQL*>(connection->handle()));
+        // Constructed only from MySQLConnection::queryAllocStmt(), which holds the lock.
+        auto* stmt = mysql_stmt_init(bit_cast<MYSQL*>(connection->handleUnlocked()));
         if (stmt == nullptr)
         {
             throw DatabaseException("Failed to initialize MySQL statement");

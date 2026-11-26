@@ -56,7 +56,8 @@ MySQLConnection::MySQLConnection(const String& connectionString, const chrono::s
 {
 }
 
-void MySQLConnection::initConnection()
+// Caller must hold m_mutex.
+void MySQLConnection::initConnectionUnlocked()
 {
     static std::mutex libraryInitMutex;
 
@@ -90,7 +91,14 @@ void MySQLConnection::initConnection()
 
 void MySQLConnection::_openDatabase(const String& newConnectionString)
 {
-    if (!active())
+    const scoped_lock lock(m_mutex);
+    _openDatabaseUnlocked(newConnectionString);
+}
+
+// Caller must hold m_mutex.
+void MySQLConnection::_openDatabaseUnlocked(const String& newConnectionString)
+{
+    if (!activeUnlocked())
     {
         setInTransaction(false);
         if (!newConnectionString.empty())
@@ -98,7 +106,7 @@ void MySQLConnection::_openDatabase(const String& newConnectionString)
             connectionString(DatabaseConnectionString(newConnectionString));
         }
 
-        initConnection();
+        initConnectionUnlocked();
 
         if (const auto& connString = connectionString();
             mysql_real_connect(m_connection.get(),
@@ -119,24 +127,47 @@ void MySQLConnection::_openDatabase(const String& newConnectionString)
 
 void MySQLConnection::closeDatabase()
 {
+    const scoped_lock lock(m_mutex);
     m_connection.reset();
 }
 
 DBHandle MySQLConnection::handle() const
+{
+    const scoped_lock lock(m_mutex);
+    return handleUnlocked();
+}
+
+// Caller must hold m_mutex.
+DBHandle MySQLConnection::handleUnlocked() const
 {
     return bit_cast<DBHandle>(m_connection.get());
 }
 
 bool MySQLConnection::active() const
 {
+    const scoped_lock lock(m_mutex);
+    return activeUnlocked();
+}
+
+// Caller must hold m_mutex.
+bool MySQLConnection::activeUnlocked() const
+{
     return m_connection != nullptr;
 }
 
 void MySQLConnection::executeCommand(const String& command)
 {
+    const scoped_lock lock(m_mutex);
+    executeCommandUnlocked(command);
+}
+
+// Caller must hold m_mutex.
+void MySQLConnection::executeCommandUnlocked(const String& command)
+{
     if (m_connection == nullptr)
     {
-        open();
+        // Base open() would take the lock again - use the unlocked variant.
+        _openDatabaseUnlocked("");
     }
 
     if (mysql_real_query(m_connection.get(), command.c_str(), static_cast<unsigned>(command.length())) != 0)
@@ -147,36 +178,46 @@ void MySQLConnection::executeCommand(const String& command)
 
 void MySQLConnection::driverBeginTransaction()
 {
+    const scoped_lock lock(m_mutex);
     if (getInTransaction())
     {
         throwMySQLException(m_connection, "Transaction already started");
     }
 
-    executeCommand("BEGIN");
+    executeCommandUnlocked("BEGIN");
     setInTransaction(true);
 }
 
 void MySQLConnection::driverEndTransaction(bool commit)
 {
+    const scoped_lock lock(m_mutex);
     if (!getInTransaction())
     {
         throw DatabaseException("Transaction isn't started.");
     }
 
     const char* action = commit ? "COMMIT" : "ROLLBACK";
-    executeCommand(action);
+    executeCommandUnlocked(action);
     setInTransaction(false);
 }
 
 //-----------------------------------------------------------------------------------------------
 String MySQLConnection::queryError(const Query* query) const
 {
+    const scoped_lock lock(m_mutex);
     return mysql_error(m_connection.get()) + string(", query: ") + query->sql();
 }
 
 void MySQLConnection::queryAllocStmt(Query* query)
 {
-    queryFreeStmt(query);
+    const scoped_lock lock(m_mutex);
+    queryAllocStmtUnlocked(query);
+}
+
+// Caller must hold m_mutex.
+void MySQLConnection::queryAllocStmtUnlocked(Query* query)
+{
+    queryFreeStmtUnlocked(query);
     const auto stmt = reinterpret_pointer_cast<uint8_t>(make_shared<MySQLStatement>(this, query->sql(), query->autoPrepare()));
     querySetStmt(query, stmt);
 }
@@ -184,6 +225,12 @@ void MySQLConnection::queryAllocStmt(Query* query)
 void MySQLConnection::queryFreeStmt(Query* query)
 {
     const scoped_lock lock(m_mutex);
+    queryFreeStmtUnlocked(query);
+}
+
+// Caller must hold m_mutex.
+void MySQLConnection::queryFreeStmtUnlocked(Query* query)
+{
     querySetStmt(query, nullptr);
     querySetPrepared(query, false);
 }
@@ -206,12 +253,17 @@ void MySQLConnection::queryCloseStmt(Query* query)
 
 void MySQLConnection::queryPrepare(Query* query)
 {
+    const scoped_lock lock(m_mutex);
+    queryPrepareUnlocked(query);
+}
+
+// Caller must hold m_mutex.
+void MySQLConnection::queryPrepareUnlocked(Query* query)
+{
     if (query->prepared())
     {
         return;
     }
-
-    const scoped_lock lock(m_mutex);
 
     auto* statement = bit_cast<MySQLStatement*>(query->statement());
     if (statement != nullptr)
@@ -230,6 +282,13 @@ void MySQLConnection::queryPrepare(Query* query)
 }
 
 size_t MySQLConnection::queryColCount(Query* query)
+{
+    const scoped_lock lock(m_mutex);
+    return queryColCountUnlocked(query);
+}
+
+// Caller must hold m_mutex.
+size_t MySQLConnection::queryColCountUnlocked(Query* query)
 {
     size_t      colCount;
     const auto* statement = bit_cast<MySQLStatement*>(query->statement());
@@ -251,7 +310,12 @@ size_t MySQLConnection::queryColCount(Query* query)
 void MySQLConnection::queryBindParameters(Query* query)
 {
     const scoped_lock lock(m_mutex);
+    queryBindParametersUnlocked(query);
+}
 
+// Caller must hold m_mutex.
+void MySQLConnection::queryBindParametersUnlocked(Query* query)
+{
     auto* statement = bit_cast<MySQLStatement*>(query->statement());
     try
     {
@@ -268,6 +332,13 @@ void MySQLConnection::queryBindParameters(Query* query)
 }
 
 void MySQLConnection::queryExecute(Query* query)
+{
+    const scoped_lock lock(m_mutex);
+    queryExecuteUnlocked(query);
+}
+
+// Caller must hold m_mutex.
+void MySQLConnection::queryExecuteUnlocked(Query* query)
 {
     auto* statement = bit_cast<MySQLStatement*>(query->statement());
     try
@@ -286,9 +357,19 @@ void MySQLConnection::queryExecute(Query* query)
 
 void MySQLConnection::queryOpen(Query* query)
 {
-    if (!active())
+    // One lock for the whole open sequence: no other query can execute on this
+    // connection between queryExecute() and the first queryFetch().
+    const scoped_lock lock(m_mutex);
+    queryOpenUnlocked(query);
+}
+
+// Caller must hold m_mutex.
+void MySQLConnection::queryOpenUnlocked(Query* query)
+{
+    if (!activeUnlocked())
     {
-        open();
+        // Base open() would take the lock again - use the unlocked variant.
+        _openDatabaseUnlocked("");
     }
 
     if (query->active())
@@ -298,22 +379,22 @@ void MySQLConnection::queryOpen(Query* query)
 
     if (query->statement() == nullptr)
     {
-        queryAllocStmt(query);
+        queryAllocStmtUnlocked(query);
     }
 
     if (query->autoPrepare())
     {
         if (!query->prepared())
         {
-            queryPrepare(query);
+            queryPrepareUnlocked(query);
         }
-        queryBindParameters(query);
+        queryBindParametersUnlocked(query);
     }
 
     auto* statement = bit_cast<MySQLStatement*>(query->statement());
 
-    queryExecute(query);
-    if (const auto fieldCount = static_cast<short>(queryColCount(query)); fieldCount < 1)
+    queryExecuteUnlocked(query);
+    if (const auto fieldCount = static_cast<short>(queryColCountUnlocked(query)); fieldCount < 1)
     {
         return;
     }
@@ -321,22 +402,26 @@ void MySQLConnection::queryOpen(Query* query)
     querySetActive(query, true);
     if (query->fieldCount() == 0)
     {
-        const scoped_lock lock(m_mutex);
         statement->bindResult(query->fields());
     }
 
     querySetEof(query, statement->eof());
-    queryFetch(query);
+    queryFetchUnlocked(query);
 }
 
 void MySQLConnection::queryFetch(Query* query)
+{
+    const scoped_lock lock(m_mutex);
+    queryFetchUnlocked(query);
+}
+
+// Caller must hold m_mutex.
+void MySQLConnection::queryFetchUnlocked(Query* query)
 {
     if (!query->active())
     {
         THROW_QUERY_ERROR(query, "Dataset isn't open");
     }
-
-    const scoped_lock lock(m_mutex);
 
     try
     {
@@ -491,6 +576,7 @@ void MySQLConnection::executeBatchSQL(const Strings& batchSQL, Strings* errors)
 
 String MySQLConnection::driverDescription() const
 {
+    const scoped_lock lock(m_mutex);
     if (m_connection != nullptr)
     {
         return string("MySQL ") + mysql_get_server_info(m_connection.get());

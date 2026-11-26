@@ -61,6 +61,13 @@ namespace sptk {
 
 /**
  * @brief MySQL database connection.
+ *
+ * Thread safety: every access to the underlying MYSQL handle is serialized by
+ * m_mutex. Public methods take the lock and delegate to private *Unlocked variants;
+ * code that already holds the lock must call those variants directly. A Query must
+ * still be consumed before another Query is executed on the same connection: the
+ * mutex serializes individual MySQL C API calls, but two interleaved result sets on
+ * one connection cannot both be valid.
  */
 class SP_EXPORT MySQLConnection
     : public PoolDatabaseConnection
@@ -75,6 +82,7 @@ public:
      */
     MYSQL* connection() const
     {
+        const std::scoped_lock lock(m_mutex);
         return m_connection.get();
     }
 
@@ -223,12 +231,24 @@ protected:
 
 private:
     std::shared_ptr<MYSQL> m_connection; ///< MySQL database connection.
-    mutable std::mutex     m_mutex;      ///< Mutex that protects access to data members.
+    mutable std::mutex     m_mutex;      ///< Serializes all access to m_connection and the MySQL C API on it.
 
-    /**
-     * @brief Init connection to MySQL server.
-     */
-    void initConnection();
+    // Locked public methods delegate to these Unlocked variants. While holding
+    // m_mutex, always call an Unlocked variant - never another locking method.
+    bool     activeUnlocked() const;
+    DBHandle handleUnlocked() const;
+    void     initConnectionUnlocked();
+    void     _openDatabaseUnlocked(const String& newConnectionString);
+    void     executeCommandUnlocked(const String& command);
+
+    void   queryAllocStmtUnlocked(Query* query);
+    void   queryFreeStmtUnlocked(Query* query);
+    void   queryPrepareUnlocked(Query* query);
+    void   queryBindParametersUnlocked(Query* query);
+    void   queryExecuteUnlocked(Query* query);
+    size_t queryColCountUnlocked(Query* query);
+    void   queryOpenUnlocked(Query* query);
+    void   queryFetchUnlocked(Query* query);
 
     /**
      * @brief Execute MySQL command.
