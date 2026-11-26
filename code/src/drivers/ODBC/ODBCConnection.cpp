@@ -65,14 +65,43 @@ public:
     {
     }
     using DatabaseField::operator=;
-    int dateTimeVariant {0}; ///< 0 for datetime, 1 for datetime2 and timestamp
+    int  dateTimeVariant {0};  ///< 0 for datetime, 1 for datetime2 and timestamp
+    bool exactNumeric {false}; ///< NUMERIC/DECIMAL read as exact text rather than double
 };
 
 } // namespace sptk
 
 namespace {
-SQLRETURN odbcReadStringOrBlobField(SQLHSTMT statement, DatabaseField* field, SQLUSMALLINT column, int16_t fieldType, SQLLEN& dataLength);
-SQLRETURN odbcReadTimestampField(SQLHSTMT statement, DatabaseField* field, SQLUSMALLINT column, SQLLEN& dataLength, chrono::minutes sessionTimezoneOffset);
+[[nodiscard]] bool successful(const int ret)
+{
+    return ret == SQL_SUCCESS || ret == SQL_SUCCESS_WITH_INFO;
+}
+
+SQLRETURN odbcReadStringOrBlobField(SQLHSTMT statement, DatabaseField* field, SQLUSMALLINT column, int16_t fieldType,
+                                    SQLLEN& dataLength);
+SQLRETURN odbcReadExactNumericField(SQLHSTMT statement, DatabaseField* field, SQLUSMALLINT column, SQLLEN& dataLength);
+SQLRETURN odbcReadExactNumericField(const SQLHSTMT statement, DatabaseField* field, const SQLUSMALLINT column,
+                                     SQLLEN& dataLength)
+{
+    auto* odbcField = dynamic_cast<ODBCField*>(field);
+    auto& buffer = odbcField->get<Buffer>();
+
+    // DECIMAL/NUMERIC are fixed-length on the server. SQLGetData cannot return fixed-length data
+    // in parts: the length probe followed by a read returns SQL_NO_DATA ("no more data") on some
+    // drivers. Read the exact decimal text in a single call instead.
+    const size_t bufferSize = max<size_t>(64, field->fieldSize() + 1);
+    odbcField->checkSize(bufferSize);
+    const auto resultCode = SQLGetData(statement, column, SQL_C_CHAR, buffer.data(),
+                                       static_cast<SQLINTEGER>(bufferSize), &dataLength);
+    if (successful(resultCode) && dataLength > 0)
+    {
+        odbcField->setDataSize(min<size_t>(static_cast<size_t>(dataLength), bufferSize - 1));
+    }
+    return resultCode;
+}
+
+SQLRETURN odbcReadTimestampField(SQLHSTMT statement, DatabaseField* field, SQLUSMALLINT column, SQLLEN& dataLength,
+                                 chrono::minutes sessionTimezoneOffset);
 void      odbcQueryBindParameter(const Query* query, QueryParameter* parameter);
 } // namespace
 
@@ -81,40 +110,102 @@ ODBCConnection::ODBCConnection(const String& connectionString, const std::chrono
 {
 }
 
+namespace {
+/// ODBC connection-string values containing delimiters or whitespace must be brace-quoted;
+/// a brace inside such a value is doubled.
+String odbcQuote(const String& value)
+{
+    if (value.empty() || value.find_first_of(";={}, \t\r\n") == String::npos)
+    {
+        return value;
+    }
+
+    String escaped;
+    escaped.reserve(value.size() + 2);
+    escaped.push_back('{');
+    for (const char c: value)
+    {
+        if (c == '{' || c == '}')
+        {
+            escaped.push_back(c);
+        }
+        escaped.push_back(c);
+    }
+    escaped.push_back('}');
+    return escaped;
+}
+} // namespace
+
 String ODBCConnection::nativeConnectionString() const
 {
     const DatabaseConnectionString& connString = connectionString();
-    stringstream                    connectionString;
-    connectionString << "DSN=" << connString.hostName();
+    stringstream                    result;
+    result << "DSN=" << odbcQuote(connString.hostName());
     if (!connString.userName().empty())
     {
-        connectionString << ";UID=" << connString.userName();
+        result << ";UID=" << odbcQuote(connString.userName());
     }
     if (!connString.password().empty())
     {
-        connectionString << ";PWD=" << connString.password();
+        result << ";PWD=" << odbcQuote(connString.password());
     }
     if (!connString.databaseName().empty())
     {
-        connectionString << ";DATABASE=" << connString.databaseName();
+        result << ";DATABASE=" << odbcQuote(connString.databaseName());
     }
-    return connectionString.str();
+
+    // Every connection-string parameter must reach the driver, not just the four named ones.
+    // The named fields above are skipped to avoid duplicates in the case-insensitive map.
+    for (const auto& [name, value]: connString.parameters())
+    {
+        if (name == "DSN" || name == "UID" || name == "PWD" || name == "DATABASE")
+        {
+            continue;
+        }
+        result << ';' << name << '=' << odbcQuote(value);
+    }
+    return result.str();
 }
 
 chrono::minutes ODBCConnection::getSessionTimezoneOffset()
 {
-    auto self = shared_from_this();
-    if (self == nullptr)
+    // Ask the server directly instead of going through Query: that needs a shared_ptr to this
+    // connection, so a stack-allocated ODBCConnection could not be opened at all.
+    const scoped_lock lock(*m_connect);
+
+    SQLHSTMT stmt = SQL_NULL_HSTMT;
+    if (!successful(SQLAllocStmt(handle(), &stmt)))
     {
-        throw DatabaseException("PoolDatabaseConnection is not created as shared_ptr");
+        throw DatabaseException(String("Can't allocate timezone statement: ") + queryError(static_cast<SQLHSTMT>(nullptr)));
     }
 
-    m_sessionTimezoneOffset = chrono::minutes(0);
+    String sql("SELECT CURRENT_TIMESTAMP");
+    const auto localBefore = DateTime::Now();
+    const auto resultCode = SQLExecDirect(stmt, bit_cast<SQLCHAR*>(sql.data()), SQL_NTS);
+    const auto localAfter = DateTime::Now();
 
-    Query      query(self, "SELECT CURRENT_TIMESTAMP");
-    const auto timezoneOffset = chrono::duration_cast<chrono::minutes>(query.scalar().asDateTime() - DateTime::Now());
+    TIMESTAMP_STRUCT timestampStruct = {};
+    SQLLEN           dataLength = 0;
+    if (successful(resultCode) && successful(SQLFetch(stmt)))
+    {
+        SQLGetData(stmt, 1, SQL_C_TIMESTAMP, &timestampStruct, sizeof(timestampStruct), &dataLength);
+    }
+    SQLFreeStmt(stmt, SQL_DROP);
 
-    return timezoneOffset;
+    if (!successful(resultCode) || dataLength <= 0)
+    {
+        throw DatabaseException("Can't read server timestamp for timezone offset");
+    }
+
+    const DateTime serverTime(timestampStruct.year, static_cast<short>(timestampStruct.month),
+                              static_cast<short>(timestampStruct.day), static_cast<short>(timestampStruct.hour),
+                              static_cast<short>(timestampStruct.minute), static_cast<short>(timestampStruct.second));
+
+    // Sampling local time on both sides of the query removes most of the round-trip bias. The
+    // remaining sub-second part cannot tip a whole-minute offset because we keep full precision
+    // until the final conversion.
+    const DateTime midpoint = localBefore + (localAfter - localBefore) / 2;
+    return chrono::duration_cast<chrono::minutes>(serverTime - midpoint);
 }
 
 void ODBCConnection::_openDatabase(const String& newConnectionString)
@@ -195,12 +286,6 @@ void ODBCConnection::driverEndTransaction(const bool commit)
 }
 
 //-----------------------------------------------------------------------------------------------
-namespace {
-[[nodiscard]] bool successful(const int ret)
-{
-    return ret == SQL_SUCCESS || ret == SQL_SUCCESS_WITH_INFO;
-}
-} // namespace
 
 String ODBCConnection::queryError(const SQLHSTMT stmt) const
 {
@@ -465,6 +550,12 @@ void bindLOB(QueryParameter* parameter, SQLPOINTER& buff, SQLLEN& len, SQLLEN*& 
         *cbValue = SQL_LEN_DATA_AT_EXEC(static_cast<SQLLEN>(parameter->dataSize()));
         buff = static_cast<SQLPOINTER>(parameter);
     }
+    else
+    {
+        // The indicator is read by SQLBindParameter. Leaving it at its initial zero sends an
+        // empty value for every short text or binary parameter.
+        *cbValue = len;
+    }
 }
 } // namespace
 
@@ -520,13 +611,15 @@ void odbcQueryBindParameter(const Query* query, QueryParameter* parameter)
             case VariantDataType::VAR_STRING:
                 len = static_cast<long>(parameter->dataSize());
                 paramType = SQL_C_CHAR;
-                valueType = SQL_WVARCHAR;
+                // SQL_C_CHAR is a narrow buffer: pairing it with SQL_WVARCHAR makes the driver
+                // interpret the bytes as UTF-16.
+                valueType = SQL_VARCHAR;
                 buff = bit_cast<void*>(parameter->getText());
                 break;
 
             case VariantDataType::VAR_TEXT:
                 paramType = SQL_C_CHAR;
-                valueType = SQL_WLONGVARCHAR;
+                valueType = SQL_LONGVARCHAR;
                 bindLOB(parameter, buff, len, cbValue);
                 break;
 
@@ -569,9 +662,11 @@ void odbcQueryBindParameter(const Query* query, QueryParameter* parameter)
                     format("Unsupported parameter type {} for parameter '{}'", static_cast<int>(parameter->dataType()), parameter->name()));
         }
 
-        const auto resultCode = SQLBindParameter(query->statement(), static_cast<SQLUSMALLINT>(paramNumber), inputOutputMode, paramType, valueType,
-                                                 len, scale, buff, len, cbValue);
-        if (resultCode != SQL_SUCCESS)
+        // For character data BufferLength must include room for the terminating zero.
+        const SQLLEN bufferLength = paramType == SQL_C_CHAR ? len + 1 : len;
+        const auto   resultCode = SQLBindParameter(query->statement(), static_cast<SQLUSMALLINT>(paramNumber), inputOutputMode,
+                                                  paramType, valueType, len, scale, buff, bufferLength, cbValue);
+        if (!successful(resultCode))
         {
             parameter->binding().reset(false);
             THROW_QUERY_ERROR(query, format("Can't bind parameter {}", paramNumber));
@@ -602,14 +697,26 @@ void ODBCConnection::odbcTypeToCType(const int32_t odbcType, int32_t& ctype, Var
             break;
 
         case SQL_INTEGER:
-        case SQL_BIGINT:
             ctype = SQL_C_SLONG;
+            dataType = VariantDataType::VAR_INT;
+            break;
+
+        case SQL_BIGINT:
+            // SQL_C_SLONG writes only four bytes into the 64-bit field, corrupting negative values
+            // and anything above INT32_MAX.
+            ctype = SQL_C_SBIGINT;
             dataType = VariantDataType::VAR_INT64;
             break;
 
         case SQL_NUMERIC:
-        case SQL_REAL:
         case SQL_DECIMAL:
+            // An exact decimal cannot survive a round trip through double. Keep the driver's
+            // textual representation; Variant still converts it to a number on request.
+            ctype = SQL_C_CHAR;
+            dataType = VariantDataType::VAR_STRING;
+            break;
+
+        case SQL_REAL:
         case SQL_DOUBLE:
         case SQL_FLOAT:
             ctype = SQL_C_DOUBLE;
@@ -670,8 +777,11 @@ void ODBCConnection::parseColumns(Query* query, const size_t count)
         queryColAttributes(query, column, SQL_COLUMN_LENGTH, columnLength);
         queryColAttributes(query, column, SQL_COLUMN_SCALE, columnScale);
 
-        int dateTimeVariant = 0;
-        if (columnType == SQL_TIMESTAMP)
+        // Only the legacy SQL Server "datetime" type needs the session offset applied on read.
+        // Everything else (datetime2, date, time, SQL_TYPE_TIMESTAMP) is already wall-clock.
+        int dateTimeVariant = 1;
+        if (columnType == SQL_TIMESTAMP || columnType == SQL_TYPE_TIMESTAMP || columnType == SQL_TYPE_DATE ||
+            columnType == SQL_DATE || columnType == SQL_TIME || columnType == SQL_TYPE_TIME)
         {
             queryColAttributes(query, column, SQL_COLUMN_TYPE_NAME, columnTypeName.data(), static_cast<int>(columnTypeName.size()) - 1);
             std::string typeName(columnTypeName.data());
@@ -693,6 +803,7 @@ void ODBCConnection::parseColumns(Query* query, const size_t count)
         }
 
         auto field = make_shared<ODBCField>(columnName.data(), cType, dateTimeVariant, dataType, columnLength, columnScale);
+        field->exactNumeric = columnType == SQL_NUMERIC || columnType == SQL_DECIMAL;
         query->fields().push_back(field);
     }
 }
@@ -776,10 +887,9 @@ SQLRETURN odbcReadStringOrBlobField(const SQLHSTMT statement, DatabaseField* fie
                                     const int16_t fieldType, SQLLEN& dataLength)
 {
     auto* odbcField = dynamic_cast<ODBCField*>(field);
-
     auto& buffer = odbcField->get<Buffer>();
 
-    // Get data length
+    // With BufferLength 0 the driver only reports the length (or SQL_NO_TOTAL for long data).
     auto resultCode = SQLGetData(statement, column, fieldType, buffer.data(), 0, &dataLength);
     if (!successful(resultCode))
     {
@@ -792,61 +902,66 @@ SQLRETURN odbcReadStringOrBlobField(const SQLHSTMT statement, DatabaseField* fie
         return SQL_SUCCESS;
     }
 
-    if (dataLength == 0 || (dataLength < 0 && dataLength != SQL_NO_TOTAL))
+    if (dataLength == 0)
     {
+        // An empty string or an empty blob is a value, not NULL.
+        odbcField->setDataSize(0);
         return SQL_SUCCESS;
+    }
+    if (dataLength < 0 && dataLength != SQL_NO_TOTAL)
+    {
+        return resultCode;
     }
 
     if (dataLength != SQL_NO_TOTAL)
     {
-        odbcField->checkSize(static_cast<uint32_t>(dataLength));
-
-        // Read data
-        resultCode = SQLGetData(statement, column, fieldType, buffer.data(), static_cast<SQLINTEGER>(dataLength + 1), &dataLength);
-        odbcField->setDataSize(dataLength);
+        odbcField->checkSize(static_cast<size_t>(dataLength) + 1);
+        resultCode = SQLGetData(statement, column, fieldType, buffer.data(),
+                                static_cast<SQLINTEGER>(dataLength + 1), &dataLength);
+        if (successful(resultCode))
+        {
+            odbcField->setDataSize(static_cast<size_t>(dataLength));
+        }
         return resultCode;
     }
 
-    // Fetch BLOB data until there is no more data
-    constexpr size_t initialReadSize = 16384;
-    odbcField->checkSize(initialReadSize);
-
-    auto   bufferSize = odbcField->bufferSize();
-    SQLLEN remainingSize = 0;
-
-    SQLLEN offset = 0;
-    dataLength = 0;
-    constexpr SQLLEN readSize = initialReadSize;
-    while (true)
+    // Unknown length: read in chunks. Character data uses one byte of the buffer for the
+    // terminator; binary data uses all of it. The next chunk starts exactly where the useful
+    // bytes of the previous one ended.
+    constexpr SQLLEN readSize = 16384;
+    const SQLLEN     capacity = fieldType == SQL_C_CHAR ? readSize - 1 : readSize;
+    SQLLEN           offset = 0;
+    SQLLEN           chunkLength = 0;
+    for (;;)
     {
-        bufferSize += readSize;
-        odbcField->checkSize(bufferSize);
-        resultCode = SQLGetData(statement, column, fieldType,
-                                buffer.data() + offset, static_cast<SQLINTEGER>(readSize), &remainingSize);
-
+        odbcField->checkSize(static_cast<size_t>(offset + readSize));
+        resultCode = SQLGetData(statement, column, fieldType, buffer.data() + offset,
+                                static_cast<SQLINTEGER>(readSize), &chunkLength);
         if (resultCode == SQL_NO_DATA)
         {
-            return SQL_SUCCESS;
-        }
-
-        if (remainingSize >= 0 && remainingSize < readSize)
-        {
-            // Last chunk received
-            dataLength += remainingSize;
             break;
         }
-
-        if (remainingSize < 0)
+        if (!successful(resultCode))
         {
-            // Continue reading
-            buffer.bytes(offset + readSize);
+            return resultCode;
         }
 
-        offset += readSize - 1;
-        dataLength += readSize - 1;
+        const SQLLEN written = (chunkLength == SQL_NO_TOTAL || chunkLength > capacity) ? capacity : chunkLength;
+        offset += written;
+        // Buffer::reserve() only copies m_size bytes when it grows. Keep the size in sync with the
+        // bytes already received, or the next chunk reallocation discards the earlier chunks.
+        buffer.bytes(static_cast<size_t>(offset));
+
+        // SQL_SUCCESS marks the last chunk; SQL_SUCCESS_WITH_INFO means there is more data.
+        if (resultCode == SQL_SUCCESS || written == 0)
+        {
+            break;
+        }
     }
 
-    return resultCode;
+    dataLength = offset;
+    odbcField->setDataSize(static_cast<size_t>(dataLength));
+    return SQL_SUCCESS;
 }
 
 SQLRETURN odbcReadTimestampField(const SQLHSTMT statement, DatabaseField* field, const SQLUSMALLINT column,
@@ -855,15 +970,23 @@ SQLRETURN odbcReadTimestampField(const SQLHSTMT statement, DatabaseField* field,
     TIMESTAMP_STRUCT timestampStruct = {};
     const auto       resultCode = SQLGetData(statement, column, SQL_C_TIMESTAMP,
                                              (SQLPOINTER) &timestampStruct, sizeof(timestampStruct), &dataLength);
-    if (dataLength > 0)
+    if (!successful(resultCode) || dataLength <= 0)
     {
-        const auto     tzOffset = field->fieldSize() == 16 ? sessionTimezoneOffset : chrono::minutes(0);
-        const DateTime dateTime(timestampStruct.year, static_cast<short>(timestampStruct.month), static_cast<short>(timestampStruct.day), static_cast<short>(timestampStruct.hour), static_cast<short>(timestampStruct.minute), static_cast<short>(timestampStruct.second));
-        field->setDateTime(dateTime - tzOffset, field->dataType() == VariantDataType::VAR_DATE);
+        return resultCode;
     }
+
+    // TIMESTAMP_STRUCT.fraction is nanoseconds; DateTime stores milliseconds. The caller passes a
+    // non-zero offset only for the old SQL Server 'datetime' type that carries one.
+    const auto milliseconds = static_cast<short>(timestampStruct.fraction / 1000000);
+    const DateTime dateTime(timestampStruct.year, static_cast<short>(timestampStruct.month),
+                            static_cast<short>(timestampStruct.day), static_cast<short>(timestampStruct.hour),
+                            static_cast<short>(timestampStruct.minute), static_cast<short>(timestampStruct.second),
+                            milliseconds);
+    field->setDateTime(dateTime - sessionTimezoneOffset, field->dataType() == VariantDataType::VAR_DATE);
     return resultCode;
 }
 } // namespace
+
 
 void ODBCConnection::queryFetch(Query* query)
 {
@@ -910,7 +1033,23 @@ void ODBCConnection::queryFetch(Query* query)
             resultCode = SQL_SUCCESS;
             switch (fieldType)
             {
+                case SQL_C_SSHORT: {
+                    // The driver writes two bytes. Read into a correctly sized value so that
+                    // negative SMALLINT/TINYINT values are sign-extended, not zero-extended.
+                    SQLSMALLINT value = 0;
+                    resultCode = SQLGetData(statement, column, fieldType, &value, 0, &dataLength);
+                    if (successful(resultCode) && dataLength > 0)
+                    {
+                        field->setInteger(value);
+                    }
+                    break;
+                }
+
                 case SQL_C_SLONG:
+                    resultCode = SQLGetData(statement, column, fieldType, &field->get<int>(), 0, &dataLength);
+                    break;
+
+                case SQL_C_SBIGINT:
                     resultCode = SQLGetData(statement, column, fieldType, &field->get<int64_t>(), 0, &dataLength);
                     break;
 
@@ -932,8 +1071,18 @@ void ODBCConnection::queryFetch(Query* query)
                     break;
 
                 case SQL_C_BINARY:
-                case SQL_C_CHAR:
                     resultCode = odbcReadStringOrBlobField(statement, field, column, fieldType, dataLength);
+                    break;
+
+                case SQL_C_CHAR:
+                    if (field->exactNumeric)
+                    {
+                        resultCode = odbcReadExactNumericField(statement, field, column, dataLength);
+                    }
+                    else
+                    {
+                        resultCode = odbcReadStringOrBlobField(statement, field, column, fieldType, dataLength);
+                    }
                     break;
 
                 case SQL_BIT:
@@ -955,12 +1104,13 @@ void ODBCConnection::queryFetch(Query* query)
                 dataLength = bit_cast<SQLINTEGER>(trimField(bit_cast<char*>(field->get<Buffer>().data()), static_cast<uint32_t>(dataLength)));
             }
 
-            if (dataLength <= 0)
+            if (dataLength < 0)
             {
                 field->setNull(field->dataType());
             }
             else
             {
+                // Zero is a valid length: an empty string or empty blob, not NULL.
                 field->dataSize(static_cast<size_t>(dataLength));
             }
         }
@@ -1025,6 +1175,8 @@ void ODBCConnection::listDataSources(Strings& dsns)
 
 void ODBCConnection::objectList(const DatabaseObjectType objectType, Strings& objects)
 {
+    objects.clear();
+
     const scoped_lock lock(*m_connect);
 
     if (objectType == DatabaseObjectType::DATABASES)
@@ -1060,8 +1212,10 @@ void ODBCConnection::objectList(const DatabaseObjectType objectType, Strings& ob
                 throw DatabaseException("SQLFetch");
             }
 
-            objectSchema[objectSchemaLength] = 0;
-            objectName[objectNameLength] = 0;
+            // A driver may report a length larger than the bound buffer (SQL_SUCCESS_WITH_INFO).
+            // Clamp it instead of writing past the end of the vector.
+            objectSchema[min<SQLLEN>(objectSchemaLength, static_cast<SQLLEN>(objectSchema.size() - 1))] = 0;
+            objectName[min<SQLLEN>(objectNameLength, static_cast<SQLLEN>(objectName.size() - 1))] = 0;
 
             if (objectType == DatabaseObjectType::FUNCTIONS && procedureType != SQL_PT_FUNCTION)
             {
@@ -1163,86 +1317,145 @@ SQLHSTMT ODBCConnection::makeObjectListStatement(const DatabaseObjectType& objec
 
 void ODBCConnection::executeBatchSQL(const Strings& batchSQL, Strings* errors)
 {
-    static const RegularExpression matchStatementEnd("(;\\s*)$");
-    static const RegularExpression matchRoutineStart("^CREATE\\s+FUNCTION", "i");
+    static const RegularExpression matchRoutine("^(CREATE|REPLACE) .*(FUNCTION|PROCEDURE)", "i");
+    static const RegularExpression matchDo("^\\s*DO\\s", "i");
+    static const RegularExpression matchBodyStart(R"(AS\s+(\S+)\s*$)", "i");
+    static const RegularExpression matchDoBodyStart(R"(^\s*DO\s+(\S+)\s*$)", "i");
+    static const RegularExpression matchStatementEnd(R"(;(\s*|\s*--.*)$)");
     static const RegularExpression matchGo("^\\s*GO\\s*$", "i");
     static const RegularExpression matchCommentRow("^\\s*--");
 
     Strings statements;
-    string  statement;
-    auto    routineStarted = false;
-    for (String row: batchSQL)
-    {
-        row = trim(row);
-        if (row.empty() || matchCommentRow.matches(row))
-        {
-            continue;
-        }
+    String  delimiter;
+    String  statement;
+    bool    functionHeader = false;
+    bool    functionBody = false;
 
-        if (!routineStarted)
+    for (auto row: batchSQL)
+    {
+        if (!functionHeader && !functionBody)
         {
-            row = trim(row);
-            if (row.empty() || row.starts_with("--"))
+            row = row.trim();
+            if (row.empty() || matchCommentRow.matches(row))
             {
                 continue;
             }
         }
 
-        if (matchRoutineStart.matches(row))
+        auto appended = false;
+        if (!functionHeader && (matchRoutine.matches(row) || matchDo.matches(row)))
         {
-            routineStarted = true;
-        }
-
-        if (!routineStarted && matchStatementEnd.matches(row))
-        {
-            row = matchStatementEnd.s(row, "");
+            functionHeader = true;
             statement += row;
-            statements.push_back(trim(statement));
-            statement = "";
-            continue;
+            statement += '\n';
+            appended = true;
         }
 
-        if (matchGo.matches(row))
+        // A semicolon inside the dollar-quoted body of a routine or DO block is not a separator.
+        if (functionBody && !delimiter.empty() && !appended && row.find(delimiter) != String::npos)
         {
-            routineStarted = false;
-            statements.push_back(trim(statement));
-            statement = "";
+            delimiter.clear();
+            functionBody = false;
+        }
+
+        if (functionHeader && !functionBody)
+        {
+            if (const auto quotePos = row.find("$$"); quotePos != String::npos)
+            {
+                delimiter = "$$";
+                functionHeader = false;
+                functionBody = true;
+                if (row.find("$$", quotePos + 2) != String::npos)
+                {
+                    delimiter.clear();
+                    functionBody = false;
+                }
+            }
+            else if (matchBodyStart.matches(row) || matchDoBodyStart.matches(row))
+            {
+                const auto matches = matchBodyStart.matches(row) ? matchBodyStart.m(row) : matchDoBodyStart.m(row);
+                delimiter = matches[0].value;
+                functionHeader = false;
+                functionBody = true;
+                if (!appended)
+                {
+                    statement += row;
+                    statement += '\n';
+                }
+            }
+        }
+
+        if (!functionBody && matchGo.matches(row))
+        {
+            if (!trim(statement).empty())
+            {
+                statements.push_back(trim(statement));
+            }
+            statement.clear();
             continue;
         }
 
-        statement += row + "\n";
+        if (!functionBody && matchStatementEnd.matches(row))
+        {
+            if (!appended)
+            {
+                statement += row;
+            }
+            statements.push_back(trim(statement));
+            statement.clear();
+            continue;
+        }
+
+        if (!appended)
+        {
+            statement += row;
+            statement += '\n';
+        }
     }
 
     if (!trim(statement).empty())
     {
-        statements.push_back(statement);
+        statements.push_back(trim(statement));
     }
 
-    auto self = shared_from_this();
-    if (self == nullptr)
+    // Execute directly. This needs neither a shared_ptr to the connection (which Query would) nor
+    // a per-statement SQLAllocStmt/SQLFreeStmt pair through Query's statement management.
+    if (!active())
     {
-        throw DatabaseException("PoolDatabaseConnection is not created as shared_ptr");
+        open();
     }
 
-    for (const auto& stmt: statements)
+    const scoped_lock lock(*m_connect);
+    for (const auto& sql: statements)
     {
+        SQLHSTMT hStmt = SQL_NULL_HSTMT;
         try
         {
-            Query query(self, stmt, false);
-            query.exec();
+            if (!successful(SQLAllocStmt(handle(), &hStmt)))
+            {
+                throw DatabaseException("SQLAllocStmt failed: " + queryError(static_cast<SQLHSTMT>(nullptr)));
+            }
+            String text(sql);
+            if (!successful(SQLExecDirect(hStmt, bit_cast<SQLCHAR*>(text.data()), SQL_NTS)))
+            {
+                throw DatabaseException(queryError(hStmt));
+            }
+            SQLFreeStmt(hStmt, SQL_DROP);
+            hStmt = SQL_NULL_HSTMT;
         }
         catch (const Exception& e)
         {
-            stringstream error;
-            error << e.what() << ". Query: " << stmt;
-            if (errors != nullptr)
+            if (hStmt != SQL_NULL_HSTMT)
             {
-                errors->push_back(error.str());
+                SQLFreeStmt(hStmt, SQL_DROP);
             }
-            else
+            stringstream error;
+            error << e.what() << ". Query: " << sql;
+            if (errors == nullptr)
             {
                 throw DatabaseException(error.str());
             }
+            errors->push_back(error.str());
         }
     }
 }

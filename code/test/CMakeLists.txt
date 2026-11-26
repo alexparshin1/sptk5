@@ -6,6 +6,12 @@ IF (GTEST_FLAG)
 
     TARGET_LINK_LIBRARIES(sptk_unit_tests spdb5 spwsdl5 sputil5 ${SPTK_GTEST_LIBRARY})
 
+    # ODBC unit tests instantiate ODBCConnection directly; the other database tests go through the
+    # driver loader and only need the core library.
+    IF (USE_ODBC)
+        TARGET_LINK_LIBRARIES(sptk_unit_tests spdb5_odbc)
+    ENDIF ()
+
     # Where the data files below actually land for THIS build. TestData looks in the source tree
     # first, so running from the build tree is unaffected; this is what lets the installed binary
     # find them when the prefix is not /usr/local.
