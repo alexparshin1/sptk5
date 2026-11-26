@@ -876,6 +876,35 @@ TEST(MSSQLConnectionTests,bulkInsertPerformance)
     testBulkInsertPerformance("MSSQL");
 }
 
+TEST(MSSQLConnectionTests,preparedStatementReuse)
+{
+    // Two queries with the same SQL must reuse the prepared HSTMT, and the second one must bind
+    // its own parameter values rather than the first query's.
+    DatabaseConnectionString connectionString = DatabaseTests::tests().connectionString("mssql");
+    if (connectionString.empty())
+    {
+        GTEST_SKIP() << "MSSQL connection is not defined";
+    }
+
+    try
+    {
+        DatabaseConnectionPool connectionPool(connectionString.toString());
+        const DatabaseConnection connection = connectionPool.getConnection();
+
+        Query first(connection, "SELECT :value AS value");
+        first.param("value") = 11;
+        EXPECT_EQ(first.scalar().asInteger(), 11);
+
+        Query second(connection, "SELECT :value AS value");
+        second.param("value") = 22;
+        EXPECT_EQ(second.scalar().asInteger(), 22);
+    }
+    catch (const Exception& e)
+    {
+        FAIL() << "Prepared statement reuse failed: " << e.what();
+    }
+}
+
 TEST(MSSQLConnectionTests,queryParameters)
 {
     testQueryParameters("MSSQL");

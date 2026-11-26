@@ -115,17 +115,15 @@ void ODBCConnectionBase::allocConnect()
         throw DatabaseException(errorInformation("Can't alloc connection"));
     }
 
+    // Always release the OS handle, even when SQLDriverConnect failed. The old deleter skipped
+    // SQLFreeHandle unless m_connected was true, leaking a HDBC on every failed connection, and
+    // captured `this` although it runs while the connection object is being destroyed.
     m_hConnection = shared_ptr<uint8_t>(static_cast<uint8_t*>(hConnection),
-                                        [this](uint8_t* ptr)
+                                        [](uint8_t* ptr)
                                         {
-                                            if (m_connected)
-                                            {
-                                                const SQLHDBC conn(ptr);
-                                                SQLDisconnect(conn);
-                                                SQLFreeHandle(SQL_HANDLE_DBC, conn);
-                                                m_connected = false;
-                                                m_connectString = "";
-                                            }
+                                            const SQLHDBC conn(ptr);
+                                            SQLDisconnect(conn); // harmless when not connected
+                                            SQLFreeHandle(SQL_HANDLE_DBC, conn);
                                         });
 }
 
@@ -141,10 +139,12 @@ void ODBCConnectionBase::freeConnect()
         disconnect();
     }
 
-    const scoped_lock lock(*this);
-
-    SQLFreeConnect(m_hConnection.get());
-    m_hConnection = SQL_NULL_HDBC;
+    {
+        // The deleter disconnects and frees the handle. SQLFreeConnect() must not be called here
+        // as well, or the same HDBC would be released twice.
+        const scoped_lock lock(*this);
+        m_hConnection.reset();
+    }
     m_connected = false;
     m_connectString = "";
 }

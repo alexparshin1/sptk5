@@ -39,6 +39,11 @@
 
 #include <sptk5/sptk.h>
 
+#include <deque>
+#include <map>
+#include <mutex>
+#include <vector>
+
 #ifdef HAVE_ODBC
 
 #include "sptk5/Printer.h"
@@ -74,7 +79,8 @@ public:
 
     ODBCConnection(const ODBCConnection&) = delete;
 
-    ODBCConnection(ODBCConnection&&) noexcept = default;
+    // A moved-from connection would have a null m_connect and crash in the destructor/active().
+    ODBCConnection(ODBCConnection&&) = delete;
 
     /**
      * @brief Destructor.
@@ -93,7 +99,7 @@ public:
 
     ODBCConnection& operator=(const ODBCConnection&) = delete;
 
-    ODBCConnection& operator=(ODBCConnection&&) noexcept = default;
+    ODBCConnection& operator=(ODBCConnection&&) = delete;
 
     /**
      * @brief Returns driver-specific connection string.
@@ -172,6 +178,19 @@ protected:
     void queryPrepare(Query* query) override;
 
     /**
+     * @brief Keeps a prepared statement for reuse by a later query with the same SQL.
+     *
+     * The caller must hold the connection mutex. Evicted handles are returned so that their
+     * HSTMTs are released after the mutex is gone.
+     */
+    std::vector<SStmtHandle> cacheStatement(const String& sql, const SStmtHandle& statement);
+
+    /**
+     * @brief Drops every cached statement before the physical connection goes away.
+     */
+    void clearPreparedStatements();
+
+    /**
      * @brief Executes a statement.
      */
     void queryExecute(Query* query) override;
@@ -190,6 +209,12 @@ protected:
      * @brief In a dataset returned by a query, retrieves the column attributes.
      */
     void queryColAttributes(Query* query, int16_t column, int16_t attribute, char* buff, int len) override;
+
+    /// Caller holds the connection mutex.
+    void queryColAttributesUnlocked(Query* query, int16_t column, int16_t attribute, int32_t& value);
+
+    /// Caller holds the connection mutex.
+    void queryColAttributesUnlocked(Query* query, int16_t column, int16_t attribute, char* buff, int len);
 
     /**
      * @brief Binds the parameters to the query.
@@ -244,7 +269,15 @@ protected:
 
 private:
     static constexpr size_t MAX_NAME_LEN = 256;
+    mutable std::mutex      m_stateMutex;            ///< Guards connection state flags.
     std::chrono::minutes    m_sessionTimezoneOffset {0};
+    bool                    m_timezoneKnown {false}; ///< The offset was read for this physical connection.
+
+    // A prepared HSTMT can outlive the Query that created it. Reusing it avoids SQLPrepare on the
+    // next query with the same text; the cache is bounded and least-recently-used.
+    static constexpr size_t                 maxCachedStatements {64};
+    std::map<String, SStmtHandle>           m_preparedStatements;
+    std::deque<String>                      m_preparedStatementKeys;
 
     /**
      * @brief The ODBC connection object.
