@@ -37,6 +37,8 @@
 
 #pragma once
 
+#include <deque>
+#include <map>
 #include <mutex>
 #include <sptk5/db/PoolDatabaseConnection.h>
 
@@ -188,12 +190,6 @@ protected:
     static Strings extractStatements(const Strings& sqlBatch);
 
     /**
-     * @brief Returns the server timezone offset in seconds.
-     * @return Server timezone offset in seconds.
-     */
-    std::chrono::minutes getTimezoneOffset();
-
-    /**
      * @brief Begins the transaction.
      */
     void driverBeginTransaction() override;
@@ -230,6 +226,18 @@ protected:
      * @brief Prepares a query if supported by the database.
      */
     void queryPrepare(Query* query) override;
+
+    /**
+     * @brief Keeps a prepared statement for a later query with the same SQL.
+     *
+     * The caller must hold m_mutex. Adding an entry may evict and deallocate the oldest one.
+     */
+    void cacheStatement(const String& sql, const SStmtHandle& statement);
+
+    /**
+     * @brief Releases every cached prepared statement, deallocating it on the server.
+     */
+    void clearPreparedStatements();
 
     /**
      * @brief Executes a statement.
@@ -276,11 +284,17 @@ protected:
     void queryExecDirect(const Query* query) const;
 
 private:
-    mutable std::mutex   m_mutex;                                                ///< Mutex that protects access to data members.
-    PGconn*              m_connect {nullptr};                                    ///< PostgreSQL database connection.
-    TimestampFormat      m_timestampsFormat {TimestampFormat::UNKNOWN};          ///< Connection timestamp format.
-    DateTime             m_epochDate;                                            ///< Epoch date with respect to server timezone offset.
-    std::chrono::minutes m_sessionTimezoneOffset {std::chrono::minutes::zero()}; ///< Session timezone offset in minutes.
+    mutable std::mutex                      m_mutex;                ///< Mutex that protects access to data members.
+    PGconn*                                 m_connect {nullptr};    ///< PostgreSQL database connection.
+    TimestampFormat                         m_timestampsFormat {TimestampFormat::UNKNOWN}; ///< Connection timestamp format.
+
+    // A prepared statement is kept on the server after its Query is destroyed, so the next Query
+    // with the same SQL only needs one EXECUTE round trip instead of PREPARE/DESCRIBE/EXECUTE/
+    // DEALLOCATE. The cache is bounded so that a long-running connection cannot accumulate an
+    // unbounded number of server-side statements.
+    static constexpr size_t                 maxCachedStatements {64};
+    std::map<String, SStmtHandle>           m_preparedStatements;  ///< Prepared statements by SQL text.
+    std::deque<String>                      m_preparedStatementKeys; ///< Eviction order, oldest first.
 };
 
 /**

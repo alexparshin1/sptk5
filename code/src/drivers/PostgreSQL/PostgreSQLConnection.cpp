@@ -41,6 +41,9 @@
 #include "sptk5/db/BulkQuery.h"
 #include <sptk5/cutils>
 #include <sptk5/db/DatabaseField.h>
+#include <algorithm>
+#include <cctype>
+#include <set>
 #include <sstream> // libc++
 
 using namespace std;
@@ -70,6 +73,57 @@ const DateTime& utcEpochDate()
     return epochDate;
 }
 
+namespace {
+/// Types whose binary representation queryFetch decodes. Text-like types are listed because their
+/// binary form is the same bytes as their text form. A type that is not listed makes the whole
+/// result set fall back to text: libpq selects one result format for all columns, and the server
+/// can render any type as text, whereas it cannot render an unknown type as binary on our behalf.
+bool supportsBinaryResult(const Oid type)
+{
+    if (type == 114 /* JSON */ || type == 142 /* XML */)
+    {
+        return true;
+    }
+
+    switch (static_cast<PostgreSQLDataType>(type))
+    {
+        using enum PostgreSQLDataType;
+        case BOOLEAN:
+        case BYTE:
+        case NAME:
+        case INT8:
+        case INT2:
+        case INT4:
+        case TEXT:
+        case OID:
+        case FLOAT4:
+        case FLOAT8:
+        case CHAR_ARRAY:
+        case INT2_VECTOR:
+        case INT2_ARRAY:
+        case INT4_ARRAY:
+        case TEXT_ARRAY:
+        case VARCHAR_ARRAY:
+        case INT8_ARRAY:
+        case FLOAT4_ARRAY:
+        case FLOAT8_ARRAY:
+        case CHAR:
+        case VARCHAR:
+        case DATE:
+        case TIMESTAMP:
+        case TIMESTAMP_ARRAY:
+        case TIMESTAMPTZ:
+        case TIMESTAMPTZ_ARRAY:
+        case NUMERIC:
+        case BYTEA:
+            return true;
+
+        default:
+            return false;
+    }
+}
+} // namespace
+
 class PostgreSQLStatement
 {
 public:
@@ -87,11 +141,17 @@ public:
 
     ~PostgreSQLStatement()
     {
-        if (stmt() != nullptr && !name().empty())
+        // A statement that was cleared after a failed execution has no result left, but it is
+        // still prepared on the server and its name is still allocated. Deallocating by name is
+        // what actually releases the server side; keying it off stmt() leaked every one of them.
+        if (!name().empty() && m_connect != nullptr && PQstatus(m_connect) == CONNECTION_OK)
         {
             const String deallocateCommand = "DEALLOCATE \"" + name() + "\"";
             PGresult*    res = PQexec(m_connect, deallocateCommand.c_str());
-            PQclear(res);
+            if (res != nullptr)
+            {
+                PQclear(res);
+            }
         }
 
         clear();
@@ -164,6 +224,19 @@ public:
         return static_cast<unsigned>(m_cols);
     }
 
+    /// True when every column of the result can be read from PostgreSQL's binary representation.
+    /// libpq selects one format for the whole result, so a single unknown column forces the text
+    /// format, which the server can render for any type.
+    void binaryResults(const bool binary)
+    {
+        m_binaryResults = binary;
+    }
+
+    [[nodiscard]] bool binaryResults() const
+    {
+        return m_binaryResults;
+    }
+
     [[nodiscard]] PostgreSQLParamValues& paramValues()
     {
         return m_paramValues;
@@ -176,6 +249,7 @@ private:
     int                   m_rows {0};
     int                   m_cols {0};
     int                   m_currentRow {0};
+    bool                  m_binaryResults {false};
     PostgreSQLParamValues m_paramValues;
 
     static unsigned nextIndex();
@@ -214,20 +288,69 @@ PostgreSQLConnection::~PostgreSQLConnection()
 }
 
 namespace {
+/// Quotes a value for a libpq connection string. libpq splits the string on whitespace unless the
+/// value is single-quoted, and inside a quoted value a backslash and a single quote are escaped by
+/// a backslash. Bare values made of safe characters are passed through unchanged.
+string csQuote(const string& value)
+{
+    bool needsQuotes = value.empty();
+    if (!needsQuotes)
+    {
+        for (const char c: value)
+        {
+            if (isalnum(static_cast<unsigned char>(c)) == 0 && c != '_' && c != '-' && c != '.' && c != '/' && c != ':')
+            {
+                needsQuotes = true;
+                break;
+            }
+        }
+    }
+
+    if (!needsQuotes)
+    {
+        return value;
+    }
+
+    string result;
+    result.reserve(value.size() + 2);
+    result.push_back('\'');
+    for (const char c: value)
+    {
+        if (c == '\\' || c == '\'')
+        {
+            result.push_back('\\');
+        }
+        result.push_back(c);
+    }
+    result.push_back('\'');
+    return result;
+}
+
 string csParam(const string& name, const string& value)
 {
-    return value.empty() ? "" : name + "=" + value + " ";
+    return value.empty() ? "" : name + "=" + csQuote(value) + " ";
 }
 } // namespace
 
 String PostgreSQLConnection::nativeConnectionString() const
 {
-    String                          port;
     const DatabaseConnectionString& connString = connectionString();
 
+    // A value may be given either in the URL itself or as a query parameter. The URL form wins,
+    // so that a connection string written in the driver's usual shape keeps working, and a
+    // parameter is the fallback for connectors that build the whole string as a query.
+    const auto either = [](const String& primary, const String& fallback) {
+        return primary.empty() ? fallback : primary;
+    };
+
+    String port;
     if (connString.portNumber() != 0)
     {
         port = to_string(connString.portNumber());
+    }
+    else
+    {
+        port = connString.parameter("port");
     }
 
     // The connect timeout, in seconds, which is what libpq wants. A value in the URL comes first,
@@ -239,29 +362,43 @@ String PostgreSQLConnection::nativeConnectionString() const
         connectTimeoutSeconds = to_string(connectTimeout().count());
     }
 
-    const string result =
-        csParam("dbname", connString.databaseName()) +
-        csParam("host", connString.hostName()) +
-        csParam("user", connString.userName()) +
-        csParam("password", connString.password()) +
+    const String dbName = either(connString.databaseName(), connString.parameter("dbname"));
+    const String hostName = either(connString.hostName(), connString.parameter("host"));
+    const String userName = either(connString.userName(), connString.parameter("user"));
+    const String password = either(connString.password(), connString.parameter("password"));
+
+    string result =
+        csParam("dbname", dbName) +
+        csParam("host", hostName) +
+        csParam("user", userName) +
+        csParam("password", password) +
         csParam("port", port) +
         csParam("connect_timeout", connectTimeoutSeconds);
 
-    return result;
-}
+    // Every other query parameter is a libpq keyword in its own right (sslmode, options,
+    // application_name, sslcert, target_session_attrs, keepalives, ...). Passing them through
+    // keeps a connection from silently losing settings the configuration asked for.
+    static const set<string, less<>> handledKeys{
+        "dbname", "host", "user", "password", "port", "connect_timeout"};
 
-chrono::minutes PostgreSQLConnection::getTimezoneOffset()
-{
-    auto self = shared_from_this();
-    if (self == nullptr)
+    // A libpq keyword is an identifier. A query parameter whose name is not one cannot be a
+    // keyword, and pasting it in would corrupt the whole string rather than be ignored.
+    const auto isKeyword = [](const string& name) {
+        return !name.empty() && all_of(name.begin(), name.end(), [](const unsigned char c) {
+            return isalnum(c) != 0 || c == '_';
+        });
+    };
+
+    for (const auto& [name, value]: connString.parameters())
     {
-        throw DatabaseException("PoolDatabaseConnection is not created as shared_ptr");
+        if (!isKeyword(name) || handledKeys.contains(name))
+        {
+            continue;
+        }
+        result += name + "=" + csQuote(value) + " ";
     }
 
-    Query query(self, "SELECT CAST(EXTRACT(TIMEZONE FROM CURRENT_TIME) AS INT)");
-    auto  tzOffset = query.scalar().asInteger() / 60;
-
-    return chrono::minutes(tzOffset);
+    return result;
 }
 
 void PostgreSQLConnection::_openDatabase(const String& newConnectionString)
@@ -273,6 +410,20 @@ void PostgreSQLConnection::_openDatabase(const String& newConnectionString)
         if (!newConnectionString.empty())
         {
             connectionString(DatabaseConnectionString(newConnectionString));
+        }
+
+        // active() is false here, but the handle may still exist: a dropped connection leaves
+        // m_connect non-null with a bad status. Overwriting it with a fresh PQconnectdb leaked
+        // the old handle, its socket and its buffers on every reconnect.
+        if (m_connect != nullptr)
+        {
+            // Release the statements first: they hold the old PGconn and would otherwise use it
+            // after PQfinish. Closing them while the handle is still alive is safe, and any query
+            // that is reopening itself allocates a new statement below.
+            disconnectAllQueries();
+            clearPreparedStatements();
+            PQfinish(m_connect);
+            m_connect = nullptr;
         }
 
         m_connect = PQconnectdb(nativeConnectionString().c_str());
@@ -297,19 +448,57 @@ void PostgreSQLConnection::_openDatabase(const String& newConnectionString)
                 m_timestampsFormat = TimestampFormat::DOUBLE;
             }
         }
-        m_sessionTimezoneOffset = getTimezoneOffset();
-        m_epochDate = localEpochDate() + m_sessionTimezoneOffset;
     }
 }
 
 void PostgreSQLConnection::closeDatabase()
 {
     disconnectAllQueries();
+    clearPreparedStatements();
     if (m_connect)
     {
         PQfinish(m_connect);
         m_connect = nullptr;
     }
+}
+
+void PostgreSQLConnection::cacheStatement(const String& sql, const SStmtHandle& statement)
+{
+    // The caller holds m_mutex. Only named statements are prepared on the server; a direct one
+    // has nothing to reuse and nothing to deallocate.
+    if (sql.empty() || statement == nullptr)
+    {
+        return;
+    }
+    const auto* pgStatement = bit_cast<const PostgreSQLStatement*>(statement.get());
+    if (pgStatement->name().empty())
+    {
+        return;
+    }
+
+    if (const auto existing = m_preparedStatements.find(sql); existing != m_preparedStatements.end())
+    {
+        m_preparedStatements.erase(existing);
+        m_preparedStatementKeys.erase(find(m_preparedStatementKeys.begin(), m_preparedStatementKeys.end(), sql));
+    }
+
+    m_preparedStatements.emplace(sql, statement);
+    m_preparedStatementKeys.push_back(sql);
+
+    while (m_preparedStatementKeys.size() > maxCachedStatements)
+    {
+        const String oldest = m_preparedStatementKeys.front();
+        m_preparedStatementKeys.pop_front();
+        // Dropping the last reference destroys the statement and deallocates it on the server.
+        m_preparedStatements.erase(oldest);
+    }
+}
+
+void PostgreSQLConnection::clearPreparedStatements()
+{
+    const scoped_lock lock(m_mutex);
+    m_preparedStatements.clear();
+    m_preparedStatementKeys.clear();
 }
 
 DBHandle PostgreSQLConnection::handle() const
@@ -323,6 +512,20 @@ bool PostgreSQLConnection::active() const
 }
 
 namespace {
+/// The message attached to a result belongs to the command that produced it. PQerrorMessage(conn)
+/// reports the last error on the connection and may be unrelated or already cleared.
+String resultError(const PGconn* conn, const PGresult* res)
+{
+    if (res != nullptr)
+    {
+        if (const char* message = PQresultErrorMessage(res); message != nullptr && *message != '\0')
+        {
+            return message;
+        }
+    }
+    return PQerrorMessage(conn);
+}
+
 void checkError(const PGconn* conn, PGresult* res, const String& command)
 {
     if (res == nullptr)
@@ -333,7 +536,7 @@ void checkError(const PGconn* conn, PGresult* res, const String& command)
     if (const auto statusCode = PQresultStatus(res);
         statusCode != PGRES_COMMAND_OK)
     {
-        const auto error = command + " command failed: " + string(PQerrorMessage(conn));
+        const auto error = command + " command failed: " + resultError(conn, res);
         PQclear(res);
         throw DatabaseException(error);
     }
@@ -382,12 +585,31 @@ String PostgreSQLConnection::queryError(const Query*) const
     return PQerrorMessage(m_connect);
 }
 
-// Doesn't allocate stmt but makes sure the previously allocated stmt is released
+// Doesn't allocate a stmt if a prepared one with the same SQL is available.
 void PostgreSQLConnection::queryAllocStmt(Query* query)
 {
-    queryFreeStmt(query);
+    queryFreeStmt(query); // releases the previous statement, keeping it in the cache if prepared
+
+    if (query->autoPrepare())
+    {
+        const scoped_lock lock(m_mutex);
+        if (const auto cached = m_preparedStatements.find(query->sql()); cached != m_preparedStatements.end())
+        {
+            // The entry is handed out exclusively: two open queries must not share one statement
+            // and its result buffer. It goes back into the cache when this query frees it.
+            const SStmtHandle handle = cached->second;
+            m_preparedStatements.erase(cached);
+            m_preparedStatementKeys.erase(find(m_preparedStatementKeys.begin(), m_preparedStatementKeys.end(),
+                                                query->sql()));
+            querySetStmt(query, handle);
+            querySetPrepared(query, true);
+            bit_cast<PostgreSQLStatement*>(handle.get())->clearRows();
+            return;
+        }
+    }
+
     const auto stmt = make_shared<PostgreSQLStatement>(m_connect, m_timestampsFormat == TimestampFormat::INT64,
-                                                       query->autoPrepare(), m_epochDate - m_sessionTimezoneOffset);
+                                                       query->autoPrepare(), localEpochDate());
     querySetStmt(query, reinterpret_pointer_cast<uint8_t>(stmt));
 }
 
@@ -395,8 +617,14 @@ void PostgreSQLConnection::queryFreeStmt(Query* query)
 {
     const scoped_lock lock(m_mutex);
 
-    querySetStmt(query, nullptr);
+    // The connection, not the Query, owns the shared statement handle. Take it before
+    // querySetStmt() clears the entry.
+    if (query->prepared())
+    {
+        cacheStatement(query->sql(), queryStatement(query));
+    }
 
+    querySetStmt(query, nullptr);
     querySetPrepared(query, false);
 }
 
@@ -412,12 +640,6 @@ void PostgreSQLConnection::queryCloseStmt(Query* query)
 
 void PostgreSQLConnection::queryPrepare(Query* query)
 {
-    if (query->prepared())
-    {
-        queryFreeStmt(query);
-        queryAllocStmt(query);
-    }
-
     const scoped_lock lock(m_mutex);
 
     auto* statement = bit_cast<PostgreSQLStatement*>(query->statement());
@@ -433,7 +655,6 @@ void PostgreSQLConnection::queryPrepare(Query* query)
 
     if (stmt == nullptr)
     {
-        PQclear(stmt);
         throw DatabaseException(format("PREPARE command failed: {}", PQerrorMessage(m_connect)));
     }
 
@@ -453,11 +674,22 @@ void PostgreSQLConnection::queryPrepare(Query* query)
         fieldCount = 0;
     } // VOID result considered as no result
 
+    // The format applies to the whole result, so it is binary only if every column can be decoded
+    // from its binary form. Otherwise the whole result is read as text, which the server renders
+    // correctly for any type - including the ones the driver has no decoder for.
+    auto binaryResults = fieldCount != 0;
+    for (unsigned column = 0; binaryResults && column < fieldCount; ++column)
+    {
+        binaryResults = supportsBinaryResult(PQftype(stmt2, static_cast<int>(column)));
+    }
+
     PQclear(stmt2);
 
     statement->stmt(stmt, 0, fieldCount);
+    statement->binaryResults(binaryResults);
 
     querySetPrepared(query, true);
+    cacheStatement(query->sql(), queryStatement(query));
 }
 
 size_t PostgreSQLConnection::queryColCount(Query* query)
@@ -473,6 +705,9 @@ void PostgreSQLConnection::queryBindParameters(Query* query)
 
     auto*       statement = bit_cast<PostgreSQLStatement*>(query->statement());
     auto&       paramValues = statement->paramValues();
+    // A cached statement was prepared for an earlier Query, whose parameter objects are gone.
+    // Refresh the pointers before reading their values, whether or not this statement is new.
+    paramValues.setParameters(query->params());
     const auto& params = paramValues.params();
 
     uint32_t paramNumber = 0;
@@ -482,12 +717,8 @@ void PostgreSQLConnection::queryBindParameters(Query* query)
         ++paramNumber;
     }
 
-    auto resultFormat = 1; // Results are presented in binary format
-
-    if (statement->colCount() == 0)
-    {
-        resultFormat = 0;
-    } // VOID result or NO results, using text format
+    // Binary only when queryPrepare established that every result column has a binary decoder.
+    const auto resultFormat = statement->binaryResults() ? 1 : 0;
 
     PGresult* stmt = PQexecPrepared(m_connect, statement->name().c_str(), static_cast<int>(paramValues.size()),
                                     bit_cast<const char* const*>(paramValues.values()),
@@ -514,7 +745,7 @@ void PostgreSQLConnection::queryBindParameters(Query* query)
         default:
             statement->stmt(stmt, 0, 0);
             error = "EXECUTE command failed: ";
-            error += PQerrorMessage(m_connect);
+            error += resultError(m_connect, stmt);
             break;
     }
 
@@ -541,7 +772,11 @@ void PostgreSQLConnection::queryExecDirect(const Query* query) const
         ++paramNumber;
     }
 
-    constexpr auto resultFormat = 1; // Results are presented in binary format
+    // A direct statement is not described first, so its column types are unknown until it runs.
+    // Text is the only format that is correct for every type; binary would turn a uuid or a json
+    // value into raw bytes. Prepared statements keep binary format where it is known to be safe.
+    constexpr auto resultFormat = 0;
+    statement->binaryResults(false);
 
     PGresult* stmt = PQexecParams(m_connect, query->sql().c_str(), static_cast<int>(paramValues.size()), paramValues.types(),
                                   reinterpret_cast<const char* const*>(paramValues.values()),
@@ -561,12 +796,16 @@ void PostgreSQLConnection::queryExecDirect(const Query* query) const
             break;
 
         case PGRES_EMPTY_QUERY:
+            // Hand the result to the statement before the error unwinds, so that clear() releases
+            // it. Without this the PGresult of a failed statement was simply leaked.
+            statement->stmt(stmt, 0, 0);
             error = "EXECUTE command failed: EMPTY QUERY";
             break;
 
         default:
+            statement->stmt(stmt, 0, 0);
             error = "EXECUTE command failed: ";
-            error += PQerrorMessage(m_connect);
+            error += resultError(m_connect, stmt);
             break;
     }
 
@@ -770,8 +1009,10 @@ double readFloat8(const char* data)
 
 DateTime readDate(const char* data, const DateTime& epochDate)
 {
+    // The number of days since 2000-01-01 is a 32-bit value, but multiplying it by 24 in 32 bits
+    // overflows around year 245000, while PostgreSQL's DATE range goes to 5874897.
     const auto dateTime = static_cast<int32_t>(ntohl(*bit_cast<const uint32_t*>(data)));
-    return epochDate + chrono::hours(dateTime * hoursPerDay);
+    return epochDate + chrono::hours(static_cast<int64_t>(dateTime) * hoursPerDay);
 }
 
 DateTime readTimestamp(const char* data, const bool integerTimestamps, const DateTime& epochDate)
@@ -1072,6 +1313,31 @@ void PostgreSQLConnection::queryFetch(Query* query)
 
             char* data = PQgetvalue(stmt, currentRow, column);
 
+            if (!statement->binaryResults())
+            {
+                // Text is used when a column has no binary decoder, or for a direct statement whose
+                // column types were not described before execution. The server renders every type
+                // as text, so the value can be used as a string as-is. bytea is the exception: its
+                // text form is an escaped literal, which libpq converts back to the original bytes.
+                if (fieldType == PostgreSQLDataType::BYTEA)
+                {
+                    size_t         decodedLength = 0;
+                    unsigned char* decoded = PQunescapeBytea(bit_cast<const unsigned char*>(data), &decodedLength);
+                    if (decoded == nullptr)
+                    {
+                        throw DatabaseException("Can't decode bytea value");
+                    }
+                    field->setBuffer(decoded, decodedLength, VariantDataType::VAR_BUFFER);
+                    PQfreemem(decoded);
+                }
+                else
+                {
+                    field->setExternalBuffer(bit_cast<uint8_t*>(data), static_cast<size_t>(dataLength),
+                                             VariantDataType::VAR_STRING);
+                }
+                continue;
+            }
+
             switch (fieldType)
             {
                 using enum PostgreSQLDataType;
@@ -1193,7 +1459,9 @@ void PostgreSQLConnection::objectList(const DatabaseObjectType objectType, Strin
         throw DatabaseException("PoolDatabaseConnection is not created as shared_ptr");
     }
 
-    Query query(self, objectsSQL);
+    // A one-shot catalog query: a prepared statement would cost PREPARE + DESCRIBE + EXECUTE +
+    // DEALLOCATE instead of one PQexecParams call, and would be thrown away immediately.
+    Query query(self, objectsSQL, false);
     query.open();
 
     while (!query.eof())
@@ -1224,7 +1492,8 @@ void PostgreSQLConnection::executeBatchSQL(const Strings& batchSQL, Strings* err
     {
         try
         {
-            Query query(self, stmt);
+            // Each batch statement is executed once; preparing it is four round trips for nothing.
+            Query query(self, stmt, false);
             query.exec();
         }
         catch (const Exception& e)

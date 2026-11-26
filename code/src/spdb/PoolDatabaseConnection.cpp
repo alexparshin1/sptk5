@@ -368,6 +368,12 @@ void PoolDatabaseConnectionQueryMethods::querySetStmt(Query* query, const SStmtH
     query->setStatement(stmt.get());
 }
 
+SStmtHandle PoolDatabaseConnectionQueryMethods::queryStatement(const Query* query) const
+{
+    const auto itor = m_queryList.find(const_cast<Query*>(query));
+    return itor == m_queryList.end() ? nullptr : itor->second;
+}
+
 void PoolDatabaseConnectionQueryMethods::querySetPrepared(Query* query, const bool isPrepared)
 {
     query->setPrepared(isPrepared);

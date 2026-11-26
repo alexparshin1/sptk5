@@ -190,6 +190,19 @@ public:
     [[nodiscard]] String parameter(const String& name) const;
 
     /**
+     * @brief Returns all optional parameters (the query string part).
+     *
+     * A copy is returned so that a driver can iterate over the parameters while the connection
+     * string is not locked. Drivers that forward these to a native connector (for example, libpq
+     * keywords) need the complete set, not just the values they know by name.
+     */
+    [[nodiscard]] HttpParams parameters() const
+    {
+        const std::lock_guard lock(m_mutex);
+        return m_parameters;
+    }
+
+    /**
      * @brief Is the connection string empty?
      */
     [[nodiscard]] bool empty() const;

@@ -401,6 +401,115 @@ TEST(PostgreSQLConnectionTests,blob)
     testBlobInsertAndSelect("PostgreSQL");
 }
 
+TEST(PostgreSQLConnectionTests,preparedStatementReuse)
+{
+    // A prepared statement outlives the Query that created it and is reused by the next Query with
+    // the same SQL. The second Query binds its own parameter values, not the first Query's ones.
+    DatabaseConnectionString connectionString = DatabaseTests::tests().connectionString("postgresql");
+    if (connectionString.empty())
+    {
+        GTEST_SKIP() << "PostgreSQL connection is not defined";
+    }
+
+    try
+    {
+        DatabaseConnectionPool connectionPool(connectionString.toString());
+        const DatabaseConnection connection = connectionPool.getConnection();
+
+        Query first(connection, "SELECT :value AS value");
+        first.param("value") = 11;
+        EXPECT_EQ(first.scalar().asInteger(), 11);
+
+        Query second(connection, "SELECT :value AS value");
+        second.param("value") = 22;
+        EXPECT_EQ(second.scalar().asInteger(), 22);
+    }
+    catch (const Exception& e)
+    {
+        FAIL() << "Prepared statement reuse failed: " << e.what();
+    }
+}
+
+TEST(PostgreSQLConnectionTests,unsupportedBinaryTypes)
+{
+    // uuid, time, interval and jsonb have no binary decoder. With a single result format for the
+    // whole result, one such column forces text for all of them; without the fallback the driver
+    // returned the binary bytes as a string. bytea in the same result proves it is still unescaped.
+    DatabaseConnectionString connectionString = DatabaseTests::tests().connectionString("postgresql");
+    if (connectionString.empty())
+    {
+        GTEST_SKIP() << "PostgreSQL connection is not defined";
+    }
+
+    try
+    {
+        DatabaseConnectionPool connectionPool(connectionString.toString());
+        const DatabaseConnection connection = connectionPool.getConnection();
+
+        Query mixed(connection,
+                    "SELECT '00000000-0000-0000-0000-000000000001'::uuid AS id,"
+                    " '12:34:56'::time AS t,"
+                    " '1 day 02:03:04'::interval AS i,"
+                    " '{\"a\":1}'::jsonb AS j,"
+                    " '\\xDEADBEEF'::bytea AS b");
+        mixed.open();
+        ASSERT_FALSE(mixed.eof());
+        EXPECT_EQ(mixed[0].asString(), "00000000-0000-0000-0000-000000000001");
+        EXPECT_EQ(mixed[1].asString(), "12:34:56");
+        EXPECT_EQ(mixed[2].asString(), "1 day 02:03:04");
+        EXPECT_EQ(mixed[3].asString(), "{\"a\": 1}");
+
+        const Buffer bytes = mixed[4].asBuffer();
+        ASSERT_EQ(bytes.bytes(), 4U);
+        EXPECT_EQ(bytes.data()[0], 0xDE);
+        EXPECT_EQ(bytes.data()[1], 0xAD);
+        EXPECT_EQ(bytes.data()[2], 0xBE);
+        EXPECT_EQ(bytes.data()[3], 0xEF);
+
+        // A direct statement is never described, so it always has to use text.
+        Query direct(connection, "SELECT '00000000-0000-0000-0000-000000000002'::uuid AS id", false);
+        direct.open();
+        ASSERT_FALSE(direct.eof());
+        EXPECT_EQ(direct[0].asString(), "00000000-0000-0000-0000-000000000002");
+    }
+    catch (const Exception& e)
+    {
+        FAIL() << "Text result fallback failed: " << e.what();
+    }
+}
+
+TEST(PostgreSQLConnectionTests,connectionStringParameters)
+{
+    // libpq keywords given in the query part of the connection string used to be dropped by the
+    // driver. Both values here are visible from the server, and the second one contains '=', so
+    // it also proves that a value is quoted rather than pasted into the keyword list bare.
+    DatabaseConnectionString connectionString = DatabaseTests::tests().connectionString("postgresql");
+    if (connectionString.empty())
+    {
+        GTEST_SKIP() << "PostgreSQL connection is not defined";
+    }
+
+    String url = connectionString.toString();
+    url += url.find('?') == string::npos ? '?' : '&';
+    url += "application_name=xmq_client&options=-csearch_path%3Dpublic";
+
+    try
+    {
+        DatabaseConnectionPool connectionPool(url);
+        const DatabaseConnection connection = connectionPool.getConnection();
+
+        Query applicationName(connection, "SHOW application_name");
+        EXPECT_EQ(applicationName.scalar().asString(), "xmq_client");
+
+        Query searchPath(connection, "SHOW search_path");
+        EXPECT_EQ(searchPath.scalar().asString(), "public");
+    }
+    catch (const Exception& e)
+    {
+        FAIL() << "Connection string parameters were not applied: " << e.what() << " [" << url << "]";
+    }
+}
+
 #endif
 
 //───────────────────────────────── MySQL ────────────────────────────────────────────────

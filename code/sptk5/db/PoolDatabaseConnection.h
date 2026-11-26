@@ -97,6 +97,14 @@ protected:
     void querySetStmt(Query* query, const SStmtHandle& stmt);
 
     /**
+     * @brief Returns the shared statement handle the connection owns for a query.
+     *
+     * A driver that keeps prepared statements for reuse needs the owning handle, not the raw
+     * pointer stored in the Query.
+     */
+    [[nodiscard]] SStmtHandle queryStatement(const Query* query) const;
+
+    /**
      * @brief Sets internal CQuery m_prepared flag.
      */
     static void querySetPrepared(Query* query, bool isPrepared);
