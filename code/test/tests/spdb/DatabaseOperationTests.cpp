@@ -401,6 +401,119 @@ TEST(PostgreSQLConnectionTests,blob)
     testBlobInsertAndSelect("PostgreSQL");
 }
 
+TEST(PostgreSQLConnectionTests,batchWithDollarQuotedBody)
+{
+    // The batch splitter used to split at every semicolon, including those inside a DO body.
+    DatabaseConnectionString connectionString = DatabaseTests::tests().connectionString("postgresql");
+    if (connectionString.empty())
+    {
+        GTEST_SKIP() << "PostgreSQL connection is not defined";
+    }
+
+    try
+    {
+        DatabaseConnectionPool connectionPool(connectionString.toString());
+        const DatabaseConnection connection = connectionPool.getConnection();
+
+        connection->executeBatchSQL(
+            {"CREATE TEMP TABLE xmq_batch_test(n INT);",
+             "DO $$ BEGIN INSERT INTO xmq_batch_test VALUES (1); INSERT INTO xmq_batch_test VALUES (2); END $$;",
+             "DROP TABLE xmq_batch_test;"},
+            nullptr);
+
+        Query check(connection, "SELECT to_regclass('xmq_batch_test')");
+        EXPECT_TRUE(check.scalar().isNull());
+    }
+    catch (const Exception& e)
+    {
+        FAIL() << "Dollar-quoted batch failed: " << e.what();
+    }
+}
+
+TEST(PostgreSQLConnectionTests,streamedRows)
+{
+    // Results are read one row at a time from libpq. Both a full read and an abandoned read must
+    // leave the connection usable for the next command.
+    DatabaseConnectionString connectionString = DatabaseTests::tests().connectionString("postgresql");
+    if (connectionString.empty())
+    {
+        GTEST_SKIP() << "PostgreSQL connection is not defined";
+    }
+
+    try
+    {
+        DatabaseConnectionPool connectionPool(connectionString.toString());
+        const DatabaseConnection connection = connectionPool.getConnection();
+
+        Query rows(connection, "SELECT generate_series(1, 1000) AS n");
+        rows.open();
+        int expected = 1;
+        while (!rows.eof())
+        {
+            ASSERT_EQ(rows[0].asInteger(), expected);
+            ++expected;
+            rows.next();
+        }
+        EXPECT_EQ(expected, 1001);
+
+        Query partial(connection, "SELECT generate_series(1, 100)");
+        partial.open();
+        ASSERT_FALSE(partial.eof());
+        EXPECT_EQ(partial[0].asInteger(), 1);
+        partial.close();
+
+        Query after(connection, "SELECT 42 AS answer");
+        EXPECT_EQ(after.scalar().asInteger(), 42);
+    }
+    catch (const Exception& e)
+    {
+        FAIL() << "Streamed result failed: " << e.what();
+    }
+}
+
+TEST(PostgreSQLConnectionTests,numericAndArrays)
+{
+    // Binary NUMERIC used to mis-handle NaN and precision; arrays used to ignore higher dimensions
+    // and non-1 lower bounds. Money parameters used to go through double and lose decimal digits.
+    DatabaseConnectionString connectionString = DatabaseTests::tests().connectionString("postgresql");
+    if (connectionString.empty())
+    {
+        GTEST_SKIP() << "PostgreSQL connection is not defined";
+    }
+
+    try
+    {
+        DatabaseConnectionPool connectionPool(connectionString.toString());
+        const DatabaseConnection connection = connectionPool.getConnection();
+
+        Query arrays(connection,
+                     "SELECT ARRAY[]::int4[] AS empty,"
+                     " ARRAY[[1,2],[3,4]] AS two_dimensions,"
+                     " '[0:1]={5,6}'::int4[] AS zero_based,"
+                     " ARRAY['a','b']::text[] AS text_array");
+        arrays.open();
+        ASSERT_FALSE(arrays.eof());
+        EXPECT_EQ(arrays[0].asString(), String("{}"));
+        EXPECT_EQ(arrays[1].asString(), String("{{1,2},{3,4}}"));
+        EXPECT_EQ(arrays[2].asString(), String("[0:1]={5,6}"));
+        EXPECT_EQ(arrays[3].asString(), String("{a,b}"));
+
+        Query precise(connection, "SELECT '1.23456789012345'::numeric AS value");
+        EXPECT_EQ(precise.scalar().asString(), String("1.23456789012345"));
+
+        Query notANumber(connection, "SELECT 'NaN'::numeric AS value");
+        EXPECT_THROW(notANumber.scalar(), DatabaseException);
+
+        Query money(connection, "SELECT :value::numeric AS value");
+        money.param("value") = MoneyData(12345678901234500, 14);
+        EXPECT_EQ(money.scalar().asString(), String("123.45678901234500"));
+    }
+    catch (const Exception& e)
+    {
+        FAIL() << "NUMERIC or array handling failed: " << e.what();
+    }
+}
+
 TEST(PostgreSQLConnectionTests,preparedStatementReuse)
 {
     // A prepared statement outlives the Query that created it and is reused by the next Query with

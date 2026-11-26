@@ -111,15 +111,6 @@ void PostgreSQLParamValues::setParameters(const QueryParameterList& params)
     }
 }
 
-void PostgreSQLParamValues::setFloatParameterValue(const unsigned paramIndex, const SQueryParameter& param)
-{
-    auto  value = param->asFloat();
-    void* ptr = &value;
-    auto* uptrBuffer64 = bit_cast<uint64_t*>(param->conversionBuffer());
-    *uptrBuffer64 = htonq(*bit_cast<uint64_t*>(ptr));
-    setParameterValue(paramIndex, param->conversionBuffer(), sizeof(int64_t), 1, PostgreSQLDataType::FLOAT8);
-}
-
 void PostgreSQLParamValues::setParameterValue(const unsigned paramIndex, const SQueryParameter& param)
 {
     const VariantDataType ptype = param->dataType();
@@ -201,9 +192,20 @@ void PostgreSQLParamValues::setParameterValue(const unsigned paramIndex, const S
                                   PostgreSQLDataType::INT8);
                 break;
 
-            case VariantDataType::VAR_MONEY:
-                setFloatParameterValue(paramIndex, param);
+            case VariantDataType::VAR_MONEY: {
+                // asString() renders the exact scaled integer, unlike asFloat(). Keep the text in
+                // the parameter object so the pointer stays valid until the statement executes.
+                String text = param->asString();
+                if (text.size() > 1 && text.back() == '.')
+                {
+                    text.pop_back();
+                }
+                m_moneyText[paramIndex] = std::move(text);
+                setParameterValue(paramIndex, bit_cast<const uint8_t*>(m_moneyText[paramIndex].c_str()),
+                                  static_cast<unsigned>(m_moneyText[paramIndex].size()), 0,
+                                  PostgreSQLDataType::NUMERIC);
                 break;
+            }
 
             case VariantDataType::VAR_FLOAT:
                 uptrBuffer64 = bit_cast<uint64_t*>(param->conversionBuffer());

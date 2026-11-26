@@ -105,6 +105,11 @@ protected:
     [[nodiscard]] SStmtHandle queryStatement(const Query* query) const;
 
     /**
+     * @brief Returns the owning handles of all statements currently linked to this connection.
+     */
+    [[nodiscard]] std::vector<SStmtHandle> queryStatements() const;
+
+    /**
      * @brief Sets internal CQuery m_prepared flag.
      */
     static void querySetPrepared(Query* query, bool isPrepared);

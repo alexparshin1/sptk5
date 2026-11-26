@@ -374,6 +374,17 @@ SStmtHandle PoolDatabaseConnectionQueryMethods::queryStatement(const Query* quer
     return itor == m_queryList.end() ? nullptr : itor->second;
 }
 
+std::vector<SStmtHandle> PoolDatabaseConnectionQueryMethods::queryStatements() const
+{
+    std::vector<SStmtHandle> statements;
+    statements.reserve(m_queryList.size());
+    for (const auto& [query, statement]: m_queryList)
+    {
+        statements.push_back(statement);
+    }
+    return statements;
+}
+
 void PoolDatabaseConnectionQueryMethods::querySetPrepared(Query* query, const bool isPrepared)
 {
     query->setPrepared(isPrepared);

@@ -444,6 +444,7 @@ SET(MYSQL_FLAG "0")
 SET(MYSQL_DEFINE "// MySQL is not used")
 SET(MARIADB_DEFINE "// MariaDB is not used")
 SET(MYSQL_HAS_MY_BOOL_DEFINE "// MySQL doesn't define my_bool")
+SET(MYSQL_SSL_VERIFY_DEFINE "// MYSQL_OPT_SSL_VERIFY_SERVER_CERT is not in this client")
 IF (USE_MYSQL)
     FIND_PACKAGE(MySQL QUIET)
     IF (MySQL_FOUND)
@@ -457,6 +458,23 @@ IF (USE_MYSQL)
         SET(MYSQL_FLAG "1")
         IF (MySQL_has_my_bool)
             SET(MYSQL_HAS_MY_BOOL_DEFINE "#define MYSQL_HAS_MYBOOL")
+        ENDIF ()
+        # MYSQL_OPT_SSL_VERIFY_SERVER_CERT is an enumerator, not a macro, so a bare #ifdef never
+        # sees it. MariaDB Connector/C and MySQL 5.7 have it; MySQL 8 and 9 dropped it in favour
+        # of MYSQL_OPT_SSL_MODE. Ask the compiler rather than guessing from MYSQL_VERSION_ID,
+        # which says nothing about the name being there.
+        INCLUDE(CheckCXXSourceCompiles)
+        SET(CMAKE_REQUIRED_INCLUDES ${MySQL_INCLUDE_DIR})
+        UNSET(SQL_OPT_SSL_VERIFY_SERVER_CERT CACHE)
+        CHECK_CXX_SOURCE_COMPILES("
+#include <mysql.h>
+int main() { mysql_option option = MYSQL_OPT_SSL_VERIFY_SERVER_CERT; (void)option; return 0; }
+" SQL_OPT_SSL_VERIFY_SERVER_CERT)
+        UNSET(CMAKE_REQUIRED_INCLUDES)
+        IF (SQL_OPT_SSL_VERIFY_SERVER_CERT)
+            SET(MYSQL_SSL_VERIFY_DEFINE "#define SQL_OPT_SSL_VERIFY_SERVER_CERT")
+        ELSE ()
+            SET(MYSQL_SSL_VERIFY_DEFINE "// MYSQL_OPT_SSL_VERIFY_SERVER_CERT is not in this client")
         ENDIF ()
     ELSE ()
         MESSAGE("MySQL support:      don't compile")

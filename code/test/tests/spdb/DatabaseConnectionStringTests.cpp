@@ -106,4 +106,19 @@ TEST(DatabaseConnectionStringTests,toString)
     EXPECT_STREQ(connectionString.c_str(), simple.toString().c_str());
 }
 
+TEST(DatabaseConnectionStringTests,toStringEscapesParameters)
+{
+    // Values decoded from the query string must be escaped when the connection string is written
+    // back, or the next parse fails on a space or treats '#' as a fragment marker.
+    const DatabaseConnectionString original(
+        "postgresql://localhost/db?application_name=xmq+client%231&options=-c+search_path%3Dpublic");
+    const String encoded = original.toString();
+    EXPECT_NE(encoded.find("application_name=xmq+client%231"), String::npos);
+    EXPECT_NE(encoded.find("options=-c+search_path%3Dpublic"), String::npos);
+
+    const DatabaseConnectionString reparsed(encoded);
+    EXPECT_EQ(reparsed.parameter("application_name"), "xmq client#1");
+    EXPECT_EQ(reparsed.parameter("options"), "-c search_path=public");
+}
+
 } // namespace sptk_test

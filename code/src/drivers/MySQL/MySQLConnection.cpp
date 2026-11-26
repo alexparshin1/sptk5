@@ -72,10 +72,11 @@ void MySQLConnection::initConnectionUnlocked()
         throw DatabaseException("Can't initialize MySQL environment");
     }
 
-// MYSQL_OPT_SSL_VERIFY_SERVER_CERT is provided by MariaDB Connector/C and by
-// MySQL client 5.7.11 and later. Disable certificate verification there so that
+// The option is an enumerator, not a macro, so the build probes the client headers and defines
+// SQL_OPT_SSL_VERIFY_SERVER_CERT only when they provide it. MariaDB and MySQL 5.7 have it; MySQL 8
+// and 9 replaced it with MYSQL_OPT_SSL_MODE. Disable verification where the option exists so that
 // connections to servers without TLS are allowed.
-#if defined(HAVE_MARIADB) || (defined(MYSQL_VERSION_ID) && MYSQL_VERSION_ID >= 50711)
+#ifdef SQL_OPT_SSL_VERIFY_SERVER_CERT
     if (constexpr unsigned int ssl_enforce = 0;
         mysql_options(m_connection.get(), MYSQL_OPT_SSL_VERIFY_SERVER_CERT, &ssl_enforce))
     {

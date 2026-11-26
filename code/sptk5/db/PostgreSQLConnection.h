@@ -41,6 +41,8 @@
 #include <map>
 #include <mutex>
 #include <sptk5/db/PoolDatabaseConnection.h>
+#include <sptk5/db/PostgreSQLDataType.h>
+#include <vector>
 
 #ifdef HAVE_POSTGRESQL
 
@@ -232,12 +234,19 @@ protected:
      *
      * The caller must hold m_mutex. Adding an entry may evict and deallocate the oldest one.
      */
-    void cacheStatement(const String& sql, const SStmtHandle& statement);
+    [[nodiscard]] std::vector<SStmtHandle> cacheStatement(const String& sql, const SStmtHandle& statement);
 
     /**
      * @brief Releases every cached prepared statement, deallocating it on the server.
      */
     void clearPreparedStatements();
+
+    /**
+     * @brief Drains result streams left open by queries that were not read to the end.
+     *
+     * libpq will not accept another command while a streaming result is in progress.
+     */
+    void drainPendingStreams();
 
     /**
      * @brief Executes a statement.
@@ -284,7 +293,10 @@ protected:
     void queryExecDirect(const Query* query) const;
 
 private:
-    mutable std::mutex                      m_mutex;                ///< Mutex that protects access to data members.
+    // Recursive: libpq calls below (open, close, statement release) re-enter connection methods
+    // while the lock is held, and a single lock keeps the PGconn and its statements consistent.
+    mutable std::recursive_mutex            m_mutex;                ///< Mutex that protects access to data members.
+    bool                                    m_noDeallocate {false}; ///< Suppress DEALLOCATE while closing the connection.
     PGconn*                                 m_connect {nullptr};    ///< PostgreSQL database connection.
     TimestampFormat                         m_timestampsFormat {TimestampFormat::UNKNOWN}; ///< Connection timestamp format.
 

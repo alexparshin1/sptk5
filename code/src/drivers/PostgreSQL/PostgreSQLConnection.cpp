@@ -43,6 +43,8 @@
 #include <sptk5/db/DatabaseField.h>
 #include <algorithm>
 #include <cctype>
+#include <cstring>
+#include <limits>
 #include <set>
 #include <sstream> // libc++
 
@@ -122,13 +124,31 @@ bool supportsBinaryResult(const Oid type)
             return false;
     }
 }
+
+/// The message attached to a result belongs to the command that produced it. PQerrorMessage(conn)
+/// reports the last error on the connection and may be unrelated or already cleared.
+String resultError(const PGconn* conn, const PGresult* res)
+{
+    if (res != nullptr)
+    {
+        if (const char* message = PQresultErrorMessage(res); message != nullptr && *message != '\0')
+        {
+            return message;
+        }
+    }
+    return PQerrorMessage(conn);
+}
 } // namespace
 
 class PostgreSQLStatement
 {
 public:
-    PostgreSQLStatement(PGconn* connect, const bool int64timestamps, const bool prepared, const DateTime& epochDate)
+    PostgreSQLStatement(PGconn* connect, const bool int64timestamps, const bool prepared, const DateTime& epochDate,
+                        std::recursive_mutex* mutex, const bool* noDeallocate)
         : m_connect(connect)
+        , m_mutex(mutex)
+        , m_noDeallocate(noDeallocate)
+        , m_int64timestamps(int64timestamps)
         , m_paramValues(int64timestamps, epochDate)
     {
         if (prepared)
@@ -141,10 +161,21 @@ public:
 
     ~PostgreSQLStatement()
     {
+        // DEALLOCATE is a network round trip on the connection that owns this statement, so it
+        // must be serialized with every other use of that PGconn.
+        unique_lock<recursive_mutex> lock;
+        if (m_mutex != nullptr)
+        {
+            lock = unique_lock<recursive_mutex>(*m_mutex);
+        }
+
         // A statement that was cleared after a failed execution has no result left, but it is
         // still prepared on the server and its name is still allocated. Deallocating by name is
         // what actually releases the server side; keying it off stmt() leaked every one of them.
-        if (!name().empty() && m_connect != nullptr && PQstatus(m_connect) == CONNECTION_OK)
+        // On close/reconnect every statement is discarded at once and the server-side names go
+        // away with the connection, so there is nothing to deallocate there.
+        const bool closing = m_noDeallocate != nullptr && *m_noDeallocate;
+        if (!closing && !name().empty() && m_connect != nullptr && PQstatus(m_connect) == CONNECTION_OK)
         {
             const String deallocateCommand = "DEALLOCATE \"" + name() + "\"";
             PGresult*    res = PQexec(m_connect, deallocateCommand.c_str());
@@ -161,6 +192,7 @@ public:
 
     void clear()
     {
+        finishStream();
         if (m_stmt)
         {
             PQclear(m_stmt);
@@ -209,6 +241,87 @@ public:
         ++m_currentRow;
     }
 
+    /// Takes over the first row of a query sent to the server in single-row mode.
+    void startStreaming(PGresult* result, const unsigned columns = static_cast<unsigned>(-1))
+    {
+        m_streaming = true;
+        stmt(result, 1, columns);
+    }
+
+    [[nodiscard]] bool streaming() const
+    {
+        return m_streaming;
+    }
+
+    /// Advances to the next row of a streaming result, fetching it from the server. The caller must
+    /// hold the connection mutex: PQgetResult talks to the same PGconn as every other command.
+    void fetchStream()
+    {
+        if (m_currentRow + 1 < m_rows)
+        {
+            ++m_currentRow;
+            return;
+        }
+
+        PQclear(m_stmt);
+        m_stmt = nullptr;
+        m_rows = 0;
+        m_currentRow = 0;
+
+        for (;;)
+        {
+            PGresult* next = PQgetResult(m_connect);
+            if (next == nullptr)
+            {
+                m_streaming = false;
+                return;
+            }
+
+            const auto status = PQresultStatus(next);
+            if (status == PGRES_SINGLE_TUPLE)
+            {
+                m_stmt = next;
+                m_rows = 1;
+                return;
+            }
+            if (status == PGRES_TUPLES_OK || status == PGRES_COMMAND_OK || status == PGRES_EMPTY_QUERY)
+            {
+                PQclear(next);
+                finishStream();
+                return;
+            }
+
+            // The server can fail after some rows have already been delivered. libpq hides that
+            // when the whole result is buffered; in single-row mode it must be reported here.
+            const String error = resultError(m_connect, next);
+            PQclear(next);
+            finishStream();
+            throw DatabaseException("EXECUTE command failed: " + error);
+        }
+    }
+
+    /// Consumes any rows still pending on the connection. Needed when a query is closed early:
+    /// libpq will not accept another command until the current result stream is drained.
+    void finishStream()
+    {
+        if (!m_streaming)
+        {
+            return;
+        }
+        m_streaming = false;
+        drainResults();
+    }
+
+    /// Reads results until PQgetResult reports the end of the command.
+    void drainResults()
+    {
+        PGresult* next = nullptr;
+        while ((next = PQgetResult(m_connect)) != nullptr)
+        {
+            PQclear(next);
+        }
+    }
+
     [[nodiscard]] bool eof() const
     {
         return m_currentRow >= m_rows;
@@ -237,6 +350,11 @@ public:
         return m_binaryResults;
     }
 
+    [[nodiscard]] bool int64Timestamps() const
+    {
+        return m_int64timestamps;
+    }
+
     [[nodiscard]] PostgreSQLParamValues& paramValues()
     {
         return m_paramValues;
@@ -244,12 +362,16 @@ public:
 
 private:
     PGconn*               m_connect {nullptr};
+    std::recursive_mutex* m_mutex {nullptr};
+    const bool*           m_noDeallocate {nullptr};
     PGresult*             m_stmt {nullptr};
     String                m_stmtName;
     int                   m_rows {0};
     int                   m_cols {0};
     int                   m_currentRow {0};
+    bool                  m_streaming {false};
     bool                  m_binaryResults {false};
+    bool                  m_int64timestamps {false};
     PostgreSQLParamValues m_paramValues;
 
     static unsigned nextIndex();
@@ -403,6 +525,7 @@ String PostgreSQLConnection::nativeConnectionString() const
 
 void PostgreSQLConnection::_openDatabase(const String& newConnectionString)
 {
+    const scoped_lock lock(m_mutex);
     if (!active())
     {
         setInTransaction(false);
@@ -453,6 +576,7 @@ void PostgreSQLConnection::_openDatabase(const String& newConnectionString)
 
 void PostgreSQLConnection::closeDatabase()
 {
+    const scoped_lock lock(m_mutex);
     disconnectAllQueries();
     clearPreparedStatements();
     if (m_connect)
@@ -462,22 +586,25 @@ void PostgreSQLConnection::closeDatabase()
     }
 }
 
-void PostgreSQLConnection::cacheStatement(const String& sql, const SStmtHandle& statement)
+std::vector<SStmtHandle> PostgreSQLConnection::cacheStatement(const String& sql, const SStmtHandle& statement)
 {
     // The caller holds m_mutex. Only named statements are prepared on the server; a direct one
-    // has nothing to reuse and nothing to deallocate.
+    // has nothing to reuse and nothing to deallocate. Dropped statements are returned rather than
+    // destroyed here: their destructor issues DEALLOCATE, which must not run under the lock.
+    std::vector<SStmtHandle> evicted;
     if (sql.empty() || statement == nullptr)
     {
-        return;
+        return evicted;
     }
     const auto* pgStatement = bit_cast<const PostgreSQLStatement*>(statement.get());
     if (pgStatement->name().empty())
     {
-        return;
+        return evicted;
     }
 
     if (const auto existing = m_preparedStatements.find(sql); existing != m_preparedStatements.end())
     {
+        evicted.push_back(existing->second);
         m_preparedStatements.erase(existing);
         m_preparedStatementKeys.erase(find(m_preparedStatementKeys.begin(), m_preparedStatementKeys.end(), sql));
     }
@@ -489,43 +616,58 @@ void PostgreSQLConnection::cacheStatement(const String& sql, const SStmtHandle& 
     {
         const String oldest = m_preparedStatementKeys.front();
         m_preparedStatementKeys.pop_front();
-        // Dropping the last reference destroys the statement and deallocates it on the server.
-        m_preparedStatements.erase(oldest);
+        const auto itor = m_preparedStatements.find(oldest);
+        if (itor != m_preparedStatements.end())
+        {
+            evicted.push_back(itor->second);
+            m_preparedStatements.erase(itor);
+        }
     }
+    return evicted;
 }
 
 void PostgreSQLConnection::clearPreparedStatements()
 {
     const scoped_lock lock(m_mutex);
+    // Every statement is about to lose its connection. Suppress DEALLOCATE: the server drops all
+    // prepared statements when the connection closes, and the round trips would be wasted.
+    m_noDeallocate = true;
     m_preparedStatements.clear();
     m_preparedStatementKeys.clear();
+    m_noDeallocate = false;
+}
+
+void PostgreSQLConnection::drainPendingStreams()
+{
+    // The caller holds m_mutex. A statement is owned exclusively by its query, but a query that
+    // stopped reading early still owns an unfinished libpq result stream.
+    for (const auto& handle: queryStatements())
+    {
+        if (handle == nullptr)
+        {
+            continue;
+        }
+        auto* statement = bit_cast<PostgreSQLStatement*>(handle.get());
+        if (statement->streaming())
+        {
+            statement->finishStream();
+        }
+    }
 }
 
 DBHandle PostgreSQLConnection::handle() const
 {
+    const scoped_lock lock(m_mutex);
     return bit_cast<DBHandle>(m_connect);
 }
 
 bool PostgreSQLConnection::active() const
 {
+    const scoped_lock lock(m_mutex);
     return m_connect != nullptr && PQstatus(m_connect) == CONNECTION_OK;
 }
 
 namespace {
-/// The message attached to a result belongs to the command that produced it. PQerrorMessage(conn)
-/// reports the last error on the connection and may be unrelated or already cleared.
-String resultError(const PGconn* conn, const PGresult* res)
-{
-    if (res != nullptr)
-    {
-        if (const char* message = PQresultErrorMessage(res); message != nullptr && *message != '\0')
-        {
-            return message;
-        }
-    }
-    return PQerrorMessage(conn);
-}
-
 void checkError(const PGconn* conn, PGresult* res, const String& command)
 {
     if (res == nullptr)
@@ -545,6 +687,7 @@ void checkError(const PGconn* conn, PGresult* res, const String& command)
 
 void PostgreSQLConnection::driverBeginTransaction()
 {
+    const scoped_lock lock(m_mutex);
     if (m_connect == nullptr)
     {
         open();
@@ -564,12 +707,15 @@ void PostgreSQLConnection::driverBeginTransaction()
 
 void PostgreSQLConnection::driverEndTransaction(const bool commit)
 {
+    const scoped_lock lock(m_mutex);
     if (!getInTransaction())
     {
         throw DatabaseException("Transaction isn't started.");
     }
 
     const char* action = commit ? "COMMIT" : "ROLLBACK";
+
+    drainPendingStreams();
 
     PGresult* res = PQexec(m_connect, action);
     checkError(m_connect, res, action);
@@ -582,17 +728,19 @@ void PostgreSQLConnection::driverEndTransaction(const bool commit)
 
 String PostgreSQLConnection::queryError(const Query*) const
 {
+    const scoped_lock lock(m_mutex);
     return PQerrorMessage(m_connect);
 }
 
 // Doesn't allocate a stmt if a prepared one with the same SQL is available.
 void PostgreSQLConnection::queryAllocStmt(Query* query)
 {
-    queryFreeStmt(query); // releases the previous statement, keeping it in the cache if prepared
+    // Releases the previous statement. Evicted statements are deallocated after the lock is gone.
+    queryFreeStmt(query);
 
+    const scoped_lock lock(m_mutex);
     if (query->autoPrepare())
     {
-        const scoped_lock lock(m_mutex);
         if (const auto cached = m_preparedStatements.find(query->sql()); cached != m_preparedStatements.end())
         {
             // The entry is handed out exclusively: two open queries must not share one statement
@@ -609,23 +757,35 @@ void PostgreSQLConnection::queryAllocStmt(Query* query)
     }
 
     const auto stmt = make_shared<PostgreSQLStatement>(m_connect, m_timestampsFormat == TimestampFormat::INT64,
-                                                       query->autoPrepare(), localEpochDate());
+                                                       query->autoPrepare(), localEpochDate(), &m_mutex,
+                                                       &m_noDeallocate);
     querySetStmt(query, reinterpret_pointer_cast<uint8_t>(stmt));
 }
 
 void PostgreSQLConnection::queryFreeStmt(Query* query)
 {
-    const scoped_lock lock(m_mutex);
-
-    // The connection, not the Query, owns the shared statement handle. Take it before
-    // querySetStmt() clears the entry.
-    if (query->prepared())
+    std::vector<SStmtHandle> evicted;
     {
-        cacheStatement(query->sql(), queryStatement(query));
-    }
+        const scoped_lock lock(m_mutex);
 
-    querySetStmt(query, nullptr);
-    querySetPrepared(query, false);
+        // The connection, not the Query, owns the shared statement handle. Take it before
+        // querySetStmt() clears the entry.
+        if (const SStmtHandle handle = queryStatement(query); handle != nullptr)
+        {
+            if (auto* statement = bit_cast<PostgreSQLStatement*>(handle.get()); statement->streaming())
+            {
+                statement->finishStream();
+            }
+        }
+        if (query->prepared())
+        {
+            evicted = cacheStatement(query->sql(), queryStatement(query));
+        }
+
+        querySetStmt(query, nullptr);
+        querySetPrepared(query, false);
+    }
+    // DEALLOCATE for the evicted statements runs here, without m_mutex held.
 }
 
 void PostgreSQLConnection::queryCloseStmt(Query* query)
@@ -634,62 +794,70 @@ void PostgreSQLConnection::queryCloseStmt(Query* query)
 
     if (auto* statement = bit_cast<PostgreSQLStatement*>(query->statement()))
     {
+        // A partially read stream would block every later command on this connection.
+        statement->finishStream();
         statement->clearRows();
     }
 }
 
 void PostgreSQLConnection::queryPrepare(Query* query)
 {
-    const scoped_lock lock(m_mutex);
-
-    auto* statement = bit_cast<PostgreSQLStatement*>(query->statement());
-
-    PostgreSQLParamValues& params = statement->paramValues();
-    params.setParameters(query->params());
-
-    const Oid* paramTypes = params.types();
-    const auto paramCount = params.size();
-
-    auto* stmt = PQprepare(m_connect, statement->name().c_str(), query->sql().c_str(), static_cast<int>(paramCount),
-                           paramTypes);
-
-    if (stmt == nullptr)
+    std::vector<SStmtHandle> evicted;
     {
-        throw DatabaseException(format("PREPARE command failed: {}", PQerrorMessage(m_connect)));
+        const scoped_lock lock(m_mutex);
+
+        drainPendingStreams();
+
+        auto* statement = bit_cast<PostgreSQLStatement*>(query->statement());
+
+        PostgreSQLParamValues& params = statement->paramValues();
+        params.setParameters(query->params());
+
+        const Oid* paramTypes = params.types();
+        const auto paramCount = params.size();
+
+        auto* stmt = PQprepare(m_connect, statement->name().c_str(), query->sql().c_str(), static_cast<int>(paramCount),
+                               paramTypes);
+
+        if (stmt == nullptr)
+        {
+            throw DatabaseException(format("PREPARE command failed: {}", PQerrorMessage(m_connect)));
+        }
+
+        checkError(m_connect, stmt, "PREPARE");
+
+        PGresult* stmt2 = PQdescribePrepared(m_connect, statement->name().c_str());
+        if (stmt2 == nullptr)
+        {
+            PQclear(stmt);
+            throw DatabaseException(format("DESCRIBE command failed: {}", PQerrorMessage(m_connect)));
+        }
+
+        auto fieldCount = static_cast<unsigned>(PQnfields(stmt2));
+
+        if (fieldCount != 0 && PQftype(stmt2, 0) == VOIDOID)
+        {
+            fieldCount = 0;
+        } // VOID result considered as no result
+
+        // The format applies to the whole result, so it is binary only if every column can be decoded
+        // from its binary form. Otherwise the whole result is read as text, which the server renders
+        // correctly for any type - including the ones the driver has no decoder for.
+        auto binaryResults = fieldCount != 0;
+        for (unsigned column = 0; binaryResults && column < fieldCount; ++column)
+        {
+            binaryResults = supportsBinaryResult(PQftype(stmt2, static_cast<int>(column)));
+        }
+
+        PQclear(stmt2);
+
+        statement->stmt(stmt, 0, fieldCount);
+        statement->binaryResults(binaryResults);
+
+        querySetPrepared(query, true);
+        evicted = cacheStatement(query->sql(), queryStatement(query));
     }
-
-    checkError(m_connect, stmt, "PREPARE");
-
-    PGresult* stmt2 = PQdescribePrepared(m_connect, statement->name().c_str());
-    if (stmt2 == nullptr)
-    {
-        PQclear(stmt);
-        throw DatabaseException(format("DESCRIBE command failed: {}", PQerrorMessage(m_connect)));
-    }
-
-    auto fieldCount = static_cast<unsigned>(PQnfields(stmt2));
-
-    if (fieldCount != 0 && PQftype(stmt2, 0) == VOIDOID)
-    {
-        fieldCount = 0;
-    } // VOID result considered as no result
-
-    // The format applies to the whole result, so it is binary only if every column can be decoded
-    // from its binary form. Otherwise the whole result is read as text, which the server renders
-    // correctly for any type - including the ones the driver has no decoder for.
-    auto binaryResults = fieldCount != 0;
-    for (unsigned column = 0; binaryResults && column < fieldCount; ++column)
-    {
-        binaryResults = supportsBinaryResult(PQftype(stmt2, static_cast<int>(column)));
-    }
-
-    PQclear(stmt2);
-
-    statement->stmt(stmt, 0, fieldCount);
-    statement->binaryResults(binaryResults);
-
-    querySetPrepared(query, true);
-    cacheStatement(query->sql(), queryStatement(query));
+    // Evicted statements issue DEALLOCATE when this vector goes out of scope, outside the lock.
 }
 
 size_t PostgreSQLConnection::queryColCount(Query* query)
@@ -720,30 +888,49 @@ void PostgreSQLConnection::queryBindParameters(Query* query)
     // Binary only when queryPrepare established that every result column has a binary decoder.
     const auto resultFormat = statement->binaryResults() ? 1 : 0;
 
-    PGresult* stmt = PQexecPrepared(m_connect, statement->name().c_str(), static_cast<int>(paramValues.size()),
-                                    bit_cast<const char* const*>(paramValues.values()),
-                                    paramValues.lengths(), paramValues.formats(), resultFormat);
+    // Single-row mode must be selected immediately after sending the query. It keeps only one row
+    // in libpq's buffers at a time instead of materializing the whole result.
+    if (PQsendQueryPrepared(m_connect, statement->name().c_str(), static_cast<int>(paramValues.size()),
+                            bit_cast<const char* const*>(paramValues.values()), paramValues.lengths(),
+                            paramValues.formats(), resultFormat) == 0)
+    {
+        THROW_QUERY_ERROR(query, "EXECUTE command failed: " + String(PQerrorMessage(m_connect)));
+    }
+    if (PQsetSingleRowMode(m_connect) != 1)
+    {
+        statement->finishStream();
+        THROW_QUERY_ERROR(query, "Can't enable single-row result mode");
+    }
+    PGresult* stmt = PQgetResult(m_connect);
 
     const ExecStatusType statusType = PQresultStatus(stmt);
 
     string error;
     switch (statusType)
     {
+        case PGRES_SINGLE_TUPLE:
+            statement->startStreaming(stmt);
+            break;
+
         case PGRES_COMMAND_OK:
             statement->stmt(stmt, 0, 0);
+            statement->drainResults();
             break;
 
         case PGRES_TUPLES_OK:
             statement->stmt(stmt, static_cast<unsigned>(PQntuples(stmt)));
+            statement->drainResults();
             break;
 
         case PGRES_EMPTY_QUERY:
             statement->stmt(stmt, 0, 0);
+            statement->drainResults();
             error = "EXECUTE command failed: EMPTY QUERY";
             break;
 
         default:
             statement->stmt(stmt, 0, 0);
+            statement->drainResults();
             error = "EXECUTE command failed: ";
             error += resultError(m_connect, stmt);
             break;
@@ -778,32 +965,50 @@ void PostgreSQLConnection::queryExecDirect(const Query* query) const
     constexpr auto resultFormat = 0;
     statement->binaryResults(false);
 
-    PGresult* stmt = PQexecParams(m_connect, query->sql().c_str(), static_cast<int>(paramValues.size()), paramValues.types(),
-                                  reinterpret_cast<const char* const*>(paramValues.values()),
-                                  paramValues.lengths(), paramValues.formats(), resultFormat);
+    // Direct statements stream as well: send, select single-row mode, then read the first result.
+    if (PQsendQueryParams(m_connect, query->sql().c_str(), static_cast<int>(paramValues.size()), paramValues.types(),
+                          reinterpret_cast<const char* const*>(paramValues.values()), paramValues.lengths(),
+                          paramValues.formats(), resultFormat) == 0)
+    {
+        THROW_QUERY_ERROR(query, "EXECUTE command failed: " + String(PQerrorMessage(m_connect)));
+    }
+    if (PQsetSingleRowMode(m_connect) != 1)
+    {
+        statement->finishStream();
+        THROW_QUERY_ERROR(query, "Can't enable single-row result mode");
+    }
+    PGresult* stmt = PQgetResult(m_connect);
 
     const ExecStatusType statusCode = PQresultStatus(stmt);
 
     string error;
     switch (statusCode)
     {
+        case PGRES_SINGLE_TUPLE:
+            statement->startStreaming(stmt, static_cast<unsigned>(PQnfields(stmt)));
+            break;
+
         case PGRES_COMMAND_OK:
             statement->stmt(stmt, 0, 0);
+            statement->drainResults();
             break;
 
         case PGRES_TUPLES_OK:
             statement->stmt(stmt, static_cast<unsigned>(PQntuples(stmt)), static_cast<unsigned>(PQnfields(stmt)));
+            statement->drainResults();
             break;
 
         case PGRES_EMPTY_QUERY:
             // Hand the result to the statement before the error unwinds, so that clear() releases
             // it. Without this the PGresult of a failed statement was simply leaked.
             statement->stmt(stmt, 0, 0);
+            statement->drainResults();
             error = "EXECUTE command failed: EMPTY QUERY";
             break;
 
         default:
             statement->stmt(stmt, 0, 0);
+            statement->drainResults();
             error = "EXECUTE command failed: ";
             error += resultError(m_connect, stmt);
             break;
@@ -873,6 +1078,11 @@ void PostgreSQLConnection::variantTypeToPostgreType(VariantDataType dataType, Po
             break; ///< Integer 4 bytes
 
         case VAR_MONEY:
+            // MoneyData is an exact scaled integer. Send it as NUMERIC, not FLOAT8, or the decimal
+            // digits are lost before the value ever reaches the server.
+            postgreType = NUMERIC;
+            break;
+
         case VAR_FLOAT:
             postgreType = FLOAT8;
             break; ///< Floating-point (double)
@@ -907,6 +1117,7 @@ void PostgreSQLConnection::variantTypeToPostgreType(VariantDataType dataType, Po
 
 void PostgreSQLConnection::queryOpen(Query* query)
 {
+    const scoped_lock lock(m_mutex);
     if (!active())
     {
         open();
@@ -916,6 +1127,8 @@ void PostgreSQLConnection::queryOpen(Query* query)
     {
         return;
     }
+
+    drainPendingStreams();
 
     if (query->statement() == nullptr)
     {
@@ -1029,220 +1242,291 @@ DateTime readTimestamp(const char* data, const bool integerTimestamps, const Dat
     {
         const void* ptr = &value;
         const auto  seconds = *bit_cast<const double*>(ptr);
-        epochOffset = chrono::seconds(static_cast<int>(seconds));
+        // These servers send fractional seconds as a double; truncating to whole seconds lost
+        // the microseconds of every timestamp.
+        epochOffset = chrono::duration_cast<chrono::microseconds>(chrono::duration<double>(seconds));
     }
     return epochDate + epochOffset;
 }
 
 // Converts internal NUMERIC Postgresql binary to long double
-MoneyData readNumericToScaledInteger(const char* numeric)
+/// Reads a network-order value without modifying the PostgreSQL result buffer.
+uint32_t readUint32(const char* data)
 {
-    const auto ndigits = static_cast<int16_t>(ntohs(*bit_cast<const uint16_t*>(numeric)));
-    const auto weight = static_cast<int16_t>(ntohs(*bit_cast<const uint16_t*>(numeric + 2)));
-    const auto sign = static_cast<int16_t>(ntohs(*bit_cast<const uint16_t*>(numeric + 4)));
-    auto       dscale = ntohs(*bit_cast<const uint16_t*>(numeric + 6));
-
-    if (constexpr auto maxDscale = 16;
-        dscale > maxDscale)
-    {
-        dscale = maxDscale;
-    }
-
-    constexpr auto digitsOffset = 8;
-    numeric += digitsOffset;
-    int64_t value = 0;
-
-    constexpr auto scaleShift = 4;
-    auto           scale = 0;
-    if (weight < 0)
-    {
-        for (auto i = 0; i < -(weight + 1); ++i)
-        {
-            scale += scaleShift;
-        }
-    }
-
-    constexpr auto digitMultiplier = 10000;
-    auto           digitWeight = weight;
-    for (auto i = 0; i < ndigits; ++i)
-    {
-        const auto digit = static_cast<int16_t>(ntohs(*bit_cast<const uint16_t*>(numeric)));
-
-        value = value * digitMultiplier + digit;
-        if (digitWeight < 0)
-        {
-            scale += scaleShift;
-        }
-
-        --digitWeight;
-        numeric += sizeof(int16_t);
-    }
-
-    while (scale < dscale - scaleShift)
-    {
-        value *= digitMultiplier;
-        scale += scaleShift;
-    }
-
-    constexpr auto multiplier1M = 1000000;
-    constexpr auto multiplier100K = 100000;
-    constexpr auto multiplier10K = 10000;
-    constexpr auto multiplier1K = 1000;
-    constexpr auto multiplier100 = 100;
-    constexpr auto multiplier10 = 10;
-
-    constexpr auto scaleMinus6 = -6;
-    constexpr auto scaleMinus5 = -5;
-    constexpr auto scaleMinus4 = -4;
-    constexpr auto scaleMinus3 = -3;
-    constexpr auto scaleMinus2 = -2;
-    constexpr auto scaleMinus1 = -1;
-    constexpr auto scalePlus1 = 1;
-    constexpr auto scalePlus2 = 2;
-    constexpr auto scalePlus3 = 3;
-
-    switch (scale - dscale)
-    {
-        case scaleMinus6:
-            value *= multiplier1M;
-            break;
-        case scaleMinus5:
-            value *= multiplier100K;
-            break;
-        case scaleMinus4:
-            value *= multiplier10K;
-            break;
-        case scaleMinus3:
-            value *= multiplier1K;
-            break;
-        case scaleMinus2:
-            value *= multiplier100;
-            break;
-        case scaleMinus1:
-            value *= multiplier10;
-            break;
-        case scalePlus1:
-            value /= multiplier10;
-            break;
-        case scalePlus2:
-            value /= multiplier100;
-            break;
-        case scalePlus3:
-            value /= multiplier1K;
-            break;
-        default:
-            break;
-    }
-
-    if (sign != 0)
-    {
-        value = -value;
-    }
-
-    MoneyData moneyData(value, static_cast<uint8_t>(dscale));
-
-    return moneyData;
+    uint32_t value = 0;
+    memcpy(&value, data, sizeof(value));
+    return ntohl(value);
 }
 
-void decodeArray(char* data, DatabaseField* field, const PostgreSQLConnection::TimestampFormat timestampFormat)
+uint16_t readUint16(const char* data)
 {
-    struct PGArrayHeader
+    uint16_t value = 0;
+    memcpy(&value, data, sizeof(value));
+    return ntohs(value);
+}
+
+MoneyData readNumericToScaledInteger(const char* data, const size_t dataLength)
+{
+    constexpr uint16_t numericNegative = 0x4000;
+    constexpr uint16_t numericSpecial = 0xC000;
+    constexpr uint16_t numericNaN = 0xC000;
+    constexpr uint16_t numericPInf = 0xD000;
+    constexpr uint16_t numericNInf = 0xF000;
+    // MoneyData::divider() supports scales 0..15; a larger PostgreSQL dscale is truncated.
+    constexpr int maxScale = 15;
+
+    if (dataLength < 8)
     {
-        uint32_t dimensionNumber;
-        uint32_t hasNull;
-        uint32_t elementType;
-    };
+        throw DatabaseException("Truncated PostgreSQL NUMERIC value");
+    }
+    const auto ndigits = static_cast<int16_t>(readUint16(data));
+    const auto weight = static_cast<int16_t>(readUint16(data + 2));
+    const auto sign = readUint16(data + 4);
+    const auto dscale = readUint16(data + 6);
 
-    struct PGArrayDimension
+    if (ndigits < 0 || dataLength < 8 + 2ull * static_cast<size_t>(ndigits))
     {
-        uint32_t elementCount;
-        uint32_t lowerBound;
-    };
+        throw DatabaseException("Invalid PostgreSQL NUMERIC value");
+    }
 
-    auto* arrayHeader = bit_cast<PGArrayHeader*>(data);
-    arrayHeader->dimensionNumber = ntohl(arrayHeader->dimensionNumber);
-    arrayHeader->hasNull = ntohl(arrayHeader->hasNull);
-    arrayHeader->elementType = ntohl(arrayHeader->elementType);
-    data += sizeof(PGArrayHeader);
+    // NaN and the infinities are signalled by a special sign and a code in dscale. The old code
+    // treated any non-zero sign as "negative", which turned NaN into an arbitrary money value.
+    if (sign == numericSpecial)
+    {
+        switch (dscale)
+        {
+            case numericNaN:
+                throw DatabaseException("PostgreSQL NUMERIC NaN cannot be represented as money");
+            case numericPInf:
+                throw DatabaseException("PostgreSQL NUMERIC infinity cannot be represented as money");
+            case numericNInf:
+                throw DatabaseException("PostgreSQL NUMERIC -infinity cannot be represented as money");
+            default:
+                throw DatabaseException("Unsupported PostgreSQL NUMERIC special value");
+        }
+    }
+    if (sign != 0 && sign != numericNegative)
+    {
+        throw DatabaseException("Unsupported PostgreSQL NUMERIC sign");
+    }
 
-    auto* dimensions = bit_cast<PGArrayDimension*>(data);
-    data += arrayHeader->dimensionNumber * sizeof(PGArrayDimension);
+    const int targetScale = min<int>(dscale, maxScale);
+
+    // A digit at position i represents value * 10^(4*(weight-i)). Multiplying by 10^targetScale
+    // turns it into the scaled integer. Accumulate in int64 with explicit overflow checks: this
+    // stays portable (no __int128) and never wraps into a wrong amount.
+    int64_t     quantity = 0;
+    const char* digit = data + 8;
+    for (int i = 0; i < ndigits; ++i, digit += 2)
+    {
+        const auto value = readUint16(digit);
+        if (value > 9999)
+        {
+            throw DatabaseException("Invalid PostgreSQL NUMERIC digit");
+        }
+
+        const int exponent = 4 * (weight - i) + targetScale;
+        int64_t   part = 0;
+        if (exponent >= 0)
+        {
+            if (exponent > 18)
+            {
+                throw DatabaseException("PostgreSQL NUMERIC value is out of range");
+            }
+            int64_t multiplier = 1;
+            for (int e = 0; e < exponent; ++e)
+            {
+                multiplier *= 10;
+            }
+            if (value > numeric_limits<int64_t>::max() / multiplier)
+            {
+                throw DatabaseException("PostgreSQL NUMERIC value is out of range");
+            }
+            part = static_cast<int64_t>(value) * multiplier;
+        }
+        else if (exponent >= -18)
+        {
+            int64_t divisor = 1;
+            for (int e = 0; e < -exponent; ++e)
+            {
+                divisor *= 10;
+            }
+            part = value / divisor;
+        }
+        // A digit further beyond the target scale contributes less than one unit.
+
+        if (part > numeric_limits<int64_t>::max() - quantity)
+        {
+            throw DatabaseException("PostgreSQL NUMERIC value is out of range");
+        }
+        quantity += part;
+    }
+
+    if (sign == numericNegative)
+    {
+        quantity = -quantity;
+    }
+
+    return MoneyData(static_cast<int64_t>(quantity), static_cast<uint8_t>(targetScale));
+}
+
+void decodeArray(const char* data, const size_t dataLength, DatabaseField* field,
+                 const PostgreSQLConnection::TimestampFormat timestampFormat)
+{
+    if (dataLength < 12)
+    {
+        throw DatabaseException("Truncated PostgreSQL array header");
+    }
+
+    const auto dimensionNumber = readUint32(data);
+    const auto elementType = readUint32(data + 8);
+    data += 12;
+    auto remaining = dataLength - 12;
+
+    // The header is: dimension count, has-null flag, element OID, then one count/lower-bound pair
+    // per dimension. The old decoder wrote converted values back into the result buffer.
+    if (dimensionNumber == 0)
+    {
+        field->setString("{}");
+        return;
+    }
+    if (dimensionNumber > 16 || remaining < dimensionNumber * 8)
+    {
+        throw DatabaseException("Invalid PostgreSQL array dimensions");
+    }
+
+    vector<uint32_t> counts(dimensionNumber);
+    vector<uint32_t> lowerBounds(dimensionNumber);
+    for (uint32_t dim = 0; dim < dimensionNumber; ++dim)
+    {
+        counts[dim] = readUint32(data);
+        lowerBounds[dim] = readUint32(data + 4);
+        data += 8;
+        remaining -= 8;
+    }
+
+    // Elements are flattened in row-major order; the total is the product of all dimension sizes.
+    size_t total = 1;
+    for (const auto count: counts)
+    {
+        if (count != 0 && total > numeric_limits<size_t>::max() / count)
+        {
+            throw DatabaseException("PostgreSQL array is too large");
+        }
+        total *= count;
+    }
+    if (total == 0)
+    {
+        field->setString("{}");
+        return;
+    }
 
     stringstream output;
-    for (size_t dim = 0; dim < arrayHeader->dimensionNumber; ++dim)
+    // PostgreSQL prints subscripts only when they are not the default 1-based bounds.
+    if (any_of(lowerBounds.begin(), lowerBounds.end(), [](const uint32_t bound) { return bound != 1; }))
     {
-        PGArrayDimension* dimension = dimensions + dim;
-        dimension->elementCount = ntohl(dimension->elementCount);
-        dimension->lowerBound = ntohl(dimension->lowerBound);
-        output << "{";
-        for (size_t element = 0; element < dimension->elementCount; ++element)
+        for (uint32_t dim = 0; dim < dimensionNumber; ++dim)
         {
-            if (element != 0)
+            output << "[" << lowerBounds[dim] << ":" << (lowerBounds[dim] + counts[dim] - 1) << "]";
+        }
+        output << "=";
+    }
+
+    const auto readElement = [&]() {
+        if (remaining < 4)
+        {
+            throw DatabaseException("Truncated PostgreSQL array element length");
+        }
+        const auto dataSize = static_cast<int32_t>(readUint32(data));
+        data += 4;
+        remaining -= 4;
+
+        if (dataSize == -1)
+        {
+            output << "NULL";
+            return;
+        }
+        if (dataSize < 0 || static_cast<size_t>(dataSize) > remaining)
+        {
+            throw DatabaseException("Invalid PostgreSQL array element length");
+        }
+
+        switch (static_cast<PostgreSQLDataType>(elementType))
+        {
+            using enum PostgreSQLDataType;
+            case INT2:
+                output << readInt2(data);
+                break;
+
+            case INT4:
+                output << readInt4(data);
+                break;
+
+            case INT8:
+                output << readInt8(data);
+                break;
+
+            case FLOAT4:
+                output << readFloat4(data);
+                break;
+
+            case FLOAT8:
+                output << readFloat8(data);
+                break;
+
+            case TEXT:
+            case CHAR:
+            case VARCHAR:
+                output << string(data, static_cast<size_t>(dataSize));
+                break;
+
+            case DATE:
+                output << readDate(data, localEpochDate()).dateString();
+                break;
+
+            case TIMESTAMPTZ:
+                output << readTimestamp(data, timestampFormat == PostgreSQLConnection::TimestampFormat::INT64, utcEpochDate())
+                               .isoDateTimeString(DateTime::PrintAccuracy::MILLISECONDS);
+                break;
+
+            case TIMESTAMP:
+                output << readTimestamp(data, timestampFormat == PostgreSQLConnection::TimestampFormat::INT64, localEpochDate())
+                               .isoDateTimeString(DateTime::PrintAccuracy::MILLISECONDS);
+                break;
+
+            default:
+                throw DatabaseException("Unsupported array element type");
+        }
+        data += dataSize;
+        remaining -= static_cast<size_t>(dataSize);
+    };
+
+    // Elements are flattened; walking the dimensions recursively emits the braces and separators
+    // at the right places, including a new inner slice for every outer element.
+    const auto emitDimension = [&](auto&& self, const uint32_t dim) -> void {
+        output << "{";
+        for (uint32_t i = 0; i < counts[dim]; ++i)
+        {
+            if (dim + 1 == dimensionNumber)
+            {
+                readElement();
+            }
+            else
+            {
+                self(self, dim + 1);
+            }
+            if (i + 1 < counts[dim])
             {
                 output << ",";
             }
-
-            const auto dataSize = ntohl(*bit_cast<const int32_t*>(data));
-            data += sizeof(uint32_t);
-
-            if (dataSize <= 0)
-            {
-                output << "NULL";
-                continue;
-            }
-
-            switch (static_cast<PostgreSQLDataType>(arrayHeader->elementType))
-            {
-                using enum PostgreSQLDataType;
-                case INT2:
-                    output << readInt2(data);
-                    break;
-
-                case INT4:
-                    output << readInt4(data);
-                    break;
-
-                case INT8:
-                    output << readInt8(data);
-                    break;
-
-                case FLOAT4:
-                    output << readFloat4(data);
-                    break;
-
-                case FLOAT8:
-                    output << readFloat8(data);
-                    break;
-
-                case TEXT:
-                case CHAR:
-                case VARCHAR:
-                    output << string(data, dataSize);
-                    break;
-
-                case DATE:
-                    output << readDate(data, localEpochDate()).dateString();
-                    break;
-
-                case TIMESTAMPTZ:
-                    output << readTimestamp(data, timestampFormat == PostgreSQLConnection::TimestampFormat::INT64, utcEpochDate())
-                                  .isoDateTimeString(DateTime::PrintAccuracy::MILLISECONDS);
-                    break;
-
-                case TIMESTAMP:
-                    output << readTimestamp(data, timestampFormat == PostgreSQLConnection::TimestampFormat::INT64, localEpochDate())
-                                  .isoDateTimeString(DateTime::PrintAccuracy::MILLISECONDS);
-                    break;
-
-                default:
-                    throw DatabaseException("Unsupported array element type");
-            }
-            data += dataSize;
         }
         output << "}";
-    }
+    };
+    emitDimension(emitDimension, 0);
+
     field->setString(output.str());
 }
+
 } // namespace
 
 void PostgreSQLConnection::queryFetch(Query* query)
@@ -1251,15 +1535,33 @@ void PostgreSQLConnection::queryFetch(Query* query)
     {
         THROW_QUERY_ERROR(query, "Dataset isn't open");
     }
-    const scoped_lock lock(m_mutex);
-
+    // The statement is owned exclusively by this query until it is closed, so decoding its own
+    // result needs no connection lock. The timestamp format is copied into the statement at
+    // allocation time instead of being read from the connection here.
     auto* statement = bit_cast<PostgreSQLStatement*>(query->statement());
     if (statement == nullptr)
     {
         throw DatabaseException("Statement isn't open");
     }
 
-    statement->fetch();
+    if (statement->streaming())
+    {
+        try
+        {
+            // PQgetResult talks to the connection, but decoding the row below does not: only the
+            // fetch is serialized, not the potentially expensive field conversion.
+            const scoped_lock lock(m_mutex);
+            statement->fetchStream();
+        }
+        catch (const Exception& e)
+        {
+            THROW_QUERY_ERROR(query, e.what());
+        }
+    }
+    else
+    {
+        statement->fetch();
+    }
 
     if (statement->eof())
     {
@@ -1276,7 +1578,7 @@ void PostgreSQLConnection::queryFetch(Query* query)
 
     const PGresult*       stmt = statement->stmt();
     const auto            currentRow = static_cast<int>(statement->currentRow());
-    const auto            integerTimestamps = m_timestampsFormat == TimestampFormat::INT64;
+    const auto            integerTimestamps = statement->int64Timestamps();
     static array<char, 1> emptyString {};
 
     for (auto column = 0; column < fieldCount; ++column)
@@ -1367,7 +1669,7 @@ void PostgreSQLConnection::queryFetch(Query* query)
                     break;
 
                 case NUMERIC:
-                    field->setMoney(readNumericToScaledInteger(data));
+                    field->setMoney(readNumericToScaledInteger(data, static_cast<size_t>(dataLength)));
                     break;
 
                 case BYTEA:
@@ -1397,7 +1699,9 @@ void PostgreSQLConnection::queryFetch(Query* query)
                 case FLOAT8_ARRAY:
                 case TIMESTAMP_ARRAY:
                 case TIMESTAMPTZ_ARRAY:
-                    decodeArray(data, field, m_timestampsFormat);
+                    decodeArray(data, static_cast<size_t>(dataLength), field,
+                                statement->int64Timestamps() ? PostgreSQLConnection::TimestampFormat::INT64
+                                                             : PostgreSQLConnection::TimestampFormat::DOUBLE);
                     break;
 
                 default:
@@ -1453,24 +1757,36 @@ void PostgreSQLConnection::objectList(const DatabaseObjectType objectType, Strin
             break;
     }
 
-    auto self = shared_from_this();
-    if (self == nullptr)
+    // A catalog query is one-shot: going through Query would need a shared_ptr to this connection
+    // and would allocate a statement just to throw it away. libpq does the same in one round trip.
+    const scoped_lock lock(m_mutex);
+    if (!active())
     {
-        throw DatabaseException("PoolDatabaseConnection is not created as shared_ptr");
+        open();
     }
 
-    // A one-shot catalog query: a prepared statement would cost PREPARE + DESCRIBE + EXECUTE +
-    // DEALLOCATE instead of one PQexecParams call, and would be thrown away immediately.
-    Query query(self, objectsSQL, false);
-    query.open();
+    drainPendingStreams();
 
-    while (!query.eof())
+    PGresult* res = PQexec(m_connect, objectsSQL.c_str());
+    if (res == nullptr)
     {
-        objects.push_back(query[0].asString());
-        query.next();
+        throw DatabaseException("objectList command failed: Out of memory");
+    }
+    if (const auto status = PQresultStatus(res); status != PGRES_TUPLES_OK)
+    {
+        const String error = "objectList command failed: " + resultError(m_connect, res);
+        PQclear(res);
+        throw DatabaseException(error);
     }
 
-    query.close();
+    for (int row = 0; row < PQntuples(res); ++row)
+    {
+        if (PQgetisnull(res, row, 0) == 0)
+        {
+            objects.emplace_back(PQgetvalue(res, row, 0));
+        }
+    }
+    PQclear(res);
 }
 
 String PostgreSQLConnection::driverDescription() const
@@ -1482,38 +1798,48 @@ void PostgreSQLConnection::executeBatchSQL(const Strings& batchSQL, Strings* err
 {
     const Strings statements = extractStatements(batchSQL);
 
-    auto self = shared_from_this();
-    if (self == nullptr)
+    // Each batch statement is executed once; a prepared statement would cost four round trips and
+    // would also require a shared_ptr to this connection for the temporary Query.
+    const scoped_lock lock(m_mutex);
+    if (!active())
     {
-        throw DatabaseException("PoolDatabaseConnection is not created as shared_ptr");
+        open();
     }
+
+    drainPendingStreams();
 
     for (const auto& stmt: statements)
     {
-        try
+        PGresult* res = PQexec(m_connect, stmt.c_str());
+        if (res == nullptr || PQresultStatus(res) != PGRES_COMMAND_OK)
         {
-            // Each batch statement is executed once; preparing it is four round trips for nothing.
-            Query query(self, stmt, false);
-            query.exec();
-        }
-        catch (const Exception& e)
-        {
+            const String error = "Batch command failed: " + resultError(m_connect, res);
+            if (res != nullptr)
+            {
+                PQclear(res);
+            }
             if (errors != nullptr)
             {
-                errors->push_back(e.what());
+                errors->push_back(error);
             }
             else
             {
-                throw;
+                throw DatabaseException(error);
             }
+        }
+        else
+        {
+            PQclear(res);
         }
     }
 }
 
 Strings PostgreSQLConnection::extractStatements(const Strings& sqlBatch)
 {
-    static const RegularExpression matchFunction("^(CREATE|REPLACE) .*FUNCTION", "i");
+    static const RegularExpression matchRoutine("^(CREATE|REPLACE) .*(FUNCTION|PROCEDURE)", "i");
+    static const RegularExpression matchDo("^\\s*DO\\s", "i");
     static const RegularExpression matchFunctionBodyStart(R"(AS\s+(\S+)\s*$)", "i");
+    static const RegularExpression matchDoBodyStart(R"(^\s*DO\s+(\S+)\s*$)", "i");
     static const RegularExpression matchStatementEnd(R"(;(\s*|\s*--.*)$)");
     static const RegularExpression matchCommentRow(R"(^\s*--)");
 
@@ -1534,23 +1860,41 @@ Strings PostgreSQLConnection::extractStatements(const Strings& sqlBatch)
             }
         }
 
-        if (!functionHeader && matchFunction.matches(row))
+        auto appended = false;
+        if (!functionHeader && matchRoutine.matches(row))
         {
             functionHeader = true;
             statement += row;
             statement += '\n';
             continue;
         }
-
-        if (functionHeader && !functionBody && matchFunctionBodyStart.matches(row))
+        if (!functionHeader && matchDo.matches(row))
         {
-            auto matches = matchFunctionBodyStart.m(row);
-            functionBody = true;
-            functionHeader = false;
-            delimiter = matches[0].value;
+            // A DO block has the same dollar-quoted body as a function, but the delimiter is on
+            // the DO line itself rather than behind an AS.
+            functionHeader = true;
             statement += row;
             statement += '\n';
-            continue;
+            appended = true;
+        }
+
+        if (functionHeader && !functionBody)
+        {
+            if (matchFunctionBodyStart.matches(row) || matchDoBodyStart.matches(row))
+            {
+                const auto matches = matchFunctionBodyStart.matches(row)
+                                         ? matchFunctionBodyStart.m(row)
+                                         : matchDoBodyStart.m(row);
+                functionBody = true;
+                functionHeader = false;
+                delimiter = matches[0].value;
+                if (!appended)
+                {
+                    statement += row;
+                    statement += '\n';
+                }
+                continue;
+            }
         }
 
         if (functionBody && row.find(delimiter) != string::npos)
@@ -1561,14 +1905,20 @@ Strings PostgreSQLConnection::extractStatements(const Strings& sqlBatch)
 
         if (!functionBody && matchStatementEnd.matches(row))
         {
-            statement += row;
+            if (!appended)
+            {
+                statement += row;
+            }
             statements.push_back(statement);
             statement.clear();
             continue;
         }
 
-        statement += row;
-        statement += '\n';
+        if (!appended)
+        {
+            statement += row;
+            statement += '\n';
+        }
     }
 
     if (!statement.trim().empty())

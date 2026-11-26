@@ -54,6 +54,7 @@ class PostgreSQLParamValues
     std::vector<int>            m_lengths;
     std::vector<int>            m_formats;
     std::vector<Oid>            m_types;
+    std::vector<String>         m_moneyText; ///< Exact decimal text for VAR_MONEY parameters.
     ParamVector                m_params;
     bool                        m_int64timestamps;
     DateTime                    m_epochDate;
@@ -79,6 +80,7 @@ public:
         m_lengths.resize(sz);
         m_formats.resize(sz);
         m_types.resize(sz);
+        m_moneyText.resize(sz);
     }
 
     void setParameters(const QueryParameterList& params);
@@ -93,8 +95,6 @@ public:
     }
 
     void setParameterValue(unsigned paramIndex, const SQueryParameter& param);
-
-    void setFloatParameterValue(unsigned paramIndex, const SQueryParameter& param);
 
     [[nodiscard]] unsigned size() const
     {

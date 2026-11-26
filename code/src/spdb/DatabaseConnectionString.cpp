@@ -186,7 +186,9 @@ String DatabaseConnectionString::toString(const bool includePassword) const
             {
                 result << "&";
             }
-            result << name << "=" << value;
+            // The value is decoded in m_parameters. Writing it back verbatim would put spaces,
+            // '#' and '&' into a URL that is parsed again by DatabaseConnectionString.
+            result << Url::encode(name) << "=" << Url::encode(value);
         }
     }
 
