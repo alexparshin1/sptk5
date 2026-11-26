@@ -72,7 +72,10 @@ void MySQLConnection::initConnectionUnlocked()
         throw DatabaseException("Can't initialize MySQL environment");
     }
 
-#ifndef HAVE_MYSQL
+// MYSQL_OPT_SSL_VERIFY_SERVER_CERT is provided by MariaDB Connector/C and by
+// MySQL client 5.7.11 and later. Disable certificate verification there so that
+// connections to servers without TLS are allowed.
+#if defined(HAVE_MARIADB) || (defined(MYSQL_VERSION_ID) && MYSQL_VERSION_ID >= 50711)
     if (constexpr unsigned int ssl_enforce = 0;
         mysql_options(m_connection.get(), MYSQL_OPT_SSL_VERIFY_SERVER_CERT, &ssl_enforce))
     {

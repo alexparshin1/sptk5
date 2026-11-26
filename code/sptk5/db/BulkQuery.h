@@ -78,8 +78,6 @@ private:
     [[nodiscard]] static String makeSqlite3InsertSQL(const String& tableName, const Strings& columnNames, size_t groupSize);
     [[nodiscard]] static String makeGenericDeleteSQL(const String& tableName, const String& keyColumnName, size_t groupSize);
 
-    void        beginInsert(bool& startedTransaction) const;
-    void        unlockTables() const;
     bool        reserveInsertIds(const String& tableName, const std::vector<std::vector<Variant>>& rows, std::vector<int64_t>& insertedIds) const;
     size_t      insertGroupRows(Query& insertQuery, std::span<const std::vector<Variant>> rows,
                                 std::vector<int64_t>* insertedIds, bool useReservedIds, size_t serialColumnIndex, size_t& reservedIdOffset);

@@ -222,32 +222,6 @@ String BulkQuery::makeGenericDeleteSQL(const String& tableName, const String& ke
     return sql.str();
 }
 
-void BulkQuery::beginInsert(bool& startedTransaction) const
-{
-    using enum DatabaseConnectionType;
-
-    startedTransaction = false;
-    const auto conn = m_connection.lock();
-    if (conn->connectionType() == MYSQL)
-    {
-        // Locked the table until the UNLOCK TABLES command.
-        // This method is used to prevent other connections from inserting data at the same time.
-        Query lockTableQuery(m_connection, "LOCK TABLES " + m_tableName + " WRITE", false);
-        lockTableQuery.exec();
-    }
-}
-
-void BulkQuery::unlockTables() const
-{
-    using enum DatabaseConnectionType;
-    const auto conn = m_connection.lock();
-    if (conn->connectionType() == MYSQL)
-    {
-        Query unlockTableQuery(m_connection, "UNLOCK TABLES", false);
-        unlockTableQuery.exec();
-    }
-}
-
 bool BulkQuery::reserveInsertIds(const String& tableName, const vector<VariantVector>& rows, vector<int64_t>& insertedIds) const
 {
     using enum DatabaseConnectionType;
@@ -443,43 +417,29 @@ size_t BulkQuery::insertGroupRows(Query& insertQuery, const span<const VariantVe
         }
         else
         {
-            auto startedTransaction = false;
+            // LAST_INSERT_ID() and last_insert_rowid() are connection-local: another
+            // connection inserting concurrently cannot change the value this one sees.
+            // A table lock is therefore unnecessary here - and on MySQL LOCK/UNLOCK
+            // TABLES implicitly commits the transaction that wraps the whole batch.
+            insertQuery.exec();
 
-            beginInsert(startedTransaction);
+            auto lastInsertedId = m_lastInsertedIdQuery.scalar().asInt64();
 
-            try
+            auto firstInsertedId = lastInsertedId - rowCount + 1;
+
+            if (conn->connectionType() == MYSQL)
             {
-                insertQuery.exec();
-
-                auto lastInsertedId = m_lastInsertedIdQuery.scalar().asInt64();
-
-                unlockTables();
-
-                auto firstInsertedId = lastInsertedId - rowCount + 1;
-
-                if (conn->connectionType() == MYSQL)
-                {
-                    // A special case for MySQL: multi-row insert returns the first row id
-                    firstInsertedId = lastInsertedId;
-                    lastInsertedId += rowCount - 1;
-                }
-
-                if (insertedIds != nullptr)
-                {
-                    for (auto insertedId = firstInsertedId; insertedId <= lastInsertedId; ++insertedId)
-                    {
-                        insertedIds->push_back(insertedId);
-                    }
-                }
+                // A special case for MySQL: multi-row insert returns the first row id
+                firstInsertedId = lastInsertedId;
+                lastInsertedId += rowCount - 1;
             }
-            catch (const Exception&)
+
+            if (insertedIds != nullptr)
             {
-                unlockTables();
-                if (startedTransaction)
+                for (auto insertedId = firstInsertedId; insertedId <= lastInsertedId; ++insertedId)
                 {
-                    conn->rollbackTransaction();
+                    insertedIds->push_back(insertedId);
                 }
-                throw;
             }
         }
     }
