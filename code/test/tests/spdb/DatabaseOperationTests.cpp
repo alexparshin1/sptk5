@@ -335,73 +335,73 @@ void testSelect(const String& dbName)
 #ifdef HAVE_POSTGRESQL
 namespace sptk {
 
-TEST(PostgreSQLConnectionTests,connect)
+TEST(PostgreSQLConnectionTests, connect)
 {
     testConnect("PostgreSQL");
 }
 
-TEST(PostgreSQLConnectionTests,currentTimestamp)
+TEST(PostgreSQLConnectionTests, currentTimestamp)
 {
     testCurrentTimestamp("PostgreSQL");
 }
 
-TEST(PostgreSQLConnectionTests,sqlParserPerformance)
+TEST(PostgreSQLConnectionTests, sqlParserPerformance)
 {
     testSqlParserPerformance("PostgreSQL");
 }
 
-TEST(PostgreSQLConnectionTests,ddl)
+TEST(PostgreSQLConnectionTests, ddl)
 {
     testDDL("PostgreSQL");
 }
 
-TEST(PostgreSQLConnectionTests,bulkInsert)
+TEST(PostgreSQLConnectionTests, bulkInsert)
 {
     testBulkInsert("PostgreSQL");
 }
 
-TEST(PostgreSQLConnectionTests,bulkParallelInsert)
+TEST(PostgreSQLConnectionTests, bulkParallelInsert)
 {
     testParallelInsert("PostgreSQL");
 }
 
-TEST(PostgreSQLConnectionTests,bulkInsertPerformance)
+TEST(PostgreSQLConnectionTests, bulkInsertPerformance)
 {
     testBulkInsertPerformance("PostgreSQL");
 }
 
-TEST(PostgreSQLConnectionTests,queryParameters)
+TEST(PostgreSQLConnectionTests, queryParameters)
 {
     testQueryParameters("PostgreSQL");
 }
 
-TEST(PostgreSQLConnectionTests,dates)
+TEST(PostgreSQLConnectionTests, dates)
 {
     testQueryDateAndTimestamp("PostgreSQL");
 }
 
-TEST(PostgreSQLConnectionTests,transaction)
+TEST(PostgreSQLConnectionTests, transaction)
 {
     testTransaction("PostgreSQL");
 }
 
-TEST(PostgreSQLConnectionTests,select)
+TEST(PostgreSQLConnectionTests, select)
 {
     testSelect("PostgreSQL");
     testInvalidQuery("PostgreSQL");
 }
 
-TEST(PostgreSQLConnectionTests,insertQuery)
+TEST(PostgreSQLConnectionTests, insertQuery)
 {
     testInsertQuery("PostgreSQL");
 }
 
-TEST(PostgreSQLConnectionTests,blob)
+TEST(PostgreSQLConnectionTests, blob)
 {
     testBlobInsertAndSelect("PostgreSQL");
 }
 
-TEST(PostgreSQLConnectionTests,batchWithDollarQuotedBody)
+TEST(PostgreSQLConnectionTests, batchWithDollarQuotedBody)
 {
     // The batch splitter used to split at every semicolon, including those inside a DO body.
     DatabaseConnectionString connectionString = DatabaseTests::tests().connectionString("postgresql");
@@ -412,7 +412,7 @@ TEST(PostgreSQLConnectionTests,batchWithDollarQuotedBody)
 
     try
     {
-        DatabaseConnectionPool connectionPool(connectionString.toString());
+        DatabaseConnectionPool   connectionPool(connectionString.toString());
         const DatabaseConnection connection = connectionPool.getConnection();
 
         connection->executeBatchSQL(
@@ -430,7 +430,7 @@ TEST(PostgreSQLConnectionTests,batchWithDollarQuotedBody)
     }
 }
 
-TEST(PostgreSQLConnectionTests,streamedRows)
+TEST(PostgreSQLConnectionTests, streamedRows)
 {
     // Results are read one row at a time from libpq. Both a full read and an abandoned read must
     // leave the connection usable for the next command.
@@ -442,7 +442,7 @@ TEST(PostgreSQLConnectionTests,streamedRows)
 
     try
     {
-        DatabaseConnectionPool connectionPool(connectionString.toString());
+        DatabaseConnectionPool   connectionPool(connectionString.toString());
         const DatabaseConnection connection = connectionPool.getConnection();
 
         Query rows(connection, "SELECT generate_series(1, 1000) AS n");
@@ -471,7 +471,7 @@ TEST(PostgreSQLConnectionTests,streamedRows)
     }
 }
 
-TEST(PostgreSQLConnectionTests,numericAndArrays)
+TEST(PostgreSQLConnectionTests, numericAndArrays)
 {
     // Binary NUMERIC used to mis-handle NaN and precision; arrays used to ignore higher dimensions
     // and non-1 lower bounds. Money parameters used to go through double and lose decimal digits.
@@ -483,7 +483,7 @@ TEST(PostgreSQLConnectionTests,numericAndArrays)
 
     try
     {
-        DatabaseConnectionPool connectionPool(connectionString.toString());
+        DatabaseConnectionPool   connectionPool(connectionString.toString());
         const DatabaseConnection connection = connectionPool.getConnection();
 
         Query arrays(connection,
@@ -514,7 +514,7 @@ TEST(PostgreSQLConnectionTests,numericAndArrays)
     }
 }
 
-TEST(PostgreSQLConnectionTests,preparedStatementReuse)
+TEST(PostgreSQLConnectionTests, preparedStatementReuse)
 {
     // A prepared statement outlives the Query that created it and is reused by the next Query with
     // the same SQL. The second Query binds its own parameter values, not the first Query's ones.
@@ -526,7 +526,7 @@ TEST(PostgreSQLConnectionTests,preparedStatementReuse)
 
     try
     {
-        DatabaseConnectionPool connectionPool(connectionString.toString());
+        DatabaseConnectionPool   connectionPool(connectionString.toString());
         const DatabaseConnection connection = connectionPool.getConnection();
 
         Query first(connection, "SELECT :value AS value");
@@ -543,7 +543,7 @@ TEST(PostgreSQLConnectionTests,preparedStatementReuse)
     }
 }
 
-TEST(PostgreSQLConnectionTests,unsupportedBinaryTypes)
+TEST(PostgreSQLConnectionTests, unsupportedBinaryTypes)
 {
     // uuid, time, interval and jsonb have no binary decoder. With a single result format for the
     // whole result, one such column forces text for all of them; without the fallback the driver
@@ -556,7 +556,7 @@ TEST(PostgreSQLConnectionTests,unsupportedBinaryTypes)
 
     try
     {
-        DatabaseConnectionPool connectionPool(connectionString.toString());
+        DatabaseConnectionPool   connectionPool(connectionString.toString());
         const DatabaseConnection connection = connectionPool.getConnection();
 
         Query mixed(connection,
@@ -591,7 +591,7 @@ TEST(PostgreSQLConnectionTests,unsupportedBinaryTypes)
     }
 }
 
-TEST(PostgreSQLConnectionTests,connectionStringParameters)
+TEST(PostgreSQLConnectionTests, connectionStringParameters)
 {
     // libpq keywords given in the query part of the connection string used to be dropped by the
     // driver. Both values here are visible from the server, and the second one contains '=', so
@@ -608,7 +608,7 @@ TEST(PostgreSQLConnectionTests,connectionStringParameters)
 
     try
     {
-        DatabaseConnectionPool connectionPool(url);
+        DatabaseConnectionPool   connectionPool(url);
         const DatabaseConnection connection = connectionPool.getConnection();
 
         Query applicationName(connection, "SHOW application_name");
@@ -629,37 +629,37 @@ TEST(PostgreSQLConnectionTests,connectionStringParameters)
 
 #ifdef HAVE_MYSQL
 
-TEST(MySQLConnectionTests,connect)
+TEST(MySQLConnectionTests, connect)
 {
     testConnect("MySQL");
 }
 
-TEST(MySQLConnectionTests,currentTimestamp)
+TEST(MySQLConnectionTests, currentTimestamp)
 {
     testCurrentTimestamp("MySQL");
 }
 
-TEST(MySQLConnectionTests,ddl)
+TEST(MySQLConnectionTests, ddl)
 {
     testDDL("MySQL");
 }
 
-TEST(MySQLConnectionTests,bulkInsert)
+TEST(MySQLConnectionTests, bulkInsert)
 {
     testBulkInsert("MySQL");
 }
 
-TEST(MySQLConnectionTests,bulkParallelInsert)
+TEST(MySQLConnectionTests, bulkParallelInsert)
 {
     testParallelInsert("MySQL");
 }
 
-TEST(MySQLConnectionTests,bulkInsertPerformance)
+TEST(MySQLConnectionTests, bulkInsertPerformance)
 {
     testBulkInsertPerformance("MySQL");
 }
 
-TEST(MySQLConnectionTests,queryParameters)
+TEST(MySQLConnectionTests, queryParameters)
 {
     testQueryParameters("MySQL");
 }
@@ -681,7 +681,7 @@ TEST(MySQLConnectionTests, textParameterAmongManyOthersKeepsItsValue)
         GTEST_SKIP() << "MySQL connection is not defined";
     }
 
-    DatabaseConnectionPool pool(connectionString.toString());
+    DatabaseConnectionPool   pool(connectionString.toString());
     const DatabaseConnection connection = pool.getConnection();
     DatabaseTests::dropTable(connection, "sptk_wide_params");
 
@@ -753,28 +753,28 @@ TEST(MySQLConnectionTests, textParameterAmongManyOthersKeepsItsValue)
     EXPECT_EQ(document, stored) << "the text parameter did not reach the server unchanged";
 }
 
-TEST(MySQLConnectionTests,dates)
+TEST(MySQLConnectionTests, dates)
 {
     testQueryDateAndTimestamp("MySQL");
 }
 
-TEST(MySQLConnectionTests,transaction)
+TEST(MySQLConnectionTests, transaction)
 {
     testTransaction("MySQL");
 }
 
-TEST(MySQLConnectionTests,select)
+TEST(MySQLConnectionTests, select)
 {
     testSelect("MySQL");
     testInvalidQuery("MySQL");
 }
 
-TEST(MySQLConnectionTests,insertQuery)
+TEST(MySQLConnectionTests, insertQuery)
 {
     testInsertQuery("MySQL");
 }
 
-TEST(MySQLConnectionTests,blob)
+TEST(MySQLConnectionTests, blob)
 {
     testBlobInsertAndSelect("MySQL");
 }
@@ -784,58 +784,63 @@ TEST(MySQLConnectionTests,blob)
 //───────────────────────────────── Oracle ─────────────────────────────────────────────
 #if defined(HAVE_ORACLE_OCI) || defined(HAVE_ORACLE)
 
-TEST(OracleConnectionTests,connect)
+TEST(OracleConnectionTests, connect)
 {
     testConnect("Oracle");
 }
 
-TEST(OracleConnectionTests,currentTimestamp)
+TEST(OracleConnectionTests, currentTimestamp)
 {
     testCurrentTimestamp("Oracle");
 }
 
-TEST(OracleConnectionTests,ddl)
+TEST(OracleConnectionTests, ddl)
 {
     testDDL("Oracle");
 }
 
-TEST(OracleConnectionTests,bulkInsert)
+TEST(OracleConnectionTests, bulkInsert)
 {
     testBulkInsert("Oracle");
 }
 
-TEST(OracleConnectionTests,bulkInsertPerformance)
+TEST(OracleConnectionTests, parallelInsertPerformance)
+{
+    testParallelInsert("Oracle");
+}
+
+TEST(OracleConnectionTests, bulkInsertPerformance)
 {
     testBulkInsertPerformance("Oracle");
 }
 
-TEST(OracleConnectionTests,queryParameters)
+TEST(OracleConnectionTests, queryParameters)
 {
     testQueryParameters("Oracle");
 }
 
-TEST(OracleConnectionTests,dates)
+TEST(OracleConnectionTests, dates)
 {
     testQueryDateAndTimestamp("Oracle");
 }
 
-TEST(OracleConnectionTests,transaction)
+TEST(OracleConnectionTests, transaction)
 {
     testTransaction("Oracle");
 }
 
-TEST(OracleConnectionTests,select)
+TEST(OracleConnectionTests, select)
 {
     testSelect("Oracle");
     testInvalidQuery("Oracle");
 }
 
-TEST(OracleConnectionTests,insertQuery)
+TEST(OracleConnectionTests, insertQuery)
 {
     testInsertQuery("Oracle");
 }
 
-TEST(OracleConnectionTests,blob)
+TEST(OracleConnectionTests, blob)
 {
     testBlobInsertAndSelect("Oracle");
 }
@@ -846,37 +851,37 @@ TEST(OracleConnectionTests,blob)
 // MSSQL tests follow USE_ODBC: when the driver is built, dsn_mssql is expected to be configured.
 #if defined(HAVE_ODBC)
 
-TEST(MSSQLConnectionTests,connect)
+TEST(MSSQLConnectionTests, connect)
 {
     testConnect("MSSQL");
 }
 
-TEST(MSSQLConnectionTests,currentTimestamp)
+TEST(MSSQLConnectionTests, currentTimestamp)
 {
     testCurrentTimestamp("MSSQL");
 }
 
-TEST(MSSQLConnectionTests,ddl)
+TEST(MSSQLConnectionTests, ddl)
 {
     testDDL("MSSQL");
 }
 
-TEST(MSSQLConnectionTests,bulkInsert)
+TEST(MSSQLConnectionTests, bulkInsert)
 {
     testBulkInsert("MSSQL");
 }
 
-TEST(MSSQLConnectionTests,bulkParallelInsert)
+TEST(MSSQLConnectionTests, bulkParallelInsert)
 {
     testParallelInsert("MSSQL");
 }
 
-TEST(MSSQLConnectionTests,bulkInsertPerformance)
+TEST(MSSQLConnectionTests, bulkInsertPerformance)
 {
     testBulkInsertPerformance("MSSQL");
 }
 
-TEST(MSSQLConnectionTests,preparedStatementReuse)
+TEST(MSSQLConnectionTests, preparedStatementReuse)
 {
     // Two queries with the same SQL must reuse the prepared HSTMT, and the second one must bind
     // its own parameter values rather than the first query's.
@@ -888,7 +893,7 @@ TEST(MSSQLConnectionTests,preparedStatementReuse)
 
     try
     {
-        DatabaseConnectionPool connectionPool(connectionString.toString());
+        DatabaseConnectionPool   connectionPool(connectionString.toString());
         const DatabaseConnection connection = connectionPool.getConnection();
 
         Query first(connection, "SELECT :value AS value");
@@ -905,33 +910,33 @@ TEST(MSSQLConnectionTests,preparedStatementReuse)
     }
 }
 
-TEST(MSSQLConnectionTests,queryParameters)
+TEST(MSSQLConnectionTests, queryParameters)
 {
     testQueryParameters("MSSQL");
 }
 
-TEST(MSSQLConnectionTests,dates)
+TEST(MSSQLConnectionTests, dates)
 {
     testQueryDateAndTimestamp("MSSQL");
 }
 
-TEST(MSSQLConnectionTests,transaction)
+TEST(MSSQLConnectionTests, transaction)
 {
     testTransaction("MSSQL");
 }
 
-TEST(MSSQLConnectionTests,select)
+TEST(MSSQLConnectionTests, select)
 {
     testSelect("MSSQL");
     testInvalidQuery("MSSQL");
 }
 
-TEST(MSSQLConnectionTests,insertQuery)
+TEST(MSSQLConnectionTests, insertQuery)
 {
     testInsertQuery("MSSQL");
 }
 
-TEST(MSSQLConnectionTests,blob)
+TEST(MSSQLConnectionTests, blob)
 {
     testBlobInsertAndSelect("MSSQL");
 }
@@ -941,47 +946,47 @@ TEST(MSSQLConnectionTests,blob)
 //───────────────────────────────── SQLite3 ────────────────────────────────────────────
 #ifdef HAVE_SQLITE3
 
-TEST(SQLite3ConnectionTests,connect)
+TEST(SQLite3ConnectionTests, connect)
 {
     testConnect("SQLite3");
 }
 
-TEST(SQLite3ConnectionTests,currentTimestamp)
+TEST(SQLite3ConnectionTests, currentTimestamp)
 {
     testCurrentTimestamp("SQLite3");
 }
 
-TEST(SQLite3ConnectionTests,ddl)
+TEST(SQLite3ConnectionTests, ddl)
 {
     testDDL("SQLite3");
 }
 
-TEST(SQLite3ConnectionTests,bulkInsert)
+TEST(SQLite3ConnectionTests, bulkInsert)
 {
     testBulkInsert("SQLite3");
 }
 
-TEST(SQLite3ConnectionTests,bulkInsertPerformance)
+TEST(SQLite3ConnectionTests, bulkInsertPerformance)
 {
     testBulkInsertPerformance("SQLite3");
 }
 
-TEST(SQLite3ConnectionTests,queryParameters)
+TEST(SQLite3ConnectionTests, queryParameters)
 {
     testQueryParameters("SQLite3");
 }
 
-TEST(SQLite3ConnectionTests,dates)
+TEST(SQLite3ConnectionTests, dates)
 {
     testQueryDateAndTimestamp("SQLite3");
 }
 
-TEST(SQLite3ConnectionTests,transaction)
+TEST(SQLite3ConnectionTests, transaction)
 {
     testTransaction("SQLite3");
 }
 
-TEST(SQLite3ConnectionTests,select)
+TEST(SQLite3ConnectionTests, select)
 {
     testSelect("SQLite3");
 }
