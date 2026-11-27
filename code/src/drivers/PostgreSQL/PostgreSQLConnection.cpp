@@ -1834,6 +1834,398 @@ void PostgreSQLConnection::executeBatchSQL(const Strings& batchSQL, Strings* err
     }
 }
 
+namespace {
+/// Appends one field in PostgreSQL COPY text format. Backslash, tab and newline are escaped;
+/// binary data uses the hex form and NULL uses \\N.
+void appendCopyField(String& line, const Variant& value)
+{
+    if (value.isNull())
+    {
+        line += "\\N";
+        return;
+    }
+
+    using enum VariantDataType;
+    switch (value.dataType())
+    {
+        case VAR_BUFFER: {
+            const auto& bytes = value.get<Buffer>();
+            line += "\\x";
+            constexpr char hex[] = "0123456789abcdef";
+            for (size_t i = 0; i < bytes.bytes(); ++i)
+            {
+                line += hex[bytes.data()[i] >> 4];
+                line += hex[bytes.data()[i] & 0x0f];
+            }
+            break;
+        }
+
+        case VAR_BOOL:
+            line += value.asBool() ? "t" : "f";
+            break;
+
+        case VAR_DATE:
+            line += value.asDate().dateString();
+            break;
+
+        case VAR_DATE_TIME:
+            line += value.asDateTime().isoDateTimeString();
+            break;
+
+        case VAR_INT:
+            line += std::to_string(value.asInteger());
+            break;
+
+        case VAR_INT64:
+            line += std::to_string(value.asInt64());
+            break;
+
+        case VAR_FLOAT:
+            line += value.asString();
+            break;
+
+        default: {
+            for (const char c: value.asString())
+            {
+                switch (c)
+                {
+                    case '\\': line += "\\\\"; break;
+                    case '\t': line += "\\t"; break;
+                    case '\n': line += "\\n"; break;
+                    case '\r': line += "\\r"; break;
+                    default:   line += c; break;
+                }
+            }
+        }
+    }
+}
+
+/// Appends one element of a PostgreSQL array literal, choosing the element type from the value.
+void appendArrayElement(String& arrayText, const Variant& value, String& arrayType)
+{
+    if (value.isNull())
+    {
+        arrayText += "NULL";
+        return;
+    }
+
+    using enum VariantDataType;
+    const auto dataType = value.dataType();
+    if (arrayType.empty())
+    {
+        switch (dataType)
+        {
+            case VAR_INT:      arrayType = "int4"; break;
+            case VAR_INT64:    arrayType = "int8"; break;
+            case VAR_FLOAT:    arrayType = "float8"; break;
+            case VAR_BOOL:     arrayType = "bool"; break;
+            case VAR_DATE:     arrayType = "date"; break;
+            case VAR_DATE_TIME:arrayType = "timestamp"; break;
+            default:           arrayType = "text"; break;
+        }
+    }
+
+    const auto quote = [&](const String& text) {
+        arrayText += '"';
+        for (const char c: text)
+        {
+            if (c == '\\' || c == '"')
+            {
+                arrayText += '\\';
+            }
+            arrayText += c;
+        }
+        arrayText += '"';
+    };
+
+    switch (dataType)
+    {
+        case VAR_INT:
+        case VAR_INT64:
+        case VAR_FLOAT:
+            arrayText += value.asString();
+            break;
+
+        case VAR_BOOL:
+            arrayText += value.asBool() ? "t" : "f";
+            break;
+
+        case VAR_DATE:
+            quote(value.asDate().dateString());
+            break;
+
+        case VAR_DATE_TIME:
+            quote(value.asDateTime().isoDateTimeString());
+            break;
+
+        default:
+            quote(value.asString());
+            break;
+    }
+}
+
+void checkCommandResult(PGconn* connection)
+{
+    PGresult* result = PQgetResult(connection);
+    if (result == nullptr || PQresultStatus(result) != PGRES_COMMAND_OK)
+    {
+        const String error = resultError(connection, result);
+        if (result != nullptr)
+        {
+            PQclear(result);
+        }
+        throw DatabaseException(error);
+    }
+    PQclear(result);
+    while ((result = PQgetResult(connection)) != nullptr)
+    {
+        PQclear(result);
+    }
+}
+} // namespace
+
+void PostgreSQLConnection::bulkInsert(const String& tableName, const String& autoIncrementColumnName,
+                                      const Strings& columnNames, vector<VariantVector>& data, size_t groupSize,
+                                      vector<int64_t>* insertedIds)
+{
+    if (groupSize == 0)
+    {
+        throw Exception("Group size must be greater than zero");
+    }
+    if (tableName.empty())
+    {
+        throw Exception("Table name is empty");
+    }
+    if (columnNames.empty())
+    {
+        throw Exception("Column list is empty");
+    }
+    if (data.empty())
+    {
+        return;
+    }
+
+    const bool wantIds = insertedIds != nullptr && !autoIncrementColumnName.empty();
+    if (wantIds && columnNames.indexOf(autoIncrementColumnName) >= 0)
+    {
+        // The serial column is already among the data columns; use the generic path, which knows
+        // how to handle that case.
+        PoolDatabaseConnection::bulkInsert(tableName, autoIncrementColumnName, columnNames, data, groupSize, insertedIds);
+        return;
+    }
+
+    vector<int64_t> reservedIds;
+    if (wantIds)
+    {
+        // COPY has no RETURNING. Reserve the ids from the table's sequence and write them as the
+        // first column. nextval() is non-transactional, so no row can take the same value.
+        const scoped_lock lock(m_mutex);
+        if (!active())
+        {
+            open();
+        }
+        const String countText = std::to_string(data.size());
+        const char*  values[3] = {tableName.c_str(), autoIncrementColumnName.c_str(), countText.c_str()};
+        const String sql("SELECT nextval(pg_get_serial_sequence($1, $2)) FROM generate_series(1, $3)");
+        PGresult*    result = PQexecParams(m_connect, sql.c_str(), 3, nullptr, values, nullptr, nullptr, 0);
+        if (result == nullptr || PQresultStatus(result) != PGRES_TUPLES_OK || PQnfields(result) < 1 ||
+            PQgetisnull(result, 0, 0) != 0)
+        {
+            if (result != nullptr)
+            {
+                PQclear(result);
+            }
+            // No sequence (or no serial column): the generic RETURNING path is still correct.
+            PoolDatabaseConnection::bulkInsert(tableName, autoIncrementColumnName, columnNames, data, groupSize,
+                                               insertedIds);
+            return;
+        }
+        reservedIds.reserve(data.size());
+        for (int row = 0; row < PQntuples(result); ++row)
+        {
+            reservedIds.push_back(std::stoll(PQgetvalue(result, row, 0)));
+        }
+        PQclear(result);
+    }
+
+    Strings finalColumns;
+    if (wantIds)
+    {
+        finalColumns.push_back(autoIncrementColumnName);
+    }
+    for (const auto& column: columnNames)
+    {
+        finalColumns.push_back(column);
+    }
+    const String sql = "COPY " + tableName + " (" + finalColumns.join(",") + ") FROM STDIN";
+
+    const scoped_lock lock(m_mutex);
+    if (!active())
+    {
+        open();
+    }
+
+    const bool wasInTransaction = getInTransaction();
+    if (!wasInTransaction)
+    {
+        beginTransaction();
+    }
+
+    auto copyEnded = false;
+    try
+    {
+        PGresult* result = PQexec(m_connect, sql.c_str());
+        if (result == nullptr || PQresultStatus(result) != PGRES_COPY_IN)
+        {
+            const String error = "COPY failed: " + resultError(m_connect, result);
+            if (result != nullptr)
+            {
+                PQclear(result);
+            }
+            throw DatabaseException(error);
+        }
+        PQclear(result);
+
+        for (size_t row = 0; row < data.size(); ++row)
+        {
+            if (data[row].size() != columnNames.size())
+            {
+                throw DatabaseException("Row size mismatch in bulk insert");
+            }
+
+            String line;
+            if (wantIds)
+            {
+                line += std::to_string(reservedIds[row]);
+                line += '\t';
+            }
+            for (size_t column = 0; column < columnNames.size(); ++column)
+            {
+                if (column > 0)
+                {
+                    line += '\t';
+                }
+                appendCopyField(line, data[row][column]);
+            }
+            line += '\n';
+
+            if (PQputCopyData(m_connect, line.c_str(), static_cast<int>(line.size())) != 1)
+            {
+                throw DatabaseException(String("COPY failed: ") + PQerrorMessage(m_connect));
+            }
+        }
+
+        if (PQputCopyEnd(m_connect, nullptr) != 1)
+        {
+            throw DatabaseException(String("COPY failed: ") + PQerrorMessage(m_connect));
+        }
+        copyEnded = true;
+        checkCommandResult(m_connect);
+
+        if (insertedIds != nullptr)
+        {
+            insertedIds->clear();
+            if (wantIds)
+            {
+                *insertedIds = reservedIds;
+            }
+        }
+        if (!wasInTransaction)
+        {
+            commitTransaction();
+        }
+    }
+    catch (...)
+    {
+        if (!copyEnded)
+        {
+            PQputCopyEnd(m_connect, "bulk insert failed");
+            PQgetResult(m_connect);
+        }
+        if (!wasInTransaction)
+        {
+            try
+            {
+                rollbackTransaction();
+            }
+            catch (const Exception&)
+            {
+                // Preserve the original error.
+            }
+        }
+        throw;
+    }
+}
+
+void PostgreSQLConnection::bulkDelete(const String& tableName, const String& keyColumnName, const VariantVector& keys)
+{
+    if (keys.empty())
+    {
+        return;
+    }
+
+    String arrayType;
+    String arrayText("{");
+    for (size_t i = 0; i < keys.size(); ++i)
+    {
+        if (i > 0)
+        {
+            arrayText += ',';
+        }
+        appendArrayElement(arrayText, keys[i], arrayType);
+    }
+    arrayText += '}';
+
+    const String sql = "DELETE FROM " + tableName + " WHERE " + keyColumnName + " = ANY($1::" + arrayType + "[])";
+    const char*  values[1] = {arrayText.c_str()};
+
+    const scoped_lock lock(m_mutex);
+    if (!active())
+    {
+        open();
+    }
+
+    const bool wasInTransaction = getInTransaction();
+    if (!wasInTransaction)
+    {
+        beginTransaction();
+    }
+
+    try
+    {
+        PGresult* result = PQexecParams(m_connect, sql.c_str(), 1, nullptr, values, nullptr, nullptr, 0);
+        if (result == nullptr || PQresultStatus(result) != PGRES_COMMAND_OK)
+        {
+            const String error = "Bulk delete failed: " + resultError(m_connect, result);
+            if (result != nullptr)
+            {
+                PQclear(result);
+            }
+            throw DatabaseException(error);
+        }
+        PQclear(result);
+        if (!wasInTransaction)
+        {
+            commitTransaction();
+        }
+    }
+    catch (...)
+    {
+        if (!wasInTransaction)
+        {
+            try
+            {
+                rollbackTransaction();
+            }
+            catch (const Exception&)
+            {
+                // Preserve the original error.
+            }
+        }
+        throw;
+    }
+}
+
 Strings PostgreSQLConnection::extractStatements(const Strings& sqlBatch)
 {
     static const RegularExpression matchRoutine("^(CREATE|REPLACE) .*(FUNCTION|PROCEDURE)", "i");

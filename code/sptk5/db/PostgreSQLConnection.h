@@ -124,6 +124,17 @@ public:
     void executeBatchSQL(const sptk::Strings& batchSQL, Strings* errors) override;
 
     /**
+     * @brief Bulk insert implemented with libpq COPY instead of multi-row INSERT.
+     */
+    void bulkInsert(const String& tableName, const String& autoIncrementColumnName, const Strings& columnNames,
+                    std::vector<VariantVector>& data, size_t groupSize, std::vector<int64_t>* insertedIds) override;
+
+    /**
+     * @brief Bulk delete with a single array parameter instead of an IN list per group.
+     */
+    void bulkDelete(const String& tableName, const String& keyColumnName, const VariantVector& keys) override;
+
+    /**
      * @brief Constructor.
      *
      * Typical connection string is something like: "dbname='mydb' host='myhostname' port=5142" and so on

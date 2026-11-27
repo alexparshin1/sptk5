@@ -527,6 +527,7 @@ private:
     bool                     m_inTransaction {false}; ///< The in-transaction flag.
     std::chrono::seconds     m_connectionTimeout;     ///< Connection timeout.
 
+protected:
     /**
      * @brief Executes bulk inserts of data from the vector of rows.
      *
