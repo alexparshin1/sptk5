@@ -41,6 +41,22 @@ using namespace std;
 using namespace sptk;
 using namespace oracle::occi;
 
+namespace {
+/// OCCI has no 64-bit integer setter/getter. NUMBER is exact for int64 when built from its decimal
+/// text, unlike a double or a 32-bit setInt().
+Number int64ToNumber(const int64_t value, const Environment* environment)
+{
+    Number number;
+    number.fromText(environment, std::to_string(value), String(38, '9'));
+    return number;
+}
+
+int64_t numberToInt64(const Number& number, const Environment* environment)
+{
+    return std::stoll(number.toText(environment, String(38, '9')));
+}
+} // namespace
+
 OracleStatement::OracleStatement(OracleConnection* connection, const string& sql)
     : DatabaseStatement<OracleConnection, oracle::occi::Statement>(connection)
 {
@@ -243,7 +259,7 @@ void OracleStatement::setInt64ParamValue(unsigned int parameterIndex, const Quer
     }
     else
     {
-        statement()->setInt(parameterIndex, parameter.asInteger());
+        statement()->setNumber(parameterIndex, int64ToNumber(parameter.asInt64(), connection()->environment()));
     }
 }
 
@@ -269,7 +285,7 @@ void OracleStatement::setDateTimeParameterValue(unsigned int parameterIndex, con
         parameter.get<DateTime>().decodeTime(&hour, &minute, &second, &msecond);
         const Timestamp timestampValue(connection()->environment(),
                                        year, (unsigned) month, (unsigned) day, (unsigned) hour, (unsigned) minute,
-                                       (unsigned) second);
+                                       (unsigned) second, static_cast<unsigned>(msecond) * 1000000);
         statement()->setTimestamp(parameterIndex, timestampValue);
     }
 }
@@ -441,8 +457,11 @@ void OracleStatement::getOutputParameters(FieldList& fields)
             {
                 using enum sptk::VariantDataType;
                 case VAR_INT:
-                case VAR_INT64:
                     field->setInteger(statement()->getInt(index));
+                    break;
+
+                case VAR_INT64:
+                    field->setInt64(numberToInt64(statement()->getNumber(index), connection()->environment()));
                     break;
 
                 case VAR_FLOAT:
@@ -494,7 +513,8 @@ void OracleStatement::getDateTimeOutputParameter(unsigned int index, const SData
     unsigned        ms;
     timestamp.getDate(year, month, day);
     timestamp.getTime(hour, min, sec, ms);
-    field->setDateTime(DateTime(short(year), short(month), short(day), short(hour), short(min), short(sec)));
+    field->setDateTime(DateTime(short(year), short(month), short(day), short(hour), short(min), short(sec),
+                                static_cast<short>(ms / 1000000)));
 }
 
 void OracleStatement::getDateOutputParameter(unsigned int index, const SDatabaseField& field) const

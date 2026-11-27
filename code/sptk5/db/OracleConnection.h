@@ -37,12 +37,16 @@
 
 #pragma once
 
+#include <deque>
+#include <map>
 #include <mutex>
+#include <vector>
 #include <sptk5/db/PoolDatabaseConnection.h>
 
 #ifdef HAVE_ORACLE
 
 #include "DatabaseField.h"
+#include <sptk5/threads/SynchronizedMap.h>
 #include <sptk5/db/OracleEnvironment.h>
 #include <sptk5/db/OracleStatement.h>
 
@@ -123,8 +127,8 @@ public:
      * @param columnNames       List of table columns to populate.
      * @param data              Data for bulk insert.
      */
-    void bulkInsert(const String& fullTableName, const Strings& columnNames,
-                    const std::vector<VariantVector>& data) override;
+    void bulkInsert(const String& tableName, const Strings& columnNames,
+                    std::vector<VariantVector>& data, size_t groupSize) override;
 
     /**
      * @brief Executes SQL batch file.
@@ -183,7 +187,7 @@ public:
     /**
      * @brief All active connections.
      */
-    static SynchronisedMap<OracleConnection*, std::shared_ptr<OracleConnection>> s_oracleConnections;
+    static SynchronizedMap<OracleConnection*, std::shared_ptr<OracleConnection>> s_oracleConnections;
 
 protected:
     /**
@@ -223,6 +227,13 @@ protected:
      */
     void queryPrepare(Query* query) override;
 
+    /// Keeps a prepared OCCI statement for reuse. Caller holds m_mutex; evicted statements are
+    /// returned so their HSTMTs are released after unlocking.
+    std::vector<SStmtHandle> cacheStatement(const String& sql, const SStmtHandle& statement);
+
+    /// Drops all cached statements before the physical Oracle connection goes away.
+    void clearPreparedStatements();
+
     /**
      * @brief Executes a statement.
      */
@@ -258,20 +269,24 @@ protected:
      * Parameter mark is generated from the parameterIndex.
      * @param paramIndex        parameter index in SQL starting from 0.
      */
-    String paramMark(unsigned paramIndex) override;
+    std::string paramMark(unsigned paramIndex) override;
 
 private:
     using SConnection = std::shared_ptr<Connection>;
 
-    mutable std::mutex m_mutex;       ///< Mutex that protects access to data members.
+    mutable std::recursive_mutex m_mutex; ///< Recursive: query methods re-enter while holding it.
     OracleEnvironment  m_environment; ///< Oracle connection environment.
     SConnection        m_connection;  ///< Oracle database connection.
     std::string        m_lastError;   ///< Last error in this connection or query.
 
-    void executeMultipleStatements(const Strings& statements, Strings* errors);
+    static constexpr size_t       maxCachedStatements {64};
+    std::map<String, SStmtHandle> m_preparedStatements;
+    std::deque<String>            m_preparedStatementKeys;
 
-    static void setMaxParamSizes(const CParamVector& enumeratedParams, Statement* stmt,
-                                 const QueryColumnTypeSizeMap& columnTypeSizes);
+    /// Stores the last driver error so that queryError() can report it (under m_mutex).
+    void setLastError(const String& error);
+
+    void executeMultipleStatements(const Strings& statements, Strings* errors);
 
     static void createQueryFieldsFromMetadata(Query* query, oracle::occi::ResultSet* resultSet);
 };

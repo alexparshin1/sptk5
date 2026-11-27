@@ -423,6 +423,7 @@ IF (USE_ORACLE)
     FIND_PACKAGE(Oracle QUIET)
     IF (Oracle_FOUND)
         MESSAGE("Oracle client:      found")
+        SET(ORACLE_DEFINE "#define HAVE_ORACLE")
 
         FIND_PACKAGE(OCI QUIET)
         IF (OCI_FOUND)
