@@ -267,6 +267,11 @@ protected:
      */
     void executeBatchSQL(const sptk::Strings& batchSQL, Strings* errors) override;
 
+    void bulkInsert(const String& tableName, const String& autoIncrementColumnName, const Strings& columnNames,
+                    std::vector<VariantVector>& data, size_t groupSize, std::vector<int64_t>* insertedIds) override;
+
+    void bulkDelete(const String& tableName, const String& keyColumnName, const VariantVector& keys) override;
+
 private:
     static constexpr size_t MAX_NAME_LEN = 256;
     mutable std::mutex      m_stateMutex;            ///< Guards connection state flags.

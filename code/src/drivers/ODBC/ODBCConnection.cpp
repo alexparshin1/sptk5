@@ -1352,6 +1352,464 @@ void ODBCConnection::listDataSources(Strings& dsns)
     }
 }
 
+namespace {
+/// SQL literal for the fallback path (drivers without parameter arrays, e.g. FreeTDS).
+void appendBulkLiteral(String& sql, const Variant& value)
+{
+    if (value.isNull())
+    {
+        sql += "NULL";
+        return;
+    }
+
+    using enum VariantDataType;
+    switch (value.dataType())
+    {
+        case VAR_INT:
+        case VAR_INT64:
+            sql += value.asString();
+            break;
+
+        case VAR_BOOL:
+            sql += value.asBool() ? "1" : "0";
+            break;
+
+        case VAR_FLOAT:
+            sql += value.asString();
+            break;
+
+        case VAR_BUFFER: {
+            const auto& bytes = value.get<Buffer>();
+            sql += "0x";
+            constexpr char hex[] = "0123456789ABCDEF";
+            for (size_t i = 0; i < bytes.bytes(); ++i)
+            {
+                sql += hex[bytes.data()[i] >> 4];
+                sql += hex[bytes.data()[i] & 0x0f];
+            }
+            break;
+        }
+
+        default: {
+            sql += '\'';
+            for (const char c: value.asString())
+            {
+                if (c == '\'')
+                {
+                    sql += "''";
+                }
+                else
+                {
+                    sql += c;
+                }
+            }
+            sql += '\'';
+        }
+    }
+}
+
+/// Storage for one bound column of a parameter array.
+struct BulkColumnBinding
+{
+    SQLSMALLINT        cType {0};
+    SQLSMALLINT        sqlType {0};
+    SQLULEN            columnSize {0};
+    SQLLEN             bufferLength {0};
+    vector<uint8_t>    values;
+    vector<SQLLEN>     lengths;
+    bool               variable {false};
+};
+
+void bindBulkColumn(BulkColumnBinding& column, const VariantDataType dataType,
+                    const vector<VariantVector>& rows, const size_t columnIndex)
+{
+    using enum VariantDataType;
+    column.lengths.resize(rows.size());
+
+    switch (dataType)
+    {
+        case VAR_INT:
+            column.cType = SQL_C_SLONG;
+            column.sqlType = SQL_INTEGER;
+            column.values.resize(rows.size() * sizeof(int32_t));
+            for (size_t row = 0; row < rows.size(); ++row)
+            {
+                reinterpret_cast<int32_t*>(column.values.data())[row] = rows[row][columnIndex].asInteger();
+            }
+            break;
+
+        case VAR_INT64:
+        case VAR_BOOL:
+            column.cType = SQL_C_SBIGINT;
+            column.sqlType = SQL_BIGINT;
+            column.values.resize(rows.size() * sizeof(int64_t));
+            for (size_t row = 0; row < rows.size(); ++row)
+            {
+                reinterpret_cast<int64_t*>(column.values.data())[row] = rows[row][columnIndex].asInt64();
+            }
+            break;
+
+        case VAR_FLOAT:
+            column.cType = SQL_C_DOUBLE;
+            column.sqlType = SQL_DOUBLE;
+            column.values.resize(rows.size() * sizeof(double));
+            for (size_t row = 0; row < rows.size(); ++row)
+            {
+                reinterpret_cast<double*>(column.values.data())[row] = rows[row][columnIndex].asFloat();
+            }
+            break;
+
+        case VAR_DATE:
+        case VAR_DATE_TIME: {
+            column.cType = SQL_C_TIMESTAMP;
+            column.sqlType = SQL_TIMESTAMP;
+            column.values.resize(rows.size() * sizeof(TIMESTAMP_STRUCT));
+            for (size_t row = 0; row < rows.size(); ++row)
+            {
+                auto* ts = reinterpret_cast<TIMESTAMP_STRUCT*>(column.values.data()) + row;
+                const DateTime value = dataType == VAR_DATE ? rows[row][columnIndex].asDate()
+                                                            : rows[row][columnIndex].asDateTime();
+                short weekDay = 0;
+                short yearDay = 0;
+                short milliseconds = 0;
+                value.decodeDate(&ts->year, bit_cast<int16_t*>(&ts->month), bit_cast<int16_t*>(&ts->day),
+                                 &weekDay, &yearDay);
+                value.decodeTime(bit_cast<int16_t*>(&ts->hour), bit_cast<int16_t*>(&ts->minute),
+                                 bit_cast<int16_t*>(&ts->second), &milliseconds);
+                ts->fraction = static_cast<SQLUINTEGER>(milliseconds) * 1000000;
+            }
+            break;
+        }
+
+        default: {
+            column.cType = dataType == VAR_BUFFER ? SQL_C_BINARY : SQL_C_CHAR;
+            column.sqlType = dataType == VAR_BUFFER ? SQL_LONGVARBINARY : SQL_LONGVARCHAR;
+            column.variable = true;
+            size_t maxLength = 0;
+            for (size_t row = 0; row < rows.size(); ++row)
+            {
+                const auto& value = rows[row][columnIndex].asString();
+                column.lengths[row] = static_cast<SQLLEN>(value.size());
+                maxLength = max(maxLength, value.size());
+            }
+            column.columnSize = static_cast<SQLULEN>(max(maxLength, static_cast<size_t>(1)));
+            column.bufferLength = static_cast<SQLLEN>(column.columnSize + 1);
+            column.values.resize((maxLength + 1) * rows.size());
+            for (size_t row = 0; row < rows.size(); ++row)
+            {
+                const auto& value = rows[row][columnIndex].asString();
+                memcpy(column.values.data() + row * (maxLength + 1), value.data(), value.size());
+                column.values[row * (maxLength + 1) + value.size()] = 0;
+            }
+        }
+    }
+}
+
+String bulkKeyCast(const VariantVector& keys)
+{
+    for (const auto& key: keys)
+    {
+        if (key.isNull())
+        {
+            continue;
+        }
+        using enum VariantDataType;
+        switch (key.dataType())
+        {
+            case VAR_INT:
+            case VAR_INT64:
+            case VAR_BOOL:
+                return "BIGINT";
+            case VAR_FLOAT:
+                return "FLOAT";
+            case VAR_DATE:
+            case VAR_DATE_TIME:
+                return "DATETIME2";
+            default:
+                return "NVARCHAR(4000)";
+        }
+    }
+    return "NVARCHAR(4000)";
+}
+} // namespace
+
+void ODBCConnection::bulkInsert(const String& tableName, const String& autoIncrementColumnName,
+                                const Strings& columnNames, vector<VariantVector>& data, size_t groupSize,
+                                vector<int64_t>* insertedIds)
+{
+    if (groupSize == 0)
+    {
+        throw Exception("Group size must be greater than zero");
+    }
+    if (tableName.empty() || columnNames.empty())
+    {
+        PoolDatabaseConnection::bulkInsert(tableName, autoIncrementColumnName, columnNames, data, groupSize, insertedIds);
+        return;
+    }
+    if (data.empty())
+    {
+        return;
+    }
+    if (insertedIds != nullptr && !autoIncrementColumnName.empty() &&
+        columnNames.indexOf(autoIncrementColumnName) >= 0)
+    {
+        PoolDatabaseConnection::bulkInsert(tableName, autoIncrementColumnName, columnNames, data, groupSize, insertedIds);
+        return;
+    }
+
+    for (const auto& row: data)
+    {
+        if (row.size() != columnNames.size())
+        {
+            throw Exception("Row size mismatch in bulk insert");
+        }
+    }
+
+    const bool wantIds = insertedIds != nullptr && !autoIncrementColumnName.empty();
+    String sql = "INSERT INTO " + tableName + " (" + columnNames.join(",") + ") VALUES (";
+    for (size_t column = 0; column < columnNames.size(); ++column)
+    {
+        if (column > 0)
+        {
+            sql += ',';
+        }
+        sql += '?';
+    }
+    sql += ')';
+    if (wantIds)
+    {
+        sql += " OUTPUT Inserted." + autoIncrementColumnName;
+    }
+
+    const bool wasInTransaction = getInTransaction();
+    if (!wasInTransaction)
+    {
+        beginTransaction();
+    }
+
+    auto committed = false;
+    auto needBaseFallback = false;
+    try
+    {
+        const scoped_lock lock(*m_connect);
+        SQLHSTMT stmt = SQL_NULL_HSTMT;
+        if (!successful(SQLAllocStmt(handle(), &stmt)))
+        {
+            throw DatabaseException(String("Can't allocate bulk statement: ") + queryError(static_cast<SQLHSTMT>(nullptr)));
+        }
+
+        vector<BulkColumnBinding> columns(columnNames.size());
+        for (size_t column = 0; column < columnNames.size(); ++column)
+        {
+            bindBulkColumn(columns[column], data.front()[column].dataType(), data, column);
+        }
+
+        if (!successful(SQLPrepare(stmt, bit_cast<SQLCHAR*>(sql.data()), SQL_NTS)))
+        {
+            const String error = queryError(stmt);
+            SQLFreeStmt(stmt, SQL_DROP);
+            throw DatabaseException(error);
+        }
+        for (size_t column = 0; column < columns.size(); ++column)
+        {
+            auto& bound = columns[column];
+            if (!successful(SQLBindParameter(stmt, static_cast<SQLUSMALLINT>(column + 1), SQL_PARAM_INPUT, bound.cType,
+                                             bound.sqlType, bound.columnSize, 0, bound.values.data(),
+                                             bound.bufferLength, bound.variable ? bound.lengths.data() : nullptr)))
+            {
+                const String error = queryError(stmt);
+                SQLFreeStmt(stmt, SQL_DROP);
+                throw DatabaseException(error);
+            }
+        }
+
+        // A single execution for the whole chunk: SQL Server sends the bound arrays as one RPC.
+        SQLSetStmtAttr(stmt, SQL_ATTR_PARAMSET_SIZE, reinterpret_cast<SQLPOINTER>(data.size()), SQL_IS_UINTEGER);
+        auto usedLiterals = false;
+        if (!successful(SQLExecute(stmt)))
+        {
+            // Some drivers (FreeTDS among them) do not support parameter arrays. Fall back to
+            // literal multi-row INSERTs: still one round trip per chunk and no parameter binding.
+            SQLFreeStmt(stmt, SQL_DROP);
+            stmt = SQL_NULL_HSTMT;
+            if (wantIds)
+            {
+                // The generic RETURNING path is the only one that can report generated keys when
+                // parameter arrays are unsupported; let it run outside this lock/transaction.
+                needBaseFallback = true;
+                throw DatabaseException("Parameter arrays are not supported by this driver");
+            }
+            if (!successful(SQLAllocStmt(handle(), &stmt)))
+            {
+                throw DatabaseException(String("Can't allocate fallback statement: ") +
+                                        queryError(static_cast<SQLHSTMT>(nullptr)));
+            }
+
+            constexpr size_t chunkSize = 1000;
+            for (size_t offset = 0; offset < data.size(); offset += chunkSize)
+            {
+                String insertSql = "INSERT INTO " + tableName + " (" + columnNames.join(",") + ") VALUES ";
+                const auto end = min(offset + chunkSize, data.size());
+                for (size_t row = offset; row < end; ++row)
+                {
+                    if (row > offset)
+                    {
+                        insertSql += ',';
+                    }
+                    insertSql += '(';
+                    for (size_t column = 0; column < data[row].size(); ++column)
+                    {
+                        if (column > 0)
+                        {
+                            insertSql += ',';
+                        }
+                        appendBulkLiteral(insertSql, data[row][column]);
+                    }
+                    insertSql += ')';
+                }
+                if (!successful(SQLExecDirect(stmt, bit_cast<SQLCHAR*>(insertSql.data()), SQL_NTS)))
+                {
+                    const String error = queryError(stmt);
+                    SQLFreeStmt(stmt, SQL_DROP);
+                    throw DatabaseException(error);
+                }
+            }
+            usedLiterals = true;
+        }
+        else if (wantIds)
+        {
+            insertedIds->clear();
+            while (successful(SQLFetch(stmt)))
+            {
+                int64_t id = 0;
+                SQLLEN  length = 0;
+                if (successful(SQLGetData(stmt, 1, SQL_C_SBIGINT, &id, 0, &length)))
+                {
+                    insertedIds->push_back(id);
+                }
+            }
+        }
+
+        SQLFreeStmt(stmt, SQL_DROP);
+        if (insertedIds != nullptr && (usedLiterals || !wantIds))
+        {
+            insertedIds->clear();
+        }
+        if (insertedIds != nullptr && !wantIds)
+        {
+            insertedIds->clear();
+        }
+    }
+    catch (const Exception& e)
+    {
+        // needBaseFallback is set at the throw site: DatabaseException::what() carries a source
+        // location, so comparing the message is not reliable.
+        if (!wasInTransaction && !committed)
+        {
+            try
+            {
+                rollbackTransaction();
+            }
+            catch (const Exception&)
+            {
+                // Preserve the original error.
+            }
+        }
+        if (!needBaseFallback)
+        {
+            throw;
+        }
+    }
+
+    if (needBaseFallback)
+    {
+        PoolDatabaseConnection::bulkInsert(tableName, autoIncrementColumnName, columnNames, data, groupSize, insertedIds);
+        return;
+    }
+
+    if (!wasInTransaction)
+    {
+        commitTransaction();
+    }
+}
+
+void ODBCConnection::bulkDelete(const String& tableName, const String& keyColumnName, const VariantVector& keys)
+{
+    if (tableName.empty() || keyColumnName.empty())
+    {
+        throw Exception("Table name and key column are required");
+    }
+    if (keys.empty())
+    {
+        return;
+    }
+
+    String keyText;
+    for (size_t i = 0; i < keys.size(); ++i)
+    {
+        if (i > 0)
+        {
+            keyText += ',';
+        }
+        keyText += keys[i].asString();
+    }
+
+    const String sql = "DELETE FROM " + tableName + " WHERE " + keyColumnName +
+                       " IN (SELECT CAST(value AS " + bulkKeyCast(keys) + ") FROM STRING_SPLIT(?, ','))";
+    const char* value = keyText.c_str();
+    SQLLEN      length = static_cast<SQLLEN>(keyText.size());
+
+    const bool wasInTransaction = getInTransaction();
+    if (!wasInTransaction)
+    {
+        beginTransaction();
+    }
+
+    try
+    {
+        const scoped_lock lock(*m_connect);
+        SQLHSTMT stmt = SQL_NULL_HSTMT;
+        if (!successful(SQLAllocStmt(handle(), &stmt)))
+        {
+            throw DatabaseException(String("Can't allocate bulk statement: ") + queryError(static_cast<SQLHSTMT>(nullptr)));
+        }
+        if (!successful(SQLBindParameter(stmt, 1, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_VARCHAR, length, 0,
+                                         const_cast<char*>(value), length + 1, nullptr)))
+        {
+            const String error = queryError(stmt);
+            SQLFreeStmt(stmt, SQL_DROP);
+            throw DatabaseException(error);
+        }
+        if (!successful(SQLExecDirect(stmt, bit_cast<SQLCHAR*>(sql.data()), SQL_NTS)))
+        {
+            const String error = queryError(stmt);
+            SQLFreeStmt(stmt, SQL_DROP);
+            throw DatabaseException(error);
+        }
+        SQLFreeStmt(stmt, SQL_DROP);
+    }
+    catch (...)
+    {
+        if (!wasInTransaction)
+        {
+            try
+            {
+                rollbackTransaction();
+            }
+            catch (const Exception&)
+            {
+                // Preserve the original error.
+            }
+        }
+        throw;
+    }
+
+    if (!wasInTransaction)
+    {
+        commitTransaction();
+    }
+}
+
 void ODBCConnection::objectList(const DatabaseObjectType objectType, Strings& objects)
 {
     objects.clear();
