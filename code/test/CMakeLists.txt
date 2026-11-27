@@ -8,7 +8,7 @@ IF (GTEST_FLAG)
 
     # ODBC unit tests instantiate ODBCConnection directly; the other database tests go through the
     # driver loader and only need the core library.
-    IF (USE_ODBC)
+    IF (USE_ODBC AND ODBC_FLAG)
         TARGET_LINK_LIBRARIES(sptk_unit_tests spdb5_odbc)
     ENDIF ()
 
