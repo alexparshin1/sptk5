@@ -27,7 +27,7 @@ ENV PATH=/opt/rh/gcc-toolset-14/root/usr/bin:$PATH
 ENV MANPATH=/opt/rh/gcc-toolset-14/root/usr/share/man:$MANPATH
 ENV PKG_CONFIG_PATH=/opt/rh/gcc-toolset-14/root/usr/lib64/pkgconfig:$PKG_CONFIG_PATH
 
-RUN yum -y install mc pcre2 pcre2-devel unixODBC postgresql-server postgresql-devel mariadb  sqlite sqlite-devel
+RUN yum -y install mc pcre2 pcre2-devel unixODBC unixODBC-devel postgresql-server postgresql-devel mariadb  sqlite sqlite-devel
 RUN yum -y install rpm-build rsync brotli-devel
 
 RUN dnf install -y mariadb-connector-c-devel
