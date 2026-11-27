@@ -47,27 +47,120 @@ using namespace sptk;
 
 DriverLoaders DriverLoaders::loadedDrivers;
 
-DatabaseConnectionPool::DatabaseConnectionPool(const String& connectionString, const unsigned maxConnections, const chrono::milliseconds connectionTimeout)
+DatabaseConnectionPool::DatabaseConnectionPool(const String& connectionString, const unsigned maxConnections,
+                                                 const chrono::milliseconds connectionTimeout)
     : DatabaseConnectionString(connectionString)
     , m_maxConnections(maxConnections)
     , m_connectionTimeout(connectionTimeout)
 {
+    m_core->connectionString = DatabaseConnectionString(connectionString);
 }
 
 DatabaseConnectionPool::~DatabaseConnectionPool()
 {
-    m_connections.each([](const SPoolDatabaseConnection& connection)
-                       {
-                           connection->close();
-                           return true;
-                       });
-    m_pool.clear();
-    m_connections.clear();
+    m_core->shutdown();
+}
+
+void DatabaseConnectionPoolCore::shutdown()
+{
+    const scoped_lock lock(mutex);
+    destroyed = true;
+    // Closing can throw (busy database, network failure). A destructor must never propagate.
+    // Connections still checked out must survive the pool: drop them from the pool's list but
+    // leave the shared_ptr held by their AutoDatabaseConnection intact.
+    vector<SPoolDatabaseConnection> stillBorrowed;
+    connections.each([this, &stillBorrowed](const SPoolDatabaseConnection& connection)
+                     {
+                         if (borrowed.find(connection.get()) != borrowed.end())
+                         {
+                             stillBorrowed.push_back(connection);
+                             return true;
+                         }
+                         try
+                         {
+                             if (connection->active())
+                             {
+                                 connection->close();
+                             }
+                         }
+                         catch (const Exception& e)
+                         {
+                             CERR(e.what());
+                         }
+                         return true;
+                     });
+    for (auto& connection: stillBorrowed)
+    {
+        connections.remove(connection);
+    }
+    pool.clear();
+    connections.clear();
+}
+
+SPoolDatabaseConnection DatabaseConnectionPoolCore::create(const String& connectionString,
+                                                           const size_t maxConnections,
+                                                           const chrono::milliseconds connectionTimeout)
+{
+    // The size check, creation and registration must be one atomic operation: without the lock two
+    // threads can both see a free slot and exceed maxConnections.
+    const scoped_lock lock(mutex);
+    if (destroyed)
+    {
+        return {};
+    }
+
+    if (connections.size() < maxConnections && pool.empty())
+    {
+        auto connection = SPoolDatabaseConnection(
+            createConnection(connectionString.c_str(),
+                             chrono::duration_cast<chrono::seconds>(connectionTimeout).count()),
+            [self = shared_from_this()](PoolDatabaseConnection* conn)
+            {
+                try
+                {
+                    if (conn->active())
+                    {
+                        conn->close();
+                    }
+                }
+                catch (const Exception& e)
+                {
+                    CERR(e.what());
+                }
+                if (self->destroyConnection != nullptr)
+                {
+                    self->destroyConnection(conn);
+                }
+            });
+        connections.push_back(connection);
+        borrowed.insert(connection.get());
+        return connection;
+    }
+
+    SPoolDatabaseConnection connection;
+    if (pool.pop_front(connection, connectionTimeout))
+    {
+        borrowed.insert(connection.get());
+        return connection;
+    }
+    return {};
+}
+
+void DatabaseConnectionPoolCore::release(const SPoolDatabaseConnection& connection)
+{
+    const scoped_lock lock(mutex);
+    borrowed.erase(connection.get());
+    if (connection == nullptr || destroyed)
+    {
+        // The pool is gone: the connection's shared_ptr deleter will release the driver instance.
+        return;
+    }
+    pool.push_back(connection);
 }
 
 void DatabaseConnectionPool::load()
 {
-    const scoped_lock lock(*this);
+    const scoped_lock lock(m_core->mutex);
 
     String driverNameLC = lowerCase(driverName());
     if (driverNameLC == "mssql")
@@ -77,9 +170,9 @@ void DatabaseConnectionPool::load()
 
     if (const auto loadedDriver = DriverLoaders::loadedDrivers.get(driverNameLC))
     {
-        m_driver = loadedDriver;
-        m_createConnection = loadedDriver->m_createConnection;
-        m_destroyConnection = loadedDriver->m_destroyConnection;
+        m_core->driver = loadedDriver;
+        m_core->createConnection = loadedDriver->m_createConnection;
+        m_core->destroyConnection = loadedDriver->m_destroyConnection;
         return;
     }
 
@@ -110,7 +203,7 @@ void DatabaseConnectionPool::load()
     CreateDriverInstance* createConnection = (CreateDriverInstance*) GetProcAddress(handle, createConnectionFunctionName.c_str());
     if (!createConnection)
     {
-        CloseHandle(handle);
+        FreeLibrary(handle);
         throw DatabaseException("Cannot load driver " + driverNameLC + ": no function " + createConnectionFunctionName);
     }
 
@@ -118,7 +211,8 @@ void DatabaseConnectionPool::load()
     if (!destroyConnection)
     {
         createConnection = nullptr;
-        CloseHandle(handle);
+        destroyConnection = nullptr;
+        FreeLibrary(handle);
         throw DatabaseException("Cannot load driver " + driverNameLC + ": no function " + destroyConnectionFunctionName);
     }
 #else
@@ -140,22 +234,23 @@ void DatabaseConnectionPool::load()
 
     if (dlsymError != nullptr)
     {
-        m_createConnection = nullptr;
+        m_core->createConnection = nullptr;
+        m_core->destroyConnection = nullptr;
         dlclose(handle);
         throw DatabaseException(String("Cannot load driver ") + driverNameLC + String(": ") + string(dlsymError));
     }
 
 #endif
-    m_driver = make_shared<DatabaseDriver>();
-    m_driver->m_handle = handle;
-    m_driver->m_createConnection = createConnection;
-    m_driver->m_destroyConnection = destroyConnection;
+    m_core->driver = make_shared<DatabaseDriver>();
+    m_core->driver->m_handle = handle;
+    m_core->driver->m_createConnection = createConnection;
+    m_core->driver->m_destroyConnection = destroyConnection;
 
-    m_createConnection = createConnection;
-    m_destroyConnection = destroyConnection;
+    m_core->createConnection = createConnection;
+    m_core->destroyConnection = destroyConnection;
 
     // Registering the loaded driver in the map
-    DriverLoaders::loadedDrivers.add(driverNameLC, m_driver);
+    DriverLoaders::loadedDrivers.add(driverNameLC, m_core->driver);
 }
 
 [[nodiscard]] DatabaseConnection DatabaseConnectionPool::getConnection()
@@ -165,56 +260,24 @@ void DatabaseConnectionPool::load()
 
 SPoolDatabaseConnection DatabaseConnectionPool::createConnection()
 {
-    if (m_driver == nullptr)
+    if (m_core->createConnection == nullptr)
     {
         load();
     }
-
-    SPoolDatabaseConnection connection;
-    if (m_connections.size() < m_maxConnections && m_pool.empty())
-    {
-        // Seconds, which is what the drivers are given and what they are named after: the pool's own
-        // timeout is in milliseconds, and it was being passed on as it stood.
-        connection = SPoolDatabaseConnection(
-            m_createConnection(toString().c_str(), chrono::duration_cast<chrono::seconds>(m_connectionTimeout).count()),
-                                             [this](PoolDatabaseConnection* conn)
-                                             {
-                                                 try
-                                                 {
-                                                     if (conn->active())
-                                                     {
-                                                         conn->close();
-                                                     }
-                                                 }
-                                                 catch (const Exception& e)
-                                                 {
-                                                     CERR(e.what());
-                                                 }
-                                                 m_destroyConnection(conn);
-                                             });
-        m_connections.push_back(connection);
-        return connection;
-    }
-
-    if (m_pool.pop_front(connection, m_connectionTimeout))
-    {
-        return connection;
-    }
-
-    return {};
+    return m_core->create(toString(), m_maxConnections, m_connectionTimeout);
 }
 
 void DatabaseConnectionPool::releaseConnection(const SPoolDatabaseConnection& connection)
 {
-    m_pool.push_back(connection);
+    m_core->release(connection);
 }
 
 size_t DatabaseConnectionPool::totalConnections() const
 {
-    return m_connections.size();
+    return m_core->connections.size();
 }
 
 size_t DatabaseConnectionPool::availableConnections() const
 {
-    return m_pool.size();
+    return m_core->pool.size();
 }

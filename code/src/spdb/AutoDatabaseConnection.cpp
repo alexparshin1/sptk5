@@ -44,10 +44,10 @@ using namespace sptk;
 const String AutoDatabaseConnection::s_invalidConnectionMessage {"DB connection not active"};
 
 AutoDatabaseConnection::AutoDatabaseConnection(DatabaseConnectionPool& connectionPool)
-    : m_connectionPool(connectionPool)
+    : m_poolCore(connectionPool.core())
 {
-    m_connection = m_connectionPool.createConnection();
-    if (m_connection.expired())
+    m_connection = connectionPool.createConnection();
+    if (m_connection == nullptr)
     {
         throw Exception("Failed to create database connection");
     }
@@ -57,14 +57,16 @@ AutoDatabaseConnection::~AutoDatabaseConnection()
 {
     try
     {
-        const auto connection = m_connection.lock();
+        const auto connection = m_connection;
         if (connection)
         {
-            if (connection->active())
+            // Keep the connection open for the next borrower: closing it here made every acquire
+            // pay for a new network connection and defeated the purpose of the pool.
+            if (connection->inTransaction())
             {
-                connection->close();
+                connection->rollbackTransaction();
             }
-            m_connectionPool.releaseConnection(connection);
+            m_poolCore->release(connection);
         }
     }
     catch (const Exception& e)
@@ -75,9 +77,9 @@ AutoDatabaseConnection::~AutoDatabaseConnection()
 
 SPoolDatabaseConnection AutoDatabaseConnection::acquireConnection() const
 {
-    if (const auto connection = m_connection.lock())
+    if (m_connection != nullptr)
     {
-        return connection;
+        return m_connection;
     }
     throw Exception(s_invalidConnectionMessage);
 }
@@ -104,13 +106,12 @@ void AutoDatabaseConnection::close() const
 
 bool AutoDatabaseConnection::active() const
 {
-    const auto connection = m_connection.lock();
-    return connection != nullptr && connection->active();
+    return m_connection != nullptr && m_connection->active();
 }
 
 const DatabaseConnectionString& AutoDatabaseConnection::connectionString() const
 {
-    return m_connectionPool;
+    return m_poolCore->connectionString;
 }
 
 DatabaseConnectionType AutoDatabaseConnection::connectionType() const

@@ -47,6 +47,8 @@ namespace sptk {
  */
 class DatabaseConnectionPool;
 
+struct DatabaseConnectionPoolCore;
+
 /**
  * @brief Wrapper for CDatabase connection that automatically handles connection create and release.
  */
@@ -207,8 +209,8 @@ public:
     [[nodiscard]] String lastAutoIncrementSql(const String& tableName, const String& /*sequenceName*/ = "") const;
 
 private:
-    DatabaseConnectionPool& m_connectionPool;           ///< Database connection pool.
-    WPoolDatabaseConnection m_connection;               ///< Database connection.
+    std::shared_ptr<DatabaseConnectionPoolCore> m_poolCore; ///< Survives the pool itself.
+    SPoolDatabaseConnection m_connection;               ///< Owned until returned to the pool.
     static const String     s_invalidConnectionMessage; ///< Error message for inactive connection.
 
     SPoolDatabaseConnection acquireConnection() const;

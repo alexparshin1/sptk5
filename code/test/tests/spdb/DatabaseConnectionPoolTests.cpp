@@ -41,10 +41,41 @@
 #include <queue>
 #include <sptk5/cutils>
 #include <sptk5/db/DatabaseConnectionPool.h>
+#include <sptk5/db/Query.h>
 
 using namespace std;
 using namespace sptk;
 namespace sptk {
+
+TEST(DatabaseConnectionPoolTests,connectionOutlivesPool)
+{
+    // A borrowed connection must stay usable after the pool object is gone, and its release path
+    // must not touch the destroyed pool.
+    const DatabaseConnectionString connectionString = DatabaseTests::tests().connectionString("sqlite3");
+    if (connectionString.empty())
+    {
+        GTEST_SKIP() << "SQLite3 connection is not defined";
+    }
+
+    try
+    {
+        DatabaseConnection connection;
+        {
+            DatabaseConnectionPool pool(connectionString.toString(), 2);
+            connection = pool.getConnection();
+            connection->open();
+        }
+
+        EXPECT_TRUE(connection->active());
+        Query query(connection, "SELECT 1 AS value");
+        EXPECT_EQ(query.scalar().asInteger(), 1);
+        connection->close();
+    }
+    catch (const Exception& e)
+    {
+        FAIL() << "Connection outliving pool failed: " << e.what();
+    }
+}
 
 TEST(DatabaseConnectionPoolTests,connectString)
 {

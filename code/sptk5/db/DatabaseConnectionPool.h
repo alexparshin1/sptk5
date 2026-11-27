@@ -44,11 +44,42 @@
 #include <sptk5/threads/SynchronizedList.h>
 #include <sptk5/threads/SynchronizedQueue.h>
 
+#include <atomic>
+#include <memory>
+#include <mutex>
+#include <set>
+
 namespace sptk {
 /**
  * @addtogroup Database Database Support.
  * @{
  */
+
+/**
+ * @brief State shared between a pool and the connections it handed out.
+ *
+ * An AutoDatabaseConnection can outlive the DatabaseConnectionPool it came from. Keeping the
+ * queue, the destroy function and the connection string here means the connection's deleter and
+ * release path never touch a destroyed pool.
+ */
+struct SP_EXPORT DatabaseConnectionPoolCore
+    : public std::enable_shared_from_this<DatabaseConnectionPoolCore>
+{
+    std::mutex                                         mutex;
+    std::shared_ptr<DatabaseDriver>                    driver;
+    CreateDriverInstance*                              createConnection {nullptr};
+    DestroyDriverInstance*                             destroyConnection {nullptr};
+    DatabaseConnectionString                           connectionString;
+    SynchronizedQueue<SPoolDatabaseConnection>         pool;
+    SynchronizedList<SPoolDatabaseConnection>          connections;
+    std::atomic<bool>                                  destroyed {false};
+    std::set<PoolDatabaseConnection*>                  borrowed;  ///< Handed out, not in the pool.
+
+    SPoolDatabaseConnection create(const String& connectionString, size_t maxConnections,
+                                   std::chrono::milliseconds connectionTimeout);
+    void release(const SPoolDatabaseConnection& connection);
+    void shutdown();
+};
 
 /**
  * @brief Database driver loader.
@@ -58,7 +89,6 @@ namespace sptk {
  */
 class SP_EXPORT DatabaseConnectionPool
     : public DatabaseConnectionString
-    , public std::mutex
 {
     friend class AutoDatabaseConnection;
 
@@ -83,6 +113,12 @@ public:
      * @return database connection.
      */
     [[nodiscard]] DatabaseConnection getConnection();
+
+    /// Shared state, also used by AutoDatabaseConnection.
+    [[nodiscard]] std::shared_ptr<DatabaseConnectionPoolCore> core() const
+    {
+        return m_core;
+    }
 
     /**
      * @brief Get the maximum number of connections in the pool.
@@ -134,13 +170,9 @@ protected:
     void releaseConnection(const SPoolDatabaseConnection& connection);
 
 private:
-    std::shared_ptr<DatabaseDriver>            m_driver {nullptr};            ///< Database driver.
-    CreateDriverInstance*                      m_createConnection {nullptr};  ///< Function that creates driver instances.
-    DestroyDriverInstance*                     m_destroyConnection {nullptr}; ///< Function that destroys driver instances.
-    std::atomic<size_t>                        m_maxConnections {128};        ///< Maximum number of connections in the pool.
-    SynchronizedQueue<SPoolDatabaseConnection> m_pool;                        ///< Available connections.
-    SynchronizedList<SPoolDatabaseConnection>  m_connections;                 ///< All connections.
-    std::chrono::milliseconds                  m_connectionTimeout;           ///< Connection timeout.
+    std::shared_ptr<DatabaseConnectionPoolCore> m_core {std::make_shared<DatabaseConnectionPoolCore>()};
+    size_t                                      m_maxConnections;           ///< Maximum number of connections in the pool.
+    std::chrono::milliseconds                   m_connectionTimeout;        ///< Connection timeout.
 };
 
 /**
