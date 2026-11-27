@@ -946,6 +946,33 @@ TEST(MSSQLConnectionTests, blob)
 //───────────────────────────────── SQLite3 ────────────────────────────────────────────
 #ifdef HAVE_SQLITE3
 
+TEST(SQLite3ConnectionTests, preparedStatementReuse)
+{
+    DatabaseConnectionString connectionString = DatabaseTests::tests().connectionString("sqlite3");
+    if (connectionString.empty())
+    {
+        GTEST_SKIP() << "SQLite3 connection is not defined";
+    }
+
+    try
+    {
+        DatabaseConnectionPool connectionPool(connectionString.toString());
+        const DatabaseConnection connection = connectionPool.getConnection();
+
+        Query first(connection, "SELECT :value AS value");
+        first.param("value") = 11;
+        EXPECT_EQ(first.scalar().asInteger(), 11);
+
+        Query second(connection, "SELECT :value AS value");
+        second.param("value") = 22;
+        EXPECT_EQ(second.scalar().asInteger(), 22);
+    }
+    catch (const Exception& e)
+    {
+        FAIL() << "Prepared statement reuse failed: " << e.what();
+    }
+}
+
 TEST(SQLite3ConnectionTests, connect)
 {
     testConnect("SQLite3");

@@ -70,22 +70,6 @@ SQLite3Connection::SQLite3Connection(const String& connectionString, const chron
 {
 }
 
-void SQLite3Connection::closeAndClean()
-{
-    try
-    {
-        if (getInTransaction() && SQLite3Connection::active())
-        {
-            rollbackTransaction();
-        }
-        close();
-    }
-    catch (const Exception& e)
-    {
-        CERR(e.what());
-    }
-}
-
 String SQLite3Connection::nativeConnectionString() const
 {
     if (connectionString().portNumber() > 0)
@@ -100,23 +84,46 @@ String SQLite3Connection::nativeConnectionString() const
 
 chrono::minutes SQLite3Connection::getSessionTimezoneOffset()
 {
-    const auto self = shared_from_this();
-    if (self == nullptr)
+    // Read the server timestamp directly: going through Query would require a shared_ptr to this
+    // connection, so a stack-allocated SQLite3Connection could not be opened at all.
+    const String sql("SELECT CURRENT_TIMESTAMP");
+    sqlite3_stmt* stmt = nullptr;
+    if (sqlite3_prepare_v2(m_connect.get(), sql.c_str(), -1, &stmt, nullptr) != SQLITE_OK)
     {
-        throw DatabaseException("PoolDatabaseConnection is not created as shared_ptr");
+        throw DatabaseException(String("Can't prepare timezone query: ") + sqlite3_errmsg(m_connect.get()));
     }
 
-    m_sessionTimezoneOffset = chrono::minutes(0);
-    Query      query(self, "SELECT CURRENT_TIMESTAMP");
-    const auto timestamp = query.scalar().asDateTime();
-    const auto sessionTimezoneOffset = chrono::duration_cast<chrono::minutes>(timestamp - DateTime::Now());
-    return sessionTimezoneOffset;
+    const auto localBefore = DateTime::Now();
+    const int  stepResult = sqlite3_step(stmt);
+    const auto localAfter = DateTime::Now();
+
+    String serverTime;
+    if (stepResult == SQLITE_ROW)
+    {
+        if (const auto* text = sqlite3_column_text(stmt, 0); text != nullptr)
+        {
+            serverTime = reinterpret_cast<const char*>(text);
+        }
+    }
+    sqlite3_finalize(stmt);
+
+    if (stepResult != SQLITE_ROW || serverTime.empty())
+    {
+        throw DatabaseException("Can't read server timestamp for timezone offset");
+    }
+
+    const DateTime serverDateTime(serverTime.c_str());
+    // Sample local time on both sides of the query to remove most of the round-trip bias.
+    const DateTime midpoint = localBefore + (localAfter - localBefore) / 2;
+    return chrono::duration_cast<chrono::minutes>(serverDateTime - midpoint);
 }
 
 void SQLite3Connection::_openDatabase(const String& newConnectionString)
 {
+    const scoped_lock lock(m_mutex);
     if (!active())
     {
+        clearPreparedStatements();
         setInTransaction(false);
 
         if (!newConnectionString.empty())
@@ -138,10 +145,17 @@ void SQLite3Connection::_openDatabase(const String& newConnectionString)
             throw DatabaseException("Can't open the database '" + dbFileName + "'");
         }
 
+        // The deleter owns the handle it was given and must not call back into this object: a
+        // closeDatabase() in progress may be holding the mutex or replacing m_connect. The shared
+        // flag lets an explicit close disable it after sqlite3_close() has already succeeded.
+        m_closeState = make_shared<bool>(false);
         m_connect = shared_ptr<sqlite3>(connect,
-                                        [this](const sqlite3*)
+                                        [closeState = m_closeState](sqlite3* ptr)
                                         {
-                                            closeAndClean();
+                                            if (!*closeState && ptr != nullptr)
+                                            {
+                                                sqlite3_close(ptr);
+                                            }
                                         });
 
         // Wait for a database another connection is writing, rather than failing the moment it is
@@ -191,7 +205,14 @@ void SQLite3Connection::_openDatabase(const String& newConnectionString)
 
 void SQLite3Connection::closeDatabase()
 {
+    const scoped_lock lock(m_mutex);
     disconnectAllQueries();
+    clearPreparedStatements();
+    if (m_connect == nullptr)
+    {
+        return;
+    }
+
     switch (sqlite3_close(m_connect.get()))
     {
         case SQLITE_OK:
@@ -201,21 +222,25 @@ void SQLite3Connection::closeDatabase()
         default:
             throw DatabaseException("Failed to close SQLite3 connection");
     }
+    *m_closeState = true;
     m_connect = nullptr;
 }
 
 DBHandle SQLite3Connection::handle() const
 {
+    const scoped_lock lock(m_mutex);
     return bit_cast<DBHandle>(m_connect.get());
 }
 
 bool SQLite3Connection::active() const
 {
+    const scoped_lock lock(m_mutex);
     return m_connect != nullptr;
 }
 
 void SQLite3Connection::driverBeginTransaction()
 {
+    const scoped_lock lock(m_mutex);
     if (m_connect == nullptr)
     {
         open();
@@ -240,6 +265,7 @@ void SQLite3Connection::driverBeginTransaction()
 
 void SQLite3Connection::driverEndTransaction(const bool commit)
 {
+    const scoped_lock lock(m_mutex);
     if (!getInTransaction())
     {
         throw DatabaseException("Transaction isn't started.");
@@ -262,29 +288,94 @@ void SQLite3Connection::driverEndTransaction(const bool commit)
 
 String SQLite3Connection::queryError(const Query*) const
 {
-    return sqlite3_errmsg(m_connect.get());
+    const scoped_lock lock(m_mutex);
+    return m_connect == nullptr ? "Database connection is not open" : sqlite3_errmsg(m_connect.get());
 }
 
 // Doesn't allocate a statement, but makes sure the previously allocated stmt is released.
 void SQLite3Connection::queryAllocStmt(Query* query)
 {
+    queryFreeStmt(query);
+
     const scoped_lock lock(m_mutex);
-
-    if (auto* stmt = bit_cast<SQLHSTMT>(query->statement());
-        stmt != nullptr)
+    if (query->autoPrepare())
     {
-        sqlite3_finalize(stmt);
+        if (const auto cached = m_preparedStatements.find(query->sql()); cached != m_preparedStatements.end())
+        {
+            // Handed out exclusively: a statement and its result row cannot be shared by two queries.
+            const SStmtHandle handle = cached->second;
+            m_preparedStatements.erase(cached);
+            m_preparedStatementKeys.erase(find(m_preparedStatementKeys.begin(), m_preparedStatementKeys.end(),
+                                                query->sql()));
+            sqlite3_reset(bit_cast<SQLHSTMT>(handle.get()));
+            querySetStmt(query, handle);
+            querySetPrepared(query, true);
+            return;
+        }
     }
-
-    querySetStmt(query, nullptr);
+    // No new statement here: queryPrepare() compiles it, or queryExecDirect uses a temporary one.
 }
 
 void SQLite3Connection::queryFreeStmt(Query* query)
 {
-    const scoped_lock lock(m_mutex);
+    std::vector<SStmtHandle> evicted;
+    SStmtHandle              discarded;
+    {
+        const scoped_lock lock(m_mutex);
+        const SStmtHandle  handle = queryStatement(query);
+        if (query->prepared())
+        {
+            evicted = cacheStatement(query->sql(), handle);
+        }
+        else
+        {
+            // Dropping the shared_ptr finalizes the statement; do that after unlocking.
+            discarded = handle;
+        }
+        querySetStmt(query, nullptr);
+        querySetPrepared(query, false);
+    }
+}
 
-    querySetStmt(query, nullptr);
-    querySetPrepared(query, false);
+std::vector<SStmtHandle> SQLite3Connection::cacheStatement(const String& sql, const SStmtHandle& statement)
+{
+    std::vector<SStmtHandle> evicted;
+    if (sql.empty() || statement == nullptr)
+    {
+        return evicted;
+    }
+
+    sqlite3_reset(bit_cast<SQLHSTMT>(statement.get()));
+    sqlite3_clear_bindings(bit_cast<SQLHSTMT>(statement.get()));
+
+    if (const auto existing = m_preparedStatements.find(sql); existing != m_preparedStatements.end())
+    {
+        evicted.push_back(existing->second);
+        m_preparedStatements.erase(existing);
+        m_preparedStatementKeys.erase(find(m_preparedStatementKeys.begin(), m_preparedStatementKeys.end(), sql));
+    }
+
+    m_preparedStatements.emplace(sql, statement);
+    m_preparedStatementKeys.push_back(sql);
+
+    while (m_preparedStatementKeys.size() > maxCachedStatements)
+    {
+        const String oldest = m_preparedStatementKeys.front();
+        m_preparedStatementKeys.pop_front();
+        if (const auto itor = m_preparedStatements.find(oldest); itor != m_preparedStatements.end())
+        {
+            evicted.push_back(itor->second);
+            m_preparedStatements.erase(itor);
+        }
+    }
+    return evicted;
+}
+
+void SQLite3Connection::clearPreparedStatements()
+{
+    const scoped_lock lock(m_mutex);
+    m_preparedStatements.clear();
+    m_preparedStatementKeys.clear();
 }
 
 void SQLite3Connection::queryCloseStmt(Query* query)
@@ -341,7 +432,10 @@ size_t SQLite3Connection::queryColCount(Query* query)
     const scoped_lock lock(m_mutex);
 
     auto* stmt = bit_cast<SQLHSTMT>(query->statement());
-
+    if (stmt == nullptr)
+    {
+        throw DatabaseException("Statement isn't open", source_location::current(), query->sql());
+    }
     return static_cast<size_t>(sqlite3_column_count(stmt));
 }
 
@@ -403,12 +497,12 @@ void SQLite3Connection::bindParameter(Query* query, const uint32_t paramNumber)
                 case VAR_STRING:
                 case VAR_TEXT:
                     res = sqlite3_bind_text(stmt, parameterBindNumber, parameter->getString(), static_cast<int>(parameter->dataSize()),
-                                            nullptr);
+                                            SQLITE_TRANSIENT);
                     break;
 
                 case VAR_BUFFER:
                     res = sqlite3_bind_blob(stmt, parameterBindNumber, parameter->getString(), static_cast<int>(parameter->dataSize()),
-                                            nullptr);
+                                            SQLITE_TRANSIENT);
                     break;
 
                 default:
@@ -433,7 +527,7 @@ int SQLite3Connection::transformDateTimeParameter(sqlite3_stmt* stmt, QueryParam
     const auto dt = dataType == VariantDataType::VAR_DATE ? param->get<DateTime>().date() : param->get<DateTime>();
     param->setString(dt.isoDateTimeString());
     const auto rc = sqlite3_bind_text(stmt, paramBindNumber, param->getString(), static_cast<int>(param->dataSize()),
-                                      nullptr);
+                                      SQLITE_TRANSIENT);
     return rc;
 }
 
@@ -538,10 +632,18 @@ void SQLite3Connection::queryFetch(Query* query)
     }
 
     auto* statement = bit_cast<SQLHSTMT>(query->statement());
+    if (statement == nullptr)
+    {
+        throw DatabaseException("Statement isn't open", source_location::current(), query->sql());
+    }
 
-    const scoped_lock lock(m_mutex);
+    // Only the SQLite calls need the connection lock; converting values into fields does not.
+    const auto locked = [&](auto&& fn) {
+        const scoped_lock lock(m_mutex);
+        return fn();
+    };
 
-    switch (sqlite3_step(statement))
+    switch (locked([&] { return sqlite3_step(statement); }))
     {
         case SQLITE_DONE:
             querySetEof(query, true);
@@ -560,43 +662,67 @@ void SQLite3Connection::queryFetch(Query* query)
         return;
     }
 
-    SQLite3Field*  field = nullptr;
-    const uint8_t* buffer = nullptr;
-    const char*    text = nullptr;
+    chrono::minutes sessionOffset;
+    {
+        const scoped_lock lock(m_mutex);
+        sessionOffset = m_sessionTimezoneOffset;
+    }
 
+    SQLite3Field* field = nullptr;
     for (uint32_t column = 0; column < fieldCount; ++column)
     {
         try
         {
             field = bit_cast<SQLite3Field*>(&(*query)[column]);
+            const auto columnIndex = static_cast<int>(column);
 
             auto fieldType = static_cast<short>(field->fieldType());
             if (fieldType == 0 || fieldType == SQLITE_NULL)
             {
-                fieldType = static_cast<short>(sqlite3_column_type(statement, static_cast<int>(column)));
+                fieldType = static_cast<short>(locked([&] { return sqlite3_column_type(statement, columnIndex); }));
                 field->setFieldType(fieldType, 0, 0);
             }
 
-            if (auto dataLength = static_cast<uint32_t>(sqlite3_column_bytes(statement, static_cast<int>(column)));
-                dataLength != 0)
+            if (fieldType == SQLITE_NULL)
+            {
+                setFieldToNull(field, fieldType);
+                continue;
+            }
+
+            auto dataLength = static_cast<uint32_t>(locked([&] { return sqlite3_column_bytes(statement, columnIndex); }));
+
+            // Zero-length text/blob is a value, not NULL. sqlite3_column_type() above is the only
+            // reliable NULL test.
+            if (dataLength == 0 && (fieldType == SQLITE_TEXT || fieldType == SQLITE_BLOB))
+            {
+                field->setBuffer(nullptr, 0, VariantDataType::VAR_BUFFER);
+                field->dataSize(0);
+                continue;
+            }
+
+            if (dataLength != 0)
             {
                 switch (fieldType)
                 {
                     case SQLITE_INTEGER:
-                        field->setInt64(sqlite3_column_int64(statement, static_cast<int>(column)));
+                        field->setInt64(locked([&] { return sqlite3_column_int64(statement, columnIndex); }));
                         break;
 
                     case SQLITE_FLOAT:
-                        field->setFloat(sqlite3_column_double(statement, static_cast<int>(column)));
+                        field->setFloat(locked([&] { return sqlite3_column_double(statement, columnIndex); }));
                         break;
 
-                    case SQLITE_TEXT:
-                        buffer = sqlite3_column_text(statement, static_cast<int>(column));
-                        text = reinterpret_cast<const char*>(buffer);
-                        if (matchDateTime.matches(text))
+                    case SQLITE_TEXT: {
+                        const auto* buffer = locked([&] { return sqlite3_column_text(statement, columnIndex); });
+                        const char* text = reinterpret_cast<const char*>(buffer);
+
+                        // Only a computed column (e.g. CURRENT_TIMESTAMP) is a UTC timestamp. A
+                        // VARCHAR column holding the same text is user data and must stay a string.
+                        const bool isExpression = locked([&] { return sqlite3_column_decltype(statement, columnIndex) == nullptr; });
+                        if (isExpression && matchDateTime.matches(text))
                         {
-                            DateTime dateTime(text);
-                            field->setDateTime(dateTime - m_sessionTimezoneOffset);
+                            const DateTime dateTime(text);
+                            field->setDateTime(dateTime - sessionOffset);
                             dataLength = sizeof(int64_t);
                         }
                         else
@@ -605,11 +731,13 @@ void SQLite3Connection::queryFetch(Query* query)
                             dataLength = trimField(bit_cast<char*>(field->get<Buffer>().data()), dataLength);
                         }
                         break;
+                    }
 
-                    case SQLITE_BLOB:
-                        field->setBuffer(bit_cast<const uint8_t*>(sqlite3_column_blob(statement, static_cast<int>(column))), dataLength,
-                                         VariantDataType::VAR_BUFFER);
+                    case SQLITE_BLOB: {
+                        const auto* blob = locked([&] { return sqlite3_column_blob(statement, columnIndex); });
+                        field->setBuffer(bit_cast<const uint8_t*>(blob), dataLength, VariantDataType::VAR_BUFFER);
                         break;
+                    }
 
                     default:
                         dataLength = 0;
@@ -658,7 +786,7 @@ void SQLite3Connection::setFieldToNull(Field* field, const short sqliteFieldType
             break;
         default:
             field->setString("");
-            field->setNull(VAR_NONE);
+            field->setNull(field->dataType());
             break;
     }
 }
@@ -667,10 +795,13 @@ void SQLite3Connection::executeBatchSQL(const Strings& batchSQL, Strings* errors
 {
     static const RegularExpression matchStatementEnd("(;\\s*)$");
     static const RegularExpression matchCommentRow("^\\s*--");
+    static const RegularExpression matchTrigger("^CREATE(\\s+TEMP(ORARY)?)?\\s+TRIGGER", "i");
+    static const RegularExpression matchBlockEnd("^\\s*END\\s*;?\\s*$", "i");
 
     Strings statements;
     string  statement;
-    for (String row: batchSQL)
+    bool    inTrigger = false;
+    for (auto row: batchSQL)
     {
         row = trim(row);
         if (row.empty() || matchCommentRow.matches(row))
@@ -678,53 +809,59 @@ void SQLite3Connection::executeBatchSQL(const Strings& batchSQL, Strings* errors
             continue;
         }
 
-        row = trim(row);
-        if (row.empty() || row.starts_with("--"))
+        if (matchTrigger.matches(row))
         {
-            continue;
+            inTrigger = true;
         }
 
-        if (matchStatementEnd.matches(row))
+        if (!inTrigger && matchStatementEnd.matches(row))
         {
             row = matchStatementEnd.s(row, "");
             statement += row;
             statements.push_back(trim(statement));
-            statement = "";
+            statement.clear();
             continue;
         }
 
         statement += row + "\n";
+
+        if (inTrigger && matchBlockEnd.matches(row))
+        {
+            inTrigger = false;
+            statements.push_back(trim(statement));
+            statement.clear();
+        }
     }
 
     if (!trim(statement).empty())
     {
-        statements.push_back(statement);
+        statements.push_back(trim(statement));
     }
 
-    auto self = shared_from_this();
-    if (self == nullptr)
+    // Execute directly: a batch statement is one-shot and must not require a shared_ptr to this
+    // connection or go through prepare/step/finalize for every line.
+    const scoped_lock lock(m_mutex);
+    if (!active())
     {
-        throw DatabaseException("PoolDatabaseConnection is not created as shared_ptr");
+        open();
     }
 
-    for (const auto& stmt: statements)
+    for (const auto& sql: statements)
     {
-        try
+        char* zErrMsg = nullptr;
+        if (sqlite3_exec(m_connect.get(), sql.c_str(), nullptr, nullptr, &zErrMsg) != SQLITE_OK)
         {
-            Query query(self, stmt, false);
-            query.exec();
-        }
-        catch (const Exception& e)
-        {
-            stringstream error;
-            error << e.what() << ". Query: " << stmt;
+            const String error = zErrMsg != nullptr ? String(zErrMsg) : String(sqlite3_errmsg(m_connect.get()));
+            sqlite3_free(zErrMsg);
+            stringstream message;
+            message << error << ". Query: " << sql;
             if (errors != nullptr)
             {
-                errors->push_back(error.str());
+                errors->push_back(message.str());
             }
             else
             {
-                throw DatabaseException(error.str());
+                throw DatabaseException(message.str());
             }
         }
     }
@@ -732,9 +869,7 @@ void SQLite3Connection::executeBatchSQL(const Strings& batchSQL, Strings* errors
 
 void SQLite3Connection::objectList(const DatabaseObjectType objectType, Strings& objects)
 {
-    string objectTypeName;
-    objects.clear();
-
+    String objectTypeName;
     switch (objectType)
     {
         case DatabaseObjectType::TABLES:
@@ -746,25 +881,39 @@ void SQLite3Connection::objectList(const DatabaseObjectType objectType, Strings&
             break;
 
         default:
+            objects.clear();
             return; // no information about objects of other types
     }
+    objects.clear();
 
-    const auto self = shared_from_this();
-    if (self == nullptr)
+    const scoped_lock lock(m_mutex);
+    if (!active())
     {
-        throw DatabaseException("PoolDatabaseConnection is not created as shared_ptr");
+        open();
     }
 
-    Query query(self, "SELECT name FROM sqlite_master WHERE type='" + objectTypeName + "'");
-    query.open();
-
-    while (!query.eof())
+    const String sql("SELECT name FROM sqlite_master WHERE type = ?");
+    sqlite3_stmt* stmt = nullptr;
+    if (sqlite3_prepare_v2(m_connect.get(), sql.c_str(), -1, &stmt, nullptr) != SQLITE_OK)
     {
-        objects.push_back(query[static_cast<uint32_t>(0)].asString());
-        query.next();
+        throw DatabaseException(String("Can't prepare object list: ") + sqlite3_errmsg(m_connect.get()));
     }
+    sqlite3_bind_text(stmt, 1, objectTypeName.c_str(), static_cast<int>(objectTypeName.size()), SQLITE_TRANSIENT);
 
-    query.close();
+    int rc = SQLITE_OK;
+    while ((rc = sqlite3_step(stmt)) == SQLITE_ROW)
+    {
+        if (const auto* name = sqlite3_column_text(stmt, 0); name != nullptr)
+        {
+            objects.emplace_back(reinterpret_cast<const char*>(name));
+        }
+    }
+    sqlite3_finalize(stmt);
+
+    if (rc != SQLITE_DONE)
+    {
+        throw DatabaseException(String("Can't read object list: ") + sqlite3_errmsg(m_connect.get()));
+    }
 }
 
 String SQLite3Connection::driverDescription() const
@@ -796,8 +945,6 @@ SynchronizedMap<SQLite3Connection*, shared_ptr<SQLite3Connection>> SQLite3Connec
     SQLite3Connection::s_sqlite3Connections.erase(bit_cast<SQLite3Connection*>(connection));
 }
 
-#endif
-
 bool SQLite3Connection::supportsReturning() const
 {
     // 3.35.0, in SQLite's own encoding: major*1000000 + minor*1000 + patch.
@@ -814,3 +961,5 @@ int64_t SQLite3Connection::lastInsertId() const
     }
     return sqlite3_last_insert_rowid(handle);
 }
+
+#endif

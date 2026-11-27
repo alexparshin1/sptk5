@@ -39,6 +39,10 @@
 
 #include <sptk5/sptk.h>
 
+#include <deque>
+#include <map>
+#include <vector>
+
 #ifdef HAVE_SQLITE3
 
 #include "sptk5/threads/SynchronizedMap.h"
@@ -227,12 +231,22 @@ protected:
 private:
     using SQLHSTMT = sqlite3_stmt*;
 
-    mutable std::mutex       m_mutex;                     ///< Mutex that protects access to data members.
+    mutable std::recursive_mutex m_mutex;                ///< Recursive: close/reconnect re-enter query methods.
     std::shared_ptr<sqlite3> m_connect;                   ///< Database connection.
+    std::shared_ptr<bool>    m_closeState;                ///< Disarms the sqlite3 deleter after an explicit close.
     std::chrono::minutes     m_sessionTimezoneOffset {0}; //< Session timezone offset
 
+    static constexpr size_t                    maxCachedStatements {64};
+    std::map<String, SStmtHandle>              m_preparedStatements;
+    std::deque<String>                         m_preparedStatementKeys;
+
+    /// Keeps a compiled statement for reuse. Caller holds m_mutex; evicted statements are returned
+    /// so sqlite3_finalize() runs after unlocking.
+    std::vector<SStmtHandle> cacheStatement(const String& sql, const SStmtHandle& statement);
+
+    void clearPreparedStatements();
+
     void                 bindParameter(Query* query, uint32_t paramNumber);
-    void                 closeAndClean();
     static int           transformDateTimeParameter(sqlite3_stmt* stmt, QueryParameter* param, short paramBindNumber, VariantDataType dataType);
     std::chrono::minutes getSessionTimezoneOffset(); //< Get session timezone offset
 
