@@ -120,7 +120,7 @@ void MySQLConnection::_openDatabaseUnlocked(const String& newConnectionString)
                                connString.databaseName().c_str(),
                                connString.portNumber(),
                                nullptr,
-                               CLIENT_MULTI_RESULTS) == nullptr)
+                               CLIENT_MULTI_RESULTS | CLIENT_LOCAL_FILES) == nullptr)
         {
             const String connectionError = mysql_error(m_connection.get());
             m_connection.reset();
@@ -575,6 +575,545 @@ void MySQLConnection::executeBatchSQL(const Strings& batchSQL, Strings* errors)
                 throw DatabaseException(error.str());
             }
         }
+    }
+}
+
+namespace {
+/// In-memory source for LOAD DATA LOCAL INFILE: the client library asks for chunks through these
+/// callbacks, so no temporary file is needed.
+struct LoadDataBuffer
+{
+    const char* data;
+    size_t      size;
+    size_t      offset;
+};
+
+int loadDataInit(void** ptr, const char*, void* userdata)
+{
+    auto* buffer = static_cast<LoadDataBuffer*>(userdata);
+    buffer->offset = 0;
+    *ptr = buffer;
+    return 0;
+}
+
+int loadDataRead(void* ptr, char* buffer, const unsigned int length)
+{
+    auto* source = static_cast<LoadDataBuffer*>(ptr);
+    if (source->offset >= source->size)
+    {
+        return 0;
+    }
+    const auto count = std::min<size_t>(length, source->size - source->offset);
+    memcpy(buffer, source->data + source->offset, count);
+    source->offset += count;
+    return static_cast<int>(count);
+}
+
+void loadDataEnd(void*)
+{
+}
+
+int loadDataError(void*, char* buffer, const unsigned int length)
+{
+    if (length > 0)
+    {
+        snprintf(buffer, length, "Can't read bulk data");
+    }
+    return 1;
+}
+
+void appendLoadDataField(String& line, const Variant& value)
+{
+    if (value.isNull())
+    {
+        line += "\\N";
+        return;
+    }
+
+    using enum VariantDataType;
+    switch (value.dataType())
+    {
+        case VAR_INT:
+            line += std::to_string(value.asInteger());
+            break;
+
+        case VAR_INT64:
+            line += std::to_string(value.asInt64());
+            break;
+
+        case VAR_FLOAT:
+            line += value.asString();
+            break;
+
+        case VAR_BOOL:
+            line += value.asBool() ? "1" : "0";
+            break;
+
+        case VAR_DATE:
+            line += value.asDate().dateString();
+            break;
+
+        case VAR_DATE_TIME:
+            line += value.asDateTime().isoDateTimeString();
+            break;
+
+        default: {
+            // The same escapes work for text and for binary data, including NUL bytes.
+            for (const char c: value.asString())
+            {
+                switch (c)
+                {
+                    case '\\': line += "\\\\"; break;
+                    case '\t': line += "\\t"; break;
+                    case '\n': line += "\\n"; break;
+                    case '\r': line += "\\r"; break;
+                    case '\0': line += "\\0"; break;
+                    case '\032': line += "\\Z"; break;
+                    default:   line += c; break;
+                }
+            }
+        }
+    }
+}
+
+bool localInfileEnabled(MYSQL* connection)
+{
+    if (mysql_real_query(connection, "SELECT @@local_infile", 21) != 0)
+    {
+        return false;
+    }
+    MYSQL_RES* result = mysql_store_result(connection);
+    bool       enabled = false;
+    if (result != nullptr)
+    {
+        if (MYSQL_ROW row = mysql_fetch_row(result); row != nullptr && row[0] != nullptr)
+        {
+            enabled = strcmp(row[0], "1") == 0 || strcmp(row[0], "ON") == 0;
+        }
+        mysql_free_result(result);
+    }
+    return enabled;
+}
+
+void executeLoadData(MYSQL* connection, const String& sql, const String& payload)
+{
+    LoadDataBuffer buffer {payload.data(), payload.size(), 0};
+    mysql_set_local_infile_handler(connection, loadDataInit, loadDataRead, loadDataEnd, loadDataError, &buffer);
+    const int rc = mysql_real_query(connection, sql.c_str(), static_cast<unsigned long>(sql.size()));
+    mysql_set_local_infile_default(connection);
+    if (rc != 0)
+    {
+        throw DatabaseException(String("LOAD DATA failed: ") + mysql_error(connection));
+    }
+}
+
+void appendSqlLiteral(String& sql, const Variant& value)
+{
+    if (value.isNull())
+    {
+        sql += "NULL";
+        return;
+    }
+
+    using enum VariantDataType;
+    switch (value.dataType())
+    {
+        case VAR_INT:
+            sql += std::to_string(value.asInteger());
+            break;
+
+        case VAR_INT64:
+            sql += std::to_string(value.asInt64());
+            break;
+
+        case VAR_FLOAT:
+            sql += value.asString();
+            break;
+
+        case VAR_BOOL:
+            sql += value.asBool() ? "1" : "0";
+            break;
+
+        case VAR_BUFFER: {
+            const auto& bytes = value.get<Buffer>();
+            sql += "X'";
+            constexpr char hex[] = "0123456789ABCDEF";
+            for (size_t i = 0; i < bytes.bytes(); ++i)
+            {
+                sql += hex[bytes.data()[i] >> 4];
+                sql += hex[bytes.data()[i] & 0x0f];
+            }
+            sql += '\'';
+            break;
+        }
+
+        default: {
+            sql += '\'';
+            for (const char c: value.asString())
+            {
+                switch (c)
+                {
+                    case '\\': sql += "\\\\"; break;
+                    case '\'': sql += "''"; break;
+                    case '\n': sql += "\\n"; break;
+                    case '\r': sql += "\\r"; break;
+                    default:   sql += c; break;
+                }
+            }
+            sql += '\'';
+        }
+    }
+}
+
+String bulkKeyColumnType(const VariantVector& keys)
+{
+    for (const auto& key: keys)
+    {
+        if (key.isNull())
+        {
+            continue;
+        }
+        using enum VariantDataType;
+        switch (key.dataType())
+        {
+            case VAR_INT:
+            case VAR_INT64:
+            case VAR_BOOL:
+                return "BIGINT";
+            case VAR_FLOAT:
+                return "DOUBLE";
+            case VAR_DATE:
+            case VAR_DATE_TIME:
+                return "DATETIME";
+            default:
+                return "VARCHAR(1024)";
+        }
+    }
+    return "VARCHAR(1024)";
+}
+} // namespace
+
+int64_t MySQLConnection::lastInsertId() const
+{
+    const scoped_lock lock(m_mutex);
+    if (m_connection == nullptr)
+    {
+        throw Exception("Database connection is not open");
+    }
+    // Connection-local in MySQL: no round trip and no race with another connection's inserts.
+    return static_cast<int64_t>(mysql_insert_id(m_connection.get()));
+}
+
+void MySQLConnection::bulkInsert(const String& tableName, const String& autoIncrementColumnName,
+                                 const Strings& columnNames, vector<VariantVector>& data, size_t groupSize,
+                                 vector<int64_t>* insertedIds)
+{
+    if (groupSize == 0)
+    {
+        throw Exception("Group size must be greater than zero");
+    }
+    if (tableName.empty())
+    {
+        throw Exception("Table name is empty");
+    }
+    if (columnNames.empty())
+    {
+        throw Exception("Column list is empty");
+    }
+    if (data.empty())
+    {
+        return;
+    }
+
+    // LOAD DATA cannot report generated keys. Keep the correct generic path for that case.
+    if ((insertedIds != nullptr && !autoIncrementColumnName.empty()) ||
+        (!autoIncrementColumnName.empty() && columnNames.indexOf(autoIncrementColumnName) >= 0))
+    {
+        PoolDatabaseConnection::bulkInsert(tableName, autoIncrementColumnName, columnNames, data, groupSize, insertedIds);
+        return;
+    }
+
+    String payload;
+    payload.reserve(data.size() * columnNames.size() * 16);
+    for (const auto& row: data)
+    {
+        if (row.size() != columnNames.size())
+        {
+            throw DatabaseException("Row size mismatch in bulk insert");
+        }
+        for (size_t column = 0; column < row.size(); ++column)
+        {
+            if (column > 0)
+            {
+                payload += '\t';
+            }
+            appendLoadDataField(payload, row[column]);
+        }
+        payload += '\n';
+    }
+
+    const String sql = "LOAD DATA LOCAL INFILE 'sptk_bulk' INTO TABLE " + tableName +
+                       " FIELDS TERMINATED BY '\\t' LINES TERMINATED BY '\\n' (" + columnNames.join(",") + ")";
+
+    if (!active())
+    {
+        open();
+    }
+
+    bool localInfile = false;
+    {
+        // Transaction helpers take the same mutex, so they must not run while it is held.
+        const scoped_lock lock(m_mutex);
+        localInfile = localInfileEnabled(m_connection.get());
+    }
+    if (!localInfile)
+    {
+        // LOCAL INFILE is often disabled by policy. Build literal multi-row INSERTs instead: one
+        // mysql_real_query per chunk, no prepared statement and no per-parameter binding.
+        const bool wasInTransaction = getInTransaction();
+        if (!wasInTransaction)
+        {
+            beginTransaction();
+        }
+        const size_t chunkSize = max<size_t>(groupSize, 1000);
+        try
+        {
+            for (size_t offset = 0; offset < data.size(); offset += chunkSize)
+            {
+                String sql = "INSERT INTO " + tableName + " (" + columnNames.join(",") + ") VALUES ";
+                const auto end = min(offset + chunkSize, data.size());
+                for (size_t row = offset; row < end; ++row)
+                {
+                    if (row > offset)
+                    {
+                        sql += ',';
+                    }
+                    sql += '(';
+                    for (size_t column = 0; column < data[row].size(); ++column)
+                    {
+                        if (column > 0)
+                        {
+                            sql += ',';
+                        }
+                        appendSqlLiteral(sql, data[row][column]);
+                    }
+                    sql += ')';
+                }
+                const scoped_lock lock(m_mutex);
+                if (mysql_real_query(m_connection.get(), sql.c_str(), static_cast<unsigned long>(sql.size())) != 0)
+                {
+                    throw DatabaseException(String("Bulk insert failed: ") + mysql_error(m_connection.get()));
+                }
+            }
+            if (!wasInTransaction)
+            {
+                commitTransaction();
+            }
+        }
+        catch (...)
+        {
+            if (!wasInTransaction)
+            {
+                try
+                {
+                    rollbackTransaction();
+                }
+                catch (const Exception&)
+                {
+                    // Preserve the original error.
+                }
+            }
+            throw;
+        }
+        return;
+    }
+
+    const bool wasInTransaction = getInTransaction();
+    if (!wasInTransaction)
+    {
+        beginTransaction();
+    }
+
+    auto committed = false;
+    try
+    {
+        {
+            const scoped_lock lock(m_mutex);
+            executeLoadData(m_connection.get(), sql, payload);
+        }
+        if (insertedIds != nullptr)
+        {
+            insertedIds->clear();
+        }
+        if (!wasInTransaction)
+        {
+            commitTransaction();
+        }
+        committed = true;
+    }
+    catch (...)
+    {
+        {
+            const scoped_lock lock(m_mutex);
+            mysql_set_local_infile_default(m_connection.get());
+        }
+        if (!wasInTransaction && !committed)
+        {
+            try
+            {
+                rollbackTransaction();
+            }
+            catch (const Exception&)
+            {
+                // Preserve the original error.
+            }
+        }
+        throw;
+    }
+}
+
+void MySQLConnection::bulkDelete(const String& tableName, const String& keyColumnName, const VariantVector& keys)
+{
+    if (tableName.empty() || keyColumnName.empty())
+    {
+        throw Exception("Table name and key column are required");
+    }
+    if (keys.empty())
+    {
+        return;
+    }
+
+    String payload;
+    payload.reserve(keys.size() * 24);
+    for (const auto& key: keys)
+    {
+        appendLoadDataField(payload, key);
+        payload += '\n';
+    }
+
+    if (!active())
+    {
+        open();
+    }
+
+    bool localInfile = false;
+    {
+        const scoped_lock lock(m_mutex);
+        localInfile = localInfileEnabled(m_connection.get());
+    }
+    if (!localInfile)
+    {
+        // A single IN list with literal keys: one query per 1000 keys instead of one per 50.
+        const bool wasInTransaction = getInTransaction();
+        if (!wasInTransaction)
+        {
+            beginTransaction();
+        }
+        constexpr size_t chunkSize = 1000;
+        try
+        {
+            for (size_t offset = 0; offset < keys.size(); offset += chunkSize)
+            {
+                String sql = "DELETE FROM " + tableName + " WHERE " + keyColumnName + " IN (";
+                const auto end = min(offset + chunkSize, keys.size());
+                for (size_t i = offset; i < end; ++i)
+                {
+                    if (i > offset)
+                    {
+                        sql += ',';
+                    }
+                    appendSqlLiteral(sql, keys[i]);
+                }
+                sql += ')';
+                const scoped_lock lock(m_mutex);
+                if (mysql_real_query(m_connection.get(), sql.c_str(), static_cast<unsigned long>(sql.size())) != 0)
+                {
+                    throw DatabaseException(String("Bulk delete failed: ") + mysql_error(m_connection.get()));
+                }
+            }
+            if (!wasInTransaction)
+            {
+                commitTransaction();
+            }
+        }
+        catch (...)
+        {
+            if (!wasInTransaction)
+            {
+                try
+                {
+                    rollbackTransaction();
+                }
+                catch (const Exception&)
+                {
+                    // Preserve the original error.
+                }
+            }
+            throw;
+        }
+        return;
+    }
+
+    const bool wasInTransaction = getInTransaction();
+    if (!wasInTransaction)
+    {
+        beginTransaction();
+    }
+
+    auto committed = false;
+    try
+    {
+        {
+            const scoped_lock lock(m_mutex);
+            const String createSql = "CREATE TEMPORARY TABLE sptk_bulk_keys (k " + bulkKeyColumnType(keys) +
+                                     " NOT NULL, PRIMARY KEY(k))";
+            if (mysql_real_query(m_connection.get(), createSql.c_str(),
+                                 static_cast<unsigned long>(createSql.size())) != 0)
+            {
+                throw DatabaseException(String("Can't create temporary key table: ") + mysql_error(m_connection.get()));
+            }
+
+            const String loadSql = "LOAD DATA LOCAL INFILE 'sptk_bulk_keys' INTO TABLE sptk_bulk_keys "
+                                   "FIELDS TERMINATED BY '\\t' LINES TERMINATED BY '\\n' (k)";
+            executeLoadData(m_connection.get(), loadSql, payload);
+
+            const String deleteSql = "DELETE t FROM " + tableName + " t INNER JOIN sptk_bulk_keys k ON t." +
+                                     keyColumnName + " = k.k";
+            if (mysql_real_query(m_connection.get(), deleteSql.c_str(),
+                                 static_cast<unsigned long>(deleteSql.size())) != 0)
+            {
+                throw DatabaseException(String("Bulk delete failed: ") + mysql_error(m_connection.get()));
+            }
+
+            constexpr char dropSql[] = "DROP TEMPORARY TABLE sptk_bulk_keys";
+            mysql_real_query(m_connection.get(), dropSql, sizeof(dropSql) - 1);
+        }
+
+        if (!wasInTransaction)
+        {
+            commitTransaction();
+        }
+        committed = true;
+    }
+    catch (...)
+    {
+        {
+            const scoped_lock lock(m_mutex);
+            mysql_set_local_infile_default(m_connection.get());
+            mysql_real_query(m_connection.get(), "DROP TEMPORARY TABLE IF EXISTS sptk_bulk_keys", 45);
+        }
+        if (!wasInTransaction && !committed)
+        {
+            try
+            {
+                rollbackTransaction();
+            }
+            catch (const Exception&)
+            {
+                // Preserve the original error.
+            }
+        }
+        throw;
     }
 }
 

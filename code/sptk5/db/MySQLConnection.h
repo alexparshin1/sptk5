@@ -102,6 +102,13 @@ public:
      */
     void executeBatchSQL(const sptk::Strings& batchSQL, Strings* errors) override;
 
+    [[nodiscard]] int64_t lastInsertId() const override;
+
+    void bulkInsert(const String& tableName, const String& autoIncrementColumnName, const Strings& columnNames,
+                    std::vector<VariantVector>& data, size_t groupSize, std::vector<int64_t>* insertedIds) override;
+
+    void bulkDelete(const String& tableName, const String& keyColumnName, const VariantVector& keys) override;
+
     /**
      * @brief Constructor.
      *
