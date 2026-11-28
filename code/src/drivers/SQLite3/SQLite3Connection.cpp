@@ -730,6 +730,240 @@ void SQLite3Connection::executeBatchSQL(const Strings& batchSQL, Strings* errors
     }
 }
 
+namespace {
+void bindBulkValue(sqlite3_stmt* stmt, const int index, const Variant& value)
+{
+    if (value.isNull())
+    {
+        sqlite3_bind_null(stmt, index);
+        return;
+    }
+
+    using enum VariantDataType;
+    switch (value.dataType())
+    {
+        case VAR_INT:
+            sqlite3_bind_int(stmt, index, value.asInteger());
+            break;
+
+        case VAR_INT64:
+        case VAR_BOOL:
+            sqlite3_bind_int64(stmt, index, value.asInt64());
+            break;
+
+        case VAR_FLOAT:
+            sqlite3_bind_double(stmt, index, value.asFloat());
+            break;
+
+        case VAR_BUFFER: {
+            const auto& bytes = value.get<Buffer>();
+            sqlite3_bind_blob(stmt, index, bytes.data(), static_cast<int>(bytes.bytes()), SQLITE_TRANSIENT);
+            break;
+        }
+
+        case VAR_DATE:
+        case VAR_DATE_TIME: {
+            const String text = value.dataType() == VAR_DATE ? value.asDate().dateString()
+                                                             : value.asDateTime().isoDateTimeString();
+            sqlite3_bind_text(stmt, index, text.c_str(), static_cast<int>(text.size()), SQLITE_TRANSIENT);
+            break;
+        }
+
+        default: {
+            const String text = value.asString();
+            sqlite3_bind_text(stmt, index, text.c_str(), static_cast<int>(text.size()), SQLITE_TRANSIENT);
+        }
+    }
+}
+} // namespace
+
+void SQLite3Connection::bulkInsert(const String& tableName, const String& autoIncrementColumnName,
+                                   const Strings& columnNames, vector<VariantVector>& data, size_t groupSize,
+                                   vector<int64_t>* insertedIds)
+{
+    if (groupSize == 0)
+    {
+        throw Exception("Group size must be greater than zero");
+    }
+    if (tableName.empty() || columnNames.empty())
+    {
+        PoolDatabaseConnection::bulkInsert(tableName, autoIncrementColumnName, columnNames, data, groupSize, insertedIds);
+        return;
+    }
+    if (data.empty())
+    {
+        return;
+    }
+    if ((insertedIds != nullptr && !autoIncrementColumnName.empty() &&
+         columnNames.indexOf(autoIncrementColumnName) >= 0) ||
+        (!autoIncrementColumnName.empty() && columnNames.indexOf(autoIncrementColumnName) >= 0))
+    {
+        PoolDatabaseConnection::bulkInsert(tableName, autoIncrementColumnName, columnNames, data, groupSize, insertedIds);
+        return;
+    }
+    for (const auto& row: data)
+    {
+        if (row.size() != columnNames.size())
+        {
+            throw Exception("Row size mismatch in bulk insert");
+        }
+    }
+
+    const bool wantIds = insertedIds != nullptr && !autoIncrementColumnName.empty();
+    const bool useReturning = wantIds && supportsReturning();
+
+    String sql = "INSERT INTO " + tableName + " (" + columnNames.join(",") + ") VALUES (";
+    for (size_t column = 0; column < columnNames.size(); ++column)
+    {
+        if (column > 0)
+        {
+            sql += ',';
+        }
+        sql += '?';
+    }
+    sql += ')';
+    if (useReturning)
+    {
+        sql += " RETURNING " + autoIncrementColumnName;
+    }
+
+    const scoped_lock lock(m_mutex);
+    if (!active())
+    {
+        open();
+    }
+
+    const bool wasInTransaction = getInTransaction();
+    if (!wasInTransaction)
+    {
+        beginTransaction();
+    }
+
+    sqlite3_stmt* stmt = nullptr;
+    if (sqlite3_prepare_v2(m_connect.get(), sql.c_str(), -1, &stmt, nullptr) != SQLITE_OK)
+    {
+        const String error = sqlite3_errmsg(m_connect.get());
+        if (!wasInTransaction)
+        {
+            rollbackTransaction();
+        }
+        throw DatabaseException(error);
+    }
+
+    if (insertedIds != nullptr)
+    {
+        insertedIds->clear();
+    }
+
+    int rc = SQLITE_DONE;
+    for (size_t row = 0; row < data.size(); ++row)
+    {
+        sqlite3_reset(stmt);
+        sqlite3_clear_bindings(stmt);
+        for (size_t column = 0; column < data[row].size(); ++column)
+        {
+            bindBulkValue(stmt, static_cast<int>(column) + 1, data[row][column]);
+        }
+
+        rc = sqlite3_step(stmt);
+        if (rc != SQLITE_DONE && !(useReturning && rc == SQLITE_ROW))
+        {
+            break;
+        }
+
+        if (useReturning)
+        {
+            insertedIds->push_back(sqlite3_column_int64(stmt, 0));
+        }
+        else if (wantIds)
+        {
+            insertedIds->push_back(lastInsertId());
+        }
+    }
+    sqlite3_finalize(stmt);
+
+    if (rc != SQLITE_DONE && !(useReturning && rc == SQLITE_ROW))
+    {
+        const String error = sqlite3_errmsg(m_connect.get());
+        if (!wasInTransaction)
+        {
+            rollbackTransaction();
+        }
+        throw DatabaseException(error);
+    }
+
+    if (!wasInTransaction)
+    {
+        commitTransaction();
+    }
+}
+
+void SQLite3Connection::bulkDelete(const String& tableName, const String& keyColumnName, const VariantVector& keys)
+{
+    if (tableName.empty() || keyColumnName.empty())
+    {
+        throw Exception("Table name and key column are required");
+    }
+    if (keys.empty())
+    {
+        return;
+    }
+
+    const String sql = "DELETE FROM " + tableName + " WHERE " + keyColumnName + " = ?";
+
+    const scoped_lock lock(m_mutex);
+    if (!active())
+    {
+        open();
+    }
+
+    const bool wasInTransaction = getInTransaction();
+    if (!wasInTransaction)
+    {
+        beginTransaction();
+    }
+
+    sqlite3_stmt* stmt = nullptr;
+    if (sqlite3_prepare_v2(m_connect.get(), sql.c_str(), -1, &stmt, nullptr) != SQLITE_OK)
+    {
+        const String error = sqlite3_errmsg(m_connect.get());
+        if (!wasInTransaction)
+        {
+            rollbackTransaction();
+        }
+        throw DatabaseException(error);
+    }
+
+    int rc = SQLITE_OK;
+    for (const auto& key: keys)
+    {
+        sqlite3_reset(stmt);
+        sqlite3_clear_bindings(stmt);
+        bindBulkValue(stmt, 1, key);
+        rc = sqlite3_step(stmt);
+        if (rc != SQLITE_DONE)
+        {
+            break;
+        }
+    }
+    sqlite3_finalize(stmt);
+
+    if (rc != SQLITE_DONE)
+    {
+        const String error = sqlite3_errmsg(m_connect.get());
+        if (!wasInTransaction)
+        {
+            rollbackTransaction();
+        }
+        throw DatabaseException(error);
+    }
+
+    if (!wasInTransaction)
+    {
+        commitTransaction();
+    }
+}
+
 void SQLite3Connection::objectList(const DatabaseObjectType objectType, Strings& objects)
 {
     string objectTypeName;
